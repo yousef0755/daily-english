@@ -11,6 +11,7 @@
   --good:#2e7d4f; --warn:#a4541f;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body.hide-zh .nat .zh{display:none}
 body{font-family:-apple-system,"Helvetica Neue",Georgia,serif;background:var(--paper);color:var(--ink);line-height:1.6;padding-bottom:70px}
 header{background:linear-gradient(160deg,var(--green-deep),var(--green));color:#f2ead8;padding:26px 20px 20px;text-align:center}
 header h1{font-size:1.5rem;letter-spacing:.06em;font-weight:600}
@@ -59,6 +60,9 @@ footer a{color:var(--gold-soft)}
 <main>
   <div class="day-tag" id="dayTag"></div>
   <div class="pill-row" id="pills"></div>
+  <div style="text-align:center;margin:8px 0 2px">
+    <button class="pill" id="zhToggleBtn">显示中文</button>
+  </div>
   <p class="hint">Listen first 🎧 — then tap the blurred line to reveal it. That's how kids learn: sound before spelling.</p>
   <div id="wordArea"></div>
   <h2 class="section-title">Listening Quiz <small>Hear it, pick what he said · 7/10 lights the day</small></h2>
@@ -223,6 +227,19 @@ function updateCoachLink(){
   a.href="https://wa.me/971502769188?text="+encodeURIComponent(msg);
 }
 document.getElementById("startQuiz").onclick=startQuiz;
+document.body.classList.add("hide-zh");
+try{if(localStorage.getItem("showZh")==="1")document.body.classList.remove("hide-zh")}catch(e){}
+(function(){
+  var zb=document.getElementById("zhToggleBtn");
+  function sync(){var on=!document.body.classList.contains("hide-zh");
+    zb.textContent=on?"隐藏中文":"显示中文";zb.classList.toggle("on",on)}
+  zb.onclick=function(){
+    var nowHidden=document.body.classList.toggle("hide-zh");
+    try{localStorage.setItem("showZh",nowHidden?"0":"1")}catch(e){}
+    sync();
+  };
+  sync();
+})();
 renderStreak();renderPills();renderWords();updateCoachLink();
 
 /* ===== Aria 实时口语（内嵌） ===== */

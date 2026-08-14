@@ -62,6 +62,7 @@ nav button.on{color:var(--gold)}
     <div class="card" id="quizCard" style="display:none">
       <h2 id="quizTitle">题目</h2>
       <div class="q" id="q"></div>
+      <button class="opt" id="replayQ" style="text-align:center;margin-bottom:12px">🔊 再听一次</button>
       <div id="opts"></div>
       <div class="tip" id="prog"></div>
     </div>
@@ -100,6 +101,30 @@ nav button.on{color:var(--gold)}
 <div class="toast" id="toast"></div>
 
 <script>
+
+/* ===== 真人语音（花名册声线，预生成 MP3；缺文件才退回系统音） ===== */
+var VOICE_IDX=null, _vplayer=new Audio();
+fetch("kidaudio/index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+function speakRoster(text){
+  if(!text)return;
+  var key=String(text).trim();
+  if(VOICE_IDX&&VOICE_IDX[key]){
+    try{_vplayer.pause()}catch(e){}
+    _vplayer=new Audio("kidaudio/"+VOICE_IDX[key]);
+    _vplayer.play().catch(function(){sysSpeak(key)});
+    return;
+  }
+  sysSpeak(key);
+}
+function sysSpeak(text){
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang=/[\u0600-\u06ff]/.test(text)?"ar-AE":/[\u4e00-\u9fff]/.test(text)?"zh-CN":"en-US";
+    u.rate=.9;speechSynthesis.speak(u);
+  }catch(e){}
+}
+
 /* ================= 题库 ================= */
 const BANK={
 chinese:{title:"语文 · 人教版三年级上册",items:[
@@ -239,7 +264,7 @@ function ask(){
   order.forEach(([text,i])=>{
     const b=document.createElement("button");b.className="opt";b.textContent=text;
     b.onclick=()=>{
-      if(i===it.a){b.classList.add("right");score++;toast("答对了 +1 ⭐")}
+      if(i===it.a){b.classList.add("right");score++;toast("答对了 +1 ⭐");if(cur==="english")speakRoster(it.q)}
       else{b.classList.add("wrong");
         [...ob.children].forEach((c,j)=>{if(order[j][1]===it.a)c.classList.add("right")});
         toast("再看一眼正确答案")}
@@ -249,6 +274,7 @@ function ask(){
     ob.appendChild(b);
   });
   document.getElementById("prog").textContent="第 "+(idx+1)+" / "+list.length+" 题";
+  speakRoster(it.q);
 }
 
 /* ================= 手机时间 & 愿望 ================= */
@@ -292,6 +318,9 @@ document.querySelectorAll("nav button").forEach(b=>{
     document.getElementById("p-"+b.dataset.p).classList.add("on");window.scrollTo(0,0);
   };
 });
+document.getElementById("replayQ").onclick=function(){
+  if(list&&list[idx])speakRoster(list[idx].q);
+};
 render();
 </script>
 </body>
