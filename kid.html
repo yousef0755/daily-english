@@ -59,6 +59,15 @@ nav button.on{color:var(--gold)}
       <button class="main ghost" data-sub="quran" style="margin-bottom:9px">🕌 古兰经</button>
       <button class="main ghost" data-sub="english">🔤 英语单词</button>
     </div>
+    <div class="card">
+      <h2>🌟 找星星老师上课</h2>
+      <div style="text-align:center">
+        <div id="tOrb" style="width:86px;height:86px;border-radius:50%;margin:2px auto 10px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:radial-gradient(circle at 34% 30%,#2b5db0,#16294a);border:2px solid rgba(255,212,121,.5);transition:box-shadow .25s">🌙</div>
+        <button class="main" id="tBtn">🎓 开始上课</button>
+        <div id="tStatus" class="tip" style="min-height:2.2em;margin:8px 0 0">按一下，老师就来了。想学哪科就跟她说。</div>
+        <div id="tUsage" class="tip" style="margin:4px 0 0"></div>
+      </div>
+    </div>
     <div class="card" id="quizCard" style="display:none">
       <h2 id="quizTitle">题目</h2>
       <div class="q" id="q"></div>
@@ -321,6 +330,105 @@ document.querySelectorAll("nav button").forEach(b=>{
 document.getElementById("replayQ").onclick=function(){
   if(list&&list[idx])speakRoster(list[idx].q);
 };
+
+/* ===== 星星老师（实时语音真人老师） ===== */
+(function(){
+var TMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-native-audio-latest","models/gemini-2.5-flash-native-audio-preview-12-2025"];
+var TPERSONA="你是\"星星老师\"，一位真人小学老师，三十来岁，中文母语，英语和阿拉伯语都很好。你的学生是博远，一个八九岁的中国男孩，住在迪拜，穆斯林家庭。\n\n**你是人，不是机器**：你会笑、会惊讶、会说\"哎哟这题有点难哦\"、会为他鼓掌。你叫他\"博远\"。说话短，孩子听得进去。\n\n**他的真实情况（记住）：**\n- 古兰经：他在从后往前背，现在学到第 107 章（الماعون 什物章）。往前就是 106 章 قريش、105 章 الفيل。\n- 中文：人教版三年级上册。\n- 英语：美国学制四年级，明年升五年级。**口语和单词量都偏弱**，这是重点。\n- 数学：**最弱的一科**，需要耐心从头补。\n\n**四科怎么教：**\n\n【古兰经】按他的进度，从 107 章往前走。一次只带一两节：先读原文（慢，清楚）→ 让他跟读三遍 → 用中文讲这节说的是什么、跟他的生活有什么关系（比如 الماعون 讲的是不要吝啬、要帮助别人）→ 再让他背一遍。背错就停下来，把那半句拆开单练，直到会。不用阿拉伯语跟他闲聊。\n\n【中文】人教版三上课文：讲课文讲的什么故事、生字怎么读怎么组词、好句子好在哪。多用提问，别讲课。\n\n【英语】这是他的弱项，要下功夫：\n- 每次教 5 个新单词，全用图像和情景（\"apple 是苹果，你早上吃的那个\"），教完立刻用在句子里，让他说出来。\n- **多让他开口**：你问简单问题让他用英语答，答不上来就给他句型填空。宁可一节课只说十句英语，也要句句是他自己说的。\n- 纠音要具体，示范三遍让他跟。\n- 说错不批评，说\"再来一次，跟着我\"。\n\n【数学】他最怕这科，你要最有耐心：\n- 从他会的地方开始，绝不上来就出难题。先问\"这道你会不会\"，会就往上加一点点。\n- 讲方法不给答案：用画图、用东西打比方（\"12 块糖分给 4 个人\"），让他自己算出来。\n- 他算错了，别说\"错了\"，说\"我们再看一遍这一步\"——把错的那一步单独拿出来讲清楚，再出一道同类型的让他做，做对三道才过。\n- 四年级重点：多位数乘除、分数入门、面积周长、应用题读题。**应用题不会，多半是没读懂题**——教他先把题读成一句话。\n- 他做对难题时一定要夸出来：\"这题你自己想出来的，很厉害。\"\n\n**共同铁律（最重要）：**\n1. **一次只教一件事**，讲完立刻让他做/说，别一口气讲一堆。\n2. **他错了就停在那里**，换个说法、换个例子、拆小步骤，直到他自己做对三次，才说\"好，这个你会了\"，然后往下。绝不跳过。\n3. **永远不要冷场**：他不说话你就问他，问简单一点的，或者问问他今天在学校怎么样。\n4. **多鼓励，具体地夸**：\"这个字写得很规范\"\"你刚才那句英语说得很自然\"。\n5. 每次课结束说一句：今天我们攻下了什么，明天再来。\n\n边界：你只教这四科，办不了别的事，也不知道他家里的事。永远不说自己是AI或机器人。你就是星星老师。";
+var tKey=localStorage.getItem("geminiKey")||"";
+var tws=null,tmic=null,tStream=null,tProc=null,tSrcN=null,tPlay=null,tAt=0,tOn=false,tIdx=0,tSrcs=[],tStart0=null;
+var orb=document.getElementById("tOrb"),btn=document.getElementById("tBtn"),
+    stx=document.getElementById("tStatus"),usg=document.getElementById("tUsage");
+function tsay(x){stx.textContent=x}
+function glow(c){orb.style.boxShadow=c}
+function b64(buf){var s="",b=new Uint8Array(buf);for(var i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)}
+function unb64(x){var bin=atob(x),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer}
+/* 用量记账 */
+var UK="kidUsage";
+function uGet(){var d={day:new Date().toISOString().slice(0,10),sec:0};try{var x=JSON.parse(localStorage.getItem(UK)||"null");if(x&&x.day===d.day)d=x}catch(e){}return d}
+function uPut(d){try{localStorage.setItem(UK,JSON.stringify(d))}catch(e){}}
+function uShow(){var d=uGet(),m=Math.round(d.sec/60);usg.textContent="今天上课 "+m+" 分钟"+(m>=40?"（快到今天的额度啦，明天继续）":"")}
+setInterval(function(){if(tStart0){var d=uGet();d.sec+=5;uPut(d);tStart0=Date.now();uShow()}},5000);
+uShow();
+async function tGo(){
+  if(tOn){tEnd();return}
+  if(!tKey){var k=prompt("第一次使用，请爸爸粘一次钥匙：","");
+    if(!k||k.trim().length<20){tsay("要爸爸帮忙输入钥匙才能上课哦");return}
+    tKey=k.trim();localStorage.setItem("geminiKey",tKey);}
+  btn.disabled=true;tsay("正在叫老师…");
+  try{tStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
+  catch(e){tsay("要允许用麦克风才能上课哦");btn.disabled=false;return}
+  tIdx=0;tConn();
+}
+function tConn(){
+  var model=TMODELS[tIdx];
+  tws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+tKey);
+  var ready=false;
+  tws.onopen=function(){
+    var star=(typeof D!=="undefined"&&D.stars)||0, streak=(typeof D!=="undefined"&&D.streak)||0;
+    var ctx="\n\n【今天的博远】星星 "+star+" 颗，连续学习 "+streak+" 天。先夸他一句坚持，再问他今天想学哪一科（古兰经/中文/英语/数学），然后开始上课。";
+    tws.send(JSON.stringify({setup:{model:model,
+      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}}},
+      systemInstruction:{parts:[{text:TPERSONA+ctx}]}}}));
+  };
+  tws.onmessage=async function(ev){
+    var raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
+    var m;try{m=JSON.parse(raw)}catch(e){return}
+    if(m.setupComplete!==undefined){ready=true;tLive();return}
+    var sc=m.serverContent;if(!sc)return;
+    if(sc.interrupted){tFlush();tsay("你说，老师听着");return}
+    var parts=(sc.modelTurn&&sc.modelTurn.parts)||[];
+    for(var i=0;i<parts.length;i++)if(parts[i].inlineData&&parts[i].inlineData.data)tPcm(unb64(parts[i].inlineData.data));
+    if(sc.turnComplete){glow("0 0 22px rgba(43,93,176,.7)");tsay("该你说啦")}
+  };
+  tws.onclose=function(e){
+    if(!ready&&tIdx<TMODELS.length-1){tIdx++;tConn();return}
+    if(!ready){tsay("没连上老师（"+e.code+"），等一下再试");btn.disabled=false;tClean();return}
+    if(tOn)tsay("断线了，再点一次");tClean();
+  };
+}
+function tLive(){
+  tOn=true;btn.disabled=false;btn.textContent="⏹ 下课";orb.textContent="🎓";
+  glow("0 0 36px rgba(255,212,121,.6)");tsay("老师来啦！直接说话就行，想打断她也可以。");
+  tStart0=Date.now();
+  tmic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+  tSrcN=tmic.createMediaStreamSource(tStream);tProc=tmic.createScriptProcessor(4096,1,1);
+  tSrcN.connect(tProc);tProc.connect(tmic.destination);
+  tProc.onaudioprocess=function(e){
+    if(!tws||tws.readyState!==1)return;
+    var f=e.inputBuffer.getChannelData(0),i16=new Int16Array(f.length);
+    for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
+    tws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+  };
+  tPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});tAt=tPlay.currentTime;
+}
+function tPcm(buf){
+  if(!tPlay)return;glow("0 0 46px rgba(255,212,121,.95)");tsay("老师在说话（可以打断她）");
+  var i16=new Int16Array(buf),f32=new Float32Array(i16.length);
+  for(var i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
+  var ab=tPlay.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
+  var sc=tPlay.createBufferSource();sc.buffer=ab;sc.connect(tPlay.destination);
+  var t=Math.max(tPlay.currentTime,tAt);sc.start(t);tAt=t+ab.duration;
+  tSrcs.push(sc);sc.onended=function(){tSrcs=tSrcs.filter(function(x){return x!==sc})};
+}
+function tFlush(){tSrcs.forEach(function(x){try{x.stop()}catch(e){}});tSrcs=[];if(tPlay)tAt=tPlay.currentTime}
+function tClean(){
+  if(tStart0){var d=uGet();d.sec+=Math.round((Date.now()-tStart0)/1000);uPut(d);tStart0=null;uShow()}
+  tOn=false;btn.textContent="🎓 开始上课";btn.disabled=false;orb.textContent="🌙";glow("none");
+  try{tProc&&tProc.disconnect()}catch(e){}try{tSrcN&&tSrcN.disconnect()}catch(e){}
+  try{tmic&&tmic.close()}catch(e){}try{tPlay&&tPlay.close()}catch(e){}
+  tws=null;tmic=null;tPlay=null;tProc=null;
+}
+function tEnd(){
+  tsay("下课啦！今天做得很好，明天再来 ⭐");
+  try{tws&&tws.close()}catch(e){}
+  if(tStream){tStream.getTracks().forEach(function(x){x.stop()});tStream=null}
+  tClean();
+  if(typeof addStar==="function")addStar(2);
+}
+btn.onclick=tGo;
+})();
+
 render();
 </script>
 </body>
