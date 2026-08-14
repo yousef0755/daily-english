@@ -11,113 +11,113 @@
   --good:#2e7d4f; --warn:#a4541f;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,"Helvetica Neue",Georgia,"PingFang SC",serif;background:var(--paper);color:var(--ink);line-height:1.6;padding-bottom:70px}
-header{background:linear-gradient(160deg,var(--green-deep),var(--green));color:#f2ead8;padding:26px 20px 20px;text-align:center;position:relative}
+body{font-family:-apple-system,"Helvetica Neue",Georgia,serif;background:var(--paper);color:var(--ink);line-height:1.6;padding-bottom:70px}
+header{background:linear-gradient(160deg,var(--green-deep),var(--green));color:#f2ead8;padding:26px 20px 20px;text-align:center}
 header h1{font-size:1.5rem;letter-spacing:.06em;font-weight:600}
 header .sub{font-size:.85rem;color:var(--gold-soft);margin-top:4px}
 .streak{display:inline-block;margin-top:12px;background:rgba(255,255,255,.12);border:1px solid rgba(217,194,148,.5);border-radius:20px;padding:5px 16px;font-size:.9rem}
-.zh-toggle{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:1px solid rgba(217,194,148,.45);color:#e7dcc0;border-radius:14px;padding:3px 12px;font-size:.78rem;cursor:pointer;font-family:inherit}
-.zh-toggle.on{background:var(--gold);color:var(--green-deep);font-weight:600}
 main{max-width:640px;margin:0 auto;padding:18px 16px}
 .day-tag{text-align:center;color:var(--muted);font-size:.82rem;margin:6px 0 14px;letter-spacing:.1em}
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.pill{border:1px solid var(--gold);border-radius:16px;padding:4px 13px;font-size:.85rem;background:#faf6ea;cursor:pointer;color:var(--green-deep);font-family:inherit}
+.pill.on{background:var(--green);color:#f2ead8;border-color:var(--green)}
+.hint{color:var(--muted);font-size:.8rem;text-align:center;margin:8px 0 2px}
 .card{background:var(--card);border:1px solid #e4dcc9;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(30,43,35,.06)}
-.word-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.word-en{font-size:1.22rem;font-weight:700;color:var(--green-deep)}
-.word-zh{color:var(--muted);font-size:.92rem;margin-top:2px}
-.nat{margin-top:10px;padding:10px 12px;background:#f4efe2;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;font-size:.95rem}
-.nat b{color:var(--green)}
-.nat .zh{display:block;color:var(--muted);font-size:.85rem;margin-top:3px}
-body.en-only .word-zh, body.en-only .nat .zh{display:none}
-.speak{flex-shrink:0;border:1px solid var(--gold);color:var(--green-deep);background:#faf6ea;border-radius:10px;padding:8px 14px;font-size:1.05rem;cursor:pointer;font-family:inherit}
+.word-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.phrase{font-size:1.15rem;font-weight:700;color:var(--green-deep);filter:blur(7px);transition:filter .25s;cursor:pointer;user-select:none}
+.phrase.shown{filter:none}
+.use{margin-top:10px;padding:10px 12px;background:#f4efe2;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;font-size:.92rem;color:#4a463c;display:none}
+.use.shown{display:block}
+.speak{flex-shrink:0;border:1px solid var(--gold);color:var(--green-deep);background:#faf6ea;border-radius:10px;padding:8px 14px;font-size:1rem;cursor:pointer;font-family:inherit}
 .speak:active{background:var(--gold-soft)}
 .section-title{margin:22px 4px 10px;font-size:1.02rem;color:var(--green-deep);letter-spacing:.05em;border-bottom:2px solid var(--gold-soft);padding-bottom:6px;display:flex;justify-content:space-between;align-items:baseline}
 .section-title small{color:var(--muted);font-size:.78rem}
 .btn-main{display:block;width:100%;border:none;background:linear-gradient(135deg,var(--green),var(--green-deep));color:#f5edd8;font-size:1.05rem;padding:14px;border-radius:12px;margin:20px 0 8px;cursor:pointer;letter-spacing:.08em;font-family:inherit}
+.btn-wa{display:block;width:100%;text-align:center;text-decoration:none;background:#faf6ea;border:1.5px solid var(--green);color:var(--green-deep);font-size:.98rem;padding:12px;border-radius:12px;margin:6px 0;font-weight:600}
 .quiz-q{font-size:1.05rem;margin-bottom:12px}
 .quiz-opt{display:block;width:100%;text-align:left;background:#faf6ea;border:1px solid #e0d6bd;border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:.98rem;cursor:pointer;font-family:inherit}
 .quiz-opt.right{background:#e3f0e6;border-color:var(--good);color:var(--good);font-weight:600}
 .quiz-opt.wrong{background:#f7e8dc;border-color:var(--warn);color:var(--warn)}
 .done-note{text-align:center;color:var(--good);font-weight:600;padding:14px 0}
+.replay{border:1px solid var(--gold);background:#faf6ea;border-radius:10px;padding:6px 14px;font-size:.9rem;cursor:pointer;font-family:inherit;color:var(--green-deep);margin-bottom:12px}
 footer{position:fixed;bottom:0;left:0;right:0;background:var(--green-deep);color:#cdbf9d;text-align:center;font-size:.75rem;padding:10px;letter-spacing:.08em}
-.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
-.pill{border:1px solid var(--gold);border-radius:16px;padding:4px 13px;font-size:.85rem;background:#faf6ea;cursor:pointer;color:var(--green-deep);font-family:inherit}
-.pill.on{background:var(--green);color:#f2ead8;border-color:var(--green)}
+footer a{color:var(--gold-soft)}
 </style>
 </head>
-<body class="en-only">
+<body>
 <header>
-  <button class="zh-toggle" id="zhToggle">中文</button>
   <h1>Daily English</h1>
-  <div class="sub">Ten words a day · The natural American way</div>
+  <div class="sub">Learn it the way American kids do — ears first</div>
   <div class="streak" id="streak">🔥 0-day streak</div>
 </header>
 <main>
   <div class="day-tag" id="dayTag"></div>
   <div class="pill-row" id="pills"></div>
+  <p class="hint">Listen first 🎧 — then tap the blurred line to reveal it. That's how kids learn: sound before spelling.</p>
   <div id="wordArea"></div>
-  <h2 class="section-title">Today's Quiz <small>Score 7/10 to light up today</small></h2>
-  <div id="quizArea"><button class="btn-main" id="startQuiz">Start today's quiz →</button></div>
+  <h2 class="section-title">Listening Quiz <small>Hear it, pick what he said · 7/10 lights the day</small></h2>
+  <div id="quizArea"><button class="btn-main" id="startQuiz">Start the listening quiz →</button></div>
+  <a class="btn-wa" id="sendCoach" href="#">📮 Send today's results to Coach Lin</a>
+  <p class="hint">Your coach reads every report and tunes tomorrow's lesson to your weak spots.</p>
 </main>
-<footer>The Su Legacy · Five minutes a day beats an hour once a month</footer>
+<footer>The Su Legacy · <a href="voices.html">Voice Studio</a> · Five minutes a day, every day</footer>
 <script>
-const PACKS = {
-"Business": {key:"business", words:[
- {en:"deal", zh:"交易；成交", nat:"It's a deal.", natzh:"成交。"},
- {en:"stock", zh:"库存", nat:"Let me check our stock first.", natzh:"我先查一下我们的库存。"},
- {en:"invoice", zh:"发票；账单", nat:"I'll send you the invoice today.", natzh:"我今天把发票发给你。"},
- {en:"balance", zh:"余额；差额", nat:"The balance is 500 dollars.", natzh:"差额是五百美金。"},
- {en:"ship", zh:"发货", nat:"We can ship tomorrow morning.", natzh:"我们明早就能发货。"},
- {en:"confirm", zh:"确认", nat:"Please confirm the price.", natzh:"请确认一下价格。"},
- {en:"discount", zh:"折扣", nat:"Can you give me a better discount?", natzh:"能再给点折扣吗？"},
- {en:"payment", zh:"付款", nat:"Payment received, thank you.", natzh:"款已收到，谢谢。"},
- {en:"urgent", zh:"紧急的", nat:"This order is urgent.", natzh:"这个订单很急。"},
- {en:"trust", zh:"信任", nat:"Business is built on trust.", natzh:"生意建立在信任之上。"}]},
-"Family": {key:"family", words:[
- {en:"proud", zh:"骄傲的", nat:"I'm so proud of you.", natzh:"我为你骄傲。"},
- {en:"homework", zh:"作业", nat:"How's your homework going?", natzh:"作业写得怎么样了？"},
- {en:"dinner", zh:"晚饭", nat:"Dinner's ready!", natzh:"开饭啦！"},
- {en:"promise", zh:"承诺；约定", nat:"A promise is a promise.", natzh:"说好的就要算数。"},
- {en:"bedtime", zh:"睡觉时间", nat:"It's bedtime, sweetheart.", natzh:"该睡觉了，宝贝。"},
- {en:"grow up", zh:"长大", nat:"They grow up so fast.", natzh:"孩子们长得真快。"},
- {en:"take care", zh:"照顾；保重", nat:"Take care of your sister.", natzh:"照顾好你妹妹。"},
- {en:"together", zh:"一起", nat:"Let's read together tonight.", natzh:"今晚我们一起读书吧。"},
- {en:"listen", zh:"听", nat:"Listen to your mom.", natzh:"听妈妈的话。"},
- {en:"hug", zh:"拥抱", nat:"Come here, give me a hug.", natzh:"过来，抱一个。"}]},
-"Daily Life": {key:"daily", words:[
- {en:"appointment", zh:"预约", nat:"I have an appointment at nine.", natzh:"我九点有个预约。"},
- {en:"bill", zh:"账单", nat:"The bill is due next week.", natzh:"账单下周到期。"},
- {en:"traffic", zh:"交通；堵车", nat:"Traffic was crazy today.", natzh:"今天堵车堵疯了。"},
- {en:"weather", zh:"天气", nat:"Beautiful weather today, huh?", natzh:"今天天气真好啊？"},
- {en:"grab", zh:"顺手拿；随便吃", nat:"Let's grab some coffee.", natzh:"咱们去喝杯咖啡吧。"},
- {en:"weekend", zh:"周末", nat:"Any plans for the weekend?", natzh:"周末有什么安排？"},
- {en:"favor", zh:"帮忙", nat:"Can you do me a favor?", natzh:"能帮我个忙吗？"},
- {en:"no worries", zh:"没关系", nat:"No worries at all.", natzh:"完全没关系。"},
- {en:"on my way", zh:"在路上", nat:"I'm on my way.", natzh:"我在路上了。"},
- {en:"catch up", zh:"叙旧；跟上", nat:"Let's catch up soon.", natzh:"找时间聚聚聊聊。"}]},
-"Faith": {key:"faith", words:[
- {en:"pray", zh:"礼拜；祈祷", nat:"I need to pray first.", natzh:"我得先做礼拜。"},
- {en:"faith", zh:"信仰", nat:"My faith comes first.", natzh:"信仰对我是第一位的。"},
- {en:"grateful", zh:"感恩的", nat:"I'm grateful for everything.", natzh:"我对一切心怀感恩。"},
- {en:"blessing", zh:"福分", nat:"Kids are a blessing.", natzh:"孩子是真主的恩赐。"},
- {en:"God willing", zh:"如蒙主意", nat:"See you tomorrow, God willing.", natzh:"明天见，印沙安拉。"},
- {en:"charity", zh:"施舍；慈善", nat:"Charity never decreases wealth.", natzh:"施舍不会让财富减少。"},
- {en:"patience", zh:"忍耐", nat:"Patience is beautiful.", natzh:"美好的坚忍。"},
- {en:"honest", zh:"诚实的", nat:"An honest merchant is blessed.", natzh:"诚实的商人有福。"},
- {en:"forgive", zh:"原谅", nat:"Forgive and move on.", natzh:"原谅，然后向前走。"},
- {en:"peace", zh:"平安", nat:"Peace be upon you.", natzh:"愿你平安。"}]}};
-const KEY="dailyEnglishSu";
-const store={
-  get(k){try{return localStorage.getItem(k)}catch(e){return null}},
-  set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
-};
+const PACKS={
+"Deal Talk":{key:"deal",items:[
+["Let me sleep on it.","I'll decide tomorrow. — Nice offer. Let me sleep on it."],
+["Give me a ballpark figure.","A rough number is fine. — How much? Just give me a ballpark figure."],
+["Can you meet me halfway?","Let's both give a little. — Too high for me. Can you meet me halfway?"],
+["You've got yourself a deal.","I agree, we're done. — Two hundred each? You've got yourself a deal."],
+["That's my bottom line.","My final price, no lower. — Ninety dollars. That's my bottom line."],
+["Let's call it even.","Nobody owes anybody now. — You paid last time, so let's call it even."],
+["I'll throw in free shipping.","I'll add it for free. — Take fifty units and I'll throw in free shipping."],
+["It's a win-win.","Good for both sides. — You save money, I move stock. It's a win-win."],
+["Don't lowball me.","Don't offer me too little. — Come on, don't lowball me, this is top quality."],
+["We'll make it work.","We'll find a way. — Tight deadline, but we'll make it work."]]},
+"Sound Local":{key:"local",items:[
+["How's it going?","The everyday hello. — Hey Mike! How's it going?"],
+["You bet.","Of course, happily. — Can you send it today? You bet."],
+["No big deal.","It's nothing, don't worry. — Sorry I'm late. No big deal."],
+["I'm gonna head out.","I'm leaving now. — It's getting late, I'm gonna head out."],
+["Wanna grab a bite?","Want to get some food? — I'm starving. Wanna grab a bite?"],
+["Lemme know.","Tell me when you decide. — Think about it and lemme know."],
+["It turns out he was right.","We discovered he was right. — I doubted him, but it turns out he was right."],
+["That makes sense.","I understand, it's logical. — Ship first, pay later? That makes sense."],
+["I'm all set.","I'm ready — or I have enough. — Need anything else? No, I'm all set."],
+["Take it easy.","Relax — also a way to say goodbye. — See you Friday. Take it easy!"]]},
+"Dad Talk":{key:"dad",items:[
+["Way to go, buddy!","Great job — dads say this a lot. — You got an A? Way to go, buddy!"],
+["I've got your back.","I will protect and support you. — Don't be scared. I've got your back."],
+["Give it your best shot.","Try as hard as you can. — The test is hard, so give it your best shot."],
+["Use your words.","Say it calmly, don't cry or shout. — Hey, hey — use your words."],
+["High five!","Hands up, we celebrate! — You finished your homework? High five!"],
+["Because I said so.","The classic dad answer. — Why bedtime now? Because I said so."],
+["I'm proud of you, son.","The words every kid waits for. — You told the truth. I'm proud of you, son."],
+["One more chapter, then bed.","Reading together at night. — Please? Okay — one more chapter, then bed."],
+["Easy does it.","Slowly and carefully. — Carrying the glass? Easy does it."],
+["You did the right thing.","Your choice was correct and good. — You returned the money. You did the right thing."]]},
+"Heart & Faith":{key:"heart",items:[
+["Count your blessings.","Remember the good things you have. — Bad day? Count your blessings."],
+["It's in God's hands.","We did our part; the rest is His. — We sent the offer. Now it's in God's hands."],
+["This too shall pass.","Hard times end. — Business is slow, but this too shall pass."],
+["Actions speak louder than words.","What you do matters more than what you say."],
+["Honesty is the best policy.","Telling the truth always wins in the end."],
+["Charity begins at home.","Take care of your family first, then the world."],
+["Patience pays off.","Waiting calmly brings rewards. — Ten years of work, and patience paid off."],
+["Forgive and forget.","Let it go completely. — He apologized. Forgive and forget."],
+["Peace of mind is priceless.","A calm heart is worth more than money."],
+["God willing, we'll get there.","With His help, we will succeed."]]}};
+const KEY="dailyEnglishSu3";
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let state;
-try{state=JSON.parse(store.get(KEY)||'{"streak":0,"last":"","done":[]}');}catch(e){state={streak:0,last:"",done:[]};}
+try{state=JSON.parse(store.get(KEY)||'{"streak":0,"last":"","log":[]}');}catch(e){state={streak:0,last:"",log:[]};}
 const today=new Date().toISOString().slice(0,10);
 const packNames=Object.keys(PACKS);
-const dayIndex=Math.floor((Date.now()/86400000))%packNames.length;
+const dayIndex=Math.floor(Date.now()/86400000)%packNames.length;
 let currentPack=packNames[dayIndex];
+let lastResult=null;
 let player=new Audio();
-function say(pack,i,kind,fallback){
+function play(pack,i,kind,fallback){
   const src="audio/"+PACKS[pack].key+"_"+i+"_"+kind+".mp3";
   player.pause();player=new Audio(src);
   player.onerror=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(fallback);u.lang="en-US";u.rate=.92;speechSynthesis.speak(u);}catch(e){}};
@@ -131,52 +131,58 @@ function renderPills(){
 function renderWords(){
   const area=document.getElementById("wordArea");area.innerHTML="";
   document.getElementById("dayTag").textContent="Today's topic · "+packNames[dayIndex]+" · "+today;
-  PACKS[currentPack].words.forEach((w,i)=>{
+  PACKS[currentPack].items.forEach((it,i)=>{
     const c=document.createElement("div");c.className="card";
-    c.innerHTML='<div class="word-row"><div><div class="word-en">'+w.en+'</div><div class="word-zh">'+w.zh+'</div></div><button class="speak">▶ Play</button></div><div class="nat"><b>'+w.nat+'</b><span class="zh">'+w.natzh+'</span></div>';
-    c.querySelector(".speak").onclick=()=>say(currentPack,i,"s",w.en+". "+w.nat);
+    c.innerHTML='<div class="word-row"><div class="phrase">'+it[0]+'</div><button class="speak">🎧 Listen</button></div><div class="use">'+it[1]+'</div>';
+    const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
+    c.querySelector(".speak").onclick=()=>play(currentPack,i,"s",it[0]+". "+it[1]);
+    ph.onclick=()=>{ph.classList.add("shown");use.classList.add("shown");};
     area.appendChild(c);
   });
 }
 function startQuiz(){
   const pk=currentPack;
-  const idx=[...PACKS[pk].words.keys()].sort(()=>Math.random()-.5).slice(0,10);
-  let i=0,score=0;const area=document.getElementById("quizArea");
+  const idx=[...PACKS[pk].items.keys()].sort(()=>Math.random()-.5).slice(0,10);
+  let i=0,score=0,wrong=[];const area=document.getElementById("quizArea");
   function q(){
     if(i>=idx.length){
       const pass=score>=7;
+      lastResult={date:today,pack:pk,score:score,wrong:wrong.slice(0,5)};
       area.innerHTML='<div class="done-note">'+(pass?"✅ "+score+"/10 · Today is lit!":"💪 "+score+"/10 · One more try — 7 lights it up")+'</div><button class="btn-main" id="again">'+(pass?"Practice again":"Try again")+"</button>";
       if(pass&&state.last!==today){
         const yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
         state.streak=(state.last===yest)?state.streak+1:1;state.last=today;
-        store.set(KEY,JSON.stringify(state));renderStreak();
       }
+      state.log=(state.log||[]).slice(-30);state.log.push(lastResult);
+      store.set(KEY,JSON.stringify(state));renderStreak();updateCoachLink();
       document.getElementById("again").onclick=startQuiz;return;
     }
-    const wi=idx[i],w=PACKS[pk].words[wi];
-    const zhOn=!document.body.classList.contains("en-only");
-    const meaning=x=>zhOn?x.zh:x.nat;
-    const opts=[meaning(w),...[...PACKS[pk].words].filter(x=>x.en!==w.en).sort(()=>Math.random()-.5).slice(0,2).map(meaning)].sort(()=>Math.random()-.5);
-    area.innerHTML='<div class="quiz-q">Q'+(i+1)+' · Which one goes with <b>'+w.en+'</b>?</div>'+opts.map(o=>'<button class="quiz-opt">'+o+"</button>").join("");
+    const wi=idx[i],it=PACKS[pk].items[wi];
+    const others=[...PACKS[pk].items].filter(x=>x[0]!==it[0]).sort(()=>Math.random()-.5).slice(0,2).map(x=>x[0]);
+    const opts=[it[0],...others].sort(()=>Math.random()-.5);
+    area.innerHTML='<div class="quiz-q">Q'+(i+1)+' · 🎧 What did he say?</div><button class="replay" id="rp">▶ Play it again</button>'+opts.map(o=>'<button class="quiz-opt">'+o+"</button>").join("");
+    play(pk,wi,"w",it[0]);
+    document.getElementById("rp").onclick=()=>play(pk,wi,"w",it[0]);
     area.querySelectorAll(".quiz-opt").forEach(b=>{
       b.onclick=()=>{
-        if(b.textContent===meaning(w)){b.classList.add("right");score++;}
-        else{b.classList.add("wrong");area.querySelectorAll(".quiz-opt").forEach(x=>{if(x.textContent===meaning(w))x.classList.add("right");});}
-        say(pk,wi,"w",w.en);setTimeout(()=>{i++;q();},900);
+        if(b.textContent===it[0]){b.classList.add("right");score++;}
+        else{b.classList.add("wrong");wrong.push(it[0]);area.querySelectorAll(".quiz-opt").forEach(x=>{if(x.textContent===it[0])x.classList.add("right");});}
+        setTimeout(()=>{i++;q();},1000);
       };
     });
   }
   q();
 }
+function updateCoachLink(){
+  const a=document.getElementById("sendCoach");
+  let msg="Coach Lin, my Daily English report "+today+" — ";
+  if(lastResult){msg+="pack: "+lastResult.pack+", score: "+lastResult.score+"/10, streak: "+state.streak;
+    if(lastResult.wrong.length)msg+=". I missed: "+lastResult.wrong.join(" | ");}
+  else msg+="I studied the "+currentPack+" pack today. Streak: "+state.streak;
+  a.href="https://wa.me/971502769188?text="+encodeURIComponent(msg);
+}
 document.getElementById("startQuiz").onclick=startQuiz;
-const zt=document.getElementById("zhToggle");
-if(store.get(KEY+"_zh")==="1"){document.body.classList.remove("en-only");zt.classList.add("on");}
-zt.onclick=()=>{
-  const on=document.body.classList.toggle("en-only");
-  zt.classList.toggle("on",!on);
-  store.set(KEY+"_zh",on?"0":"1");
-};
-renderStreak();renderPills();renderWords();
+renderStreak();renderPills();renderWords();updateCoachLink();
 </script>
 </body>
 </html>
