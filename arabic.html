@@ -68,6 +68,7 @@ footer a{color:var(--gold-soft)}
     <div id="aOrb" style="width:96px;height:96px;border-radius:50%;margin:4px auto 12px;display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 34% 30%,#2c6b52,#12301f);border:2px solid rgba(184,147,74,.45);transition:box-shadow .25s">🌙</div>
     <button class="btn-main" id="aBtn" style="margin:0 0 8px">🎓 Start class</button>
     <div id="aStatus" class="hint" style="min-height:2.2em;margin:0">She teaches today’s phrases, explains in 中文 when you’re stuck, and won’t move on until you’ve got it.</div>
+    <div id="usageBar" style="margin-top:10px;font-size:.72rem;color:var(--muted);text-align:center;line-height:1.5"></div>
     <div id="aChat" style="text-align:left;font-size:.85rem;display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:180px;overflow-y:auto"></div>
     <input id="oralIn" placeholder="What she said at the end, e.g. good on X, weak on Y" style="margin-top:10px;width:100%;background:rgba(0,0,0,.18);border:1px solid #e0d6bd;border-radius:10px;padding:10px;font-family:inherit;font-size:.85rem;color:inherit">
     <button class="btn-wa" id="oralSave" style="margin-top:8px">Save her feedback</button>
@@ -279,7 +280,7 @@ function aConn(){
 }
 function aLive(){
   aOn=true;btn.disabled=false;btn.textContent="⏹ End session";
-  orb.textContent="🎙";glow("0 0 34px rgba(184,147,74,.55)");asay("Class started — "+currentPack+". Just talk with her.");
+  orb.textContent="🎙";glow("0 0 34px rgba(184,147,74,.55)");uStart();asay("Class started — "+currentPack+". Just talk with her.");
   amic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
   aSrcNode=amic.createMediaStreamSource(aStream);aProc=amic.createScriptProcessor(4096,1,1);
   aSrcNode.connect(aProc);aProc.connect(amic.destination);
@@ -302,7 +303,7 @@ function aPcm(buf){
 }
 function aFlush(){aSrcs.forEach(function(s){try{s.stop()}catch(e){}});aSrcs=[];if(aPlay)aAt=aPlay.currentTime}
 function aClean(){
-  aOn=false;btn.textContent="🎓 Start class";btn.disabled=false;orb.textContent="🌙";glow("none");
+  uStop();aOn=false;btn.textContent="🎓 Start class";btn.disabled=false;orb.textContent="🌙";glow("none");
   try{aProc&&aProc.disconnect()}catch(e){}try{aSrcNode&&aSrcNode.disconnect()}catch(e){}
   try{amic&&amic.close()}catch(e){}try{aPlay&&aPlay.close()}catch(e){}
   aws=null;amic=null;aPlay=null;aProc=null;
@@ -346,6 +347,35 @@ mAr.onclick=function(){LANG_MODE="ar";localStorage.setItem("langMode","ar");appl
 mSp.onclick=function(){LANG_MODE="speech";localStorage.setItem("langMode","speech");applyMode()};
 mCh.onclick=function(){LANG_MODE="chat";localStorage.setItem("langMode","chat");applyMode()};
 applyMode();
+
+/* ===== 用量账本（本地记账，Google 无余额接口） ===== */
+var UKEY="geminiUsage";
+function uToday(){return new Date().toISOString().slice(0,10)}
+function uGet(){
+  var d={day:uToday(),sec:0,calls:0};
+  try{var x=JSON.parse(localStorage.getItem(UKEY)||"null");if(x&&x.day===uToday())d=x}catch(e){}
+  return d;
+}
+function uSave(d){try{localStorage.setItem(UKEY,JSON.stringify(d))}catch(e){}}
+function uRender(){
+  var d=uGet(),m=Math.round(d.sec/60),bar=document.getElementById("usageBar");
+  if(!bar)return;
+  var pct=Math.min(100,Math.round(m/45*100));          // 免费额度大约 45 分钟/天（经验值）
+  var color=pct<60?"var(--muted)":pct<90?"#d9a441":"#c46a52";
+  bar.innerHTML='今天已通话 <b style="color:'+color+'">'+m+' 分钟</b> · '+d.calls+' 次'+
+    '<div style="height:5px;border-radius:3px;background:rgba(125,118,106,.25);margin:6px auto 0;max-width:220px;overflow:hidden">'+
+    '<div style="height:100%;width:'+pct+'%;background:'+color+'"></div></div>'+
+    (pct>=90?'<div style="color:#c46a52;margin-top:4px">快到今天的免费额度了，明天自动恢复</div>':'');
+}
+var _callStart=null;
+function uStart(){_callStart=Date.now();var d=uGet();d.calls++;uSave(d);uRender()}
+function uStop(){
+  if(!_callStart)return;
+  var d=uGet();d.sec+=Math.round((Date.now()-_callStart)/1000);_callStart=null;uSave(d);uRender();
+}
+setInterval(function(){if(_callStart){var d=uGet();d.sec+=5;uSave(d);_callStart=Date.now();uRender()}},5000);
+uRender();
+
 btn.onclick=aStart;
 var oi=document.getElementById("oralIn"),ob=document.getElementById("oralSave");
 if(oi&&ob){
