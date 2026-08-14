@@ -275,7 +275,7 @@ function aConn(){
     var st=(state&&state.log&&state.log.length)?state.log[state.log.length-1]:null;
     var lesson="\n\n=== WHAT HE STUDIED TODAY (on the page, minutes ago) ===\nTopic: "+currentPack+"\n"+lines+"\nStreak: "+(state?state.streak:0)+" days."+(st?(" Written quiz: "+st.score+"/10"+((st.wrong&&st.wrong.length)?(", missed: "+st.wrong.join(" | ")):", perfect")):"")+"\n\nRun today's lesson on these phrases, the human way: start with a real hello and a question about his day, then slide into situations that need these phrases — starting with the ones he missed. Mastery rule applies: anything he gets wrong, you stay on it (explain in Chinese if that unlocks it) until he says it right three times unaided. Covering only three or four phrases well is a good session. Never sound like a test — sound like a teacher who likes him.";
     aws.send(JSON.stringify({setup:{model:model,
-      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:(LANG_MODE==="ar"?"Kore":LANG_MODE==="speech"?"Charon":LANG_MODE==="comm"?"Kore":"Aoede")}}}},
+      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}}},
       systemInstruction:{parts:[{text:
       LANG_MODE==="comm"?COMM_PERSONA:
       LANG_MODE==="speech"?SPEECH_PERSONA:
