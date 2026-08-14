@@ -57,7 +57,8 @@ nav button.on{color:var(--gold)}
       <h2>今天学什么</h2>
       <button class="main" data-sub="chinese" style="margin-bottom:9px">📖 语文 · 三年级上册</button>
       <button class="main ghost" data-sub="quran" style="margin-bottom:9px">🕌 古兰经</button>
-      <button class="main ghost" data-sub="english">🔤 英语单词</button>
+      <button class="main ghost" data-sub="english" style="margin-bottom:9px">🔤 英语单词</button>
+      <button class="main ghost" data-sub="math">➗ 数学 · 四年级</button>
     </div>
     <div class="card">
       <h2>🌟 找星星老师上课</h2>
@@ -78,6 +79,17 @@ nav button.on{color:var(--gold)}
   </section>
 
   <section class="page" id="p-reward">
+    <div class="card">
+      <h2>星星怎么来的</h2>
+      <div style="font-size:.84rem;line-height:1.9">
+        📖 语文 / 🕌 古兰经 / 🔤 英语：<b>答对一题 = 1 ⭐</b><br>
+        ➗ 数学（最难，所以最值钱）：<b>答对一题 = 2 ⭐</b><br>
+        🌟 一组全对：<b>额外 +5 ⭐</b>；答对八成以上：<b>+2 ⭐</b><br>
+        🎓 找老师上课：满 2 分钟 +3 ⭐，满 5 分钟 +5 ⭐，满 10 分钟 <b>+8 ⭐</b><br>
+        🔥 连续学习：第 3 天 +5，第 7 天 +15，第 14 天 +30，第 30 天 <b>+80 ⭐</b><br>
+        <span style="color:var(--muted)">每天最多拿 60 ⭐ —— 慢慢来，明天还有。</span>
+      </div>
+    </div>
     <div class="card">
       <h2>用星星换奖励</h2>
       <div id="rewards"></div>
@@ -182,6 +194,24 @@ quran:{title:"古兰经 · 短章与常识",items:[
  {q:"斋月是伊斯兰历的第几个月？",o:["第9个月","第1个月","第12个月"],a:0},
  {q:"「السلام عليكم」是什么意思？",o:["愿你平安","感谢真主","如蒙主意"],a:0}
 ]},
+math:{title:"数学 · 四年级",items:[
+ {q:"25 × 4 = ?",o:["100","90","110"],a:0},
+ {q:"一个长方形长 8 米，宽 5 米，面积是多少？",o:["40 平方米","26 平方米","13 平方米"],a:0},
+ {q:"一个长方形长 8 米，宽 5 米，周长是多少？",o:["26 米","40 米","13 米"],a:0},
+ {q:"144 ÷ 12 = ?",o:["12","14","11"],a:0},
+ {q:"3/4 和 2/4 哪个大？",o:["3/4","2/4","一样大"],a:0},
+ {q:"1 小时 15 分等于多少分钟？",o:["75 分钟","65 分钟","115 分钟"],a:0},
+ {q:"妈妈买了 3 盒鸡蛋，每盒 12 个，一共多少个？",o:["36 个","15 个","24 个"],a:0},
+ {q:"一件玩具 45 迪拉姆，买 2 件要多少钱？",o:["90","85","80"],a:0},
+ {q:"1/2 + 1/2 = ?",o:["1","2/4","1/4"],a:0},
+ {q:"下面哪个数最接近 1000？",o:["987","1050","899"],a:0},
+ {q:"36 个苹果平均分给 4 个小朋友，每人几个？",o:["9 个","8 个","6 个"],a:0},
+ {q:"一个正方形边长 6 厘米，周长是多少？",o:["24 厘米","36 厘米","12 厘米"],a:0},
+ {q:"7 × 8 + 6 = ?",o:["62","56","98"],a:0},
+ {q:"哪个是偶数？",o:["48","37","91"],a:0},
+ {q:"500 - 268 = ?",o:["232","242","332"],a:0},
+ {q:"博远有 20 颗星星，用掉 12 颗换奖励，还剩几颗？",o:["8 颗","10 颗","32 颗"],a:0}
+]},
 english:{title:"English words",items:[
  {q:"apple",o:["苹果","香蕉","橘子"],a:0},
  {q:"school",o:["学校","医院","公园"],a:0},
@@ -217,10 +247,19 @@ const today=new Date().toISOString().slice(0,10);
 if(D.today!==today){D.today=today;D.todayStars=0}
 function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
 function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1500)}
+const DAY_CAP=60;                                   // 每天最多 60 ⭐，防止刷题攒星
+function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
 function addStar(n){
+  n=Math.min(n,capLeft());
+  if(n<=0)return;
   D.stars+=n;D.total+=n;D.todayStars+=n;
   const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
-  if(D.last!==today){D.streak=(D.last===y)?D.streak+1:1;D.last=today}
+  if(D.last!==today){
+    D.streak=(D.last===y)?D.streak+1:1;D.last=today;
+    const MILE={3:5,7:15,14:30,30:80};              // 坚持的复利：越久越值钱
+    if(MILE[D.streak]){D.stars+=MILE[D.streak];D.total+=MILE[D.streak];
+      setTimeout(()=>toast("连续 "+D.streak+" 天！奖励 "+MILE[D.streak]+" ⭐"),700)}
+  }
   save();render();
 }
 function render(){
@@ -260,10 +299,17 @@ function ask(){
   const qb=document.getElementById("q"),ob=document.getElementById("opts");
   if(idx>=list.length){
     const got=score;
-    qb.innerHTML='<span class="big">🌟</span>答对 '+got+' / '+list.length+'<br>得到 '+got+' 颗星星！';
+    const W={chinese:1,quran:1,english:1,math:2};      // 数学最难，一题算两颗
+    let earn=Math.round(got*(W[cur]||1));
+    let bonus="";
+    if(got===list.length){earn+=5;bonus="<br>全对！额外 +5 ⭐"}
+    else if(got>=Math.ceil(list.length*0.8)){earn+=2;bonus="<br>答得很好！额外 +2 ⭐"}
+    const cap=capLeft();
+    if(earn>cap){earn=cap;bonus+="<br><small>今天的星星拿满啦，明天再来 🌙</small>"}
+    qb.innerHTML='<span class="big">🌟</span>答对 '+got+' / '+list.length+'<br>得到 '+earn+' 颗星星！'+bonus;
     ob.innerHTML='<button class="main" onclick="location.reload()">再来一组</button>';
     document.getElementById("prog").textContent="";
-    addStar(got);
+    addStar(earn);
     return;
   }
   const it=list[idx];
@@ -424,7 +470,11 @@ function tEnd(){
   try{tws&&tws.close()}catch(e){}
   if(tStream){tStream.getTracks().forEach(function(x){x.stop()});tStream=null}
   tClean();
-  if(typeof addStar==="function")addStar(2);
+  if(typeof addStar==="function"){
+    var mins=Math.round(((uGet().sec)||0)/60);
+    var earn=mins>=10?8:mins>=5?5:mins>=2?3:1;      // 跟老师上课：10分钟 8⭐
+    addStar(earn);setTimeout(function(){toast("上课 "+mins+" 分钟，+"+earn+" ⭐")},600);
+  }
 }
 btn.onclick=tGo;
 })();
