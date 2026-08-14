@@ -95,6 +95,18 @@ nav button.on{color:var(--gold)}
       <div class="tip" style="text-align:left;margin:0 0 10px">点字听读音 · 照着笔画在本子上写三遍 · 写完打勾</div>
       <div id="hanziBox"></div>
     </div>
+    <div class="card" id="padCard" style="display:none">
+      <h2 id="padTitle">写一写</h2>
+      <div class="tip" style="text-align:left;margin:0 0 10px">用手指照着淡色的字描一遍 · 写满三遍这个字就算会了</div>
+      <div style="display:flex;justify-content:center">
+        <canvas id="pad" width="300" height="300" style="border-radius:16px;background:#fdfbf4;touch-action:none"></canvas>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="main ghost" id="padClear" style="flex:1">擦掉重写</button>
+        <button class="main" id="padOk" style="flex:2">写好这一遍</button>
+      </div>
+      <div class="tip" id="padProg" style="margin-top:8px"></div>
+    </div>
   </section>
 
   <section class="page" id="p-diary">
@@ -687,15 +699,59 @@ function renderHanzi(){
     const b=document.createElement("button");
     b.style.cssText="border:none;border-radius:11px;padding:9px 14px;font-family:inherit;font-size:.85rem;cursor:pointer;"+
       (done[k]?"background:var(--mint);color:#0a2018;font-weight:700":"background:rgba(243,239,226,.1);color:var(--cream)");
-    b.textContent=done[k]?"✓ 写好了":"写三遍";
-    b.onclick=()=>{
-      if(done[k])return;
-      done[k]=1;D.hanziDone=done;save();
-      addStar(1);toast("「"+h.z+"」写好了 +1 ⭐");renderHanzi();
-    };
+    const padN=((D.padDone||{})[todayKey()+"_pad_"+h.z])||0;
+    b.textContent=done[k]?"✓ 会写了":(padN?("写 "+padN+"/3"):"✍️ 写一写");
+    b.onclick=()=>openPad(h);
     d.querySelector("div").onclick=()=>{if(typeof speakRoster==="function")speakRoster(h.z)};
     d.appendChild(b);box.appendChild(d);
   });
+}
+
+
+/* ===== 手写练习板（田字格 + 描红） ===== */
+let padZ=null,padCtx=null,padDrawing=false;
+function openPad(h){
+  padZ=h;
+  document.getElementById("padCard").style.display="block";
+  document.getElementById("padTitle").textContent="写一写：" + h.z + "（" + h.py + " · " + h.bh + " 画）";
+  const c=document.getElementById("pad");
+  padCtx=c.getContext("2d");
+  drawGrid();
+  padProg();
+  document.getElementById("padCard").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function drawGrid(){
+  const c=document.getElementById("pad"),x=padCtx,W=c.width;
+  x.clearRect(0,0,W,W);
+  x.fillStyle="#fdfbf4";x.fillRect(0,0,W,W);
+  // 田字格
+  x.strokeStyle="#e8c9a8";x.lineWidth=2;x.strokeRect(2,2,W-4,W-4);
+  x.setLineDash([7,7]);x.lineWidth=1.4;x.strokeStyle="#eccfae";
+  x.beginPath();x.moveTo(W/2,0);x.lineTo(W/2,W);x.moveTo(0,W/2);x.lineTo(W,W/2);
+  x.moveTo(0,0);x.lineTo(W,W);x.moveTo(W,0);x.lineTo(0,W);x.stroke();
+  x.setLineDash([]);
+  // 淡色范字
+  if(padZ){
+    x.fillStyle="rgba(120,110,95,.22)";
+    x.font="215px 'PingFang SC','Songti SC',serif";
+    x.textAlign="center";x.textBaseline="middle";
+    x.fillText(padZ.z,W/2,W/2+8);
+  }
+  x.strokeStyle="#1e2b23";x.lineWidth=9;x.lineCap="round";x.lineJoin="round";
+}
+function padPos(e){
+  const c=document.getElementById("pad"),r=c.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return {x:(t.clientX-r.left)*c.width/r.width,y:(t.clientY-r.top)*c.height/r.height};
+}
+function padStart(e){e.preventDefault();padDrawing=true;const p=padPos(e);padCtx.beginPath();padCtx.moveTo(p.x,p.y)}
+function padMove(e){if(!padDrawing)return;e.preventDefault();const p=padPos(e);padCtx.lineTo(p.x,p.y);padCtx.stroke()}
+function padEnd(){padDrawing=false}
+function padProg(){
+  if(!padZ)return;
+  const k=todayKey()+"_pad_"+padZ.z;
+  const n=(D.padDone||{})[k]||0;
+  document.getElementById("padProg").textContent=n>=3?("「"+padZ.z+"」今天写满三遍了 ✓"):("已经写了 "+n+" / 3 遍");
 }
 
 /* ===== 每天一篇日记 ===== */
@@ -746,6 +802,35 @@ document.getElementById("rDone").onclick=function(){
   }
   renderRecite();
 };
+(function(){
+  const c=document.getElementById("pad");
+  if(c){
+    c.addEventListener("touchstart",padStart,{passive:false});
+    c.addEventListener("touchmove",padMove,{passive:false});
+    c.addEventListener("touchend",padEnd);
+    c.addEventListener("mousedown",padStart);
+    c.addEventListener("mousemove",padMove);
+    c.addEventListener("mouseup",padEnd);
+    c.addEventListener("mouseleave",padEnd);
+  }
+  const cl=document.getElementById("padClear");
+  if(cl)cl.onclick=function(){drawGrid()};
+  const ok=document.getElementById("padOk");
+  if(ok)ok.onclick=function(){
+    if(!padZ)return;
+    const k=todayKey()+"_pad_"+padZ.z;
+    D.padDone=D.padDone||{};
+    const n=(D.padDone[k]||0)+1;D.padDone[k]=n;
+    if(n>=3){
+      D.hanziDone=D.hanziDone||{};
+      D.hanziDone[todayKey()+"_"+padZ.z]=1;
+      addStar(2);toast("「"+padZ.z+"」写满三遍，会写了！+2 ⭐");
+    }else{
+      addStar(1);toast("写好第 "+n+" 遍 +1 ⭐");
+    }
+    save();drawGrid();padProg();renderHanzi();
+  };
+})();
 render();renderHanzi();renderDiary();
 </script>
 </body>
