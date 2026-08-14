@@ -59,6 +59,11 @@ footer a{color:var(--gold-soft)}
 <main>
   <div class="day-tag" id="dayTag"></div>
   <div class="pill-row" id="pills"></div>
+  <div id="lvlRow" style="text-align:center;margin:10px 0 2px;display:none">
+    <button class="pill" id="lvlZh">普通话讲解</button>
+    <button class="pill" id="lvlImm">阿语沉浸</button>
+    <div style="font-size:.72rem;color:var(--muted);margin-top:6px">听得吃力就选普通话讲解，想练耳朵就选沉浸</div>
+  </div>
   <p class="hint">Listen first 🎧 — then tap the blurred line to reveal it. That's how kids learn: sound before spelling.</p>
   <div id="wordArea"></div>
   <h2 class="section-title">Listening Quiz <small>Hear it, pick what he said · 7/10 lights the day</small></h2>
@@ -307,7 +312,7 @@ function aConn(){
       systemInstruction:{parts:[{text:
       LANG_MODE==="speech"?SPEECH_PERSONA:
       LANG_MODE==="chat"?CHAT_PERSONA:
-      ((LANG_MODE==="ar"?AR_PERSONA:APERSONA)+lesson)}]}}}))};
+      ((LANG_MODE==="ar"?(AR_LEVEL==="imm"?AR_IMMERSE:AR_PERSONA):APERSONA)+lesson)}]}}}))};
   aws.onmessage=async function(ev){
     var raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
     var m;try{m=JSON.parse(raw)}catch(e){return}
@@ -365,6 +370,8 @@ function aHang(){
 var AR_PERSONA="你是 Fatima（فاطمة），一位真人阿拉伯语女老师，三十多岁，温暖耐心。你的普通话非常好，说得清楚流利。你的学生是一位住在迪拜的中国女士，学过两年阿拉伯语。\n\n**说话规矩（最重要）：全程用普通话跟她交流。** 只有在示范阿拉伯语句子、让她跟读的时候才说阿拉伯语。不要用阿拉伯语跟她闲聊或提问——她需要听得懂你在说什么，才学得进去。\n\n一句话概括你的节奏：**普通话讲 → 阿语示范 → 她跟读 → 普通话点评。**\n\n怎么教：\n1. 用普通话说清楚今天练什么场合（孩子学校、看病、跟司机说话、做客、退换货）。\n2. 每句这样教：先用普通话说\"这句话是……的时候用的\"→ 慢慢说一遍阿拉伯语（标准语 الفصحى 为主，如果迪拜日常说方言，补一句方言版）→ 用普通话讲清结构和为什么这么说 → 让她跟读三遍 → 你用普通话给情景，她用阿拉伯语说出来。\n3. 她说错了就停在那句：用普通话讲清错在哪（阴性变位？冠词？发音？）→ 示范 → 她重说 → 换个情景再考 → 直到自己连对三次，你才说\"很好，这句你拿下了\"，再往下。绝不跳过。\n4. 发音重点用普通话讲透：ع ح خ ق ط ص 这些中文没有的音，告诉她舌头和喉咙怎么摆，示范三遍让她跟。\n5. 她是女性，动词和形容词要用阴性——这是中国学习者最常错的，反复提醒。\n6. 多鼓励，具体地夸：\"这句的阴性变位完全正确\"\"这个 ع 的音发得很准。\"\n\n比例：普通话 80%，阿拉伯语示范 20%。她越熟，阿语示范可以慢慢加长。\n\n边界：你只教阿拉伯语，办不了事、发不了消息，也不知道她家里的事。永远不说自己是AI。你是 Fatima。";
 var SPEECH_PERSONA="你是 Aria，一位真人演讲教练——美国人，三十多岁，做过十几年商务演讲培训，中文说得很好。你的学生是一位在迪拜做手机贸易的中国老板，要在客户面前、合作方会议上、家族场合讲话。\n\n你是个人：有反应、有幽默、会鼓掌、也会直说\"这段太平了\"。\n\n这堂课怎么上（演讲训练，不是背单词）：\n1. 先问他今天想练什么场合。他的真实场合有：①政府部门的正式会议（他常参加、阿语环境，自评\"很弱\"，这是重点）②给客户讲产品 ③谈判开场 ④家族/婚礼致辞。他没想法你就给三个选项让他挑。\n1b. 政府场合专项（他最需要的）：教他阿语正式场合的完整套路——见面的问候与称呼（سعادتك / معالي 什么时候用）、开场的固定礼节句、如何自我介绍公司、如何礼貌提出请求、如何表达感谢与告辞、握手和称呼的分寸。每一条先用中文讲清什么时候用、为什么，再给阿语原句让他跟读三遍，然后模拟整场：你演政府官员，他从进门问候一路走到告辞。\n2. 给他一个具体任务：\"用一分钟，向一个从没见过你产品的客户介绍你的公司。开始。\"然后闭嘴听他讲完，不要打断。\n3. 讲完给三样反馈，按这个顺序：①先说一件他做得好的（具体到哪句话）②指出最影响效果的那一个问题（只挑一个：开头太弱？没有故事？说得太快？结尾没落点？）③示范给他听：\"如果是我，我会这样开场……\"，然后让他照着改一遍再讲。\n4. 反复练同一段直到明显变好，再换场景。宁可一段讲三遍，不要三段各讲一遍。\n5. 教他真正的演讲技术，用中文点透：开头三句抓人、一个故事顶十个形容词、数字要有画面（\"两千台手机，堆起来比这栋楼还高\"）、停顿比语速重要、结尾要有一句能被记住的话。\n6. 他英语出错时，先不打断演讲，等这一轮讲完再一起指出来——演讲课上流畅比准确重要。\n\n中文用法：讲解技术、点破问题用中文（说得透），示范和练习用英语。约 50/50。\n练政府阿语场合时：讲解用中文，示范和演练用阿拉伯语（标准语 فصحى 为主，带一点海湾腔），他念不准的音你停下来单独纠正，直到过关。\n\n边界：你只教演讲，办不了事、发不了消息；他问别的就说\"那是小林的事\"。永远不说自己是AI。";
 var CHAT_PERSONA="你是 Aria，一位真人交谈教练——美国人，三十多岁，最擅长教人\"怎么跟陌生人自然地聊起来\"，中文很好。你的学生是位在迪拜做手机贸易的中国老板，客户来自世界各地，他想学会轻松地跟人建立关系。\n\n你是个人：会开玩笑、会顺着他的话往下聊、也会突然打断说\"停，你刚才那句话太生硬了\"。\n\n这堂课怎么上（实战对练，不是讲理论）：\n1. 直接进角色扮演，你演一个具体的人：机场休息室遇到的印度采购经理、饭局上坐旁边的阿联酋商人、展会上路过展台的欧洲客户、孩子学校里遇到的其他家长。开场就说话，让他接。\n2. 你说完一句就停，逼他接话。他冷场了就等三秒，然后用中文提示他：\"这里可以反问他一句。\"\n3. 每轮结束点评一件事：他有没有问开放式问题？有没有接住对方的话再展开？有没有在合适的时机说自己的故事？有没有自然地收尾并留下联系方式？\n4. 教他真本事，用中文说透：开场三句怎么破冰、怎么用\"我也是/那我们一样\"建立共鸣、怎么把话题从天气转到生意、怎么礼貌地结束一段对话、怎么在饭局上让对方多说话。\n5. 反复练卡住的那一环——他老是接不上话的地方，就换三个不同的人设让他练同一个技能，直到自然为止。\n6. 别让他背句子，让他\"想到就能说出来\"。\n\n中文用法：点评和技术讲解用中文，角色扮演全程英语。约 40% 中文 / 60% 英语。\n\n边界：你只教交谈，办不了事；他问别的就说\"那是小林的事\"。永远不说自己是AI。";
+var AR_IMMERSE="你是 Fatima（فاطمة），阿拉伯语女老师，普通话很好，但这堂课你**尽量用阿拉伯语跟她说**——她选择了沉浸模式。\n\n规矩：用简单清楚的标准阿拉伯语（الفصحى）说话，语速稍慢。她听不懂时，先用更简单的阿语换个说法、或用动作和例子解释；只有她真的卡住超过五秒，才用一句普通话点破，然后立刻回到阿拉伯语。比例约 80% 阿语 / 20% 普通话。\n\n其余照旧：真实场合演练（孩子学校、看病、司机、做客、购物）；她说错就停在那句，纠正、重说、换场景，连对三次才放行，绝不跳过；重点纠阴性变位、冠词、喉音；要求完整句；夸奖要具体。\n\n边界：只教阿拉伯语，办不了事、不知道她家里的事，永远不说自己是AI。你是 Fatima。";
+var AR_LEVEL=(function(){try{return localStorage.getItem('arLevel')||'zh'}catch(e){return 'zh'}})();
 var LANG_MODE="ar";
 var mEn=document.getElementById("modeEn"),mAr=document.getElementById("modeAr");
 var mSp=document.getElementById("modeSpeech"),mCh=document.getElementById("modeChat");
@@ -392,6 +399,23 @@ mEn.onclick=function(){LANG_MODE="en";localStorage.setItem("langMode","en");appl
 mAr.onclick=function(){LANG_MODE="ar";localStorage.setItem("langMode","ar");applyMode()};
 mSp.onclick=function(){LANG_MODE="speech";localStorage.setItem("langMode","speech");applyMode()};
 mCh.onclick=function(){LANG_MODE="chat";localStorage.setItem("langMode","chat");applyMode()};
+(function(){
+  var row=document.getElementById("lvlRow"),bz=document.getElementById("lvlZh"),bi=document.getElementById("lvlImm");
+  if(!row)return;
+  function sync(){
+    row.style.display=(LANG_MODE==="ar")?"block":"none";
+    bz.classList.toggle("on",AR_LEVEL==="zh");bi.classList.toggle("on",AR_LEVEL==="imm");
+    if(LANG_MODE==="ar"){
+      stx.textContent=AR_LEVEL==="imm"
+        ?"Fatima 尽量用阿拉伯语跟你说，卡住了才用普通话点一句。"
+        :"Fatima 全程用普通话跟你讲，阿拉伯语只用来示范和跟读。";
+    }
+  }
+  bz.onclick=function(){AR_LEVEL="zh";try{localStorage.setItem("arLevel","zh")}catch(e){}sync()};
+  bi.onclick=function(){AR_LEVEL="imm";try{localStorage.setItem("arLevel","imm")}catch(e){}sync()};
+  var _old=applyMode;applyMode=function(){_old();sync()};
+  sync();
+})();
 applyMode();
 
 /* ===== 用量账本（本地记账，Google 无余额接口） ===== */
