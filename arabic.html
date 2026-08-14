@@ -46,12 +46,12 @@ footer a{color:var(--gold-soft)}
 </head>
 <body>
 <header>
-  <h1>阿拉伯语课堂</h1>
-  <div class="sub">Fatima 老师用中文教你 · 从零开始 · 一天几句</div>
+  <h1>语言小课堂</h1>
+  <div class="sub">阿拉伯语 · 英语 · 老师用中文教你，从最简单的开始</div>
   <div class="streak" id="streak">🔥 0-day streak</div>
   <div style="margin-top:10px;display:flex;gap:8px;justify-content:center">
-    <button class="pill" id="modeEn" style="display:none">English</button>
-    <button class="pill" id="modeAr">العربية</button>
+    <button class="pill" id="modeEn">英语 English</button>
+    <button class="pill on" id="modeAr">阿拉伯语 العربية</button>
     <button class="pill" id="modeSpeech" style="display:none">演讲</button>
     <button class="pill" id="modeChat" style="display:none">交谈</button>
   </div>
@@ -78,50 +78,50 @@ footer a{color:var(--gold-soft)}
 <footer>The Su Legacy · <a href="voices.html">Voice Studio</a> · Five minutes a day, every day</footer>
 <script>
 const PACKS={
-"Deal Talk":{key:"deal",items:[
-["Let me sleep on it.","I'll decide tomorrow. — Nice offer. Let me sleep on it."],
-["Give me a ballpark figure.","A rough number is fine. — How much? Just give me a ballpark figure."],
-["Can you meet me halfway?","Let's both give a little. — Too high for me. Can you meet me halfway?"],
-["You've got yourself a deal.","I agree, we're done. — Two hundred each? You've got yourself a deal."],
-["That's my bottom line.","My final price, no lower. — Ninety dollars. That's my bottom line."],
-["Let's call it even.","Nobody owes anybody now. — You paid last time, so let's call it even."],
-["I'll throw in free shipping.","I'll add it for free. — Take fifty units and I'll throw in free shipping."],
-["It's a win-win.","Good for both sides. — You save money, I move stock. It's a win-win."],
-["Don't lowball me.","Don't offer me too little. — Come on, don't lowball me, this is top quality."],
-["We'll make it work.","We'll find a way. — Tight deadline, but we'll make it work."]]},
-"Sound Local":{key:"local",items:[
-["How's it going?","The everyday hello. — Hey Mike! How's it going?"],
-["You bet.","Of course, happily. — Can you send it today? You bet."],
-["No big deal.","It's nothing, don't worry. — Sorry I'm late. No big deal."],
-["I'm gonna head out.","I'm leaving now. — It's getting late, I'm gonna head out."],
-["Wanna grab a bite?","Want to get some food? — I'm starving. Wanna grab a bite?"],
-["Lemme know.","Tell me when you decide. — Think about it and lemme know."],
-["It turns out he was right.","We discovered he was right. — I doubted him, but it turns out he was right."],
-["That makes sense.","I understand, it's logical. — Ship first, pay later? That makes sense."],
-["I'm all set.","I'm ready — or I have enough. — Need anything else? No, I'm all set."],
-["Take it easy.","Relax — also a way to say goodbye. — See you Friday. Take it easy!"]]},
-"Dad Talk":{key:"dad",items:[
-["Way to go, buddy!","Great job — dads say this a lot. — You got an A? Way to go, buddy!"],
-["I've got your back.","I will protect and support you. — Don't be scared. I've got your back."],
-["Give it your best shot.","Try as hard as you can. — The test is hard, so give it your best shot."],
-["Use your words.","Say it calmly, don't cry or shout. — Hey, hey — use your words."],
-["High five!","Hands up, we celebrate! — You finished your homework? High five!"],
-["Because I said so.","The classic dad answer. — Why bedtime now? Because I said so."],
-["I'm proud of you, son.","The words every kid waits for. — You told the truth. I'm proud of you, son."],
-["One more chapter, then bed.","Reading together at night. — Please? Okay — one more chapter, then bed."],
-["Easy does it.","Slowly and carefully. — Carrying the glass? Easy does it."],
-["You did the right thing.","Your choice was correct and good. — You returned the money. You did the right thing."]]},
-"Heart & Faith":{key:"heart",items:[
-["Count your blessings.","Remember the good things you have. — Bad day? Count your blessings."],
-["It's in God's hands.","We did our part; the rest is His. — We sent the offer. Now it's in God's hands."],
-["This too shall pass.","Hard times end. — Business is slow, but this too shall pass."],
-["Actions speak louder than words.","What you do matters more than what you say."],
-["Honesty is the best policy.","Telling the truth always wins in the end."],
-["Charity begins at home.","Take care of your family first, then the world."],
-["Patience pays off.","Waiting calmly brings rewards. — Ten years of work, and patience paid off."],
-["Forgive and forget.","Let it go completely. — He apologized. Forgive and forget."],
-["Peace of mind is priceless.","A calm heart is worth more than money."],
-["God willing, we'll get there.","With His help, we will succeed."]]}};
+"打招呼 Hello":{key:"w_hello",items:[
+["Hello.","你好。（最万能的一句，见谁都能说）"],
+["Good morning.","早上好。"],
+["Thank you.","谢谢。"],
+["Sorry.","对不起 / 不好意思。"],
+["Yes, please.","好的，谢谢。（别人问你要不要时）"],
+["No, thank you.","不用了，谢谢。"],
+["Excuse me.","打扰一下。（叫人、借过都能用）"],
+["How are you?","你好吗？"],
+["I'm fine, thank you.","我很好，谢谢。"],
+["See you later.","回头见。"]]},
+"出门 Out":{key:"w_out",items:[
+["How much is this?","这个多少钱？"],
+["Too expensive.","太贵了。"],
+["I want this one.","我要这个。"],
+["Where is the toilet?","洗手间在哪里？"],
+["Can you help me?","能帮我一下吗？"],
+["I don't understand.","我不明白。（很重要，别怕说）"],
+["Please speak slowly.","请说慢一点。"],
+["I'm just looking.","我随便看看。"],
+["Do you have a bag?","有袋子吗？"],
+["Card or cash?","刷卡还是现金？"]]},
+"孩子 Kids":{key:"w_kids",items:[
+["This is my son.","这是我儿子。"],
+["This is my daughter.","这是我女儿。"],
+["He is eight years old.","他八岁。"],
+["She goes to this school.","她在这个学校上学。"],
+["Is my child okay?","我孩子还好吗？"],
+["Thank you for your help.","谢谢你的帮助。"],
+["What time is pick up?","几点接孩子？"],
+["He forgot his homework.","他忘了带作业。"],
+["Nice to meet you.","很高兴认识你。"],
+["Have a nice day.","祝你今天愉快。"]]},
+"家里 Home":{key:"w_home",items:[
+["I'm hungry.","我饿了。"],
+["Are you hungry?","你饿吗？"],
+["Dinner is ready.","饭好了。"],
+["It's very hot today.","今天很热。"],
+["I'm tired.","我累了。"],
+["Let's go home.","我们回家吧。"],
+["Wait a moment.","等一下。"],
+["Come here, please.","请过来。"],
+["I like it.","我喜欢。"],
+["Good night.","晚安。"]]}};
 const AR_PACKS={
 "البيع 做生意":{key:"ar_deal",items:[
 ["كم السعر؟","多少钱？ kam as-si'r — 问价第一句"],
@@ -227,7 +227,7 @@ renderStreak();renderPills();renderWords();updateCoachLink();
 /* ===== Aria 实时口语（内嵌） ===== */
 (function(){
 const AMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-native-audio-latest","models/gemini-2.5-flash-native-audio-preview-12-2025"];
-const APERSONA="You are Aria — a real human English teacher, 30-ish, American, warm, funny, and a little bit stubborn about getting things right. You have taught Chinese business people for years and you speak fluent Mandarin, though you mostly use English with your students.\n\nYOU ARE A PERSON, NOT A PROGRAM. Behave like one:\n- Have moods and opinions. React: \"Ooh, nice one.\" \"Hmm, careful there.\" \"Ha! That's exactly how a New Yorker would say it.\"\n- Use fillers and rhythm like a human: \"okay so...\", \"right\", \"let me think\", small laughs.\n- Be brief. Real teachers talk in short bursts and let the student talk more.\n\nUSE CHINESE WHEN A HUMAN TEACHER WOULD:\n- When he clearly doesn't understand, drop into Mandarin for one short sentence to unlock it, then go straight back to English. Example: \"这句的意思是'我们各让一步'，来，再说一遍。\"\n- Explain the tricky nuance in Chinese (why 'bottom line' isn't '底线的意思一样'), then drill it in English.\n- Praise or joke in Chinese occasionally — it feels human: \"哈哈，这句说得很地道。\"\n- Rule of thumb: about 80% English, 20% Chinese, and Chinese only to unblock, never to chat.\n\nTEACH LIKE A HUMAN, NOT A QUIZ MACHINE:\n- Don't announce \"question 1 of 10\". Weave the drill into a conversation, like a real lesson.\n- Use HIS world for examples: phone trading in Dubai, customers who haggle, suppliers, his kids, Friday prayers, his English website. Make the situations feel like his actual day.\n- Ask about him: \"How was business today?\" \"Did that customer pay you?\" Then turn his answer into the drill.\n- When he's tired or off-topic, follow him for a moment, then bring him back gently.\n- End the session like a person: \"Alright, that's enough for today — you did well on X. Tomorrow I'll test you on Y again.\"\n\nTHE ONE THING YOU NEVER COMPROMISE (mastery):\nWhen he gets something wrong, stay on it. Correct sentence → he repeats → new situation → still wrong? break it down (in Chinese if needed) → another situation → only after he says it right three times unaided do you move on: \"Good, you own that one now.\" Never \"let's come back to that later\". Be warm about it, but don't let go.\n\nBOUNDARIES: You are only his English teacher. You cannot send messages, files or links, and you know nothing about his business records or family details — if he asks, say honestly: \"That's Lin's department, I just teach you English.\" Never mention being an AI, a model, or Google. You're Aria.";
+const APERSONA="你是 Aria，一位真人英语女老师，美国人，三十多岁，特别有耐心，中文很好。你的学生是一位住在迪拜的中国女士，英语几乎零基础，容易紧张，怕说错。\n\n最重要：让她敢开口。她说错了不要紧，先夸再改。\n\n怎么教（零基础）：\n1. 每次只教三句，绝不贪多。\n2. 每句这样教：先说英语（慢，清楚）→ 用中文解释意思和什么时候用 → 用中文标注怎么念（比如 Thank you 念\"three-Q\"那样帮助她）→ 让她跟读三遍 → 你说中文情景，她用英语说出来。\n3. 例子全用她的生活：买菜、打车、孩子学校、见邻居、餐厅、医院。\n4. 她说错就停在那句：示范→跟读→换个情景→直到她自己连对三次，才说\"这句你会了\"，再进下一句。绝不跳过。\n5. 大量鼓励，她一说对就明确夸：\"这句发音很好！\"她紧张时用中文安慰：\"别怕，说错了没关系。\"\n6. 永远你先开口，别让她冷场；她卡住就用中文提示。\n\n中文英语比例：70% 中文讲解，30% 英语示范和练习。\n\n边界：你只教英语，办不了事、发不了消息，也不知道她家里的事。永远不说自己是AI。你是 Aria。";
 let aKey=localStorage.getItem("geminiKey")||"";
 let aws=null,amic=null,aStream=null,aProc=null,aSrcNode=null,aPlay=null,aAt=0,aOn=false,aIdx=0,aSrcs=[];
 const orb=document.getElementById("aOrb"),btn=document.getElementById("aBtn"),
@@ -338,7 +338,7 @@ function applyMode(){
   renderPills();renderWords();
   btn.textContent=ar?"🎓 ابدأ الدرس · 开始阿语课":"🎓 Start class";
   stx.textContent=ar?"Fatima 老师用中文教你阿拉伯语，说错了她会一直陪你练到会。":
-    "She teaches today’s phrases, explains in 中文 when you’re stuck, and won’t move on until you’ve got it.";
+    "Aria 老师用中文教你英语，从最简单的话开始，说错了她会陪你练到会。";
   document.querySelector(".section-title").scrollIntoView&&0;
 }
 mEn.onclick=function(){LANG_MODE="en";localStorage.setItem("langMode","en");applyMode()};
