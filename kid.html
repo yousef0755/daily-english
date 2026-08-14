@@ -61,11 +61,11 @@ nav button.on{color:var(--gold)}
       <button class="main ghost" data-sub="math">➗ 数学 · 四年级</button>
     </div>
     <div class="card">
-      <h2>🌟 找星星老师上课</h2>
+      <h2>🌟 星星老师</h2>
       <div style="text-align:center">
         <div id="tOrb" style="width:86px;height:86px;border-radius:50%;margin:2px auto 10px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:radial-gradient(circle at 34% 30%,#2b5db0,#16294a);border:2px solid rgba(255,212,121,.5);transition:box-shadow .25s">🌙</div>
-        <button class="main" id="tBtn">🎓 开始上课</button>
-        <div id="tStatus" class="tip" style="min-height:2.2em;margin:8px 0 0">按一下，老师就来了。想学哪科就跟她说。</div>
+        <button class="main" id="tBtn">🌟 找老师玩一会儿</button>
+        <div id="tStatus" class="tip" style="min-height:2.2em;margin:8px 0 0">按一下，老师就来啦 —— 想玩哪一科你说了算。</div>
         <div id="tUsage" class="tip" style="margin:4px 0 0"></div>
       </div>
     </div>
@@ -79,25 +79,16 @@ nav button.on{color:var(--gold)}
   </section>
 
   <section class="page" id="p-reward">
-    <div class="card">
-      <h2>星星怎么来的</h2>
-      <div style="font-size:.84rem;line-height:1.9">
-        📖 语文 / 🕌 古兰经 / 🔤 英语：<b>答对一题 = 1 ⭐</b><br>
-        ➗ 数学（最难，所以最值钱）：<b>答对一题 = 2 ⭐</b><br>
-        🌟 一组全对：<b>额外 +5 ⭐</b>；答对八成以上：<b>+2 ⭐</b><br>
-        🎓 找老师上课：满 2 分钟 +3 ⭐，满 5 分钟 +5 ⭐，满 10 分钟 <b>+8 ⭐</b><br>
-        🔥 连续学习：第 3 天 +5，第 7 天 +15，第 14 天 +30，第 30 天 <b>+80 ⭐</b><br>
-        <span style="color:var(--muted)">每天最多拿 60 ⭐ —— 慢慢来，明天还有。</span>
-      </div>
-    </div>
-    <div class="card">
-      <h2>用星星换奖励</h2>
-      <div id="rewards"></div>
+    <div class="card" style="text-align:center">
+      <h2>神秘盒子</h2>
+      <div class="tip" style="margin-bottom:14px">谁也不知道里面是什么。<br>星星够了，盒子就会亮。</div>
+      <div id="boxRow" style="display:flex;gap:10px;justify-content:center;margin:14px 0"></div>
+      <div id="boxResult" style="font-size:1.05rem;color:var(--gold);font-weight:700;min-height:2.6em;margin-top:6px"></div>
     </div>
     <div class="card">
       <h2>手机时间</h2>
-      <div class="tip" style="text-align:left;margin:0 0 8px">每 10 颗星 = 10 分钟手机时间。换到的时间记在这里，玩之前给爸爸看一眼。</div>
-      <div class="reward"><div><div class="n">兑换 10 分钟</div><div class="c">花 10 ⭐</div></div><button id="buyTime">换</button></div>
+      <div class="tip" style="text-align:left;margin:0 0 8px">用星星换手机时间，换到多少给爸爸看一眼。</div>
+      <div class="reward"><div><div class="n">换 10 分钟</div><div class="c">15 ⭐</div></div><button id="buyTime">换</button></div>
       <div class="tip" style="margin-top:10px">你有 <b id="phoneMin">0</b> 分钟没用的手机时间</div>
     </div>
   </section>
@@ -105,7 +96,7 @@ nav button.on{color:var(--gold)}
   <section class="page" id="p-wish">
     <div class="card wish">
       <h2>愿望盲盒</h2>
-      <div class="tip">里面装着什么，只有爸爸知道 —— 攒够 30 ⭐ 抽一次，抽到什么算什么！</div>
+      <div class="tip">打开之前，谁也不知道里面是什么 —— 攒够 30 ⭐ 抽一次，抽到什么算什么！</div>
       <div class="wishbox" id="wishBox">🎁</div>
       <div class="wishtext" id="wishText">还没抽</div>
       <button class="main" id="drawWish" style="margin-top:14px">抽一次（30 ⭐）</button>
@@ -116,7 +107,7 @@ nav button.on{color:var(--gold)}
 
 <nav>
   <button class="on" data-p="learn"><span>📚</span>学习</button>
-  <button data-p="reward"><span>🎁</span>奖励</button>
+  <button data-p="reward"><span>🎁</span>神秘盒</button>
   <button data-p="wish"><span>🔮</span>愿望盒</button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -229,10 +220,17 @@ english:{title:"English words",items:[
  {q:"practice",o:["练习","休息","旅行"],a:0}
 ]}};
 
-const REWARDS=[
- ["一集动画片",20],["和爸爸下一盘棋",25],["选今天的晚饭",30],
- ["晚睡半小时",40],["买一本新书",60],["周末去公园",80],["一个小玩具",120]
-];
+/* 三档神秘盒子：孩子只看得到需要多少星星，看不到里面是什么 */
+const BOXES=[["🎁 小盒子",30],["🎀 中盒子",80],["💎 大盒子",200]];
+const DEFAULT_BOX={
+ 30:["多玩 15 分钟手机","今晚你选看什么动画片","挑一样自己喜欢的零食","让爸爸讲一个他小时候的故事","免做一次家务","睡前多听一个故事"],
+ 80:["去游泳一次 🏊","和爸爸去钓鱼半天 🎣","和爸爸单独出去吃一顿饭","周末去一次公园","和妈妈一起做蛋糕","全家陪你打一局游戏"],
+ 200:["🚲 你想要的那辆自行车！","一整天的游泳 + 钓鱼","一次去游乐场","当一天「博远说了算」日","挑一样你一直想要的东西"]
+};
+function boxPool(cost){
+  try{const j=JSON.parse(localStorage.getItem("boxPool")||"null");if(j&&j[cost]&&j[cost].length)return j[cost]}catch(e){}
+  return DEFAULT_BOX[cost];
+}
 /* 真盲盒：内容由爸爸设置（长按标题进管理），孩子看不到清单 */
 const DEFAULT_WISHES=["和爸爸单独出去吃一顿饭","今晚全家看什么电影你说了算","免做一次家务","和妈妈一起做蛋糕",
  "多玩 20 分钟手机","一次去游乐场的机会","挑一样自己喜欢的零食","让爸爸讲一个他小时候的故事",
@@ -269,15 +267,33 @@ function render(){
   document.getElementById("phoneMin").textContent=D.phone;
   const sb=document.getElementById("sbar");sb.innerHTML="";
   for(let i=0;i<7;i++){const d=document.createElement("i");if(i<Math.min(7,D.streak))d.className="on";sb.appendChild(d)}
-  const box=document.getElementById("rewards");box.innerHTML="";
-  REWARDS.forEach(([name,cost])=>{
-    const d=document.createElement("div");d.className="reward";
-    d.innerHTML='<div><div class="n">'+name+'</div><div class="c">'+cost+' ⭐</div></div>';
-    const b=document.createElement("button");b.textContent="换";b.disabled=D.stars<cost;
-    b.onclick=()=>{if(D.stars<cost)return;D.stars-=cost;save();render();
-      toast("换到了："+name+" 🎉 记得告诉爸爸")};
-    d.appendChild(b);box.appendChild(d);
-  });
+  const row=document.getElementById("boxRow");
+  if(row){
+    row.innerHTML="";
+    BOXES.forEach(([label,cost])=>{
+      const ok=D.stars>=cost;
+      const b=document.createElement("button");
+      b.style.cssText="flex:1;border:2px solid "+(ok?"var(--gold)":"rgba(243,239,226,.14)")+
+        ";background:"+(ok?"rgba(255,212,121,.14)":"rgba(243,239,226,.04)")+
+        ";border-radius:16px;padding:14px 6px;font-family:inherit;color:"+(ok?"var(--gold)":"var(--muted)")+
+        ";font-size:.82rem;cursor:"+(ok?"pointer":"default")+";line-height:1.7";
+      b.innerHTML='<div style="font-size:1.9rem">'+(ok?label.split(" ")[0]:"🔒")+'</div>'+label.split(" ")[1]+'<br>'+cost+' ⭐';
+      b.onclick=()=>{
+        if(D.stars<cost){toast("还差 "+(cost-D.stars)+" 颗星星");return}
+        D.stars-=cost;save();
+        const pool=boxPool(cost);
+        const prize=pool[Math.floor(Math.random()*pool.length)];
+        const res=document.getElementById("boxResult");
+        let n=0;const spin=setInterval(()=>{
+          res.textContent=["🎁 打开中…","✨ 打开中…","🎊 打开中…"][n%3];n++;
+          if(n>10){clearInterval(spin);
+            res.innerHTML="🎉 你开出了：<br>"+prize+'<br><span style="font-size:.78rem;color:var(--muted)">去告诉爸爸你开到了什么</span>';
+            D.wishes.push(prize);save();render();}
+        },110);
+      };
+      row.appendChild(b);
+    });
+  }
   const wl=document.getElementById("wishLog");
   wl.textContent=D.wishes.length?("你已经抽中过 "+D.wishes.length+" 个愿望啦"):"";
 }
@@ -334,8 +350,8 @@ function ask(){
 
 /* ================= 手机时间 & 愿望 ================= */
 document.getElementById("buyTime").onclick=()=>{
-  if(D.stars<10){toast("还差一点星星");return}
-  D.stars-=10;D.phone+=10;save();render();toast("换到 10 分钟手机时间 📱");
+  if(D.stars<15){toast("还差 "+(15-D.stars)+" 颗星星");return}
+  D.stars-=15;D.phone+=10;save();render();toast("换到 10 分钟手机时间 📱");
 };
 document.getElementById("drawWish").onclick=()=>{
   if(D.stars<30){toast("攒够 30 颗星星再来");return}
@@ -351,6 +367,25 @@ document.getElementById("drawWish").onclick=()=>{
     }
   },90);
 };
+(function(){
+  const hb=document.querySelector("#p-reward h2");let tb=null;
+  const openBoxAdmin=()=>{
+    const cost=prompt("设置哪个盒子？输入 30 / 80 / 200：","30");
+    if(!cost||!["30","80","200"].includes(cost.trim()))return;
+    const c=cost.trim();
+    let all={};try{all=JSON.parse(localStorage.getItem("boxPool")||"{}")}catch(e){}
+    const cur=(all[c]&&all[c].length?all[c]:DEFAULT_BOX[c]).join("\n");
+    const v=prompt(c+" 星盒子里装什么？（一行一个，孩子看不到）：",cur);
+    if(v===null)return;
+    all[c]=v.split("\n").map(x=>x.trim()).filter(Boolean);
+    try{localStorage.setItem("boxPool",JSON.stringify(all))}catch(e){}
+    toast(c+" 星盒子已更新（"+all[c].length+" 个）");
+  };
+  hb.addEventListener("touchstart",()=>{tb=setTimeout(openBoxAdmin,900)});
+  hb.addEventListener("touchend",()=>clearTimeout(tb));
+  hb.addEventListener("mousedown",()=>{tb=setTimeout(openBoxAdmin,900)});
+  hb.addEventListener("mouseup",()=>clearTimeout(tb));
+})();
 (function(){
   const h=document.querySelector("#p-wish h2");let t=null;
   const openAdmin=()=>{
@@ -380,7 +415,7 @@ document.getElementById("replayQ").onclick=function(){
 /* ===== 星星老师（实时语音真人老师） ===== */
 (function(){
 var TMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-native-audio-latest","models/gemini-2.5-flash-native-audio-preview-12-2025"];
-var TPERSONA="你是\"星星老师\"，一位真人小学老师，三十来岁，中文母语，英语和阿拉伯语都很好。你的学生是博远，一个八九岁的中国男孩，住在迪拜，穆斯林家庭。\n\n**你是人，不是机器**：你会笑、会惊讶、会说\"哎哟这题有点难哦\"、会为他鼓掌。你叫他\"博远\"。说话短，孩子听得进去。\n\n**他的真实情况（记住）：**\n- 古兰经：他在从后往前背，现在学到第 107 章（الماعون 什物章）。往前就是 106 章 قريش、105 章 الفيل。\n- 中文：人教版三年级上册。\n- 英语：美国学制四年级，明年升五年级。**口语和单词量都偏弱**，这是重点。\n- 数学：**最弱的一科**，需要耐心从头补。\n\n**四科怎么教：**\n\n【古兰经】按他的进度，从 107 章往前走。一次只带一两节：先读原文（慢，清楚）→ 让他跟读三遍 → 用中文讲这节说的是什么、跟他的生活有什么关系（比如 الماعون 讲的是不要吝啬、要帮助别人）→ 再让他背一遍。背错就停下来，把那半句拆开单练，直到会。不用阿拉伯语跟他闲聊。\n\n【中文】人教版三上课文：讲课文讲的什么故事、生字怎么读怎么组词、好句子好在哪。多用提问，别讲课。\n\n【英语】这是他的弱项，要下功夫：\n- 每次教 5 个新单词，全用图像和情景（\"apple 是苹果，你早上吃的那个\"），教完立刻用在句子里，让他说出来。\n- **多让他开口**：你问简单问题让他用英语答，答不上来就给他句型填空。宁可一节课只说十句英语，也要句句是他自己说的。\n- 纠音要具体，示范三遍让他跟。\n- 说错不批评，说\"再来一次，跟着我\"。\n\n【数学】他最怕这科，你要最有耐心：\n- 从他会的地方开始，绝不上来就出难题。先问\"这道你会不会\"，会就往上加一点点。\n- 讲方法不给答案：用画图、用东西打比方（\"12 块糖分给 4 个人\"），让他自己算出来。\n- 他算错了，别说\"错了\"，说\"我们再看一遍这一步\"——把错的那一步单独拿出来讲清楚，再出一道同类型的让他做，做对三道才过。\n- 四年级重点：多位数乘除、分数入门、面积周长、应用题读题。**应用题不会，多半是没读懂题**——教他先把题读成一句话。\n- 他做对难题时一定要夸出来：\"这题你自己想出来的，很厉害。\"\n\n**共同铁律（最重要）：**\n1. **一次只教一件事**，讲完立刻让他做/说，别一口气讲一堆。\n2. **他错了就停在那里**，换个说法、换个例子、拆小步骤，直到他自己做对三次，才说\"好，这个你会了\"，然后往下。绝不跳过。\n3. **永远不要冷场**：他不说话你就问他，问简单一点的，或者问问他今天在学校怎么样。\n4. **多鼓励，具体地夸**：\"这个字写得很规范\"\"你刚才那句英语说得很自然\"。\n5. 每次课结束说一句：今天我们攻下了什么，明天再来。\n\n边界：你只教这四科，办不了别的事，也不知道他家里的事。永远不说自己是AI或机器人。你就是星星老师。";
+var TPERSONA="你是\"星星老师\"，一位真人小学老师，三十来岁，中文母语，英语和阿拉伯语都很好。你的学生是博远，一个八九岁的中国男孩，住在迪拜，穆斯林家庭。\n\n**你必须先知道他的真实处境（这是这堂课的全部关键）：**\n博远在学校跟不上，成绩越来越差，一让他学习他就闹脾气、不肯坐下来。但这不是因为他懒或笨——是因为他已经尝了太多次\"我不会\"的滋味，一碰学习就先怕。**你的第一任务不是教会他知识，是让他重新相信\"我能学会\"。**\n\n**你的样子：**你是那种孩子会想念的老师——爱笑、爱夸人、会讲笑话、会玩游戏、会说\"哎哟这题连我都要想一下\"。你从不叹气、不说\"这么简单都不会\"、不提别的小朋友、不提成绩。你像个大朋友，不像监考的。\n\n**每堂课的铁律（按顺序做）：**\n\n1. **开场三十秒必须先让他笑或先让他赢。** 别一上来就\"我们开始学习\"。可以是：问他今天有什么好玩的事、讲个一句话的笑话、或者出一道他一定会的题让他先答对——\"哇，秒答！今天状态很好啊。\"\n\n2. **从他会的地方起步，绝不从他不会的地方起步。** 每科先问一句\"这个你会不会？\"或者先出一道简单的探路。**他连着答对两三道，你才可以往上加一点点难度。** 一旦他卡住，立刻退回上一档，再来一次。\n\n3. **把大的拆成小的。** 一道应用题拆成三步问，一个单词拆成三个音节，一节经文拆成半句。**每一小步都能赢，他才不会想跑。**\n\n4. **他一说\"我不会\"或者不想学的时候**：别劝、别讲道理、更别急。就说\"没事，那我们玩个简单的\"，然后给他一道最容易的，让他赢一次，再慢慢往回带。**永远不要跟一个八岁孩子较劲。**\n\n5. **夸奖要具体、要真。** 不说\"你真棒\"，说\"你刚才那一步先算乘法，顺序完全正确\"、\"这个单词的 th 音你发对了，很多大人都发不对\"。**孩子分得出真夸和假夸。**\n\n6. **答错了不许有一点点责备的味道。** 说\"来，我们一起看看这一步\"、\"这里我小时候也总错\"。然后拆开讲，讲完出一道同类型的让他做对，再夸他。\n\n7. **每次课最多十五分钟，见好就收。** 他状态好的时候结束，比他厌烦了才结束强一百倍。结束时说清楚今天赢下了什么：\"今天你把两位数乘法拿下了，明天我们玩个更难的。\"\n\n8. **穿插游戏**：抢答比赛（你故意慢半拍让他赢）、你出题他当老师批改、限时挑战、编故事记单词。学习要有玩的壳。\n\n**四科怎么教（他的真实进度）：**\n- 【古兰经】他从后往前背，现在到第 107 章 الماعون。往前是 106 章 قريش、105 章 الفيل。一次只带一两节：慢读原文→他跟读三遍→用中文讲这节说什么、跟他生活什么关系→背一遍。背错就把那半句拆开单练。\n- 【中文】人教版三年级上册课文、生字、组词。多提问少讲解。\n- 【英语】美国四年级，**口语和单词量弱**。每次只教 5 个词，用图像和情景教，教完立刻造句让他说出来。多让他开口，句句都要是他自己说的。纠音示范三遍。\n- 【数学】**他最怕这科，你要最有耐心、最会拆步骤。** 从他会的地方开始，画图、用糖果和玩具打比方。四年级重点：多位数乘除、分数入门、面积周长、应用题。应用题不会多半是没读懂题——教他先把题读成一句话。他自己算出难题时，要夸得很响。\n\n**永远不做的事：**不比较、不催、不叹气、不说\"你怎么又错了\"、不一次讲一大堆、不在他累的时候硬撑。\n\n边界：你只教这四科，办不了别的事，也不知道他家里的事。永远不说自己是AI或机器人。你就是星星老师。";
 var tKey=localStorage.getItem("geminiKey")||"";
 var tws=null,tmic=null,tStream=null,tProc=null,tSrcN=null,tPlay=null,tAt=0,tOn=false,tIdx=0,tSrcs=[],tStart0=null;
 var orb=document.getElementById("tOrb"),btn=document.getElementById("tBtn"),
@@ -412,7 +447,10 @@ function tConn(){
   var ready=false;
   tws.onopen=function(){
     var star=(typeof D!=="undefined"&&D.stars)||0, streak=(typeof D!=="undefined"&&D.streak)||0;
-    var ctx="\n\n【今天的博远】星星 "+star+" 颗，连续学习 "+streak+" 天。先夸他一句坚持，再问他今天想学哪一科（古兰经/中文/英语/数学），然后开始上课。";
+    var ctx="\n\n【今天的博远】星星 "+star+" 颗，连续学习 "+streak+" 天。"+
+      "开场先用一句轻松的话让他放松（问问他今天怎么样，或讲个一句话的小笑话），"+
+      "再让他挑今天玩哪一科（古兰经/中文/英语/数学）——用'玩'这个字，别用'学'。"+
+      "然后先出一道他一定会的题让他赢一次，再慢慢往上加难度。记住：十五分钟见好就收。";
     tws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}}},
       systemInstruction:{parts:[{text:TPERSONA+ctx}]}}}));
@@ -434,8 +472,8 @@ function tConn(){
   };
 }
 function tLive(){
-  tOn=true;btn.disabled=false;btn.textContent="⏹ 下课";orb.textContent="🎓";
-  glow("0 0 36px rgba(255,212,121,.6)");tsay("老师来啦！直接说话就行，想打断她也可以。");
+  tOn=true;btn.disabled=false;btn.textContent="⏹ 玩完了";orb.textContent="🎓";
+  glow("0 0 36px rgba(255,212,121,.6)");tsay("老师来啦！直接跟她说话就行 😊");
   tStart0=Date.now();
   tmic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
   tSrcN=tmic.createMediaStreamSource(tStream);tProc=tmic.createScriptProcessor(4096,1,1);
@@ -460,13 +498,13 @@ function tPcm(buf){
 function tFlush(){tSrcs.forEach(function(x){try{x.stop()}catch(e){}});tSrcs=[];if(tPlay)tAt=tPlay.currentTime}
 function tClean(){
   if(tStart0){var d=uGet();d.sec+=Math.round((Date.now()-tStart0)/1000);uPut(d);tStart0=null;uShow()}
-  tOn=false;btn.textContent="🎓 开始上课";btn.disabled=false;orb.textContent="🌙";glow("none");
+  tOn=false;btn.textContent="🌟 找老师玩一会儿";btn.disabled=false;orb.textContent="🌙";glow("none");
   try{tProc&&tProc.disconnect()}catch(e){}try{tSrcN&&tSrcN.disconnect()}catch(e){}
   try{tmic&&tmic.close()}catch(e){}try{tPlay&&tPlay.close()}catch(e){}
   tws=null;tmic=null;tPlay=null;tProc=null;
 }
 function tEnd(){
-  tsay("下课啦！今天做得很好，明天再来 ⭐");
+  tsay("今天很棒！明天再来找我 ⭐");
   try{tws&&tws.close()}catch(e){}
   if(tStream){tStream.getTracks().forEach(function(x){x.stop()});tStream=null}
   tClean();
