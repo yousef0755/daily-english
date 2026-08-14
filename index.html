@@ -57,12 +57,14 @@ footer a{color:var(--gold-soft)}
   <div id="wordArea"></div>
   <h2 class="section-title">Listening Quiz <small>Hear it, pick what he said · 7/10 lights the day</small></h2>
   <div id="quizArea"><button class="btn-main" id="startQuiz">Start the listening quiz →</button></div>
-  <h2 class="section-title">Speak with Aria <small>live call · interrupt anytime</small></h2>
+  <h2 class="section-title">Oral Exam with Aria <small>she tests you on today’s lesson</small></h2>
   <div class="card" style="text-align:center">
     <div id="aOrb" style="width:96px;height:96px;border-radius:50%;margin:4px auto 12px;display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 34% 30%,#2c6b52,#12301f);border:2px solid rgba(184,147,74,.45);transition:box-shadow .25s">🌙</div>
-    <button class="btn-main" id="aBtn" style="margin:0 0 8px">🎧 Start speaking</button>
-    <div id="aStatus" class="hint" style="min-height:2.2em;margin:0">She knows today’s phrases - tap and practise them out loud.</div>
+    <button class="btn-main" id="aBtn" style="margin:0 0 8px">🎓 Start oral exam</button>
+    <div id="aStatus" class="hint" style="min-height:2.2em;margin:0">She has today’s lesson and your quiz mistakes. Tap to start the oral exam.</div>
     <div id="aChat" style="text-align:left;font-size:.85rem;display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:180px;overflow-y:auto"></div>
+    <input id="oralIn" placeholder="Her verdict, e.g. 7/10 weak on: bottom line" style="margin-top:10px;width:100%;background:rgba(0,0,0,.18);border:1px solid #e0d6bd;border-radius:10px;padding:10px;font-family:inherit;font-size:.85rem;color:inherit">
+    <button class="btn-wa" id="oralSave" style="margin-top:8px">Save exam result</button>
   </div>
   <a class="btn-wa" id="sendCoach" href="#">📮 Send today's results to Coach Lin</a>
   <p class="hint">Your coach reads every report and tunes tomorrow's lesson to your weak spots.</p>
@@ -182,10 +184,12 @@ function startQuiz(){
 }
 function updateCoachLink(){
   const a=document.getElementById("sendCoach");
+  const oral=(function(){try{return localStorage.getItem("oralResult")||""}catch(e){return""}})();
   let msg="Coach Lin, my Daily English report "+today+" — ";
   if(lastResult){msg+="pack: "+lastResult.pack+", score: "+lastResult.score+"/10, streak: "+state.streak;
     if(lastResult.wrong.length)msg+=". I missed: "+lastResult.wrong.join(" | ");}
   else msg+="I studied the "+currentPack+" pack today. Streak: "+state.streak;
+  if(oral)msg+=" || Oral exam with Aria: "+oral;
   a.href="https://wa.me/971502769188?text="+encodeURIComponent(msg);
 }
 document.getElementById("startQuiz").onclick=startQuiz;
@@ -224,7 +228,7 @@ function aConn(){
     var lesson="\n\n=== TODAY'S LESSON (he just studied these on this page) ===\nTopic: "+currentPack+"\n"+lines+
       "\nHis streak: "+(state?state.streak:0)+" days."+
       (st?(" Last quiz: "+st.score+"/10"+((st.wrong&&st.wrong.length)?(", he missed: "+st.wrong.join(" | ")):", perfect")):"")+
-      "\n\nYOUR JOB THIS SESSION: drill him on THESE exact phrases through short realistic roleplays. Say a warm hello, then immediately put him in a situation that needs phrase 1 (for example: you are a customer who thinks his price is too high). Work through the phrases one at a time, prioritising the ones he missed. One brief correction at a time. Always end each turn with a question so he keeps speaking.";
+      "\n\nYOU ARE HIS TEACHER, AND THIS IS AN ORAL EXAM ON TODAY'S LESSON. Run it like a real teacher, not a chat:\n1. Greet him briefly, then say: 'Today I am testing you on the phrases you studied. Ten situations. Ready?'\n2. For EACH phrase, put him in a short real situation and make HIM produce the phrase. Example: 'I am your customer. Your price is too high, what do you say?' Wait for his answer.\n3. Judge each answer out loud in one line: 'Correct.' / 'Almost — you said X, we say Y.' / 'Not quite, the phrase for this is Z. Say it back to me.' Make him repeat anything he got wrong.\n4. Start with the phrases he MISSED in the written quiz (listed above) — those matter most.\n5. Keep score silently. After ten questions, give his result out loud: 'You scored X out of 10. Strong on ..., we need more work on ....'\n6. Then say clearly: 'Say REPORT and I will send your result to Lin.' If he says report, read out this exact sentence for him to remember: 'Oral exam today: X out of 10, weak on <phrases>.'\n7. Never do more than one question at a time. Never lecture. Short teacher sentences only.\n8. NEVER WAIT IN SILENCE. You lead this session — the moment he stops talking, you speak: ask the next question, or prompt him ('Take your time — how would you say it?'). If he is quiet for a few seconds, ask something yourself: about his day, his customers, his family, how the trading went. You start every exchange; he should never have to wonder what to say next.";
     aws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}}},
       systemInstruction:{parts:[{text:APERSONA+lesson}]}}}))};
@@ -246,7 +250,7 @@ function aConn(){
 }
 function aLive(){
   aOn=true;btn.disabled=false;btn.textContent="⏹ End session";
-  orb.textContent="🎙";glow("0 0 34px rgba(184,147,74,.55)");asay("Connected - drilling today’s "+currentPack+" phrases. Just talk.");
+  orb.textContent="🎙";glow("0 0 34px rgba(184,147,74,.55)");asay("Exam started — "+currentPack+". Answer out loud; she scores you.");
   amic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
   aSrcNode=amic.createMediaStreamSource(aStream);aProc=amic.createScriptProcessor(4096,1,1);
   aSrcNode.connect(aProc);aProc.connect(amic.destination);
@@ -269,7 +273,7 @@ function aPcm(buf){
 }
 function aFlush(){aSrcs.forEach(function(s){try{s.stop()}catch(e){}});aSrcs=[];if(aPlay)aAt=aPlay.currentTime}
 function aClean(){
-  aOn=false;btn.textContent="🎧 Start speaking";btn.disabled=false;orb.textContent="🌙";glow("none");
+  aOn=false;btn.textContent="🎓 Start oral exam";btn.disabled=false;orb.textContent="🌙";glow("none");
   try{aProc&&aProc.disconnect()}catch(e){}try{aSrcNode&&aSrcNode.disconnect()}catch(e){}
   try{amic&&amic.close()}catch(e){}try{aPlay&&aPlay.close()}catch(e){}
   aws=null;amic=null;aPlay=null;aProc=null;
@@ -281,6 +285,17 @@ function aHang(){
   aClean();
 }
 btn.onclick=aStart;
+var oi=document.getElementById("oralIn"),ob=document.getElementById("oralSave");
+if(oi&&ob){
+  try{oi.value=localStorage.getItem("oralResult")||""}catch(e){}
+  ob.onclick=function(){
+    var v=oi.value.trim();
+    try{localStorage.setItem("oralResult",v)}catch(e){}
+    if(typeof updateCoachLink==="function")updateCoachLink();
+    ob.textContent=v?"Saved ✓ — now tap “Send today’s results to Coach Lin”":"Cleared";
+    setTimeout(function(){ob.textContent="Save exam result"},3500);
+  };
+}
 })();
 
 </script>
