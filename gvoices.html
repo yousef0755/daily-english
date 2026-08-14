@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>通话声音 · 选一个</title>
+<style>
+body{font-family:-apple-system,"PingFang SC",serif;background:#0d241b;color:#f2ead8;padding:24px 18px 60px;line-height:1.7}
+h1{font-size:1.15rem;letter-spacing:.1em;text-align:center}
+.note{font-size:.82rem;color:#9fb3a4;text-align:center;margin:10px 0 22px;line-height:1.8}
+.v{background:rgba(242,234,216,.06);border:1px solid rgba(242,234,216,.14);border-radius:14px;padding:14px 16px;margin-bottom:11px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.n{font-weight:700;color:#e7c57b;font-size:1.02rem}
+.d{font-size:.76rem;color:#9fb3a4}
+button{border:1px solid #b8934a;background:#14342a;color:#f2ead8;border-radius:11px;padding:9px 18px;font-family:inherit;font-size:.95rem;cursor:pointer;flex-shrink:0}
+button.playing{background:#b8934a;color:#10231b;font-weight:700}
+</style></head><body>
+<h1>通 话 声 音</h1>
+<div class="note">这八个是实时通话能用的全部声音（Google 的引擎，塞不进微软的晓北/Aria）。<br>都念同一句话，您挑一个，我把所有通话都定成它。</div>
+<div id="list"></div>
+<script>
+const V=[["Aoede","目前在用 · 女声，温和"],["Kore","女声，清亮利落"],["Leda","女声，年轻柔和"],
+["Zephyr","女声，轻快"],["Charon","男声，低沉稳重"],["Puck","男声，活泼"],
+["Fenrir","男声，浑厚"],["Orus","男声，中性平稳"]];
+let cur=null,curBtn=null;
+const box=document.getElementById("list");
+V.forEach(([id,desc])=>{
+  const d=document.createElement("div");d.className="v";
+  d.innerHTML='<div><div class="n">'+id+'</div><div class="d">'+desc+'</div></div>';
+  const b=document.createElement("button");b.textContent="▶ 听";
+  b.onclick=()=>{
+    if(cur){cur.pause();if(curBtn){curBtn.classList.remove("playing");curBtn.textContent="▶ 听"}}
+    if(curBtn===b&&cur&&!cur.ended){cur=null;curBtn=null;return}
+    cur=new Audio("gvoices/"+id+".wav");curBtn=b;
+    b.classList.add("playing");b.textContent="… 播放中";
+    cur.onended=()=>{b.classList.remove("playing");b.textContent="▶ 听"};
+    cur.play().catch(()=>{});
+  };
+  d.appendChild(b);box.appendChild(d);
+});
+</script></body></html>
