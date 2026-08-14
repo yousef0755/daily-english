@@ -136,7 +136,7 @@ function renderWords(){
     c.innerHTML='<div class="word-row"><div class="phrase">'+it[0]+'</div><button class="speak">🎧 Listen</button></div><div class="use">'+it[1]+'</div>';
     const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
     c.querySelector(".speak").onclick=()=>play(currentPack,i,"s",it[0]+". "+it[1]);
-    ph.onclick=()=>{ph.classList.add("shown");use.classList.add("shown");};
+    ph.onclick=()=>{const on=ph.classList.toggle("shown");use.classList.toggle("shown",on);};
     area.appendChild(c);
   });
 }
