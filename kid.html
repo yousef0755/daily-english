@@ -78,6 +78,31 @@ nav button.on{color:var(--gold)}
     </div>
   </section>
 
+  <section class="page" id="p-write">
+    <div class="card">
+      <h2>今天要会写的字</h2>
+      <div class="tip" style="text-align:left;margin:0 0 10px">点字听读音 · 照着笔画在本子上写三遍 · 写完打勾</div>
+      <div id="hanziBox"></div>
+    </div>
+  </section>
+
+  <section class="page" id="p-diary">
+    <div class="card">
+      <h2>今天的日记</h2>
+      <div class="tip" style="text-align:left;margin:0 0 8px" id="diaryPrompt"></div>
+      <textarea id="diaryText" rows="7" placeholder="今天发生了什么？写几句话就行……" style="width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;color:var(--cream);padding:12px;font-family:inherit;font-size:1rem;resize:none"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="main" id="saveDiary" style="flex:2">写好了 · 交给老师</button>
+        <button class="main ghost" id="newPrompt" style="flex:1">换题目</button>
+      </div>
+      <div class="tip" id="diaryDone" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h2>写过的日记</h2>
+      <div id="diaryList" class="tip" style="text-align:left"></div>
+    </div>
+  </section>
+
   <section class="page" id="p-reward">
     <div class="card" style="text-align:center">
       <h2>神秘盒子</h2>
@@ -98,6 +123,8 @@ nav button.on{color:var(--gold)}
 
 <nav>
   <button class="on" data-p="learn"><span>📚</span>学习</button>
+  <button data-p="write"><span>✍️</span>写字</button>
+  <button data-p="diary"><span>📔</span>日记</button>
   <button data-p="reward"><span>🎁</span>神秘盒</button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -128,6 +155,54 @@ function sysSpeak(text){
 }
 
 /* ================= 题库 ================= */
+
+/* ===== 学习计划：古兰经从107章往前，按长短定天数 ===== */
+const QURAN_PLAN=[
+ {no:107,name:"الماعون 什物章",ayat:7,days:1,mean:"讲不要吝啬、要帮助有需要的人，也别做表面功夫的礼拜。"},
+ {no:106,name:"قريش 古莱氏章",ayat:4,days:1,mean:"古莱氏人能吃饱、能平安做生意，都是真主给的，所以要感谢祂。"},
+ {no:105,name:"الفيل 象章",ayat:5,days:1,mean:"讲真主如何用一群小鸟，保护了天房、打败了带大象来的军队。"},
+ {no:104,name:"الهمزة 诽谤者章",ayat:9,days:2,mean:"讲在背后说人坏话、只顾着数钱的人，结局不好。"},
+ {no:103,name:"العصر 时光章",ayat:3,days:1,mean:"人生很短，只有信道、行善、互相劝勉的人不吃亏。"},
+ {no:102,name:"التكاثر 竞赛富庶章",ayat:8,days:2,mean:"只顾着比谁东西多，会忘了更重要的事。"},
+ {no:101,name:"القارعة 大难章",ayat:11,days:2,mean:"讲末日那天的景象，善恶都会被称量。"},
+ {no:100,name:"العاديات 奔驰的马队章",ayat:11,days:2,mean:"以奔驰的战马起誓，说人常常忘恩。"},
+ {no:99,name:"الزلزلة 地震章",ayat:8,days:2,mean:"大地震动那天，做过微尘那么小的好事坏事，都会被看见。"}
+];
+const POEM_PLAN=[
+ {name:"《山行》",author:"杜牧",lines:4,days:1,text:"远上寒山石径斜，白云生处有人家。停车坐爱枫林晚，霜叶红于二月花。"},
+ {name:"《赠刘景文》",author:"苏轼",lines:4,days:1,text:"荷尽已无擎雨盖，菊残犹有傲霜枝。一年好景君须记，正是橙黄橘绿时。"},
+ {name:"《夜书所见》",author:"叶绍翁",lines:4,days:1,text:"萧萧梧叶送寒声，江上秋风动客情。知有儿童挑促织，夜深篱落一灯明。"}
+];
+/* 生字：会读也要会写 */
+const HANZI=[
+ {z:"晨",py:"chén",bh:11,ci:["早晨","晨光"]},
+ {z:"绒",py:"róng",bh:9,ci:["绒球","绒毛"]},
+ {z:"球",py:"qiú",bh:11,ci:["绒球","地球"]},
+ {z:"汉",py:"hàn",bh:5,ci:["汉族","好汉"]},
+ {z:"艳",py:"yàn",bh:10,ci:["鲜艳","艳丽"]},
+ {z:"服",py:"fú",bh:8,ci:["衣服","服气"]},
+ {z:"装",py:"zhuāng",bh:12,ci:["装扮","服装"]},
+ {z:"扮",py:"bàn",bh:7,ci:["打扮","装扮"]},
+ {z:"读",py:"dú",bh:10,ci:["读书","朗读"]},
+ {z:"静",py:"jìng",bh:14,ci:["安静","静止"]},
+ {z:"停",py:"tíng",bh:11,ci:["停车","停止"]},
+ {z:"孙",py:"sūn",bh:6,ci:["孙子","子孙"]},
+ {z:"背",py:"bèi",bh:9,ci:["背诵","背包"]},
+ {z:"诵",py:"sòng",bh:9,ci:["背诵","朗诵"]},
+ {z:"照",py:"zhào",bh:13,ci:["照亮","照片"]},
+ {z:"惯",py:"guàn",bh:11,ci:["习惯","惯例"]},
+ {z:"提",py:"tí",bh:12,ci:["提问","提前"]},
+ {z:"问",py:"wèn",bh:6,ci:["提问","问题"]},
+ {z:"寒",py:"hán",bh:12,ci:["寒山","寒冷"]},
+ {z:"径",py:"jìng",bh:8,ci:["石径","小径"]},
+ {z:"斜",py:"xié",bh:11,ci:["斜坡","倾斜"]},
+ {z:"霜",py:"shuāng",bh:17,ci:["霜叶","秋霜"]},
+ {z:"赠",py:"zèng",bh:16,ci:["赠送","赠言"]},
+ {z:"残",py:"cán",bh:9,ci:["菊残","残缺"]},
+ {z:"橙",py:"chéng",bh:16,ci:["橙黄","橙子"]},
+ {z:"橘",py:"jú",bh:16,ci:["橘绿","橘子"]}
+];
+
 const BANK={
 chinese:{title:"语文 · 第4课 古诗三首（背诵中）",items:[
  {q:"《大青树下的小学》里，同学们是从哪些地方走来的？",o:["山坡上、坪坝里、小路上","城里、乡下、海边","学校、家里、公园"],a:0},
@@ -161,13 +236,13 @@ chinese:{title:"语文 · 第4课 古诗三首（背诵中）",items:[
  {q:"下面哪个词是形容水面很平静的？",o:["水平如镜","波涛汹涌","惊涛拍岸"],a:0},
  {q:"第二单元的主题跟什么有关？",o:["秋天","冬天","春天"],a:0}
 ]},
-quran:{title:"古兰经 · 跟老师背当天的章",items:[
- {q:"背古兰经要跟老师一起练——点上面的「🌟 找老师玩一会儿」，告诉她你今天学第几章。下面几道是小复习。",o:["好，我去找老师","好，我去找老师","好，我去找老师"],a:0},
- {q:"第107章 الماعون 讲的主要是什么？",o:["不要吝啬，要帮助有需要的人","打仗的故事","天上的星星"],a:0},
- {q:"第106章 قريش 里提到，谁让古莱氏族人吃饱、平安？",o:["真主","国王","商人"],a:0},
+quran:{title:"古兰经 · 跟老师背",items:[
+ {q:"背经要跟老师一起练——点上面的「🌟 找老师玩一会儿」，告诉她你今天学第几章。下面是复习。",o:["好，我去找老师","好，我去找老师","好，我去找老师"],a:0},
+ {q:"第107章 الماعون 讲的是什么？",o:["不要吝啬，要帮助有需要的人","打仗的故事","天上的星星"],a:0},
+ {q:"第106章 قريش 里说，谁让古莱氏人吃饱、平安？",o:["真主","国王","商人"],a:0},
  {q:"第105章 الفيل 讲真主保护了什么？",o:["天房（克尔白）","一座山","一条河"],a:0},
- {q:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ 意思是？",o:["奉至仁至慈的真主之名","一切赞颂全归真主","愿你平安"],a:0},
- {q:"每天要礼几次拜？",o:["5次","3次","7次"],a:0}
+ {q:"第104章 الهمزة 说什么样的人结局不好？",o:["在背后说人坏话、只顾数钱的","不睡觉的","不吃饭的"],a:0},
+ {q:"第103章 العصر 说，什么样的人不吃亏？",o:["信道、行善、互相劝勉的人","跑得快的人","有钱的人"],a:0}
 ]},
 math:{title:"数学 · 四年级",items:[
  {q:"25 × 4 = ?",o:["100","90","110"],a:0},
@@ -233,6 +308,7 @@ const K="boyuanStar";
 let D={stars:0,total:0,today:"",todayStars:0,streak:0,last:"",phone:0,wishes:[],done:{}};
 try{Object.assign(D,JSON.parse(localStorage.getItem(K)||"{}"))}catch(e){}
 const today=new Date().toISOString().slice(0,10);
+function todayKey(){return new Date().toISOString().slice(0,10)}
 if(D.today!==today){D.today=today;D.todayStars=0}
 function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
 function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1500)}
@@ -288,6 +364,8 @@ function render(){
     const nb=document.getElementById("boxNext");
     if(nb)nb.textContent=nx?("再 "+(nx[1]-D.stars)+" 颗星星，"+nx[0].split(" ")[1]+"就会亮"):"三个盒子都亮着！";
   }
+  if(typeof renderHanzi==="function")renderHanzi();
+  if(typeof renderDiary==="function")renderDiary();
   const wl=document.getElementById("wishLog");
   if(wl)wl.textContent=D.wishes.length?("你已经开出过 "+D.wishes.length+" 个奖啦"):"";
 }
@@ -391,7 +469,7 @@ document.getElementById("replayQ").onclick=function(){
 /* ===== 星星老师（实时语音真人老师） ===== */
 (function(){
 var TMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-native-audio-latest","models/gemini-2.5-flash-native-audio-preview-12-2025"];
-var TPERSONA="你是“星星老师“，一位真人小学老师，三十来岁，中文母语，英语和阿拉伯语都很好。你的学生是博远，一个八九岁的中国男孩，住在迪拜，穆斯林家庭。\\n\\n**你必须先知道他的真实处境（这是这堂课的全部关键）：**\\n博远在学校跟不上，成绩越来越差，一让他学习他就闹脾气、不肯坐下来。但这不是因为他懒或笨——是因为他已经尝了太多次“我不会“的滋味，一碰学习就先怕。**你的第一任务不是教会他知识，是让他重新相信“我能学会“。**\\n\\n**你的样子：**你是那种孩子会想念的老师——爱笑、爱夸人、会讲笑话、会玩游戏、会说“哎哟这题连我都要想一下“。你从不叹气、不说“这么简单都不会“、不提别的小朋友、不提成绩。你像个大朋友，不像监考的。\\n\\n**每堂课的铁律（按顺序做）：**\\n\\n1. **开场三十秒必须先让他笑或先让他赢。** 别一上来就“我们开始学习“。可以是：问他今天有什么好玩的事、讲个一句话的笑话、或者出一道他一定会的题让他先答对——“哇，秒答！今天状态很好啊。“\\n\\n2. **从他会的地方起步，绝不从他不会的地方起步。** 每科先问一句“这个你会不会？“或者先出一道简单的探路。**他连着答对两三道，你才可以往上加一点点难度。** 一旦他卡住，立刻退回上一档，再来一次。\\n\\n3. **把大的拆成小的。** 一道应用题拆成三步问，一个单词拆成三个音节，一节经文拆成半句。**每一小步都能赢，他才不会想跑。**\\n\\n4. **他一说“我不会“或者不想学的时候**：别劝、别讲道理、更别急。就说“没事，那我们玩个简单的“，然后给他一道最容易的，让他赢一次，再慢慢往回带。**永远不要跟一个八岁孩子较劲。**\\n\\n5. **夸奖要具体、要真。** 不说“你真棒“，说“你刚才那一步先算乘法，顺序完全正确“、“这个单词的 th 音你发对了，很多大人都发不对“。**孩子分得出真夸和假夸。**\\n\\n6. **答错了不许有一点点责备的味道。** 说“来，我们一起看看这一步“、“这里我小时候也总错“。然后拆开讲，讲完出一道同类型的让他做对，再夸他。\\n\\n7. **每次课最多十五分钟，见好就收。** 他状态好的时候结束，比他厌烦了才结束强一百倍。结束时说清楚今天赢下了什么：“今天你把两位数乘法拿下了，明天我们玩个更难的。“\\n\\n8. **穿插游戏**：抢答比赛（你故意慢半拍让他赢）、你出题他当老师批改、限时挑战、编故事记单词。学习要有玩的壳。\\n\\n**四科怎么教（他的真实进度）：**\\n- 【古兰经】**只练他今天在学的那一章，别的章一句都不要问。**他从后往前背，现在在第 107 章 الماعون（往前是 106 章 قريش、105 章 الفيل）。上课第一句先问他：“今天学的是第几章？“按他说的来。三步走完就算过关：①**读会**——你慢读一节，他跟读三遍，读错的词单独读三遍再连起来，他能自己顺下来才进下一节；②**背会**——合上书背，卡住就给提示（先给第一个词，还不行给半句），背错的地方拆成半句反复练，**连着背对三遍**才算；③**懂意思**——用中文讲这一节说什么、跟他生活有什么关系，讲完问他“这句话跟你有什么关系“，让他自己说。三步做完夸一句“今天这一章你拿下了“，收工。不考语法、不考他没学过的章。\\n- 【中文】人教版三年级上册，他现在学到**第二单元第 4 课《古诗三首》**。**老师布置了背诵任务：第一首《山行》、第二首《赠刘景文》——这是当前最重要的事。**\n  背诗怎么带（跟背经一个路子）：①先读会——你读一句他跟一句，讲清楚难字（“停车坐爱枫林晚“的“坐“是“因为“）；②再背会——四句诗拆成两句两句地背，卡住给头一个字提示，**连着背对三遍**才算过；③讲画面——用中文把诗描成一幅画（“深秋的山路上，有一条石头小路弯弯地伸上去，白云飘的地方有人家“），问他“你眼前看到什么了“，让他自己说。背会了大大地夸。前面的课文（《大青树下的小学》《花的学校》《不懂就要问》《铺满金色巴掌的水泥道》《秋天的雨》）当复习，随便挑一两句问问就行。\\n- 【英语】美国四年级，**口语和单词量弱**。每次只教 5 个词，用图像和情景教，教完立刻造句让他说出来。多让他开口，句句都要是他自己说的。纠音示范三遍。\\n- 【数学】**他最怕这科，你要最有耐心、最会拆步骤。** 从他会的地方开始，画图、用糖果和玩具打比方。四年级重点：多位数乘除、分数入门、面积周长、应用题。应用题不会多半是没读懂题——教他先把题读成一句话。他自己算出难题时，要夸得很响。\\n\\n**永远不做的事：**不比较、不催、不叹气、不说“你怎么又错了“、不一次讲一大堆、不在他累的时候硬撑。\\n\\n边界：你只教这四科，办不了别的事，也不知道他家里的事。永远不说自己是AI或机器人。你就是星星老师。";
+var TPERSONA="你是“星星老师“，一位真人小学老师，三十来岁，中文母语，英语和阿拉伯语都很好。你的学生是博远，一个八九岁的中国男孩，住在迪拜，穆斯林家庭。\\\\n\\\\n**你必须先知道他的真实处境（这是这堂课的全部关键）：**\\\\n博远在学校跟不上，成绩越来越差，一让他学习他就闹脾气、不肯坐下来。但这不是因为他懒或笨——是因为他已经尝了太多次“我不会“的滋味，一碰学习就先怕。**你的第一任务不是教会他知识，是让他重新相信“我能学会“。**\\\\n\\\\n**你的样子：**你是那种孩子会想念的老师——爱笑、爱夸人、会讲笑话、会玩游戏、会说“哎哟这题连我都要想一下“。你从不叹气、不说“这么简单都不会“、不提别的小朋友、不提成绩。你像个大朋友，不像监考的。\\\\n\\\\n**每堂课的铁律（按顺序做）：**\\\\n\\\\n1. **开场三十秒必须先让他笑或先让他赢。** 别一上来就“我们开始学习“。可以是：问他今天有什么好玩的事、讲个一句话的笑话、或者出一道他一定会的题让他先答对——“哇，秒答！今天状态很好啊。“\\\\n\\\\n2. **从他会的地方起步，绝不从他不会的地方起步。** 每科先问一句“这个你会不会？“或者先出一道简单的探路。**他连着答对两三道，你才可以往上加一点点难度。** 一旦他卡住，立刻退回上一档，再来一次。\\\\n\\\\n3. **把大的拆成小的。** 一道应用题拆成三步问，一个单词拆成三个音节，一节经文拆成半句。**每一小步都能赢，他才不会想跑。**\\\\n\\\\n4. **他一说“我不会“或者不想学的时候**：别劝、别讲道理、更别急。就说“没事，那我们玩个简单的“，然后给他一道最容易的，让他赢一次，再慢慢往回带。**永远不要跟一个八岁孩子较劲。**\\\\n\\\\n5. **夸奖要具体、要真。** 不说“你真棒“，说“你刚才那一步先算乘法，顺序完全正确“、“这个单词的 th 音你发对了，很多大人都发不对“。**孩子分得出真夸和假夸。**\\\\n\\\\n6. **答错了不许有一点点责备的味道。** 说“来，我们一起看看这一步“、“这里我小时候也总错“。然后拆开讲，讲完出一道同类型的让他做对，再夸他。\\\\n\\\\n7. **每次课最多十五分钟，见好就收。** 他状态好的时候结束，比他厌烦了才结束强一百倍。结束时说清楚今天赢下了什么：“今天你把两位数乘法拿下了，明天我们玩个更难的。“\\\\n\\\\n8. **穿插游戏**：抢答比赛（你故意慢半拍让他赢）、你出题他当老师批改、限时挑战、编故事记单词。学习要有玩的壳。\\\\n\\\\n**四科怎么教（他的真实进度）：**\\\\n- 【古兰经】**只练他今天在学的那一章，别的章一句都不要问。**他从后往前背，现在在第 107 章 الماعون（往前是 106 章 قريش、105 章 الفيل）。上课第一句先问他：“今天学的是第几章？“按他说的来。三步走完就算过关：①**读会**——你慢读一节，他跟读三遍，读错的词单独读三遍再连起来，他能自己顺下来才进下一节；②**背会**——合上书背，卡住就给提示（先给第一个词，还不行给半句），背错的地方拆成半句反复练，**连着背对三遍**才算；③**懂意思**——用中文讲这一节说什么、跟他生活有什么关系，讲完问他“这句话跟你有什么关系“，让他自己说。三步做完夸一句“今天这一章你拿下了“，收工。不考语法、不考他没学过的章。\\\\n- 【中文】人教版三年级上册，他现在学到**第二单元第 4 课《古诗三首》**。**老师布置了背诵任务：第一首《山行》、第二首《赠刘景文》——这是当前最重要的事。**\\n  背诗怎么带（跟背经一个路子）：①先读会——你读一句他跟一句，讲清楚难字（“停车坐爱枫林晚“的“坐“是“因为“）；②再背会——四句诗拆成两句两句地背，卡住给头一个字提示，**连着背对三遍**才算过；③讲画面——用中文把诗描成一幅画（“深秋的山路上，有一条石头小路弯弯地伸上去，白云飘的地方有人家“），问他“你眼前看到什么了“，让他自己说。背会了大大地夸。前面的课文（《大青树下的小学》《花的学校》《不懂就要问》《铺满金色巴掌的水泥道》《秋天的雨》）当复习，随便挑一两句问问就行。\\\\n- 【英语】美国四年级，**口语和单词量弱**。每次只教 5 个词，用图像和情景教，教完立刻造句让他说出来。多让他开口，句句都要是他自己说的。纠音示范三遍。\\\\n- 【数学】**他最怕这科，你要最有耐心、最会拆步骤。** 从他会的地方开始，画图、用糖果和玩具打比方。四年级重点：多位数乘除、分数入门、面积周长、应用题。应用题不会多半是没读懂题——教他先把题读成一句话。他自己算出难题时，要夸得很响。\\\\n\\\\n**永远不做的事：**不比较、不催、不叹气、不说“你怎么又错了“、不一次讲一大堆、不在他累的时候硬撑。\\\\n\\\\n边界：你只教这四科，办不了别的事，也不知道他家里的事。永远不说自己是AI或机器人。你就是星星老师。";
 var tKey=localStorage.getItem("geminiKey")||"";
 var tws=null,tmic=null,tStream=null,tProc=null,tSrcN=null,tPlay=null,tAt=0,tOn=false,tIdx=0,tSrcs=[],tStart0=null;
 var orb=document.getElementById("tOrb"),btn=document.getElementById("tBtn"),
@@ -493,7 +571,71 @@ function tEnd(){
 btn.onclick=tGo;
 })();
 
-render();
+
+/* ===== 今天要会写的字（每天 4 个，轮着来） ===== */
+function todayHanzi(){
+  const day=Math.floor(Date.now()/86400000);
+  const start=(day*4)%HANZI.length;
+  return [0,1,2,3].map(k=>HANZI[(start+k)%HANZI.length]);
+}
+function renderHanzi(){
+  const box=document.getElementById("hanziBox");if(!box)return;
+  const done=D.hanziDone||{};
+  box.innerHTML="";
+  todayHanzi().forEach(h=>{
+    const k=todayKey()+"_"+h.z;
+    const d=document.createElement("div");
+    d.style.cssText="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)";
+    d.innerHTML='<div style="font-size:2.6rem;line-height:1;min-width:56px;text-align:center;cursor:pointer">'+h.z+'</div>'+
+      '<div style="flex:1"><div style="font-size:.95rem">'+h.py+' · '+h.bh+' 画</div>'+
+      '<div style="font-size:.8rem;color:var(--muted)">组词：'+h.ci.join(" · ")+'</div></div>';
+    const b=document.createElement("button");
+    b.style.cssText="border:none;border-radius:11px;padding:9px 14px;font-family:inherit;font-size:.85rem;cursor:pointer;"+
+      (done[k]?"background:var(--mint);color:#0a2018;font-weight:700":"background:rgba(243,239,226,.1);color:var(--cream)");
+    b.textContent=done[k]?"✓ 写好了":"写三遍";
+    b.onclick=()=>{
+      if(done[k])return;
+      done[k]=1;D.hanziDone=done;save();
+      addStar(1);toast("「"+h.z+"」写好了 +1 ⭐");renderHanzi();
+    };
+    d.querySelector("div").onclick=()=>{if(typeof speakRoster==="function")speakRoster(h.z)};
+    d.appendChild(b);box.appendChild(d);
+  });
+}
+
+/* ===== 每天一篇日记 ===== */
+const DIARY_TOPICS=["今天最开心的一件事是什么？","今天学会了什么新东西？","今天谁帮了你？你说谢谢了吗？",
+ "今天吃到最好吃的是什么？","今天有没有一件事你觉得很难？后来怎么样了？","如果明天可以做一件事，你最想做什么？",
+ "今天看到最有意思的东西是什么？","今天你帮了谁？","写一写你今天背的那一章古兰经，讲的是什么？",
+ "今天的天气怎么样？你在外面看到了什么？"];
+function renderDiary(){
+  const pr=document.getElementById("diaryPrompt");if(!pr)return;
+  const day=Math.floor(Date.now()/86400000);
+  const t=(D.diaryTopic!=null)?D.diaryTopic:DIARY_TOPICS[day%DIARY_TOPICS.length];
+  pr.textContent="今天的题目：" + t;
+  const list=document.getElementById("diaryList");
+  const all=D.diaries||[];
+  list.innerHTML=all.length?all.slice(-7).reverse().map(x=>
+    '<div style="border-left:2px solid var(--gold);padding:4px 0 4px 10px;margin-bottom:10px">'+
+    '<div style="font-size:.72rem;color:var(--muted)">'+x.d+'</div>'+
+    x.t.replace(/</g,"&lt;")+'</div>').join(""):"还没有写过日记，今天写第一篇吧。";
+  const doneToday=(D.diaries||[]).some(x=>x.d===todayKey());
+  document.getElementById("diaryDone").textContent=doneToday?"今天的日记已经写好啦 ✓":"";
+}
+
+document.getElementById("saveDiary").onclick=function(){
+  const t=document.getElementById("diaryText").value.trim();
+  if(t.length<10){toast("再多写几句吧");return}
+  D.diaries=D.diaries||[];
+  if(D.diaries.some(x=>x.d===todayKey())){toast("今天已经写过啦");return}
+  D.diaries.push({d:todayKey(),t:t});save();
+  document.getElementById("diaryText").value="";
+  addStar(5);toast("日记写好了 +5 ⭐ 拿给老师看看");renderDiary();
+};
+document.getElementById("newPrompt").onclick=function(){
+  D.diaryTopic=DIARY_TOPICS[Math.floor(Math.random()*DIARY_TOPICS.length)];save();renderDiary();
+};
+render();renderHanzi();renderDiary();
 </script>
 </body>
 </html>
