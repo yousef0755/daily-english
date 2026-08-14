@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d241b">
+<title>English Call · Aria</title>
+<style>
+:root{--ink:#0d241b;--cream:#f2ead8;--gold:#e7c57b;--muted:#9fb3a4;--line:rgba(242,234,216,.14)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"PingFang SC",system-ui,serif;
+  background:radial-gradient(ellipse at 50% 28%,#1d4d3b,#08160f 70%);color:var(--cream);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:24px;text-align:center;padding:24px}
+h1{font-size:1.15rem;letter-spacing:.16em;font-weight:600}
+.sub{color:var(--gold);font-size:.8rem;margin-top:-16px;letter-spacing:.05em}
+.orb{width:156px;height:156px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:3.2rem;background:radial-gradient(circle at 34% 30%,#2c6b52,#12301f);
+  border:2px solid rgba(231,197,123,.35);box-shadow:0 0 44px rgba(29,77,59,.75);transition:box-shadow .25s,transform .25s}
+.orb.live{border-color:var(--gold);box-shadow:0 0 66px rgba(231,197,123,.5)}
+.orb.talking{box-shadow:0 0 96px rgba(231,197,123,.92);transform:scale(1.05)}
+.orb.hearing{box-shadow:0 0 76px rgba(118,153,110,.85)}
+button{font-family:inherit;font-size:1.02rem;padding:14px 42px;border-radius:30px;border:none;cursor:pointer;
+  letter-spacing:.1em;background:linear-gradient(135deg,var(--gold),#b8934a);color:#10231b;font-weight:700}
+button.oncall{background:linear-gradient(135deg,#a8402f,#7d2a1d);color:#f7e6e0}
+button:disabled{opacity:.5}
+#status{font-size:.85rem;color:var(--muted);min-height:2.6em;max-width:330px;line-height:1.5}
+#log{font-size:.66rem;color:rgba(242,234,216,.28);max-width:340px;height:2.4em;overflow:hidden}
+.hint{position:fixed;bottom:20px;font-size:.68rem;color:rgba(242,234,216,.3);padding:0 20px}
+</style>
+</head>
+<body>
+<h1>E N G L I S H&nbsp;&nbsp;C A L L</h1>
+<div class="sub">Aria · your speaking coach · talk, interrupt, repeat</div>
+<div class="orb" id="orb">🌙</div>
+<button id="callbtn">📞 Start speaking</button>
+<div id="status">Tap and just start talking.</div>
+<div id="log"></div>
+<div class="hint"><a href="index.html" style="color:rgba(242,234,216,.55)">← Back to lessons</a> · Headphones recommended</div>
+<script>
+let KEY=localStorage.getItem("geminiKey")||"";
+function askKey(){
+  const k=prompt("First time only — paste your Google AI key (it stays on this device only):","");
+  if(k&&k.trim().length>20){KEY=k.trim();localStorage.setItem("geminiKey",KEY);return true}
+  return false;
+}
+const MODELS=["models/gemini-3.1-flash-live-preview",
+              "models/gemini-2.5-flash-native-audio-latest",
+              "models/gemini-2.5-flash-native-audio-preview-12-2025",
+              "models/gemini-2.5-flash-native-audio-preview-09-2025"];
+const PERSONA=`You are Aria, a warm, patient American English tutor. Your student is a Chinese businessman in Dubai who is learning English. You are NOT his assistant, NOT named Lin, and you have no access to his files, messages or personal life — you are simply his speaking coach on a call.
+
+How you teach (most important):
+- Speak ONLY English, slowly and clearly, in short natural sentences. Two or three sentences max per turn.
+- If he speaks Chinese, gently push back in simple English: "Let's try that in English — I'll help you."
+- After he speaks, first REPLY naturally to what he said, then give ONE short correction if needed: "Small tip: we say ... instead of ...". Never correct more than one thing at a time.
+- Ask him a follow-up question every time, so he keeps talking. Topics he likes: his phone trading business, negotiating with customers, his family, daily life in Dubai, faith.
+- Praise real progress specifically ("that sentence was perfect").
+- Never claim you can send messages, links, files, or do anything outside this call — you only talk and teach.
+- If he asks about his business records, his family, or anything personal, say honestly: "I'm just your English coach — Lin handles all of that."`
+let ws=null,micCtx=null,micStream=null,proc=null,srcNode=null,playCtx=null,playAt=0,
+    inCall=false,modelIdx=0,sources=[],lastVoice=0;
+const orb=document.getElementById("orb"),btn=document.getElementById("callbtn"),
+      st=document.getElementById("status"),lg=document.getElementById("log");
+const say=t=>st.textContent=t, dbg=t=>lg.textContent=t;
+function b64(buf){let s="";const b=new Uint8Array(buf);
+  for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)}
+function unb64(s){const bin=atob(s),u=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer}
+
+async function start(){
+  if(inCall){hangup();return}
+  if(!KEY&&!askKey()){say("Need the key to start. Ask Lin for it.");return}
+  btn.disabled=true;say("Asking for the microphone…");
+  if(!navigator.mediaDevices){say("⚠️ 这个浏览器不给用麦克风（需要 https 或 localhost）");btn.disabled=false;return}
+  try{micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
+  catch(e){say("需要麦克风权限：地址栏点允许后重试");btn.disabled=false;return}
+  say("Connecting…");modelIdx=0;connect();
+}
+function connect(){
+  const model=MODELS[modelIdx];dbg("③ 连 "+model.split("/")[1]);
+  try{ws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+KEY)}
+  catch(e){say("连接失败："+e.message);btn.disabled=false;return}
+  let ready=false;
+  ws.onopen=()=>ws.send(JSON.stringify({setup:{model,
+    generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}},temperature:0.8},
+    systemInstruction:{parts:[{text:PERSONA}]}}}));
+  ws.onmessage=async ev=>{
+    let raw=ev.data;
+    if(raw instanceof Blob)raw=await raw.text();
+    let m;try{m=JSON.parse(raw)}catch(e){return}
+    if(m.setupComplete!==undefined){ready=true;dbg("④ 服务器已就位");live();return}
+    const sc=m.serverContent;if(!sc)return;
+    if(sc.interrupted){flush();say("Listening…");return}
+    const parts=(sc.modelTurn&&sc.modelTurn.parts)||[];
+    for(const p of parts) if(p.inlineData&&p.inlineData.data) play(unb64(p.inlineData.data));
+    if(sc.turnComplete){orb.classList.remove("talking");say("Your turn.")}
+  };
+  ws.onclose=e=>{
+    if(!ready&&modelIdx<MODELS.length-1){modelIdx++;dbg("换型号重试("+e.code+")");connect();return}
+    if(!ready){say("接通失败 code="+e.code+" "+(e.reason||"")+" — show this line to Lin");btn.disabled=false;cleanup();return}
+    if(inCall)say("线路断了 code="+e.code+" "+(e.reason||"")+"｜再点一次重连");
+    cleanup();
+  };
+  ws.onerror=()=>{};
+}
+function live(){
+  inCall=true;btn.disabled=false;btn.textContent="⏹ 挂断";btn.classList.add("oncall");
+  orb.classList.add("live");orb.textContent="🎙";say("Connected — just talk. Interrupt me anytime.");
+  micCtx=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+  srcNode=micCtx.createMediaStreamSource(micStream);
+  proc=micCtx.createScriptProcessor(4096,1,1);
+  srcNode.connect(proc);proc.connect(micCtx.destination);
+  proc.onaudioprocess=e=>{
+    if(!ws||ws.readyState!==1)return;
+    const f=e.inputBuffer.getChannelData(0);let peak=0;
+    const i16=new Int16Array(f.length);
+    for(let i=0;i<f.length;i++){const s=Math.max(-1,Math.min(1,f[i]));if(Math.abs(s)>peak)peak=Math.abs(s);
+      i16[i]=s<0?s*0x8000:s*0x7FFF}
+    if(peak>0.03){lastVoice=Date.now();orb.classList.add("hearing")}
+    else if(Date.now()-lastVoice>400)orb.classList.remove("hearing");
+    ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+  };
+  playCtx=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});
+  playAt=playCtx.currentTime;
+}
+function play(buf){
+  if(!playCtx)return;
+  orb.classList.add("talking");say("Aria is speaking — interrupt anytime");
+  const i16=new Int16Array(buf),f32=new Float32Array(i16.length);
+  for(let i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
+  const ab=playCtx.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
+  const s=playCtx.createBufferSource();s.buffer=ab;s.connect(playCtx.destination);
+  const t=Math.max(playCtx.currentTime,playAt);s.start(t);playAt=t+ab.duration;
+  sources.push(s);s.onended=()=>sources=sources.filter(x=>x!==s);
+}
+function flush(){sources.forEach(s=>{try{s.stop()}catch(e){}});sources=[];
+  if(playCtx)playAt=playCtx.currentTime;orb.classList.remove("talking")}
+function cleanup(){
+  inCall=false;btn.textContent="📞 Start speaking";btn.classList.remove("oncall");btn.disabled=false;
+  orb.classList.remove("live","talking","hearing");orb.textContent="🌙";
+  try{proc&&proc.disconnect()}catch(e){}
+  try{srcNode&&srcNode.disconnect()}catch(e){}
+  try{micCtx&&micCtx.close()}catch(e){}
+  try{playCtx&&playCtx.close()}catch(e){}
+  ws=null;micCtx=null;playCtx=null;proc=null;
+}
+function hangup(){
+  say("Session ended. Come back tomorrow!");
+  try{ws&&ws.close()}catch(e){}
+  if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
+  cleanup();
+}
+btn.onclick=start;
+</script>
+</body>
+</html>
