@@ -58,7 +58,23 @@ const VOICES=[
  ["en-ZA-LukeNeural","Luke","Crisp, refined — South African male","ZA"],
  ["en-ZA-LeahNeural","Leah","Clear, elegant — South African female","ZA"],
  ["en-CA-LiamNeural","Liam","Clean, neutral — Canadian male","CA"],
- ["en-CA-ClaraNeural","Clara","Smooth, polished — Canadian female","CA"]];
+ ["en-CA-ClaraNeural","Clara","Smooth, polished — Canadian female","CA"],
+ ["zh-CN-XiaoxiaoNeural","晓晓","标准普通话 · 清亮女声（公认最强中文音）","中"],
+ ["zh-CN-XiaoyiNeural","晓伊","普通话 · 软糯年轻女声","中"],
+ ["zh-TW-HsiaoYuNeural","晓雨","台湾腔 · 温柔女声","台"],
+ ["zh-TW-HsiaoChenNeural","晓臻","台湾腔 · 现任小林声（对照用）","台"],
+ ["zh-HK-HiuMaanNeural","曉曼","粤语 · 优雅女声","港"],
+ ["zh-CN-liaoning-XiaobeiNeural","晓北","东北话 · 幽默大妹子","东北"],
+ ["zh-CN-YunxiNeural","云希","普通话 · 清朗男声","中"],
+ ["zh-CN-YunyangNeural","云扬","普通话 · 播音男声","中"],
+ ["ar-SA-ZariyahNeural","Zariyah","فصحى سعودية — أنثى","AR"],
+ ["ar-SA-HamedNeural","Hamed","فصحى سعودية — ذكر","AR"],
+ ["ar-AE-FatimaNeural","Fatima","لهجة إماراتية — أنثى","AE"],
+ ["ar-AE-HamdanNeural","Hamdan","لهجة إماراتية — ذكر","AE"],
+ ["ar-EG-SalmaNeural","Salma","لهجة مصرية — أنثى","EG"],
+ ["ar-EG-ShakirNeural","Shakir","لهجة مصرية — ذكر","EG"],
+ ["tr-TR-EmelNeural","Emel","Türkçe — kadın","TR"],
+ ["tr-TR-AhmetNeural","Ahmet","Türkçe — erkek","TR"]];
 let cur=null,curBtn=null;
 const list=document.getElementById("list");
 VOICES.forEach(([id,name,desc,tag])=>{
