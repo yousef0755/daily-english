@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Daily English · 每日英语</title>
+<title>Daily English · The Su Legacy</title>
 <style>
 :root{
   --paper:#f5f1e8; --ink:#1e2b23; --green:#1d4d3b; --green-deep:#143529;
@@ -11,11 +11,13 @@
   --good:#2e7d4f; --warn:#a4541f;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,"PingFang SC","Songti SC",Georgia,serif;background:var(--paper);color:var(--ink);line-height:1.6;padding-bottom:70px}
-header{background:linear-gradient(160deg,var(--green-deep),var(--green));color:#f2ead8;padding:26px 20px 20px;text-align:center}
+body{font-family:-apple-system,"Helvetica Neue",Georgia,"PingFang SC",serif;background:var(--paper);color:var(--ink);line-height:1.6;padding-bottom:70px}
+header{background:linear-gradient(160deg,var(--green-deep),var(--green));color:#f2ead8;padding:26px 20px 20px;text-align:center;position:relative}
 header h1{font-size:1.5rem;letter-spacing:.06em;font-weight:600}
 header .sub{font-size:.85rem;color:var(--gold-soft);margin-top:4px}
 .streak{display:inline-block;margin-top:12px;background:rgba(255,255,255,.12);border:1px solid rgba(217,194,148,.5);border-radius:20px;padding:5px 16px;font-size:.9rem}
+.zh-toggle{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:1px solid rgba(217,194,148,.45);color:#e7dcc0;border-radius:14px;padding:3px 12px;font-size:.78rem;cursor:pointer;font-family:inherit}
+.zh-toggle.on{background:var(--gold);color:var(--green-deep);font-weight:600}
 main{max-width:640px;margin:0 auto;padding:18px 16px}
 .day-tag{text-align:center;color:var(--muted);font-size:.82rem;margin:6px 0 14px;letter-spacing:.1em}
 .card{background:var(--card);border:1px solid #e4dcc9;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(30,43,35,.06)}
@@ -25,13 +27,12 @@ main{max-width:640px;margin:0 auto;padding:18px 16px}
 .nat{margin-top:10px;padding:10px 12px;background:#f4efe2;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;font-size:.95rem}
 .nat b{color:var(--green)}
 .nat .zh{display:block;color:var(--muted);font-size:.85rem;margin-top:3px}
-.speak{flex-shrink:0;border:1px solid var(--gold);color:var(--green-deep);background:#faf6ea;border-radius:10px;padding:8px 14px;font-size:1.05rem;cursor:pointer}
+body.en-only .word-zh, body.en-only .nat .zh{display:none}
+.speak{flex-shrink:0;border:1px solid var(--gold);color:var(--green-deep);background:#faf6ea;border-radius:10px;padding:8px 14px;font-size:1.05rem;cursor:pointer;font-family:inherit}
 .speak:active{background:var(--gold-soft)}
 .section-title{margin:22px 4px 10px;font-size:1.02rem;color:var(--green-deep);letter-spacing:.05em;border-bottom:2px solid var(--gold-soft);padding-bottom:6px;display:flex;justify-content:space-between;align-items:baseline}
 .section-title small{color:var(--muted);font-size:.78rem}
 .btn-main{display:block;width:100%;border:none;background:linear-gradient(135deg,var(--green),var(--green-deep));color:#f5edd8;font-size:1.05rem;padding:14px;border-radius:12px;margin:20px 0 8px;cursor:pointer;letter-spacing:.08em;font-family:inherit}
-.btn-main:disabled{opacity:.55}
-.quiz-box{margin-top:8px}
 .quiz-q{font-size:1.05rem;margin-bottom:12px}
 .quiz-opt{display:block;width:100%;text-align:left;background:#faf6ea;border:1px solid #e0d6bd;border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:.98rem;cursor:pointer;font-family:inherit}
 .quiz-opt.right{background:#e3f0e6;border-color:var(--good);color:var(--good);font-weight:600}
@@ -43,24 +44,25 @@ footer{position:fixed;bottom:0;left:0;right:0;background:var(--green-deep);color
 .pill.on{background:var(--green);color:#f2ead8;border-color:var(--green)}
 </style>
 </head>
-<body>
+<body class="en-only">
 <header>
+  <button class="zh-toggle" id="zhToggle">中文</button>
   <h1>Daily English</h1>
-  <div class="sub">每天十个词 · 像美国人那样说 · One verse a day</div>
-  <div class="streak" id="streak">🔥 连续 0 天</div>
+  <div class="sub">Ten words a day · The natural American way</div>
+  <div class="streak" id="streak">🔥 0-day streak</div>
 </header>
 <main>
   <div class="day-tag" id="dayTag"></div>
   <div class="pill-row" id="pills"></div>
   <div id="wordArea"></div>
-  <h2 class="section-title">今日小考 <small>答对 7 题点亮今天</small></h2>
-  <div class="quiz-box" id="quizArea"><button class="btn-main" id="startQuiz">开始今日小考 →</button></div>
+  <h2 class="section-title">Today's Quiz <small>Score 7/10 to light up today</small></h2>
+  <div id="quizArea"><button class="btn-main" id="startQuiz">Start today's quiz →</button></div>
 </main>
-<footer>The Su Legacy · 一次五分钟，胜过偶尔一小时</footer>
+<footer>The Su Legacy · Five minutes a day beats an hour once a month</footer>
 <script>
 const PACKS = {
-"做生意": [
- {en:"deal", zh:"交易；成交", nat:"It's a deal.", natzh:"成交。（谈妥时拍板的话）"},
+"Business": {key:"business", words:[
+ {en:"deal", zh:"交易；成交", nat:"It's a deal.", natzh:"成交。"},
  {en:"stock", zh:"库存", nat:"Let me check our stock first.", natzh:"我先查一下我们的库存。"},
  {en:"invoice", zh:"发票；账单", nat:"I'll send you the invoice today.", natzh:"我今天把发票发给你。"},
  {en:"balance", zh:"余额；差额", nat:"The balance is 500 dollars.", natzh:"差额是五百美金。"},
@@ -69,10 +71,9 @@ const PACKS = {
  {en:"discount", zh:"折扣", nat:"Can you give me a better discount?", natzh:"能再给点折扣吗？"},
  {en:"payment", zh:"付款", nat:"Payment received, thank you.", natzh:"款已收到，谢谢。"},
  {en:"urgent", zh:"紧急的", nat:"This order is urgent.", natzh:"这个订单很急。"},
- {en:"trust", zh:"信任", nat:"Business is built on trust.", natzh:"生意建立在信任之上。"}
-],
-"一家人": [
- {en:"proud", zh:"骄傲的", nat:"I'm so proud of you.", natzh:"我为你骄傲。（对孩子最有力的一句）"},
+ {en:"trust", zh:"信任", nat:"Business is built on trust.", natzh:"生意建立在信任之上。"}]},
+"Family": {key:"family", words:[
+ {en:"proud", zh:"骄傲的", nat:"I'm so proud of you.", natzh:"我为你骄傲。"},
  {en:"homework", zh:"作业", nat:"How's your homework going?", natzh:"作业写得怎么样了？"},
  {en:"dinner", zh:"晚饭", nat:"Dinner's ready!", natzh:"开饭啦！"},
  {en:"promise", zh:"承诺；约定", nat:"A promise is a promise.", natzh:"说好的就要算数。"},
@@ -81,82 +82,100 @@ const PACKS = {
  {en:"take care", zh:"照顾；保重", nat:"Take care of your sister.", natzh:"照顾好你妹妹。"},
  {en:"together", zh:"一起", nat:"Let's read together tonight.", natzh:"今晚我们一起读书吧。"},
  {en:"listen", zh:"听", nat:"Listen to your mom.", natzh:"听妈妈的话。"},
- {en:"hug", zh:"拥抱", nat:"Come here, give me a hug.", natzh:"过来，抱一个。"}
-],
-"过日子": [
+ {en:"hug", zh:"拥抱", nat:"Come here, give me a hug.", natzh:"过来，抱一个。"}]},
+"Daily Life": {key:"daily", words:[
  {en:"appointment", zh:"预约", nat:"I have an appointment at nine.", natzh:"我九点有个预约。"},
  {en:"bill", zh:"账单", nat:"The bill is due next week.", natzh:"账单下周到期。"},
  {en:"traffic", zh:"交通；堵车", nat:"Traffic was crazy today.", natzh:"今天堵车堵疯了。"},
- {en:"weather", zh:"天气", nat:"Beautiful weather today, huh?", natzh:"今天天气真好啊？（搭话神句）"},
- {en:"grab", zh:"顺手拿；随便吃", nat:"Let's grab some coffee.", natzh:"咱们去喝杯咖啡吧。（很地道）"},
+ {en:"weather", zh:"天气", nat:"Beautiful weather today, huh?", natzh:"今天天气真好啊？"},
+ {en:"grab", zh:"顺手拿；随便吃", nat:"Let's grab some coffee.", natzh:"咱们去喝杯咖啡吧。"},
  {en:"weekend", zh:"周末", nat:"Any plans for the weekend?", natzh:"周末有什么安排？"},
  {en:"favor", zh:"帮忙", nat:"Can you do me a favor?", natzh:"能帮我个忙吗？"},
- {en:"no worries", zh:"没关系", nat:"No worries at all.", natzh:"完全没关系。（比 you're welcome 更口语）"},
+ {en:"no worries", zh:"没关系", nat:"No worries at all.", natzh:"完全没关系。"},
  {en:"on my way", zh:"在路上", nat:"I'm on my way.", natzh:"我在路上了。"},
- {en:"catch up", zh:"叙旧；跟上", nat:"Let's catch up soon.", natzh:"找时间聚聚聊聊。"}
-],
-"信仰": [
+ {en:"catch up", zh:"叙旧；跟上", nat:"Let's catch up soon.", natzh:"找时间聚聚聊聊。"}]},
+"Faith": {key:"faith", words:[
  {en:"pray", zh:"礼拜；祈祷", nat:"I need to pray first.", natzh:"我得先做礼拜。"},
  {en:"faith", zh:"信仰", nat:"My faith comes first.", natzh:"信仰对我是第一位的。"},
  {en:"grateful", zh:"感恩的", nat:"I'm grateful for everything.", natzh:"我对一切心怀感恩。"},
  {en:"blessing", zh:"福分", nat:"Kids are a blessing.", natzh:"孩子是真主的恩赐。"},
- {en:"God willing", zh:"如蒙主意（印沙安拉）", nat:"See you tomorrow, God willing.", natzh:"明天见，印沙安拉。"},
+ {en:"God willing", zh:"如蒙主意", nat:"See you tomorrow, God willing.", natzh:"明天见，印沙安拉。"},
  {en:"charity", zh:"施舍；慈善", nat:"Charity never decreases wealth.", natzh:"施舍不会让财富减少。"},
  {en:"patience", zh:"忍耐", nat:"Patience is beautiful.", natzh:"美好的坚忍。"},
  {en:"honest", zh:"诚实的", nat:"An honest merchant is blessed.", natzh:"诚实的商人有福。"},
  {en:"forgive", zh:"原谅", nat:"Forgive and move on.", natzh:"原谅，然后向前走。"},
- {en:"peace", zh:"平安", nat:"Peace be upon you.", natzh:"愿你平安。（色兰的英文）"}
-]};
+ {en:"peace", zh:"平安", nat:"Peace be upon you.", natzh:"愿你平安。"}]}};
 const KEY="dailyEnglishSu";
-let state=JSON.parse(localStorage.getItem(KEY)||'{"streak":0,"last":"","done":[]}');
+const store={
+  get(k){try{return localStorage.getItem(k)}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+};
+let state;
+try{state=JSON.parse(store.get(KEY)||'{"streak":0,"last":"","done":[]}');}catch(e){state={streak:0,last:"",done:[]};}
 const today=new Date().toISOString().slice(0,10);
 const packNames=Object.keys(PACKS);
 const dayIndex=Math.floor((Date.now()/86400000))%packNames.length;
 let currentPack=packNames[dayIndex];
-function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.92;speechSynthesis.speak(u);}catch(e){}}
-function renderStreak(){document.getElementById("streak").textContent="🔥 连续 "+state.streak+" 天"+(state.last===today?" · 今天已点亮":"");}
+let player=new Audio();
+function say(pack,i,kind,fallback){
+  const src="audio/"+PACKS[pack].key+"_"+i+"_"+kind+".mp3";
+  player.pause();player=new Audio(src);
+  player.onerror=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(fallback);u.lang="en-US";u.rate=.92;speechSynthesis.speak(u);}catch(e){}};
+  player.play().catch(()=>{});
+}
+function renderStreak(){document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
 function renderPills(){
   const p=document.getElementById("pills");p.innerHTML="";
-  packNames.forEach(n=>{const b=document.createElement("button");b.className="pill"+(n===currentPack?" on":"");b.textContent=n+(n===packNames[dayIndex]?" ·今日":"");b.onclick=()=>{currentPack=n;renderPills();renderWords();};p.appendChild(b);});
+  packNames.forEach(n=>{const b=document.createElement("button");b.className="pill"+(n===currentPack?" on":"");b.textContent=n+(n===packNames[dayIndex]?" · today":"");b.onclick=()=>{currentPack=n;renderPills();renderWords();};p.appendChild(b);});
 }
 function renderWords(){
   const area=document.getElementById("wordArea");area.innerHTML="";
-  document.getElementById("dayTag").textContent="今日主题 · "+packNames[dayIndex]+" · "+today;
-  PACKS[currentPack].forEach(w=>{
+  document.getElementById("dayTag").textContent="Today's topic · "+packNames[dayIndex]+" · "+today;
+  PACKS[currentPack].words.forEach((w,i)=>{
     const c=document.createElement("div");c.className="card";
-    c.innerHTML='<div class="word-row"><div><div class="word-en">'+w.en+'</div><div class="word-zh">'+w.zh+'</div></div><button class="speak">▶ 读</button></div><div class="nat"><b>'+w.nat+'</b><span class="zh">'+w.natzh+'</span></div>';
-    c.querySelector(".speak").onclick=()=>say(w.en+". "+w.nat);
+    c.innerHTML='<div class="word-row"><div><div class="word-en">'+w.en+'</div><div class="word-zh">'+w.zh+'</div></div><button class="speak">▶ Play</button></div><div class="nat"><b>'+w.nat+'</b><span class="zh">'+w.natzh+'</span></div>';
+    c.querySelector(".speak").onclick=()=>say(currentPack,i,"s",w.en+". "+w.nat);
     area.appendChild(c);
   });
 }
 function startQuiz(){
-  const words=[...PACKS[currentPack]].sort(()=>Math.random()-.5).slice(0,10);
+  const pk=currentPack;
+  const idx=[...PACKS[pk].words.keys()].sort(()=>Math.random()-.5).slice(0,10);
   let i=0,score=0;const area=document.getElementById("quizArea");
   function q(){
-    if(i>=words.length){
+    if(i>=idx.length){
       const pass=score>=7;
-      area.innerHTML='<div class="done-note">'+(pass?"✅ "+score+"/10 · 今天点亮了！":"💪 "+score+"/10 · 再来一次，7题就点亮")+'</div><button class="btn-main" id="again">'+(pass?"再练一轮":"再考一次")+"</button>";
+      area.innerHTML='<div class="done-note">'+(pass?"✅ "+score+"/10 · Today is lit!":"💪 "+score+"/10 · One more try — 7 lights it up")+'</div><button class="btn-main" id="again">'+(pass?"Practice again":"Try again")+"</button>";
       if(pass&&state.last!==today){
         const yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
         state.streak=(state.last===yest)?state.streak+1:1;state.last=today;
-        localStorage.setItem(KEY,JSON.stringify(state));renderStreak();
+        store.set(KEY,JSON.stringify(state));renderStreak();
       }
       document.getElementById("again").onclick=startQuiz;return;
     }
-    const w=words[i];
-    const opts=[w.zh,...[...PACKS[currentPack]].filter(x=>x.en!==w.en).sort(()=>Math.random()-.5).slice(0,2).map(x=>x.zh)].sort(()=>Math.random()-.5);
-    area.innerHTML='<div class="quiz-q">第'+(i+1)+'题 · <b>'+w.en+'</b> 是什么意思？</div>'+opts.map(o=>'<button class="quiz-opt">'+o+"</button>").join("");
+    const wi=idx[i],w=PACKS[pk].words[wi];
+    const zhOn=!document.body.classList.contains("en-only");
+    const meaning=x=>zhOn?x.zh:x.nat;
+    const opts=[meaning(w),...[...PACKS[pk].words].filter(x=>x.en!==w.en).sort(()=>Math.random()-.5).slice(0,2).map(meaning)].sort(()=>Math.random()-.5);
+    area.innerHTML='<div class="quiz-q">Q'+(i+1)+' · Which one goes with <b>'+w.en+'</b>?</div>'+opts.map(o=>'<button class="quiz-opt">'+o+"</button>").join("");
     area.querySelectorAll(".quiz-opt").forEach(b=>{
       b.onclick=()=>{
-        if(b.textContent===w.zh){b.classList.add("right");score++;}
-        else{b.classList.add("wrong");area.querySelectorAll(".quiz-opt").forEach(x=>{if(x.textContent===w.zh)x.classList.add("right");});}
-        say(w.en);setTimeout(()=>{i++;q();},900);
+        if(b.textContent===meaning(w)){b.classList.add("right");score++;}
+        else{b.classList.add("wrong");area.querySelectorAll(".quiz-opt").forEach(x=>{if(x.textContent===meaning(w))x.classList.add("right");});}
+        say(pk,wi,"w",w.en);setTimeout(()=>{i++;q();},900);
       };
     });
   }
   q();
 }
 document.getElementById("startQuiz").onclick=startQuiz;
+const zt=document.getElementById("zhToggle");
+if(store.get(KEY+"_zh")==="1"){document.body.classList.remove("en-only");zt.classList.add("on");}
+zt.onclick=()=>{
+  const on=document.body.classList.toggle("en-only");
+  zt.classList.toggle("on",!on);
+  store.set(KEY+"_zh",on?"0":"1");
+};
 renderStreak();renderPills();renderWords();
 </script>
 </body>

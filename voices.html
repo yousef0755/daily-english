@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Studio · Daily English</title>
+<style>
+:root{--paper:#f5f1e8;--green:#1d4d3b;--green-deep:#143529;--gold:#b8934a;--gold-soft:#d9c294;--muted:#7d766a;--card:#fffdf8}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"Helvetica Neue",Georgia,serif;background:var(--paper);color:#1e2b23;line-height:1.6;padding-bottom:40px}
+header{background:linear-gradient(160deg,var(--green-deep),var(--green));color:#f2ead8;padding:24px 20px;text-align:center}
+header h1{font-size:1.35rem;letter-spacing:.06em}
+header p{font-size:.85rem;color:var(--gold-soft);margin-top:6px}
+main{max-width:640px;margin:0 auto;padding:18px 16px}
+.v{background:var(--card);border:1px solid #e4dcc9;border-radius:12px;padding:13px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.v .n{font-weight:700;color:var(--green-deep)}
+.v .d{font-size:.8rem;color:var(--muted)}
+.play{border:1px solid var(--gold);color:var(--green-deep);background:#faf6ea;border-radius:10px;padding:8px 16px;font-size:1rem;cursor:pointer;font-family:inherit;flex-shrink:0}
+.play.playing{background:var(--gold);color:#fff}
+.note{margin:16px 4px;color:var(--muted);font-size:.85rem;text-align:center}
+.tag{display:inline-block;font-size:.72rem;border:1px solid var(--gold-soft);border-radius:10px;padding:1px 8px;margin-left:6px;color:var(--gold);vertical-align:middle}
+</style>
+</head>
+<body>
+<header>
+  <h1>Voice Studio</h1>
+  <p>Tap play, pick your favourite, and tell me its name.<br>Every voice reads the same line — a fair contest.</p>
+</header>
+<main>
+  <div id="list"></div>
+  <p class="note">All voices come from Microsoft's neural voice library — the same engine behind our video narrations.</p>
+</main>
+<script>
+const VOICES=[
+ ["en-US-AndrewNeural","Andrew","Warm, confident — American male","US"],
+ ["en-US-BrianNeural","Brian","Approachable, casual — American male","US"],
+ ["en-US-ChristopherNeural","Christopher","Steady, authoritative — American male","US"],
+ ["en-US-GuyNeural","Guy","Energetic — American male","US"],
+ ["en-US-EricNeural","Eric","Calm, rational — American male","US"],
+ ["en-US-RogerNeural","Roger","Lively — American male","US"],
+ ["en-US-SteffanNeural","Steffan","Neutral, clear — American male","US"],
+ ["en-US-AvaNeural","Ava","Expressive, caring — American female","US"],
+ ["en-US-JennyNeural","Jenny","Friendly, comforting — American female","US"],
+ ["en-US-EmmaNeural","Emma","Cheerful, clear — American female","US"],
+ ["en-US-AriaNeural","Aria","Positive, confident — American female","US"],
+ ["en-US-MichelleNeural","Michelle","Pleasant — American female","US"],
+ ["en-GB-RyanNeural","Ryan","Friendly — British male","UK"],
+ ["en-GB-SoniaNeural","Sonia","Friendly — British female","UK"]];
+let cur=null,curBtn=null;
+const list=document.getElementById("list");
+VOICES.forEach(([id,name,desc,tag])=>{
+  const d=document.createElement("div");d.className="v";
+  d.innerHTML='<div><span class="n">'+name+'</span><span class="tag">'+tag+'</span><div class="d">'+desc+'</div></div><button class="play">▶ Play</button>';
+  const b=d.querySelector(".play");
+  b.onclick=()=>{
+    if(cur){cur.pause();if(curBtn){curBtn.classList.remove("playing");curBtn.textContent="▶ Play";}}
+    if(curBtn===b&&cur&&!cur.ended){cur=null;curBtn=null;return;}
+    cur=new Audio("voices/"+id+".mp3");curBtn=b;
+    b.classList.add("playing");b.textContent="… Playing";
+    cur.onended=()=>{b.classList.remove("playing");b.textContent="▶ Play";};
+    cur.play().catch(()=>{});
+  };
+  list.appendChild(d);
+});
+</script>
+</body>
+</html>
