@@ -57,7 +57,13 @@ footer a{color:var(--gold-soft)}
   <div id="wordArea"></div>
   <h2 class="section-title">Listening Quiz <small>Hear it, pick what he said · 7/10 lights the day</small></h2>
   <div id="quizArea"><button class="btn-main" id="startQuiz">Start the listening quiz →</button></div>
-  <a class="btn-wa" href="speak.html" style="background:linear-gradient(135deg,#1d4d3b,#143529);color:#f5edd8;border:none">🎧 Speaking practice with Aria (live call)</a>
+  <h2 class="section-title">Speak with Aria <small>live call · interrupt anytime</small></h2>
+  <div class="card" style="text-align:center">
+    <div id="aOrb" style="width:96px;height:96px;border-radius:50%;margin:4px auto 12px;display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 34% 30%,#2c6b52,#12301f);border:2px solid rgba(184,147,74,.45);transition:box-shadow .25s">🌙</div>
+    <button class="btn-main" id="aBtn" style="margin:0 0 8px">🎧 Start speaking</button>
+    <div id="aStatus" class="hint" style="min-height:2.2em;margin:0">She knows today’s phrases - tap and practise them out loud.</div>
+    <div id="aChat" style="text-align:left;font-size:.85rem;display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:180px;overflow-y:auto"></div>
+  </div>
   <a class="btn-wa" id="sendCoach" href="#">📮 Send today's results to Coach Lin</a>
   <p class="hint">Your coach reads every report and tunes tomorrow's lesson to your weak spots.</p>
 </main>
@@ -184,6 +190,99 @@ function updateCoachLink(){
 }
 document.getElementById("startQuiz").onclick=startQuiz;
 renderStreak();renderPills();renderWords();updateCoachLink();
+
+/* ===== Aria 实时口语（内嵌） ===== */
+(function(){
+const AMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-native-audio-latest","models/gemini-2.5-flash-native-audio-preview-12-2025"];
+const APERSONA="You are Aria, a warm, patient American English tutor. Your student is a Chinese businessman in Dubai who is learning English. You are NOT his assistant, NOT named Lin, and you have no access to his files, messages or personal life — you are simply his speaking coach on a call.\n\nHow you teach (most important):\n- Speak ONLY English, slowly and clearly, in short natural sentences. Two or three sentences max per turn.\n- If he speaks Chinese, gently push back in simple English: \"Let's try that in English — I'll help you.\"\n- After he speaks, first REPLY naturally to what he said, then give ONE short correction if needed: \"Small tip: we say ... instead of ...\". Never correct more than one thing at a time.\n- Ask him a follow-up question every time, so he keeps talking. Topics he likes: his phone trading business, negotiating with customers, his family, daily life in Dubai, faith.\n- Praise real progress specifically (\"that sentence was perfect\").\n- Never claim you can send messages, links, files, or do anything outside this call — you only talk and teach.\n- If he asks about his business records, his family, or anything personal, say honestly: \"I'm just your English coach — Lin handles all of that.\"";
+let aKey=localStorage.getItem("geminiKey")||"";
+let aws=null,amic=null,aStream=null,aProc=null,aSrcNode=null,aPlay=null,aAt=0,aOn=false,aIdx=0,aSrcs=[];
+const orb=document.getElementById("aOrb"),btn=document.getElementById("aBtn"),
+      stx=document.getElementById("aStatus"),chat=document.getElementById("aChat");
+const asay=function(t){stx.textContent=t};
+const glow=function(c){orb.style.boxShadow=c};
+function b64(buf){var s="",b=new Uint8Array(buf);for(var i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)}
+function unb64(s){var bin=atob(s),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer}
+async function aStart(){
+  if(aOn){aHang();return}
+  if(!aKey){var k=prompt("First time only — paste your Google AI key (stays on this device):","");
+    if(!k||k.trim().length<20){asay("Need the key — ask Lin for it.");return}
+    aKey=k.trim();localStorage.setItem("geminiKey",aKey)}
+  btn.disabled=true;asay("Connecting…");
+  try{aStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
+  catch(e){asay("Microphone permission needed.");btn.disabled=false;return}
+  aIdx=0;aConn();
+}
+function aConn(){
+  var model=AMODELS[aIdx];
+  aws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+aKey);
+  var ready=false;
+  aws.onopen=function(){
+    var items=PACKS[currentPack].items;
+    var lines=items.map(function(it,i){return (i+1)+". "+it[0]+" - "+it[1]}).join("\n");
+    var st=(state&&state.log&&state.log.length)?state.log[state.log.length-1]:null;
+    var lesson="\n\n=== TODAY'S LESSON (he just studied these on this page) ===\nTopic: "+currentPack+"\n"+lines+
+      "\nHis streak: "+(state?state.streak:0)+" days."+
+      (st?(" Last quiz: "+st.score+"/10"+((st.wrong&&st.wrong.length)?(", he missed: "+st.wrong.join(" | ")):", perfect")):"")+
+      "\n\nYOUR JOB THIS SESSION: drill him on THESE exact phrases through short realistic roleplays. Say a warm hello, then immediately put him in a situation that needs phrase 1 (for example: you are a customer who thinks his price is too high). Work through the phrases one at a time, prioritising the ones he missed. One brief correction at a time. Always end each turn with a question so he keeps speaking.";
+    aws.send(JSON.stringify({setup:{model:model,
+      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}}},
+      systemInstruction:{parts:[{text:APERSONA+lesson}]}}}))};
+  aws.onmessage=async function(ev){
+    var raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
+    var m;try{m=JSON.parse(raw)}catch(e){return}
+    if(m.setupComplete!==undefined){ready=true;aLive();return}
+    var sc=m.serverContent;if(!sc)return;
+    if(sc.interrupted){aFlush();asay("Listening…");return}
+    var parts=(sc.modelTurn&&sc.modelTurn.parts)||[];
+    for(var i=0;i<parts.length;i++) if(parts[i].inlineData&&parts[i].inlineData.data) aPcm(unb64(parts[i].inlineData.data));
+    if(sc.turnComplete){glow("0 0 24px rgba(29,77,59,.6)");asay("Your turn.")}
+  };
+  aws.onclose=function(e){
+    if(!ready&&aIdx<AMODELS.length-1){aIdx++;aConn();return}
+    if(!ready){asay("Couldn't connect (code "+e.code+"). Tell Lin.");btn.disabled=false;aClean();return}
+    if(aOn)asay("Line dropped — tap to reconnect.");aClean();
+  };
+}
+function aLive(){
+  aOn=true;btn.disabled=false;btn.textContent="⏹ End session";
+  orb.textContent="🎙";glow("0 0 34px rgba(184,147,74,.55)");asay("Connected - drilling today’s "+currentPack+" phrases. Just talk.");
+  amic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+  aSrcNode=amic.createMediaStreamSource(aStream);aProc=amic.createScriptProcessor(4096,1,1);
+  aSrcNode.connect(aProc);aProc.connect(amic.destination);
+  aProc.onaudioprocess=function(e){
+    if(!aws||aws.readyState!==1)return;
+    var f=e.inputBuffer.getChannelData(0),i16=new Int16Array(f.length);
+    for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
+    aws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+  };
+  aPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});aAt=aPlay.currentTime;
+}
+function aPcm(buf){
+  if(!aPlay)return;glow("0 0 46px rgba(231,197,123,.9)");asay("Aria is speaking — interrupt anytime");
+  var i16=new Int16Array(buf),f32=new Float32Array(i16.length);
+  for(var i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
+  var ab=aPlay.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
+  var s=aPlay.createBufferSource();s.buffer=ab;s.connect(aPlay.destination);
+  var t=Math.max(aPlay.currentTime,aAt);s.start(t);aAt=t+ab.duration;
+  aSrcs.push(s);s.onended=function(){aSrcs=aSrcs.filter(function(x){return x!==s})};
+}
+function aFlush(){aSrcs.forEach(function(s){try{s.stop()}catch(e){}});aSrcs=[];if(aPlay)aAt=aPlay.currentTime}
+function aClean(){
+  aOn=false;btn.textContent="🎧 Start speaking";btn.disabled=false;orb.textContent="🌙";glow("none");
+  try{aProc&&aProc.disconnect()}catch(e){}try{aSrcNode&&aSrcNode.disconnect()}catch(e){}
+  try{amic&&amic.close()}catch(e){}try{aPlay&&aPlay.close()}catch(e){}
+  aws=null;amic=null;aPlay=null;aProc=null;
+}
+function aHang(){
+  asay("Session ended. Come back tomorrow!");
+  try{aws&&aws.close()}catch(e){}
+  if(aStream){aStream.getTracks().forEach(function(t){t.stop()});aStream=null}
+  aClean();
+}
+btn.onclick=aStart;
+})();
+
 </script>
 </body>
 </html>
