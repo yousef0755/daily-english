@@ -55,7 +55,7 @@ nav button.on{color:var(--gold)}
   <section class="page on" id="p-learn">
     <div class="card">
       <h2>今天学什么</h2>
-      <button class="main" data-sub="chinese" style="margin-bottom:9px">📖 语文 · 三年级上册</button>
+      <button class="main" data-sub="chinese" style="margin-bottom:9px">📖 语文 · 第一二单元</button>
       <button class="main ghost" data-sub="quran" style="margin-bottom:9px">🕌 古兰经</button>
       <button class="main ghost" data-sub="english" style="margin-bottom:9px">🔤 英语单词</button>
       <button class="main ghost" data-sub="math">➗ 数学 · 四年级</button>
@@ -84,6 +84,7 @@ nav button.on{color:var(--gold)}
       <div class="tip" style="margin-bottom:14px">谁也不知道里面是什么。<br>星星够了，盒子就会亮。</div>
       <div id="boxRow" style="display:flex;gap:10px;justify-content:center;margin:14px 0"></div>
       <div id="boxResult" style="font-size:1.05rem;color:var(--gold);font-weight:700;min-height:2.6em;margin-top:6px"></div>
+      <div id="boxNext" class="tip" style="margin-top:4px"></div>
     </div>
     <div class="card">
       <h2>手机时间</h2>
@@ -93,22 +94,11 @@ nav button.on{color:var(--gold)}
     </div>
   </section>
 
-  <section class="page" id="p-wish">
-    <div class="card wish">
-      <h2>愿望盲盒</h2>
-      <div class="tip">打开之前，谁也不知道里面是什么 —— 攒够 30 ⭐ 抽一次，抽到什么算什么！</div>
-      <div class="wishbox" id="wishBox">🎁</div>
-      <div class="wishtext" id="wishText">还没抽</div>
-      <button class="main" id="drawWish" style="margin-top:14px">抽一次（30 ⭐）</button>
-      <div class="tip" id="wishLog" style="margin-top:14px"></div>
-    </div>
-  </section>
 </main>
 
 <nav>
   <button class="on" data-p="learn"><span>📚</span>学习</button>
   <button data-p="reward"><span>🎁</span>神秘盒</button>
-  <button data-p="wish"><span>🔮</span>愿望盒</button>
 </nav>
 <div class="toast" id="toast"></div>
 
@@ -139,51 +129,32 @@ function sysSpeak(text){
 
 /* ================= 题库 ================= */
 const BANK={
-chinese:{title:"语文 · 人教版三年级上册",items:[
- {q:"第一课《大青树下的小学》里，同学们是从哪些地方走来的？",o:["山坡上、坪坝里、小路上","城市、乡村、海边","学校、家里、公园"],a:0},
+chinese:{title:"语文 · 三上（第一、二单元）",items:[
+ {q:"《大青树下的小学》里，同学们是从哪些地方走来的？",o:["山坡上、坪坝里、小路上","城里、乡下、海边","学校、家里、公园"],a:0},
+ {q:"《大青树下的小学》写的是一所什么样的学校？",o:["很多民族的孩子一起上学","只有一个老师的学校","城里的大学校"],a:0},
+ {q:"“坪坝”的“坝”读什么？",o:["bà","bèi","pā"],a:0},
+ {q:"课文里，上课的时候窗外为什么很安静？",o:["树枝不摇了，鸟儿也不叫了","下雨了","放学了"],a:0},
+ {q:"《花的学校》里，花儿们是在什么时候冲出来的？",o:["下雨的时候","太阳最大的时候","下雪的时候"],a:0},
  {q:"《花的学校》是哪位诗人写的？",o:["泰戈尔","冰心","叶圣陶"],a:0},
+ {q:"《花的学校》里说花儿的家在哪里？",o:["地下的学校里","天上","河里"],a:0},
  {q:"《不懂就要问》讲的是谁小时候的故事？",o:["孙中山","毛泽东","鲁迅"],a:0},
- {q:"“坪坝”的“坝”应该读？",o:["bà","bèi","pā"],a:0},
- {q:"《铺满金色巴掌的水泥道》里，“金色的巴掌”指的是？",o:["梧桐树的落叶","小朋友的手掌","秋天的阳光"],a:0},
- {q:"《秋天的雨》开头说：秋天的雨，是一把——",o:["钥匙","扇子","伞"],a:0},
- {q:"《听听，秋的声音》是一篇什么？",o:["现代诗","记叙文","说明文"],a:0},
- {q:"《总也倒不了的老屋》里，老屋一直不倒，是因为？",o:["总有小动物需要帮助","它盖得很结实","没有刮大风"],a:0},
- {q:"《在牛肚子里旅行》讲的是哪两只小动物？",o:["蟋蟀红头和青头","蚂蚁和蜜蜂","小鸡和小鸭"],a:0},
- {q:"《一块奶酪》里，蚂蚁队长最后怎么处理那一角奶酪？",o:["让最小的蚂蚁吃了","自己吃了","扔掉了"],a:0},
- {q:"《宝葫芦的秘密》的作者是？",o:["张天翼","叶圣陶","老舍"],a:0},
- {q:"《搭船的鸟》里，“我”看到的那只鸟是？",o:["翠鸟","麻雀","燕子"],a:0},
- {q:"《金色的草地》里，草地为什么会变颜色？",o:["蒲公英的花会张开合拢","阳光照的角度不同","有人染的色"],a:0},
- {q:"《富饶的西沙群岛》主要写的是哪里？",o:["我国南海的岛屿","东北的森林","西部的沙漠"],a:0},
- {q:"《海滨小城》里，小城最美的是什么？",o:["公园和街道很干净整洁","高楼大厦","热闹的市场"],a:0},
- {q:"《美丽的小兴安岭》里，小兴安岭被称为什么？",o:["绿色的海洋","花的世界","水的故乡"],a:0},
- {q:"《大自然的声音》里，谁是大自然的音乐家？",o:["风、水、动物","老师和同学","乐队"],a:0},
- {q:"《父亲、树林和鸟》里，父亲最喜欢的是？",o:["树林和唱歌的鸟","打猎","种树"],a:0},
- {q:"《司马光》是一篇什么？",o:["文言文","现代诗","书信"],a:0},
- {q:"《司马光》里，司马光用什么救出了掉进缸里的孩子？",o:["用石头砸破缸","叫大人来","用绳子拉"],a:0},
- {q:"《掌声》这篇课文告诉我们？",o:["要给别人鼓励和爱","要好好学习","要遵守纪律"],a:0},
- {q:"《灰雀》里的那个小男孩最后怎么做了？",o:["把灰雀放回来了","养起来了","送给了列宁"],a:0},
- {q:"《手术台就是阵地》写的是哪位医生？",o:["白求恩","李时珍","华佗"],a:0},
- {q:"《我们奇妙的世界》属于哪个单元的主题？",o:["观察与发现","童话故事","历史人物"],a:0},
- {q:"“摇头晃脑”的“晃”在这里读？",o:["huàng","huǎng","huāng"],a:0},
- {q:"“兴致勃勃”的“兴”读？",o:["xìng","xīng","xíng"],a:0},
- {q:"下面哪个词形容水面很平静？",o:["水平如镜","波涛汹涌","惊涛拍岸"],a:0},
- {q:"“绚丽多彩”一般用来形容？",o:["颜色美丽丰富","声音很响","动作很快"],a:0},
- {q:"《望天门山》是谁写的？",o:["李白","杜甫","王维"],a:0},
- {q:"《山行》里“停车坐爱枫林晚”的“坐”意思是？",o:["因为","坐下","座位"],a:0},
+ {q:"《不懂就要问》里，孙中山为什么敢向先生提问？",o:["他想弄懂书里的意思","他想让同学佩服","先生要求提问"],a:0},
+ {q:"孙中山说：学问学问，不懂就要——",o:["问","记","背"],a:0},
+ {q:"第二单元《古诗三首》里，《山行》是谁写的？",o:["杜牧","李白","王维"],a:0},
+ {q:"《山行》里“停车坐爱枫林晚”的“坐”是什么意思？",o:["因为","坐下","座位"],a:0},
  {q:"《赠刘景文》里说：一年好景君须记，最是——",o:["橙黄橘绿时","春暖花开时","大雪纷飞时"],a:0},
- {q:"《夜书所见》里，“萧萧梧叶送寒声”写的是哪个季节？",o:["秋天","春天","夏天"],a:0}
-]},
-quran:{title:"古兰经 · 短章与常识",items:[
- {q:"「بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ」意思是？",o:["奉至仁至慈的真主之名","一切赞颂全归真主","愿你平安"],a:0},
- {q:"《开端章》(الفاتحة) 一共有几节？",o:["7节","5节","10节"],a:0},
- {q:"「قُلْ هُوَ اللَّهُ أَحَدٌ」出自哪一章？",o:["忠诚章 الإخلاص","黎明章 الفلق","世人章 الناس"],a:0},
- {q:"「الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ」的意思是？",o:["一切赞颂全归真主，众世界的主","至仁至慈的主","报应日的主"],a:0},
- {q:"每天穆斯林要礼几次拜？",o:["5次","3次","7次"],a:0},
- {q:"《地震章》(الزلزلة) 说：做了微尘之重的善事会怎样？",o:["他将看见它","它会消失","没有说"],a:0},
- {q:"古兰经一共有多少章？",o:["114章","100章","120章"],a:0},
- {q:"「إِنَّ مَعَ الْعُسْرِ يُسْرًا」意思是？",o:["困难的确伴随着容易","忍耐是美好的","真主是至知的"],a:0},
- {q:"斋月是伊斯兰历的第几个月？",o:["第9个月","第1个月","第12个月"],a:0},
- {q:"「السلام عليكم」是什么意思？",o:["愿你平安","感谢真主","如蒙主意"],a:0}
+ {q:"《夜书所见》里“萧萧梧叶送寒声”写的是哪个季节？",o:["秋天","春天","夏天"],a:0},
+ {q:"《铺满金色巴掌的水泥道》里，“金色的巴掌”指什么？",o:["梧桐树的落叶","小朋友的手掌","阳光"],a:0},
+ {q:"《铺满金色巴掌的水泥道》里，“我”是怎么去上学的？",o:["走路","坐车","骑自行车"],a:0},
+ {q:"《秋天的雨》开头说：秋天的雨，是一把——",o:["钥匙","扇子","伞"],a:0},
+ {q:"《秋天的雨》里，秋雨把黄色给了谁？",o:["银杏树","枫树","松树"],a:0},
+ {q:"《秋天的雨》里，秋雨把红色给了谁？",o:["枫树","银杏","小草"],a:0},
+ {q:"《听听，秋的声音》是一篇什么？",o:["现代诗","记叙文","说明文"],a:0},
+ {q:"“摇头晃脑”的“晃”在这里读？",o:["huàng","huǎng","huāng"],a:0},
+ {q:"“绚丽多彩”一般用来形容什么？",o:["颜色美丽丰富","声音很响","跑得很快"],a:0},
+ {q:"“熟”字在“成熟”里读？",o:["shú","shóu","sú"],a:0},
+ {q:"下面哪个词是形容水面很平静的？",o:["水平如镜","波涛汹涌","惊涛拍岸"],a:0},
+ {q:"第二单元的主题跟什么有关？",o:["秋天","冬天","春天"],a:0}
 ]},
 math:{title:"数学 · 四年级",items:[
  {q:"25 × 4 = ?",o:["100","90","110"],a:0},
@@ -229,7 +200,7 @@ const DEFAULT_BOX={
  80:["去游泳一次 🏊","和爸爸去钓鱼半天 🎣","和爸爸单独出去吃一顿饭","周末去一次公园",
      "和妈妈一起做蛋糕","全家陪你打一局游戏","去看一场电影 🍿","买一本你想要的书",
      "跟爸爸单独出去逛一趟，想去哪你说了算","叫上一个好朋友来家里玩","一次海边的下午",
-     "让爸爸当一小时你的学生，你教他 😎"],
+     "让爸爸当一小时你的学生，你教他 😎","去自行车店看一次你想要的那辆 🚲"],
  200:["🚲 你想要的那辆自行车！","一整天的游泳 + 钓鱼","一次去游乐场","当一天「博远说了算」日",
       "挑一样你一直想要的东西","和爸爸两个人出去玩一整天","一次沙漠冲沙 🏜","去水上乐园 🌊",
       "生日那天你说了算，怎么过都行","换一样房间里你想要的新东西"]
@@ -300,9 +271,12 @@ function render(){
       };
       row.appendChild(b);
     });
+    const nx=BOXES.find(x=>D.stars<x[1]);
+    const nb=document.getElementById("boxNext");
+    if(nb)nb.textContent=nx?("再 "+(nx[1]-D.stars)+" 颗星星，"+nx[0].split(" ")[1]+"就会亮"):"三个盒子都亮着！";
   }
   const wl=document.getElementById("wishLog");
-  wl.textContent=D.wishes.length?("你已经抽中过 "+D.wishes.length+" 个愿望啦"):"";
+  if(wl)wl.textContent=D.wishes.length?("你已经开出过 "+D.wishes.length+" 个奖啦"):"";
 }
 
 /* ================= 出题 ================= */
@@ -360,20 +334,7 @@ document.getElementById("buyTime").onclick=()=>{
   if(D.stars<15){toast("还差 "+(15-D.stars)+" 颗星星");return}
   D.stars-=15;D.phone+=10;save();render();toast("换到 10 分钟手机时间 📱");
 };
-document.getElementById("drawWish").onclick=()=>{
-  if(D.stars<30){toast("攒够 30 颗星星再来");return}
-  D.stars-=30;
-  const box=document.getElementById("wishBox"),txt=document.getElementById("wishText");
-  let n=0;const spin=setInterval(()=>{
-    box.textContent=["🎁","✨","🎊","🌟","🎈"][n%5];n++;
-    if(n>12){clearInterval(spin);
-      const pool=getWishes();const w=pool[Math.floor(Math.random()*pool.length)];
-      box.textContent="🎉";txt.textContent=w;
-      D.wishes.push(w);save();render();
-      if(w==="再抽一次！")D.stars+=30,save(),render();
-    }
-  },90);
-};
+
 (function(){
   const hb=document.querySelector("#p-reward h2");let tb=null;
   const openBoxAdmin=()=>{
@@ -393,21 +354,7 @@ document.getElementById("drawWish").onclick=()=>{
   hb.addEventListener("mousedown",()=>{tb=setTimeout(openBoxAdmin,900)});
   hb.addEventListener("mouseup",()=>clearTimeout(tb));
 })();
-(function(){
-  const h=document.querySelector("#p-wish h2");let t=null;
-  const openAdmin=()=>{
-    const cur=getWishes().join("\n");
-    const v=prompt("爸爸的盲盒设置（一行一个愿望，孩子看不到）：",cur);
-    if(v===null)return;
-    const arr=v.split("\n").map(x=>x.trim()).filter(Boolean);
-    try{localStorage.setItem("wishPool",JSON.stringify(arr))}catch(e){}
-    toast("盲盒已换新，共 "+arr.length+" 个愿望");
-  };
-  h.addEventListener("touchstart",()=>{t=setTimeout(openAdmin,900)});
-  h.addEventListener("touchend",()=>clearTimeout(t));
-  h.addEventListener("mousedown",()=>{t=setTimeout(openAdmin,900)});
-  h.addEventListener("mouseup",()=>clearTimeout(t));
-})();
+
 document.querySelectorAll("nav button").forEach(b=>{
   b.onclick=()=>{
     document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
