@@ -1401,8 +1401,10 @@ function padPos(e){
   const t=e.touches?e.touches[0]:e;
   return {x:(t.clientX-r.left)*c.width/r.width,y:(t.clientY-r.top)*c.height/r.height};
 }
-function padStart(e){e.preventDefault();padDrawing=true;const p=padPos(e);padCtx.beginPath();padCtx.moveTo(p.x,p.y)}
-function padMove(e){if(!padDrawing)return;e.preventDefault();const p=padPos(e);padCtx.lineTo(p.x,p.y);padCtx.stroke()}
+function padStart(e){
+  window.__inkStrokes=(window.__inkStrokes||0)+1;e.preventDefault();padDrawing=true;const p=padPos(e);padCtx.beginPath();padCtx.moveTo(p.x,p.y)}
+function padMove(e){
+  if(padDrawing){window.__inkPts=(window.__inkPts||0)+1}if(!padDrawing)return;e.preventDefault();const p=padPos(e);padCtx.lineTo(p.x,p.y);padCtx.stroke()}
 function padEnd(){padDrawing=false}
 function padProg(){
   if(!padZ)return;
@@ -1521,10 +1523,18 @@ document.getElementById("rDone").onclick=function(){
     c.addEventListener("mouseleave",padEnd);
   }
   const cl=document.getElementById("padClear");
-  if(cl)cl.onclick=function(){drawGrid()};
+  if(cl)cl.onclick=function(){drawGrid();window.__inkPts=0;window.__inkStrokes=0};
   const ok=document.getElementById("padOk");
   if(ok)ok.onclick=function(){
     if(!padZ)return;
+    /* 2026-08-15 堵漏洞：原来点一下就算写完一遍，格子里空的照样给星。
+       现在要真在格子里写过才算——落笔点数和笔画数都要够。 */
+    const pts=window.__inkPts||0, strokes=window.__inkStrokes||0;
+    if(pts<70 || strokes<2){
+      toast("要在格子里写一遍才算哦");
+      return;
+    }
+    window.__inkPts=0; window.__inkStrokes=0;
     const k=todayKey()+"_pad_"+padZ.z;
     D.padDone=D.padDone||{};
     const n=(D.padDone[k]||0)+1;D.padDone[k]=n;
