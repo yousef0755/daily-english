@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<link rel="apple-touch-icon" href="./kid-icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="一家人">
+<title>一家人 · 今天</title>
+<style>
+:root{
+  --bg:#07111f; --bg-2:#0b1929; --card:rgba(255,255,255,.045);
+  --line:rgba(255,255,255,.10); --ink:#eef3f8; --muted:#8fa3b8;
+  --gold:#d9b45f; --mint:#7ed6b2; --dim:#3c4d61;
+  --serif:'Songti SC','Iowan Old Style',Georgia,serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:
+   radial-gradient(1100px 620px at 50% -12%, #12263f 0%, transparent 62%),
+   var(--bg);
+  color:var(--ink);line-height:1.7;
+  font-family:-apple-system,'PingFang SC','Segoe UI',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:30px 18px 44px}
+
+header{text-align:center;margin-bottom:24px}
+.eyebrow{font-size:.68rem;letter-spacing:.26em;color:var(--muted);margin:0 0 9px}
+h1{font-family:var(--serif);font-weight:400;font-size:1.85rem;margin:0 0 12px;letter-spacing:.02em}
+.today{display:inline-flex;align-items:baseline;gap:8px;
+  border:1px solid var(--line);border-radius:99px;padding:6px 16px;
+  background:var(--card);font-size:.83rem;color:var(--muted)}
+.today b{font-size:1.15rem;color:var(--gold);font-variant-numeric:tabular-nums}
+
+/* 一家人的那盏灯：全来了就整条亮起来 */
+.lamp{height:3px;border-radius:99px;background:rgba(255,255,255,.07);
+  margin:20px 0 22px;overflow:hidden}
+.lamp i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--gold),var(--mint));
+  transition:width 1s cubic-bezier(.2,.8,.3,1)}
+
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+li{display:flex;align-items:center;gap:13px;padding:14px 15px;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  transition:border-color .4s ease,opacity .4s ease}
+li.away{opacity:.52}
+li.here{border-color:rgba(217,180,95,.3)}
+li.fin{border-color:rgba(126,214,178,.42)}
+
+.dot{width:11px;height:11px;border-radius:50%;flex:none;background:var(--dim)}
+li.here .dot{background:var(--gold);box-shadow:0 0 0 4px rgba(217,180,95,.14)}
+li.fin .dot{background:var(--mint);box-shadow:0 0 0 4px rgba(126,214,178,.16)}
+
+.who{flex:1;min-width:0}
+.nm{font-size:1.02rem;font-weight:600;letter-spacing:.01em}
+.wt{font-size:.76rem;color:var(--muted);margin-top:2px}
+.wt em{font-style:normal;color:var(--mint)}
+
+.right{text-align:right;flex:none}
+.cnt{font-size:.95rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+li.fin .cnt{color:var(--mint)}
+li.here .cnt{color:var(--gold)}
+.kp{font-size:.7rem;color:var(--muted);margin-top:3px;white-space:nowrap}
+.kp b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+.note{margin:26px 0 0;padding:15px 16px;background:rgba(255,255,255,.03);
+  border:1px solid var(--line);border-radius:16px;
+  font-size:.83rem;color:var(--muted);line-height:1.85}
+.note b{color:var(--gold)}
+footer{margin-top:22px;text-align:center;font-size:.7rem;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">苏 家</p>
+  <h1>今天，谁来了</h1>
+  <div class="today"><span>已经来了</span><b id="hereN">—</b><span id="hereTot"></span></div>
+</header>
+
+<div class="lamp"><i id="lamp"></i></div>
+
+<ul id="list"><li><div class="who"><div class="nm">正在看…</div></div></li></ul>
+
+<p class="note" id="note"></p>
+
+<footer id="foot"></footer>
+
+</div>
+
+<script>
+/* 一家人一起学（老板 2026-08-15 出的主意）
+   排名刻意不按数量排——八岁的跟十六岁的比多少，落后那个直接不玩了。
+   只看两样：今天来没来、连着多少天没断。这两样各个年纪是公平的。 */
+const API="https://yusufs-macbook-pro.tail63c9ae.ts.net";
+
+function chain(n){
+  if(n<=0)return "还没开始";
+  return "连着 <b>"+n+"</b> 天";
+}
+function render(d){
+  const ps=d.people||[];
+  const here=ps.filter(p=>p.here).length, fin=ps.filter(p=>p.finished).length;
+  document.getElementById("hereN").textContent=here;
+  document.getElementById("hereTot").textContent="／ "+ps.length+" 人";
+  document.getElementById("lamp").style.width=(ps.length?here/ps.length*100:0)+"%";
+
+  document.getElementById("list").innerHTML=ps.map(p=>{
+    const cls=p.finished?"fin":(p.here?"here":"away");
+    const what=p.finished
+      ? '<em>今天做完了</em>'
+      : (p.here ? p.what+" · 在做" : p.what);
+    return '<li class="'+cls+'">'+
+      '<span class="dot"></span>'+
+      '<div class="who"><div class="nm">'+p.name+'</div><div class="wt">'+what+'</div></div>'+
+      '<div class="right"><div class="cnt">'+(p.here? p.done+" / "+p.total : "—")+'</div>'+
+      '<div class="kp">'+chain(p.streak)+'</div></div>'+
+      '</li>';
+  }).join("");
+
+  const away=ps.filter(p=>!p.here).map(p=>p.name);
+  const note=document.getElementById("note");
+  if(!ps.length){ note.textContent=""; }
+  else if(!away.length){ note.innerHTML="<b>今天全家都来了。</b>这样的日子不多，记住它。"; }
+  else if(here===0){ note.innerHTML="今天还没人开始。<b>谁先来，谁把灯点上。</b>"; }
+  else { note.innerHTML="还差 <b>"+away.join("、")+"</b>。别催，去问一句就行。"; }
+
+  document.getElementById("foot").textContent=d.date+" · 每分钟自己刷新";
+}
+async function load(){
+  try{
+    const r=await fetch(API+"/fam/board",{cache:"no-store"});
+    render(await r.json());
+  }catch(e){
+    document.getElementById("list").innerHTML=
+      '<li><div class="who"><div class="nm">连不上</div><div class="wt">家里的电脑可能没开着</div></div></li>';
+  }
+}
+load(); setInterval(load,60000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden)load() });
+</script>
+</body>
+</html>

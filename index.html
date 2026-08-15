@@ -322,6 +322,10 @@ header .pill.on{
   padding:6px 13px !important;
   max-width:none !important;
 }
+
+.famlink{flex:0 0 auto;border:1px solid rgba(234,216,173,.34);border-radius:999px;
+  padding:8px 13px;background:rgba(255,255,255,.06);color:#f2dfb2;
+  font-size:.77rem;font-weight:650;text-decoration:none;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -336,6 +340,7 @@ header .pill.on{
         </div>
       </div>
       <div class="streak" id="streak">🔥 0-day streak</div>
+      <a class="famlink" href="./family.html">一家人今天 →</a>
     </div>
     <div class="hero-copy">
       <p class="eyebrow">اِسْتَمِعْ · لَاحِظْ · تَكَلَّمْ</p>
@@ -520,7 +525,7 @@ function play(pack,i,kind,fallback,clean){
   player.onerror=()=>{sysSpeak(key||fallback)};
   player.play().catch(()=>{sysSpeak(key||fallback)});
 }
-function renderStreak(){document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
+function renderStreak(){try{famPing()}catch(e){}document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
 function renderPills(){
   const p=document.getElementById("pills");p.innerHTML="";
   const activeNames=window.__packNamesActive||packNames;
@@ -555,7 +560,7 @@ function startQuiz(){
         state.streak=(state.last===yest)?state.streak+1:1;state.last=today;
       }
       state.log=(state.log||[]).slice(-30);state.log.push(lastResult);
-      store.set(KEY,JSON.stringify(state));renderStreak();updateCoachLink();
+      store.set(KEY,JSON.stringify(state));renderStreak();updateCoachLink();try{famPing()}catch(e){}
       document.getElementById("again").onclick=startQuiz;return;
     }
     const wi=idx[i],it=PK[pk].items[wi];
@@ -805,6 +810,19 @@ if(oi&&ob){
   btn.addEventListener("click",save);
   inp.addEventListener("keydown",function(e){if(e.key==="Enter")save()});
 })();
+
+/* 上报家庭榜（老板 2026-08-15 的主意：一家人一起学）
+   只报「今天亮没亮」，不报学了什么、考了几分。 */
+var FAM_API="https://yusufs-macbook-pro.tail63c9ae.ts.net", famLast="";
+function famPing(){
+  try{
+    var t=new Date().toISOString().slice(0,10);
+    var done=(state&&state.last===t)?1:0;
+    var k=t+"|"+done; if(k===famLast)return; famLast=k;
+    fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:"baba",done:done,total:1})}).catch(function(){});
+  }catch(e){}
+}
 </script>
 </body>
 </html>

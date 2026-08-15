@@ -336,6 +336,11 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 .nb-tip b{color:var(--mint)}
 .nagbox .main{width:100%}
 .nagbox.on{border-color:rgba(126,214,178,.4)}
+
+.famlink{display:block;margin:4px 12px 0;padding:13px 16px;text-align:center;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;
+  color:var(--gold);text-decoration:none;font-size:.88rem;font-weight:600}
+.famlink:active{background:rgba(255,255,255,.07)}
 </style>
 </head>
 <body>
@@ -550,6 +555,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <div class="rf-tip" id="rfTip"></div>
   </div>
 </section>
+<a class="famlink" href="./family.html">看看一家人今天谁来了 →</a>
 <section class="nagbox" id="nagBox">
   <div class="nb-head">让猫咪来叫你</div>
   <p class="nb-tip" id="nagTip">正在看…</p>
@@ -2125,6 +2131,7 @@ function setWalker(who){
 function renderWalk(){
   const box=document.getElementById("walkBox"); if(!box)return;
   try{nagMirror()}catch(e){}
+  try{famPing()}catch(e){}
   const n=walkDone(), total=(typeof DIARY_SUBS!=="undefined")?DIARY_SUBS.length:5;
   const pct=Math.round(n/total*100);
   document.getElementById("walkStep").textContent=n+" / "+total;
@@ -2376,10 +2383,25 @@ async function renderNag(){
 }
 /* 开页就把这一块画出来，并把今天的进度同步给 Service Worker */
 (function(){
-  function boot(){ try{nagMirror()}catch(e){} try{renderNag()}catch(e){} }
+  function boot(){ try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
   else boot();
 })();
+
+/* ═══ 上报家庭榜（老板的主意：一家人一起学，互相看得见）═══
+   只报「今天做了几件」，不报做了什么。变了才报，别刷服务器。 */
+let famLast="";
+function famPing(){
+  try{
+    const done=(typeof walkDone==="function")?walkDone():0;
+    const total=(typeof DIARY_SUBS!=="undefined")?DIARY_SUBS.length:6;
+    const k=todayKey()+"|"+done+"|"+total;
+    if(k===famLast)return;
+    famLast=k;
+    fetch(NAG_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:"boyuan",done:done,total:total})}).catch(function(){});
+  }catch(e){}
+}
 </script>
 </body>
 </html>

@@ -566,7 +566,7 @@ const DARES=[
 const KEY="mieSampler";
 let S=JSON.parse(localStorage.getItem(KEY)||"null")||{topic:"free",stitches:[],days:[],last:"",lang:"both",dares:[]};
 if(!S.lang)S.lang="both";if(!S.dares)S.dares=[];
-const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(S));try{famPing()}catch(e){}};
 const today=()=>new Date().toISOString().slice(0,10);
 
 function markToday(){
@@ -1053,6 +1053,18 @@ mood("idle");
   };
   render();
 })();
+
+/* 上报家庭榜（老板 2026-08-15 的主意）——只报今天来没来，聊了什么不报。 */
+const FAM_API="https://yusufs-macbook-pro.tail63c9ae.ts.net";
+let famLast="";
+function famPing(){
+  try{
+    const t=today(), done=(S.last===t)?1:0, k=t+"|"+done;
+    if(k===famLast)return; famLast=k;
+    fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:"manya",done:done,total:1})}).catch(()=>{});
+  }catch(e){}
+}
 </script>
 </body>
 </html>
