@@ -477,7 +477,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <div class="card" id="quizCard" style="display:none">
       <h2 id="quizTitle">题目</h2>
       <div class="q" id="q"></div>
-      <button class="opt" id="replayQ" style="text-align:center;margin-bottom:12px">🔊 再听一次</button>
+      <button class="opt" id="replayQ" style="text-align:center;margin-bottom:12px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>再听一次</button>
       <div id="opts"></div>
       <div class="tip" id="prog"></div>
     </div>
@@ -1249,6 +1249,7 @@ async function tGo(){
   catch(e){tsay("要允许用麦克风才能上课哦");btn.disabled=false;return}
   tIdx=0;tConn();
 }
+var tPlaying=false;
 function tConn(){
   var model=TMODELS[tIdx];
   tws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+tKey);
@@ -1281,21 +1282,36 @@ function tConn(){
 }
 function tLive(){
   window.__tStartAt=Date.now();
-  tOn=true;btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>玩完了';orb.textContent="🎓";
+  tOn=true;btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>玩完了';orb.textContent="";
   glow("0 0 36px rgba(255,212,121,.6)");tsay("老师来啦！直接跟她说话就行 😊");
   tStart0=Date.now();
   tmic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
   tSrcN=tmic.createMediaStreamSource(tStream);tProc=tmic.createScriptProcessor(4096,1,1);
   tSrcN.connect(tProc);tProc.connect(tmic.destination);
+  /* 2026-08-15 老板：老师特别敏感，一点点声音他就不说话了。
+     原因是麦克风把环境噪音也一路送上去，服务端当成孩子在插话就停口。
+     修法：上行加一道音量闸——够响才送，静音和环境噪音一律不送。
+     松开后再多送 0.6 秒（hangover），免得把句尾吃掉。 */
+  var GATE=0.045, HANG=0.6, tLoudAt=0;
   tProc.onaudioprocess=function(e){
     if(!tws||tws.readyState!==1)return;
-    var f=e.inputBuffer.getChannelData(0),i16=new Int16Array(f.length);
+    var f=e.inputBuffer.getChannelData(0);
+    var r=0; for(var j=0;j<f.length;j++)r+=f[j]*f[j];
+    r=Math.sqrt(r/f.length);
+    var now=e.playbackTime||(Date.now()/1000);
+    if(r>GATE) tLoudAt=now;
+    /* 老师正在说话时门槛更高，避免外放的声音自己打断自己 */
+    var need = (tPlaying? GATE*2.2 : GATE);
+    if(r<=need && (now-tLoudAt)>HANG) return;
+    var i16=new Int16Array(f.length);
     for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
     tws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   tPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});tAt=tPlay.currentTime;
 }
 function tPcm(buf){
+  tPlaying=true; clearTimeout(window.__tpT);
+  window.__tpT=setTimeout(function(){tPlaying=false},700);
   if(!tPlay)return;glow("0 0 46px rgba(255,212,121,.95)");tsay("老师在说话（可以打断她）");
   var i16=new Int16Array(buf),f32=new Float32Array(i16.length);
   for(var i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
