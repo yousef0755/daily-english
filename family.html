@@ -335,6 +335,11 @@ li.here .mins b{color:var(--gold)}
 .solo.on .sd b{color:var(--gold)}
 .sbadge{font-size:.63rem;color:var(--mint);border:1px solid rgba(126,214,178,.4);
   border-radius:99px;padding:1px 7px;white-space:nowrap}
+
+.pk .tellta{display:inline-flex;align-items:center;border:1px solid rgba(126,214,178,.45);
+  background:rgba(126,214,178,.12);color:var(--mint);border-radius:999px;
+  padding:6px 13px;font-size:.78rem;font-weight:600;text-decoration:none}
+.pk .tellta:active{opacity:.75}
 </style>
 </head>
 <body>
@@ -448,11 +453,11 @@ function render(d){
               '<div class="pbar'+(p.finished?" done":p.here?" going":"")+'">'+
                 '<i style="width:'+Math.min(100,Math.round(((p.mins||0)/(p.goal||15))*100))+'%"></i>'+
               '</div>'+
-              /* 没开始的时候只说一次「还没开始」（右边那栏已经写了），
-                 这儿改成告诉他目标是多少，才有用。 */
-              '<div class="mins">'+((p.mins||0)>0
-                 ? ('学了 <b>'+p.mins+'</b> 分钟'+(p.finished?'':' · 目标 '+p.goal+' 分'))
-                 : ('今天的目标 '+p.goal+' 分钟'))+'</div>';
+              /* 老板 2026-08-15：「不要写学了多长时间。只有进度条就可以了。
+                 不然博远看到其他人只学了几分钟，他就不开心了」——
+                 各人的目标本来就不一样（博远30分、爸爸5分），把分钟摆出来
+                 等于请孩子互相比，比了就伤人。所以只留进度条。 */
+              '';
     const whoBlk = p.url
       ? '<a class="who" href="'+p.url+'">'+who+'</a>'
       : '<div class="who">'+who+'</div>';
@@ -807,13 +812,24 @@ function paintPairs(d, offline){
     }
     let h="";
     if((d.asked||[]).length){
+      /* 老板 2026-08-15 问「我如何邀请别人做搭子」——
+         原来选完只是单方面记一笔，对方不知道，得碰巧打开榜才看见。
+         加一个「告诉TA」，直接把话发出去。 */
       h+='<div class="pk"><span class="who2">还在等对方点头：</span>'+
-        d.asked.map(a=>'<button class="wait" disabled>'+a.aName+' 想约 '+a.bName+'</button>').join("")+'</div>';
+        d.asked.map(function(a){
+          const msg=encodeURIComponent(
+            a.aName+"想跟你做这周的搭子。\n\n搭子的天数只算两个人都来的日子——"+
+            "你不来，"+a.aName+"的也没了。\n\n你去这里点一下自己的名字，再点「"+a.aName+"」就算成了：\n"+
+            "https://yousef0755.github.io/daily-english/family.html");
+          return '<button class="wait" disabled>'+a.aName+' 想约 '+a.bName+'</button>'+
+                 '<a class="tellta" href="https://wa.me/?text='+msg+'" target="_blank" rel="noopener">告诉 '+a.bName+'</a>';
+        }).join("")+'</div>';
     }
     if(picking){
       const me=(d.free||[]).find(f=>f.id===picking)||{name:""};
       const others=(d.free||[]).filter(f=>f.id!==picking);
-      h+='<div class="pk"><span class="who2">'+me.name+'，想跟谁做这周的搭子？</span>'+
+      h+='<div class="pk"><span class="who2">'+me.name+'，想跟谁做这周的搭子？'+
+        '选完会给你一个「告诉TA」，把邀请发过去，对方点头才算成。</span>'+
         others.map(o=>'<button class="go2" data-pick="'+o.id+'" title="'+o.name+'">'+shortName(o.name)+'</button>').join("")+
         '<button class="cancel" data-cancel="1">算了</button></div>';
     }else if(!offline && (d.free||[]).length){

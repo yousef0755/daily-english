@@ -122,7 +122,7 @@ main{position:relative;z-index:2;width:calc(100% - 28px);max-width:820px;margin:
 .phrase-copy{min-width:0;flex:1}
 .phrase{position:relative;width:max-content;max-width:100%;color:var(--green-deep);font-family:var(--serif);font-size:1.16rem;font-weight:600;line-height:1.35;cursor:pointer;user-select:none;transition:color .24s ease,text-shadow .24s ease}
 .phrase:not(.shown){color:transparent;text-shadow:0 0 9px rgba(20,67,53,.52)}
-.phrase:not(.shown):after{content:"点一下看句子";position:absolute;left:0;top:50%;transform:translateY(-50%);color:#5e6d66;text-shadow:none;font-family:var(--sans);font-size:.73rem;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+
 .phrase.shown{color:var(--green-deep);text-shadow:none}
 .use{display:none;margin-top:14px;padding:11px 13px;border-left:3px solid var(--gold);border-radius:0 11px 11px 0;background:rgba(234,216,173,.22);color:#4f5753;font-size:.86rem;line-height:1.65}
 .use.shown{display:block;animation:reveal .25s ease both}
@@ -587,6 +587,7 @@ function groupOf(n){
   return "其他";
 }
 function renderPills(){
+  setTimeout(function(){try{applyUiLang()}catch(e){}},0);
   const p=document.getElementById("pills"); p.innerHTML="";
   const names=window.__packNamesActive||packNames;
   const todayName=names[dayIndex%names.length];
@@ -633,6 +634,7 @@ function renderPills(){
   p.appendChild(box);
 }
 function renderWords(){
+  setTimeout(function(){try{applyUiLang()}catch(e){}},0);
   const area=document.getElementById("wordArea");area.innerHTML="";
   document.getElementById("dayTag").textContent=currentPack+" · "+today;
   ((window.__PACKS_ACTIVE||PACKS)[currentPack]||PACKS[currentPack]).items.forEach((it,i)=>{
@@ -818,7 +820,7 @@ try{localStorage.setItem("langMode","ar")}catch(e){}
 var mEn=document.getElementById("modeEn"),mAr=document.getElementById("modeAr");
 var mSp=document.getElementById("modeSpeech"),mCh=document.getElementById("modeChat"),mCm=document.getElementById("modeComm");
 function applyMode(){
-  setTimeout(function(){try{applyHeroSub()}catch(e){}},0);
+  setTimeout(function(){try{applyHeroSub();applyUiLang()}catch(e){}},0);
   var ar=LANG_MODE==="ar", sp=LANG_MODE==="speech", ch=LANG_MODE==="chat", cm=LANG_MODE==="comm";
   mEn.classList.toggle("on",LANG_MODE==="en");mAr.classList.toggle("on",ar);
   mSp.classList.toggle("on",sp);mCh.classList.toggle("on",ch);mCm.classList.toggle("on",cm);
@@ -980,6 +982,48 @@ function applyHeroSub(){
   document.addEventListener("visibilitychange",function(){ if(document.hidden)report() });
   window.__studySec=function(){return sec};
 })();
+
+/* 老板 2026-08-15：「爸爸的网站设置成全英文的」。
+   我理解成：在英语模式下，界面就该是英文的——
+   现在切到英语课，播放键上写着 اِسْتَمِعْ·听、按钮写中文，一页三种文字，是乱的。
+   阿语模式仍然保留中文，因为那是给中文母语的人学阿语用的。 */
+const UI_EN={
+  zhShow:"Show Chinese", zhHide:"Hide Chinese",
+  todayLesson:"TODAY'S LESSON", change:"Another topic", todayTag:"today",
+  listen:"Listen", hint:"Tap a line to see it. Tap ▶ to hear it.",
+  quizTitle:"Listening check", quizSub:"Listen, then pick the right line.",
+  quizStart:"Start listening check →"
+};
+function applyUiLang(){
+  const en = (typeof LANG_MODE!=="undefined") && LANG_MODE==="en";
+  const $=function(id){return document.getElementById(id)};
+  const zt=$("zhToggleBtn");
+  if(zt){
+    const hidden=document.body.classList.contains("hide-zh");
+    zt.textContent = en ? (hidden?UI_EN.zhShow:UI_EN.zhHide) : (hidden?"显示中文":"隐藏中文");
+  }
+  const eb=document.querySelector(".lesson-toolbar .eyebrow");
+  if(eb)eb.textContent = en ? UI_EN.todayLesson : "دَرْسُ الْيَوْمِ · 今日课程";
+  const hint=document.querySelector(".listen-tip .hint");
+  if(hint)hint.textContent = en ? UI_EN.hint : "先听标准阿语神经发音，再点开句子和中文意思。";
+  document.querySelectorAll(".speak-label").forEach(function(e){
+    e.textContent = en ? UI_EN.listen : "اِسْتَمِعْ · 听";
+  });
+  const qt=document.querySelector("#quizTitle .title-main");
+  if(qt)qt.textContent = en ? UI_EN.quizTitle : "标准阿语听力测验";
+  const qs=document.querySelector("#quizTitle small");
+  if(qs)qs.textContent = en ? UI_EN.quizSub : "听标准阿语神经发音，选出正确句子。";
+  const qe=document.querySelector("#quizTitle .eyebrow");
+  if(qe)qe.textContent = en ? "" : "اِخْتِبَارُ الِاسْتِمَاعِ";
+  const sq=$("startQuiz");
+  if(sq)sq.textContent = en ? UI_EN.quizStart : "开始标准阿语听力测验 →";
+  document.querySelectorAll("#pills .more-pill").forEach(function(e){
+    if(e.textContent.indexOf("收起")<0) e.textContent = en ? UI_EN.change : "换个题目";
+  });
+  document.querySelectorAll("#pills .today-pill").forEach(function(e){
+    if(en) e.textContent = e.textContent.replace(" · 今日", " · "+UI_EN.todayTag);
+  });
+}
 </script>
 </body>
 </html>
