@@ -117,42 +117,31 @@
  "pairs": {
   "week": "2026-W33",
   "pairs": [],
-  "asked": [
-   {
-    "a": "manya",
-    "b": "boyuan",
-    "aName": "曼雅",
-    "bName": "博远"
-   },
-   {
-    "a": "boyuan",
-    "b": "baba",
-    "aName": "博远",
-    "bName": "爸爸"
-   },
-   {
-    "a": "xiya",
-    "b": "amina",
-    "aName": "玺雅",
-    "bName": "妈妈"
-   },
-   {
-    "a": "baba",
-    "b": "amina",
-    "aName": "爸爸",
-    "bName": "妈妈"
-   },
-   {
-    "a": "feiya",
-    "b": "amina",
-    "aName": "霏雅",
-    "bName": "妈妈"
-   }
-  ],
+  "asked": [],
   "free": [
+   {
+    "id": "boyuan",
+    "name": "博远"
+   },
+   {
+    "id": "manya",
+    "name": "曼雅"
+   },
+   {
+    "id": "xiya",
+    "name": "玺雅"
+   },
+   {
+    "id": "feiya",
+    "name": "霏雅"
+   },
    {
     "id": "amina",
     "name": "妈妈"
+   },
+   {
+    "id": "baba",
+    "name": "爸爸"
    }
   ],
   "solo": [
