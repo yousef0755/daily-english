@@ -273,6 +273,52 @@ footer a{color:var(--indigo)}
 .paw.done{opacity:1}
 
 .en-dek{display:block;margin-top:8px;font-size:.85rem;opacity:.72;line-height:1.65}
+
+/* ── 绣绷与绣品 ── */
+.hoopwrap{
+  width:186px;height:186px;margin:4px auto 14px;border-radius:50%;
+  border:5px solid var(--brass);background:var(--linen-2);
+  display:grid;place-items:center;position:relative;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.05);
+}
+.hoopwrap::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent 0 5px,rgba(0,0,0,.05) 5px 6px),
+    repeating-linear-gradient(90deg,transparent 0 5px,rgba(0,0,0,.05) 5px 6px);
+}
+@media (prefers-color-scheme:dark){
+  .hoopwrap::before{background-image:
+    repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,255,255,.05) 5px 6px),
+    repeating-linear-gradient(90deg,transparent 0 5px,rgba(255,255,255,.05) 5px 6px)}
+}
+#canvas{width:152px;height:152px;position:relative}
+#guide line{stroke:var(--edge);stroke-width:1.1;stroke-linecap:round;opacity:.5}
+#stitched line{
+  stroke:var(--indigo);stroke-width:2.6;stroke-linecap:round;
+  animation:sew .34s ease-out backwards;
+}
+@keyframes sew{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+#stitched line.warm{stroke:var(--madder)}
+#stitched line.leafy{stroke:var(--sage)}
+
+.pieceName{margin:0 0 10px;text-align:center;font-family:var(--serif);
+  font-size:1.04rem;color:var(--ink)}
+.pieceName .en{display:block;font-family:var(--sans);font-size:.76rem;
+  color:var(--ink-2);margin-top:3px}
+.bar{height:5px;background:var(--linen-2);border-radius:99px;overflow:hidden;
+  border:1px solid var(--edge)}
+.barfill{height:100%;width:0;background:var(--sage);transition:width .6s cubic-bezier(.2,.8,.3,1)}
+.piecehint{margin:9px 0 0;text-align:center;font-size:.8rem;color:var(--ink-2);line-height:1.7}
+
+/* ── 收藏架 ── */
+.gifts{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:10px}
+.gift{border:1px solid var(--edge);border-radius:3px;padding:7px 5px;text-align:center;
+  background:var(--linen-2)}
+.gift svg{width:100%;height:auto;display:block}
+.gift svg line{stroke:var(--indigo);stroke-width:2.6;stroke-linecap:round}
+.gift .gname{font-size:.66rem;color:var(--ink-2);margin:5px 0 0;line-height:1.4}
+.giftempty{color:var(--ink-2);font-size:.88rem;font-style:italic;grid-column:1/-1}
 </style>
 </head>
 <body>
@@ -358,6 +404,24 @@ footer a{color:var(--indigo)}
 </section>
 
 <section class="cloth" id="dadNote"><div class="dadbox" style="border:none;padding:0;background:none"><p class="dadlabel">爸爸的话<span class="en">A word from Dad</span></p><p class="dadtext" id="dadLine"></p><button class="dadedit" type="button" onclick="__dadEdit()">爸爸：写一句</button></div></section>
+<section class="cloth" id="piece">
+  <p class="label">雪球在绣<span class="en">Snowy is stitching</span></p>
+  <div class="hoopwrap">
+    <svg id="canvas" viewBox="0 0 100 100" aria-label="embroidery in progress">
+      <g id="guide"></g>
+      <g id="stitched"></g>
+    </svg>
+  </div>
+  <p class="pieceName" id="pieceName"></p>
+  <div class="bar"><div class="barfill" id="barfill"></div></div>
+  <p class="piecehint" id="pieceHint"></p>
+</section>
+
+<section class="cloth" id="shelf">
+  <p class="label">她绣给你的<span class="en">What Snowy has made you</span></p>
+  <div class="gifts" id="gifts"></div>
+</section>
+
 <section class="cloth">
   <p class="label">今天练哪种<span class="en">Which language today</span></p>
   <div class="spools" id="langs"></div>
@@ -591,6 +655,13 @@ function conn(){
     ctx+="\n\nTODAY'S DARE on her page: \""+dare.en+"\" ("+dare.zh+"). "
         +(doneToday?"She has already ticked it off — ask how it actually went, and get the details."
                    :"She hasn't done it yet. Bring it up once, near the end, without nagging.");
+    const mk=MOTIFS[motifOfDay()],rd=getProgress();
+    ctx+="\n\nWHAT SNOWY IS STITCHING TODAY: "+mk.en+" ("+mk.zh+"). "
+        +"The cat starts stitching the moment Mie starts talking, and finishes the piece after "
+        +TARGET+" exchanges — then it's a gift for her. She is "+rd+"/"+TARGET+" of the way there. "
+        +(rd>=TARGET?"It's already finished today — tell her it's hers, once, warmly, then move on."
+                    :"Don't narrate this constantly. Mention it once if the conversation lulls, "
+                     +"or near the end: keep talking and Snowy finishes the piece.");
     ctx+="\n\nOpen the conversation yourself, right now, with a real hello and one question. Don't wait for her.";
     ws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],
@@ -606,7 +677,7 @@ function conn(){
     const parts=(sc.modelTurn&&sc.modelTurn.parts)||[];
     for(let i=0;i<parts.length;i++)
       if(parts[i].inlineData&&parts[i].inlineData.data)pcm(unb64(parts[i].inlineData.data));
-    if(sc.turnComplete){mood("listen");say("该你了 · Your turn")}
+    if(sc.turnComplete){mood("listen");say("该你了 · Your turn");stitchOnce()}
   };
   ws.onclose=function(e){
     if(!ready&&idx<MODELS.length-1){idx++;conn();return}
@@ -691,6 +762,190 @@ document.getElementById("dareDone").onclick=()=>{
   setTimeout(function(){mood(on?"listen":"idle")},4200);
 };
 renderLangs();renderDare();
+/* ═══════ 每天一幅：Snowy 绣给她的东西 ═══════ */
+const MOTIFS=[
+ {zh:"小黑猫",en:"A little black cat",tone:"",
+  d:["M50 34 m-15 0 a15 15 0 1 0 30 0 a15 15 0 1 0 -30 0",
+     "M37 24 L34 11 L47 19","M63 24 L66 11 L53 19",
+     "M35 78 C35 56 42 47 50 47 C58 47 65 56 65 78",
+     "M65 76 C78 74 82 62 75 56"]},
+ {zh:"月亮",en:"A moon",tone:"",
+  d:["M62 18 A33 33 0 1 0 62 82 A27 27 0 1 1 62 18"]},
+ {zh:"一片叶子",en:"A leaf",tone:"leafy",
+  d:["M50 14 C73 32 73 63 50 86 C27 63 27 32 50 14","M50 20 L50 80",
+     "M50 38 L38 32","M50 38 L62 32","M50 54 L36 48","M50 54 L64 48"]},
+ {zh:"一朵小花",en:"A small flower",tone:"warm",
+  d:["M50 22 C61 22 67 31 62 41 C73 37 81 44 78 53 C85 62 80 72 69 71 C65 81 55 83 50 75 C45 83 35 81 31 71 C20 72 15 62 22 53 C19 44 27 37 38 41 C33 31 39 22 50 22 Z",
+     "M50 46 m-7 0 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0","M50 75 L50 90"]},
+ {zh:"星星",en:"A star",tone:"",
+  d:["M50 13 L59 38 L86 38 L64 54 L72 80 L50 64 L28 80 L36 54 L14 38 L41 38 Z"]},
+ {zh:"一条小鱼",en:"A little fish",tone:"",
+  d:["M18 50 C32 29 63 29 77 50 C63 71 32 71 18 50 Z",
+     "M77 50 L92 37 L92 63 Z","M32 44 L36 44","M50 33 C52 45 52 55 50 67"]},
+ {zh:"一只茶杯",en:"A teacup",tone:"warm",
+  d:["M27 38 L31 71 C31 78 38 82 50 82 C62 82 69 78 69 71 L73 38 Z",
+     "M73 46 C86 44 88 63 73 65","M20 88 L80 88",
+     "M42 26 C46 20 42 15 44 10","M56 26 C60 20 56 15 58 10"]},
+ {zh:"一只小鸟",en:"A little bird",tone:"",
+  d:["M29 58 C29 43 42 35 55 39 C68 43 71 57 63 67 C54 76 35 73 29 58 Z",
+     "M45 50 C56 47 63 54 60 63","M64 46 L78 51 L64 56",
+     "M29 61 L14 68 L23 72","M45 72 L44 84","M55 73 L57 85"]},
+ {zh:"一颗草莓",en:"A strawberry",tone:"warm",
+  d:["M50 31 C67 31 77 43 75 57 C73 73 60 83 50 83 C40 83 27 73 25 57 C23 43 33 31 50 31 Z",
+     "M38 31 L50 19 L62 31 L50 27 Z","M50 19 L50 10",
+     "M42 48 L42 49","M58 48 L58 49","M50 60 L50 61","M35 62 L35 63","M65 62 L65 63"]},
+ {zh:"一朵蘑菇",en:"A mushroom",tone:"warm",
+  d:["M21 48 C21 29 35 19 50 19 C65 19 79 29 79 48 Z",
+     "M39 48 L39 76 C39 83 61 83 61 76 L61 48",
+     "M36 34 m-4 0 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0",
+     "M62 38 m-3 0 a3 3 0 1 0 6 0 a3 3 0 1 0 -6 0"]},
+ {zh:"一颗心",en:"A heart",tone:"warm",
+  d:["M50 82 C18 61 18 33 35 29 C43 27 50 33 50 40 C50 33 57 27 65 29 C82 33 82 61 50 82 Z"]},
+ {zh:"一只蝴蝶",en:"A butterfly",tone:"",
+  d:["M50 30 L50 76",
+     "M50 40 C33 20 14 29 19 46 C22 61 39 63 50 52",
+     "M50 40 C67 20 86 29 81 46 C78 61 61 63 50 52",
+     "M50 56 C40 68 28 74 32 82 C36 88 46 82 50 72",
+     "M50 56 C60 68 72 74 68 82 C64 88 54 82 50 72",
+     "M50 30 L44 18","M50 30 L56 18"]},
+ {zh:"一间小屋",en:"A little house",tone:"",
+  d:["M17 51 L50 22 L83 51","M27 51 L27 82 L73 82 L73 51",
+     "M43 82 L43 63 L57 63 L57 82","M33 58 L33 68 L41 68 L41 58 Z",
+     "M62 34 L62 22 L69 22 L69 40"]},
+ {zh:"一朵云",en:"A cloud",tone:"",
+  d:["M27 67 C16 67 12 55 21 49 C21 36 36 30 45 39 C51 28 70 30 72 43 C85 43 87 63 74 67 Z",
+     "M36 76 L33 84","M52 76 L49 86","M67 76 L64 83"]}
+];
+
+const TARGET=12;                    /* 绣满一幅要的来回数 */
+const STEP=6.4;                     /* 每一针多长 */
+
+function motifOfDay(){
+  const d=new Date();
+  const n=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
+  return n%MOTIFS.length;
+}
+/* 把路径采样成一针一针 */
+function stitches(dArr){
+  const ns="http://www.w3.org/2000/svg";
+  const tmp=document.createElementNS(ns,"svg");
+  tmp.setAttribute("viewBox","0 0 100 100");
+  tmp.style.cssText="position:absolute;width:0;height:0;overflow:hidden";
+  document.body.appendChild(tmp);
+  const out=[];
+  dArr.forEach(function(d){
+    const pa=document.createElementNS(ns,"path");
+    pa.setAttribute("d",d);tmp.appendChild(pa);
+    const L=pa.getTotalLength();
+    let prev=pa.getPointAtLength(0);
+    for(let t=STEP;t<=L;t+=STEP){
+      const pt=pa.getPointAtLength(t);
+      out.push([prev.x,prev.y,pt.x,pt.y]);
+      prev=pt;
+    }
+    if(L%STEP>STEP*0.4){const e=pa.getPointAtLength(L);out.push([prev.x,prev.y,e.x,e.y])}
+  });
+  document.body.removeChild(tmp);
+  return out;
+}
+
+let PLAN=null;
+function planToday(){
+  const m=MOTIFS[motifOfDay()];
+  PLAN={motif:m,seg:stitches(m.d)};
+  return PLAN;
+}
+function progressKey(){return "stitch_"+today()}
+function getProgress(){
+  const v=parseInt(localStorage.getItem(progressKey())||"0",10);
+  return isNaN(v)?0:v;
+}
+function setProgress(n){localStorage.setItem(progressKey(),String(n))}
+
+function drawPiece(anim){
+  if(!PLAN)planToday();
+  const ns="http://www.w3.org/2000/svg";
+  const guide=document.getElementById("guide"),done=document.getElementById("stitched");
+  const rounds=getProgress(),ratio=Math.min(1,rounds/TARGET);
+  const upto=Math.round(PLAN.seg.length*ratio);
+  if(!guide.childNodes.length){
+    PLAN.seg.forEach(function(g){
+      const l=document.createElementNS(ns,"line");
+      l.setAttribute("x1",g[0]);l.setAttribute("y1",g[1]);
+      l.setAttribute("x2",g[2]);l.setAttribute("y2",g[3]);
+      guide.appendChild(l);
+    });
+  }
+  const have=done.childNodes.length;
+  for(let i=have;i<upto;i++){
+    const g=PLAN.seg[i];
+    const l=document.createElementNS(ns,"line");
+    l.setAttribute("x1",g[0]);l.setAttribute("y1",g[1]);
+    l.setAttribute("x2",g[2]);l.setAttribute("y2",g[3]);
+    if(PLAN.motif.tone)l.setAttribute("class",PLAN.motif.tone);
+    if(anim)l.style.animationDelay=((i-have)*0.045)+"s"; else l.style.animation="none";
+    done.appendChild(l);
+  }
+  document.getElementById("pieceName").innerHTML=
+    PLAN.motif.zh+'<span class="en">'+PLAN.motif.en+"</span>";
+  document.getElementById("barfill").style.width=(ratio*100)+"%";
+  const hint=document.getElementById("pieceHint");
+  if(ratio>=1){
+    hint.textContent="绣好了，这幅是给你的。 · Finished — this one's yours.";
+    keepGift();
+  }else if(rounds===0){
+    hint.textContent="你一开口，雪球就动针。 · She starts stitching when you start talking.";
+  }else{
+    hint.textContent="还差 "+(TARGET-rounds)+" 个来回 · "+(TARGET-rounds)+" more exchanges to go";
+  }
+}
+function stitchOnce(){
+  const r=getProgress();
+  if(r>=TARGET)return;
+  setProgress(r+1);
+  drawPiece(true);
+  if(getProgress()>=TARGET){mood("cheer");setTimeout(function(){mood(on?"listen":"idle")},4600)}
+}
+
+/* ── 收藏架 ── */
+function keepGift(){
+  let g=[];try{g=JSON.parse(localStorage.getItem("mieGifts")||"[]")}catch(e){}
+  if(g.some(function(x){return x.d===today()}))return;
+  g.push({d:today(),m:motifOfDay()});
+  localStorage.setItem("mieGifts",JSON.stringify(g));
+  renderGifts();
+}
+function renderGifts(){
+  const box=document.getElementById("gifts");if(!box)return;
+  let g=[];try{g=JSON.parse(localStorage.getItem("mieGifts")||"[]")}catch(e){}
+  box.innerHTML="";
+  if(!g.length){
+    const e=document.createElement("p");e.className="giftempty";
+    e.textContent="还没有。聊满一次，雪球就绣好一幅给你。 · Nothing yet — finish one session and she'll hand you the first.";
+    box.appendChild(e);return;
+  }
+  g.slice(-12).reverse().forEach(function(item){
+    const m=MOTIFS[item.m%MOTIFS.length];
+    const cell=document.createElement("div");cell.className="gift";
+    const ns="http://www.w3.org/2000/svg";
+    const sv=document.createElementNS(ns,"svg");
+    sv.setAttribute("viewBox","0 0 100 100");
+    stitches(m.d).forEach(function(seg){
+      const l=document.createElementNS(ns,"line");
+      l.setAttribute("x1",seg[0]);l.setAttribute("y1",seg[1]);
+      l.setAttribute("x2",seg[2]);l.setAttribute("y2",seg[3]);
+      if(m.tone)l.setAttribute("class",m.tone);
+      sv.appendChild(l);
+    });
+    cell.appendChild(sv);
+    const n=document.createElement("p");n.className="gname";
+    n.textContent=m.zh+"  "+item.d.slice(5);
+    cell.appendChild(n);box.appendChild(cell);
+  });
+}
+
+planToday();drawPiece(false);renderGifts();
+
 /* ═══════ Snowy：会睡、会听、会玩线、会替她高兴 ═══════ */
 const cat=document.getElementById("snowy"),mew=document.getElementById("mew");
 const MEWS={
