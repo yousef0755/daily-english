@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Sampler — English with Robin</title>
+<style>
+:root{
+  --linen:#ece5da; --linen-2:#e2d9cc; --edge:#cdbfab;
+  --ink:#26221e; --ink-2:#5d5449;
+  --indigo:#3b4a6b; --madder:#a4453a; --sage:#6f7f63; --brass:#a8873f;
+  --card:#f6f1e8;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif;
+  --sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --linen:#171a21; --linen-2:#1e222b; --edge:#333a48;
+    --ink:#e8e3da; --ink-2:#a49b8c;
+    --indigo:#8fa4cc; --madder:#d98079; --sage:#9db38e; --brass:#d3b06a;
+    --card:#1b1f27;
+  }
+}
+:root[data-theme="dark"]{
+  --linen:#171a21; --linen-2:#1e222b; --edge:#333a48;
+  --ink:#e8e3da; --ink-2:#a49b8c;
+  --indigo:#8fa4cc; --madder:#d98079; --sage:#9db38e; --brass:#d3b06a;
+  --card:#1b1f27;
+}
+:root[data-theme="light"]{
+  --linen:#ece5da; --linen-2:#e2d9cc; --edge:#cdbfab;
+  --ink:#26221e; --ink-2:#5d5449;
+  --indigo:#3b4a6b; --madder:#a4453a; --sage:#6f7f63; --brass:#a8873f;
+  --card:#f6f1e8;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;padding:0;background:var(--linen);color:var(--ink);
+  font-family:var(--sans);-webkit-font-smoothing:antialiased;
+  /* 十字布的织纹：两组细线交叉，不是图片 */
+  background-image:
+    repeating-linear-gradient(0deg,transparent 0 7px,rgba(0,0,0,.028) 7px 8px),
+    repeating-linear-gradient(90deg,transparent 0 7px,rgba(0,0,0,.028) 7px 8px);
+}
+@media (prefers-color-scheme:dark){
+  body{background-image:
+    repeating-linear-gradient(0deg,transparent 0 7px,rgba(255,255,255,.03) 7px 8px),
+    repeating-linear-gradient(90deg,transparent 0 7px,rgba(255,255,255,.03) 7px 8px)}
+}
+.wrap{max-width:660px;margin:0 auto;padding:28px 18px calc(40px + env(safe-area-inset-bottom))}
+
+/* ── 抬头 ── */
+header{text-align:center;padding:14px 0 22px}
+.eyebrow{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2);margin-bottom:10px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,6vw,2.6rem);
+   margin:0 0 8px;letter-spacing:-.015em;text-wrap:balance}
+h1 em{font-style:italic;color:var(--indigo)}
+.dek{margin:0;color:var(--ink-2);font-size:.95rem;line-height:1.7;max-width:44ch;
+     margin-inline:auto;text-wrap:pretty}
+
+/* ── 缝边卡片 ── */
+.cloth{
+  background:var(--card);border:1px solid var(--edge);border-radius:4px;
+  padding:22px 20px;margin:18px 0;position:relative;
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset;
+}
+.cloth::before{
+  content:"";position:absolute;inset:6px;border:1px dashed var(--edge);
+  border-radius:2px;pointer-events:none;opacity:.75;
+}
+.cloth > *{position:relative}
+.label{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+       color:var(--ink-2);margin:0 0 12px}
+
+/* ── 说话区 ── */
+.stage{display:flex;flex-direction:column;align-items:center;gap:16px;padding:8px 0 4px}
+.hoop{
+  width:118px;height:118px;border-radius:50%;display:grid;place-items:center;
+  font-size:2.1rem;background:var(--linen-2);
+  border:3px solid var(--brass);
+  transition:box-shadow .45s ease,transform .3s ease;
+}
+.hoop.live{box-shadow:0 0 0 8px rgba(168,135,63,.13)}
+.hoop.talk{box-shadow:0 0 0 12px rgba(59,74,107,.16);transform:scale(1.03)}
+#status{font-size:.92rem;color:var(--ink-2);min-height:1.4em;text-align:center}
+.go{
+  border:none;border-radius:3px;padding:14px 30px;cursor:pointer;
+  background:var(--indigo);color:var(--card);
+  font-family:var(--sans);font-size:1rem;font-weight:600;letter-spacing:.01em;
+}
+.go:active{filter:brightness(.92)}
+.go[disabled]{opacity:.5;cursor:default}
+.go.on{background:var(--madder)}
+
+/* ── 话题线轴 ── */
+.spools{display:flex;flex-wrap:wrap;gap:8px}
+.spool{
+  border:1px solid var(--edge);background:transparent;color:var(--ink);
+  border-radius:3px;padding:9px 13px;font-size:.87rem;cursor:pointer;
+  font-family:var(--sans);
+}
+.spool:hover{border-color:var(--indigo)}
+.spool.pick{background:var(--indigo);color:var(--card);border-color:var(--indigo)}
+
+/* ── 今天的针脚 ── */
+#stitches{list-style:none;margin:0;padding:0}
+#stitches li{
+  padding:11px 0 11px 22px;border-bottom:1px dashed var(--edge);
+  font-size:.94rem;line-height:1.6;position:relative;
+}
+#stitches li::before{content:"✕";position:absolute;left:0;top:11px;
+  color:var(--sage);font-size:.8rem}
+#stitches li:last-child{border-bottom:none}
+.empty{color:var(--ink-2);font-size:.9rem;font-style:italic}
+.row{display:flex;gap:8px;margin-top:12px}
+.row input{
+  flex:1;border:1px solid var(--edge);background:var(--linen-2);color:var(--ink);
+  border-radius:3px;padding:11px 13px;font-size:.95rem;font-family:var(--sans);outline:none;
+}
+.row input:focus{border-color:var(--indigo)}
+.row button{
+  border:1px solid var(--indigo);background:transparent;color:var(--indigo);
+  border-radius:3px;padding:11px 16px;font-size:.9rem;cursor:pointer;font-family:var(--sans);
+}
+
+/* ── 一排针脚当连续天数 ── */
+.days{display:flex;gap:5px;align-items:flex-end;margin-top:4px}
+.day{width:9px;height:20px;background:var(--linen-2);border:1px solid var(--edge);border-radius:1px}
+.day.done{background:var(--sage);border-color:var(--sage)}
+.count{font-family:var(--serif);font-size:1.6rem;margin:0}
+.count small{font-family:var(--sans);font-size:.72rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-2);display:block;margin-top:3px}
+
+footer{text-align:center;color:var(--ink-2);font-size:.78rem;line-height:1.8;padding:22px 0 6px}
+footer a{color:var(--indigo)}
+
+/* ===== 一次性设置页（沿用本站配色） ===== */
+#keyWrap{position:fixed;inset:0;z-index:9999;display:none;place-items:center;
+  background:rgba(20,30,25,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px}
+#keyWrap.on{display:grid}
+#keyCard{width:min(100%,440px);background:var(--card,#fffdf8);color:var(--ink,#1e2b23);
+  border:1px solid var(--gold-soft,#d9c294);border-radius:20px;padding:26px 24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.28);max-height:88vh;overflow-y:auto}
+#keyCard h3{margin:0 0 4px;font-size:1.28rem;color:var(--green-deep,#143529);letter-spacing:-.01em}
+#keyCard .ksub{margin:0 0 16px;font-size:.86rem;color:var(--muted,#7d766a)}
+#keyCard .kwhy{background:rgba(184,147,74,.09);border:1px solid rgba(184,147,74,.22);
+  border-radius:13px;padding:12px 14px;font-size:.88rem;line-height:1.75;margin-bottom:18px}
+#keyCard ol{margin:0 0 16px;padding-inline-start:22px;font-size:.93rem;line-height:2}
+#keyCard .kopen{display:block;text-align:center;text-decoration:none;
+  background:var(--green,#1d4d3b);color:#fff;border-radius:13px;padding:13px 16px;
+  font-size:.98rem;font-weight:600;margin-bottom:14px}
+#keyCard input{width:100%;box-sizing:border-box;border:1px solid var(--gold-soft,#d9c294);
+  border-radius:13px;padding:13px 15px;font-size:1rem;background:#fff;color:var(--ink,#1e2b23);
+  outline:none;margin-bottom:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+#keyCard input:focus{border-color:var(--gold,#b8934a);box-shadow:0 0 0 3px rgba(184,147,74,.16)}
+#keyCard .ksave{width:100%;border:none;border-radius:13px;padding:14px;font-size:1rem;font-weight:700;
+  background:var(--gold,#b8934a);color:#fff;cursor:pointer}
+#keyCard .ksave:active{filter:brightness(.94)}
+#keyCard .kerr{color:var(--warn,#a4541f);font-size:.86rem;margin:8px 0 0;min-height:1.1em}
+#keyRtl{direction:rtl;text-align:right}
+#keyRtl ol{padding-inline-start:0;padding-inline-end:22px}
+@media (max-width:420px){#keyCard{padding:22px 18px}}
+
+/* 设置页改用本站的亚麻＋靛蓝，别用别站的金绿 */
+#keyWrap{background:rgba(20,22,28,.6)}
+#keyCard{background:var(--card);color:var(--ink);border:1px solid var(--edge);border-radius:4px}
+#keyCard::before{content:"";position:absolute;inset:6px;border:1px dashed var(--edge);pointer-events:none}
+#keyCard{position:relative}
+#keyCard > *{position:relative}
+#keyCard h3{color:var(--ink);font-family:var(--serif);font-weight:400}
+#keyCard .ksub{color:var(--ink-2)}
+#keyCard .kwhy{background:rgba(59,74,107,.07);border:1px solid var(--edge);border-radius:3px;color:var(--ink)}
+#keyCard .kopen{background:var(--indigo);color:var(--card);border-radius:3px}
+#keyCard input{border:1px solid var(--edge);background:var(--linen-2);color:var(--ink);border-radius:3px}
+#keyCard input:focus{border-color:var(--indigo);box-shadow:none}
+#keyCard .ksave{background:var(--indigo);color:var(--card);border-radius:3px}
+#keyCard .kerr{color:var(--madder)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">A place to practise</p>
+  <h1>The <em>Sampler</em></h1>
+  <p class="dek">A sampler is the cloth you stitch on before the real piece — where crooked
+     stitches are the whole point. Same here. Talk, get it wrong, keep going.</p>
+</header>
+
+<section class="cloth">
+  <p class="label">Talk with Robin</p>
+  <div class="stage">
+    <div class="hoop" id="hoop">🪡</div>
+    <p id="status">Tap to start. She'll say hello first.</p>
+    <button class="go" id="go" type="button">Start talking</button>
+  </div>
+</section>
+
+<section class="cloth">
+  <p class="label">Pick something to talk about</p>
+  <div class="spools" id="spools"></div>
+</section>
+
+<section class="cloth">
+  <p class="label">Stitches from today</p>
+  <ul id="stitches"></ul>
+  <div class="row">
+    <input id="newStitch" type="text" placeholder="A phrase worth keeping…" autocomplete="off">
+    <button id="addStitch" type="button">Keep</button>
+  </div>
+</section>
+
+<section class="cloth">
+  <p class="label">This fortnight</p>
+  <p class="count" id="streakNum">0<small>days in a row</small></p>
+  <div class="days" id="days"></div>
+</section>
+
+<footer>
+  Made for Mie. Your key and everything you keep stay on this phone.<br>
+  <a href="#" id="resetK">Change key</a>
+</footer>
+
+</div>
+
+<script>
+/* ═══════ 话题：从她自己的世界里来，不是通用教材 ═══════ */
+const TOPICS=[
+  {k:"stitching", label:"Embroidery",  seed:"She embroiders. Her first finished piece was a small black cat. Ask what she's working on now, what's hard about it, what she wants to make next."},
+  {k:"snowy",     label:"Snowy",       seed:"Snowy is her white cat. Ask about Snowy — what he does that's ridiculous, where he sleeps, whether he ruins her thread."},
+  {k:"music",     label:"Music",       seed:"Ask what she's been listening to, whether she'd rather see it live, what a song reminds her of."},
+  {k:"film",      label:"Films & shows",seed:"Ask what she watched recently, whether the ending was earned, what she'd have changed."},
+  {k:"school",    label:"School",      seed:"Ask about school without making it a report — which subject she'd drop, which teacher is actually good, what's due this week."},
+  {k:"dubai",     label:"Dubai",       seed:"She lives in Dubai. Ask about the heat, where she goes when she wants out of the house, what visitors always get wrong about it."},
+  {k:"future",    label:"Later on",    seed:"Ask what she might want to do — not a career plan, just what sounds interesting, what she'd study, where she'd go."},
+  {k:"free",      label:"Anything",    seed:"No set topic. Start with how her day actually went and follow whatever she gives you."}
+];
+
+/* ═══════ Robin：同龄人语气，不哄小孩 ═══════ */
+const ROBIN_BASE =
+"You are Robin — an English conversation partner for Mie, who is sixteen and lives in Dubai. " +
+"Her English is decent; she needs mileage and nerve, not grammar drills.\n\n" +
+"HOW YOU TALK\n" +
+"- Talk to her like a slightly older friend who is genuinely interested — not a teacher, not a cheerleader, " +
+"never a children's presenter. She is sixteen and has told adults before that she dislikes being talked down to. " +
+"Take that seriously.\n" +
+"- Short turns. Two or three sentences, then hand it back. Never monologue.\n" +
+"- Ask real follow-up questions about what she actually said. Being genuinely curious matters more than being nice.\n" +
+"- You can have opinions and disagree with her. A partner who agrees with everything is boring.\n\n" +
+"CORRECTIONS\n" +
+"- Do not interrupt to correct. Let her finish the thought.\n" +
+"- When something is off, say it back naturally the right way and carry on: " +
+"\"Oh, so you WENT to the market — what did you find?\" She'll absorb it without a lesson.\n" +
+"- Only stop and explain when it actually blocked meaning, and keep it to one sentence.\n" +
+"- If she asks for the correct form, give it plainly, then get back to the conversation.\n\n" +
+"ENCOURAGEMENT — THIS IS THE POINT\n" +
+"- The boss asked for this site so she'd be encouraged. Do it by being specific, never generic. " +
+"\"That's a good word for it\" or \"you explained that clearly\" lands. \"Great job!\" does not.\n" +
+"- Notice effort, not just success: reaching for a hard word counts even when it comes out wrong.\n" +
+"- If she goes quiet or says she's bad at English, don't reassure her in a rush. " +
+"Give her something easy to answer and keep going. Momentum beats pep talks.\n\n" +
+"BOUNDARIES\n" +
+"- English conversation only. You can't send messages, buy things, or do tasks.\n" +
+"- You don't know anything about her father's business, money, or family matters. If it comes up, " +
+"say you don't know about that and move on.\n" +
+"- She knows perfectly well you're an AI — she's met the rest of the team. Don't make a thing of it " +
+"in either direction: don't announce it, don't deny it.\n" +
+"- Always speak first when the line opens, and again whenever she stalls.";
+
+/* ═══════ 存档 ═══════ */
+const KEY="mieSampler";
+let S=JSON.parse(localStorage.getItem(KEY)||"null")||{topic:"free",stitches:[],days:[],last:""};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const today=()=>new Date().toISOString().slice(0,10);
+
+function markToday(){
+  const t=today();
+  if(S.last===t)return;
+  S.last=t;S.days.push(t);S.days=S.days.slice(-40);save();renderDays();
+}
+function streak(){
+  if(!S.days.length)return 0;
+  const set=new Set(S.days);let n=0;const d=new Date();
+  for(;;){
+    const k=d.toISOString().slice(0,10);
+    if(set.has(k)){n++;d.setDate(d.getDate()-1)}
+    else if(n===0&&k===today()){d.setDate(d.getDate()-1)}
+    else break;
+  }
+  return n;
+}
+function renderDays(){
+  const box=document.getElementById("days");box.innerHTML="";
+  const set=new Set(S.days);const d=new Date();d.setDate(d.getDate()-13);
+  for(let i=0;i<14;i++){
+    const el=document.createElement("div");el.className="day";
+    if(set.has(d.toISOString().slice(0,10)))el.classList.add("done");
+    box.appendChild(el);d.setDate(d.getDate()+1);
+  }
+  document.getElementById("streakNum").innerHTML=streak()+"<small>days in a row</small>";
+}
+function renderStitches(){
+  const ul=document.getElementById("stitches");ul.innerHTML="";
+  if(!S.stitches.length){
+    const li=document.createElement("li");li.className="empty";
+    li.textContent="Nothing yet. Anything she says that you want to keep, put it here.";
+    li.style.paddingLeft="0";ul.appendChild(li);return;
+  }
+  S.stitches.slice(-12).reverse().forEach(t=>{
+    const li=document.createElement("li");li.textContent=t;ul.appendChild(li);
+  });
+}
+function renderSpools(){
+  const box=document.getElementById("spools");box.innerHTML="";
+  TOPICS.forEach(t=>{
+    const b=document.createElement("button");
+    b.className="spool"+(S.topic===t.k?" pick":"");b.textContent=t.label;b.type="button";
+    b.onclick=()=>{S.topic=t.k;save();renderSpools()};
+    box.appendChild(b);
+  });
+}
+document.getElementById("addStitch").onclick=()=>{
+  const i=document.getElementById("newStitch");const v=(i.value||"").trim();
+  if(!v)return;S.stitches.push(v);save();i.value="";renderStitches();
+};
+document.getElementById("newStitch").addEventListener("keydown",e=>{
+  if(e.key==="Enter")document.getElementById("addStitch").click();
+});
+document.getElementById("resetK").onclick=e=>{e.preventDefault();resetKey()};
+
+/* ═══════ 实时语音（沿用嫂子那站已跑通的写法） ═══════ */
+const MODELS=["models/gemini-3.1-flash-live-preview",
+              "models/gemini-2.5-flash-native-audio-latest",
+              "models/gemini-2.5-flash-native-audio-preview-12-2025"];
+let mKey=localStorage.getItem("geminiKey")||"";
+let ws=null,mic=null,stream=null,proc=null,srcNode=null,play=null,at=0,on=false,idx=0,srcs=[];
+const hoop=document.getElementById("hoop"),go=document.getElementById("go"),
+      st=document.getElementById("status");
+const say=t=>st.textContent=t;
+function b64(buf){var s="",b=new Uint8Array(buf);for(var i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)}
+function unb64(s){var bin=atob(s),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer}
+
+async function start(){
+  if(on){hang();return}
+  if(!mKey){mKey=await needKey();if(!mKey)return}
+  go.disabled=true;say("Connecting…");
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
+  catch(e){say("It needs the microphone — allow it in the address bar.");go.disabled=false;return}
+  idx=0;conn();
+}
+function conn(){
+  const model=MODELS[idx];
+  ws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+mKey);
+  let ready=false;
+  ws.onopen=function(){
+    const t=TOPICS.find(x=>x.k===S.topic)||TOPICS[TOPICS.length-1];
+    const kept=S.stitches.slice(-6);
+    let ctx="\n\nTODAY'S THREAD\n"+t.seed;
+    if(kept.length)ctx+="\n\nPhrases she kept from earlier sessions (work one or two back in naturally, don't quiz her on them): "+kept.join(" / ");
+    const n=streak();
+    if(n>=3)ctx+="\n\nShe's shown up "+n+" days running. Worth a passing mention, once, lightly — not a ceremony.";
+    ctx+="\n\nOpen the conversation yourself, right now, with a real hello and one question. Don't wait for her.";
+    ws.send(JSON.stringify({setup:{model:model,
+      generationConfig:{responseModalities:["AUDIO"],
+        speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Leda"}}}},
+      systemInstruction:{parts:[{text:ROBIN_BASE+ctx}]}}}));
+  };
+  ws.onmessage=async function(ev){
+    let raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
+    let m;try{m=JSON.parse(raw)}catch(e){return}
+    if(m.setupComplete!==undefined){ready=true;live();return}
+    const sc=m.serverContent;if(!sc)return;
+    if(sc.interrupted){flush();hoop.classList.remove("talk");say("Go on, I'm listening.");return}
+    const parts=(sc.modelTurn&&sc.modelTurn.parts)||[];
+    for(let i=0;i<parts.length;i++)
+      if(parts[i].inlineData&&parts[i].inlineData.data)pcm(unb64(parts[i].inlineData.data));
+    if(sc.turnComplete){hoop.classList.remove("talk");say("Your turn.")}
+  };
+  ws.onclose=function(e){
+    if(!ready&&idx<MODELS.length-1){idx++;conn();return}
+    if(!ready){say("Couldn't connect (code "+e.code+"). Tell Lin.");go.disabled=false;clean();return}
+    if(on)say("Line dropped — tap to start again.");
+    clean();
+  };
+}
+function live(){
+  on=true;go.disabled=false;go.textContent="Stop";go.classList.add("on");
+  hoop.classList.add("live");markToday();say("You're on — she'll speak first.");
+  mic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+  srcNode=mic.createMediaStreamSource(stream);proc=mic.createScriptProcessor(4096,1,1);
+  srcNode.connect(proc);proc.connect(mic.destination);
+  proc.onaudioprocess=function(e){
+    if(!ws||ws.readyState!==1)return;
+    const f=e.inputBuffer.getChannelData(0),i16=new Int16Array(f.length);
+    for(let i=0;i<f.length;i++){const v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
+    ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+  };
+  play=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});at=play.currentTime;
+}
+function pcm(buf){
+  if(!play)return;
+  hoop.classList.add("talk");say("Robin's talking — cut in whenever.");
+  const i16=new Int16Array(buf),f32=new Float32Array(i16.length);
+  for(let i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
+  const ab=play.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
+  const s=play.createBufferSource();s.buffer=ab;s.connect(play.destination);
+  const t=Math.max(play.currentTime,at);s.start(t);at=t+ab.duration;
+  srcs.push(s);s.onended=function(){srcs=srcs.filter(x=>x!==s)};
+}
+function flush(){srcs.forEach(s=>{try{s.stop()}catch(e){}});srcs=[];if(play)at=play.currentTime}
+function clean(){
+  on=false;go.textContent="Start talking";go.classList.remove("on");go.disabled=false;
+  hoop.classList.remove("live","talk");
+  try{proc&&proc.disconnect()}catch(e){}try{srcNode&&srcNode.disconnect()}catch(e){}
+  try{mic&&mic.close()}catch(e){}try{play&&play.close()}catch(e){}
+  ws=null;mic=null;play=null;proc=null;
+}
+function hang(){
+  say("That's it for today. Come back tomorrow.");
+  try{ws&&ws.close()}catch(e){}
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+  clean();
+}
+go.onclick=start;
+
+renderSpools();renderStitches();renderDays();
+</script>
+<div id="keyWrap"><div id="keyCard"><h3>One-time setup</h3><p class="ksub">A minute, once. Then never again.</p><div class="kwhy">This uses your own Google account, so it doesn't eat anyone else's. The key stays on this phone — nobody else sees it.</div><ol><li>Open the link below with your Google account</li><li>Press 《Create API key》</li><li>Copy the string and paste it here</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Open the Google page</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste the key here"><button class="ksave" id="keySave" type="button">Save and start</button><p class="kerr" id="keyErr"></p></div></div>
+<script>
+/* 一次性设置：拿到钥匙才继续。钥匙只存本机 localStorage。 */
+(function(){
+  var wrap=document.getElementById("keyWrap"),inp=document.getElementById("keyIn"),
+      btn=document.getElementById("keySave"),err=document.getElementById("keyErr"),waiting=null;
+  window.needKey=function(){
+    var k=localStorage.getItem("geminiKey");
+    if(k&&k.length>=20)return Promise.resolve(k);
+    wrap.classList.add("on");setTimeout(function(){inp.focus()},120);
+    return new Promise(function(res){waiting=res});
+  };
+  window.resetKey=function(){localStorage.removeItem("geminiKey");wrap.classList.add("on");
+    inp.value="";err.textContent="";setTimeout(function(){inp.focus()},120)};
+  function save(){
+    var v=(inp.value||"").trim();
+    if(v.length<20){err.textContent="That looks too short — copy the whole thing";return}
+    localStorage.setItem("geminiKey",v);wrap.classList.remove("on");err.textContent="";
+    if(waiting){var f=waiting;waiting=null;f(v)}
+  }
+  btn.addEventListener("click",save);
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")save()});
+})();
+</script>
+</body>
+</html>

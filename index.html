@@ -43,6 +43,33 @@ main{max-width:640px;margin:0 auto;padding:18px 16px}
 .replay{border:1px solid var(--gold);background:#faf6ea;border-radius:10px;padding:6px 14px;font-size:.9rem;cursor:pointer;font-family:inherit;color:var(--green-deep);margin-bottom:12px}
 footer{position:fixed;bottom:0;left:0;right:0;background:var(--green-deep);color:#cdbf9d;text-align:center;font-size:.75rem;padding:10px;letter-spacing:.08em}
 footer a{color:var(--gold-soft)}
+
+/* ===== 一次性设置页（沿用本站配色） ===== */
+#keyWrap{position:fixed;inset:0;z-index:9999;display:none;place-items:center;
+  background:rgba(20,30,25,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px}
+#keyWrap.on{display:grid}
+#keyCard{width:min(100%,440px);background:var(--card,#fffdf8);color:var(--ink,#1e2b23);
+  border:1px solid var(--gold-soft,#d9c294);border-radius:20px;padding:26px 24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.28);max-height:88vh;overflow-y:auto}
+#keyCard h3{margin:0 0 4px;font-size:1.28rem;color:var(--green-deep,#143529);letter-spacing:-.01em}
+#keyCard .ksub{margin:0 0 16px;font-size:.86rem;color:var(--muted,#7d766a)}
+#keyCard .kwhy{background:rgba(184,147,74,.09);border:1px solid rgba(184,147,74,.22);
+  border-radius:13px;padding:12px 14px;font-size:.88rem;line-height:1.75;margin-bottom:18px}
+#keyCard ol{margin:0 0 16px;padding-inline-start:22px;font-size:.93rem;line-height:2}
+#keyCard .kopen{display:block;text-align:center;text-decoration:none;
+  background:var(--green,#1d4d3b);color:#fff;border-radius:13px;padding:13px 16px;
+  font-size:.98rem;font-weight:600;margin-bottom:14px}
+#keyCard input{width:100%;box-sizing:border-box;border:1px solid var(--gold-soft,#d9c294);
+  border-radius:13px;padding:13px 15px;font-size:1rem;background:#fff;color:var(--ink,#1e2b23);
+  outline:none;margin-bottom:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+#keyCard input:focus{border-color:var(--gold,#b8934a);box-shadow:0 0 0 3px rgba(184,147,74,.16)}
+#keyCard .ksave{width:100%;border:none;border-radius:13px;padding:14px;font-size:1rem;font-weight:700;
+  background:var(--gold,#b8934a);color:#fff;cursor:pointer}
+#keyCard .ksave:active{filter:brightness(.94)}
+#keyCard .kerr{color:var(--warn,#a4541f);font-size:.86rem;margin:8px 0 0;min-height:1.1em}
+#keyRtl{direction:rtl;text-align:right}
+#keyRtl ol{padding-inline-start:0;padding-inline-end:22px}
+@media (max-width:420px){#keyCard{padding:22px 18px}}
 </style>
 </head>
 <body>
@@ -257,9 +284,7 @@ function b64(buf){var s="",b=new Uint8Array(buf);for(var i=0;i<b.length;i+=0x800
 function unb64(s){var bin=atob(s),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer}
 async function aStart(){
   if(aOn){aHang();return}
-  if(!aKey){var k=prompt("First time only — paste your Google AI key (stays on this device):","");
-    if(!k||k.trim().length<20){asay("Need the key — ask Lin for it.");return}
-    aKey=k.trim();localStorage.setItem("geminiKey",aKey)}
+  if(!aKey){aKey=await needKey();if(!aKey)return}
   btn.disabled=true;asay("Connecting…");
   try{aStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
   catch(e){asay("Microphone permission needed.");btn.disabled=false;return}
@@ -412,6 +437,30 @@ if(oi&&ob){
 }
 })();
 
+</script>
+<div id="keyWrap"><div id="keyCard"><h3>第一次设置</h3><p class="ksub">一分钟，只做一次</p><div class="kwhy">用您自己的 Google 账号，额度算您自己的，跟别人不冲突。钥匙只存在这台手机上。</div><ol><li>用您的 Google 账号打开下面这个链接</li><li>点「Create API key」</li><li>复制那串字符，粘到下面</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">打开 Google 页面</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="把钥匙粘在这里"><button class="ksave" id="keySave" type="button">保存，开始用</button><p class="kerr" id="keyErr"></p></div></div>
+<script>
+/* 一次性设置：拿到钥匙才继续。钥匙只存本机 localStorage。 */
+(function(){
+  var wrap=document.getElementById("keyWrap"),inp=document.getElementById("keyIn"),
+      btn=document.getElementById("keySave"),err=document.getElementById("keyErr"),waiting=null;
+  window.needKey=function(){
+    var k=localStorage.getItem("geminiKey");
+    if(k&&k.length>=20)return Promise.resolve(k);
+    wrap.classList.add("on");setTimeout(function(){inp.focus()},120);
+    return new Promise(function(res){waiting=res});
+  };
+  window.resetKey=function(){localStorage.removeItem("geminiKey");wrap.classList.add("on");
+    inp.value="";err.textContent="";setTimeout(function(){inp.focus()},120)};
+  function save(){
+    var v=(inp.value||"").trim();
+    if(v.length<20){err.textContent="这串太短了，请把完整的复制过来";return}
+    localStorage.setItem("geminiKey",v);wrap.classList.remove("on");err.textContent="";
+    if(waiting){var f=waiting;waiting=null;f(v)}
+  }
+  btn.addEventListener("click",save);
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")save()});
+})();
 </script>
 </body>
 </html>
