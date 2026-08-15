@@ -82,6 +82,35 @@ footer{margin-top:22px;text-align:center;font-size:.7rem;color:var(--dim)}
 a.who{text-decoration:none;color:inherit;display:block}
 a.who:active .nm{opacity:.6}
 .nm .go{font-style:normal;color:var(--gold);margin-left:6px;font-size:.95em;opacity:.75}
+
+/* ── 猫跟着努力的人（老板 2026-08-15：努力的人和小猫咪在一起）── */
+.cats{margin:4px 0 18px;text-align:center}
+.cwrap{display:flex;justify-content:center;align-items:flex-end;gap:2px}
+.fcat{width:74px;height:auto;overflow:visible;transition:opacity .5s ease,filter .5s ease}
+.fcat .tail{transform-origin:152px 130px}
+.fcat .earL{transform-origin:76px 60px}
+.fcat .earR{transform-origin:124px 60px}
+/* 没人来：两只睡着，灰着 */
+.fcat .open{opacity:0}
+.fcat .shut{opacity:1}
+.cats.asleep .fcat{opacity:.4;filter:saturate(.35)}
+.cats.asleep .fcat{animation:fbreathe 4.6s ease-in-out infinite}
+@keyframes fbreathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+/* 有人来：睁眼、耳朵动、尾巴甩 */
+.cats.awake .fcat .open{opacity:1}
+.cats.awake .fcat .shut{opacity:0}
+.cats.awake .fcat .tail{animation:fflick 1.5s ease-in-out infinite}
+.cats.awake #fcatS .earL{animation:fearL 2.7s ease-in-out infinite}
+.cats.awake #fcatD .earR{animation:fearR 2.7s ease-in-out infinite}
+@keyframes fflick{0%,100%{transform:rotate(0)}50%{transform:rotate(-15deg)}}
+@keyframes fearL{0%,100%{transform:rotate(0)}50%{transform:rotate(-11deg)}}
+@keyframes fearR{0%,100%{transform:rotate(0)}50%{transform:rotate(11deg)}}
+.cline{margin:9px 0 0;font-size:.85rem;line-height:1.75;color:var(--muted)}
+.cline b{color:var(--gold)}
+.cats.awake .cline b{color:var(--mint)}
+/* 谁身边有猫，行上带个爪印 */
+.paw{display:inline-block;width:13px;height:13px;margin-left:7px;vertical-align:-1px;opacity:.9}
+@media (prefers-reduced-motion:reduce){.fcat,.fcat *{animation:none !important}}
 </style>
 </head>
 <body>
@@ -93,6 +122,45 @@ a.who:active .nm{opacity:.6}
   <div class="today"><span>已经来了</span><b id="hereN">—</b><span id="hereTot"></span></div>
 </header>
 
+<section class="cats" id="catsBox"><div class="cwrap"><svg class="fcat" id="fcatS" viewBox="0 0 200 170" aria-hidden="true">
+ <defs><radialGradient id="fgfcatS" cx="42%" cy="34%" r="72%">
+  <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e9e3d8"/></radialGradient></defs>
+ <g class="tail"><path d="M150 132 C176 130 184 112 176 98 C170 88 158 89 156 98"
+   fill="none" stroke="#e9e3d8" stroke-width="13" stroke-linecap="round"/></g>
+ <path d="M62 138 C58 108 74 86 100 86 C126 86 142 108 138 138 Z" fill="url(#fgfcatS)"/>
+ <ellipse cx="83" cy="140" rx="13" ry="8" fill="#f8f5ef"/><ellipse cx="117" cy="140" rx="13" ry="8" fill="#f8f5ef"/>
+ <g class="head">
+  <g class="earL"><path d="M70 62 L64 34 L90 50 Z" fill="#e9e3d8"/><path d="M72 58 L69 43 L83 51 Z" fill="#e6b7ae"/></g>
+  <g class="earR"><path d="M130 62 L136 34 L110 50 Z" fill="#e9e3d8"/><path d="M128 58 L131 43 L117 51 Z" fill="#e6b7ae"/></g>
+  <ellipse cx="100" cy="72" rx="38" ry="33" fill="url(#fgfcatS)"/>
+  <path class="shut" d="M79 74 q8 7 16 0" fill="none" stroke="#3a352e" stroke-width="2.6" stroke-linecap="round"/>
+  <path class="shut" d="M105 74 q8 7 16 0" fill="none" stroke="#3a352e" stroke-width="2.6" stroke-linecap="round"/>
+  <g class="open"><ellipse cx="87" cy="72" rx="7" ry="8.5" fill="#3a352e"/>
+   <ellipse cx="113" cy="72" rx="7" ry="8.5" fill="#3a352e"/>
+   <circle cx="89.4" cy="69" r="2.4" fill="#fff"/><circle cx="115.4" cy="69" r="2.4" fill="#fff"/></g>
+  <path d="M96 85 L104 85 L100 90 Z" fill="#d99a8f"/>
+  <g stroke="#3a352e" stroke-width="1.5" stroke-linecap="round" opacity=".38">
+   <path d="M70 84 L46 80"/><path d="M70 88 L47 90"/><path d="M130 84 L154 80"/><path d="M130 88 L153 90"/></g>
+ </g></svg><svg class="fcat" id="fcatD" viewBox="0 0 200 170" aria-hidden="true">
+ <defs><radialGradient id="fgfcatD" cx="42%" cy="34%" r="72%">
+  <stop offset="0%" stop-color="#43464f"/><stop offset="100%" stop-color="#2f3138"/></radialGradient></defs>
+ <g class="tail"><path d="M150 132 C176 130 184 112 176 98 C170 88 158 89 156 98"
+   fill="none" stroke="#2f3138" stroke-width="13" stroke-linecap="round"/></g>
+ <path d="M62 138 C58 108 74 86 100 86 C126 86 142 108 138 138 Z" fill="url(#fgfcatD)"/>
+ <ellipse cx="83" cy="140" rx="13" ry="8" fill="#43464f"/><ellipse cx="117" cy="140" rx="13" ry="8" fill="#43464f"/>
+ <g class="head">
+  <g class="earL"><path d="M70 62 L64 34 L90 50 Z" fill="#2f3138"/><path d="M72 58 L69 43 L83 51 Z" fill="#8d6a68"/></g>
+  <g class="earR"><path d="M130 62 L136 34 L110 50 Z" fill="#2f3138"/><path d="M128 58 L131 43 L117 51 Z" fill="#8d6a68"/></g>
+  <ellipse cx="100" cy="72" rx="38" ry="33" fill="url(#fgfcatD)"/>
+  <path class="shut" d="M79 74 q8 7 16 0" fill="none" stroke="#f0e6c8" stroke-width="2.6" stroke-linecap="round"/>
+  <path class="shut" d="M105 74 q8 7 16 0" fill="none" stroke="#f0e6c8" stroke-width="2.6" stroke-linecap="round"/>
+  <g class="open"><ellipse cx="87" cy="72" rx="7" ry="8.5" fill="#f0e6c8"/>
+   <ellipse cx="113" cy="72" rx="7" ry="8.5" fill="#f0e6c8"/>
+   <circle cx="89.4" cy="69" r="2.4" fill="#fff8dc"/><circle cx="115.4" cy="69" r="2.4" fill="#fff8dc"/></g>
+  <path d="M96 85 L104 85 L100 90 Z" fill="#b07d76"/>
+  <g stroke="#f0e6c8" stroke-width="1.5" stroke-linecap="round" opacity=".38">
+   <path d="M70 84 L46 80"/><path d="M70 88 L47 90"/><path d="M130 84 L154 80"/><path d="M130 88 L153 90"/></g>
+ </g></svg></div><p class="cline" id="catLine"></p></section>
 <div class="lamp"><i id="lamp"></i></div>
 
 <ul id="list"><li><div class="who"><div class="nm">正在看…</div></div></li></ul>
@@ -132,7 +200,12 @@ function render(d){
         '" data-here="'+(p.here?1:0)+'">'+(p.here?"已打卡":"今天来了")+'</button>'+
         '<div class="kp">'+chain(p.streak)+'</div>';
     /* 点名字进那个人自己的页面。玺雅还没有页面，就不做成链接。 */
-    const who='<div class="nm">'+p.name+(p.url?'<i class="go">›</i>':'')+'</div>'+
+    const paw = p.here ? '<svg class="paw" viewBox="0 0 24 24" fill="currentColor" '+
+      'style="color:'+(p.finished?'var(--mint)':'var(--gold)')+'">'+
+      '<ellipse cx="12" cy="15.5" rx="5.4" ry="4.6"/><ellipse cx="5.6" cy="10.6" rx="2.5" ry="3.1"/>'+
+      '<ellipse cx="18.4" cy="10.6" rx="2.5" ry="3.1"/><ellipse cx="9.2" cy="6" rx="2.3" ry="2.9"/>'+
+      '<ellipse cx="14.8" cy="6" rx="2.3" ry="2.9"/></svg>' : '';
+    const who='<div class="nm">'+p.name+paw+(p.url?'<i class="go">›</i>':'')+'</div>'+
               '<div class="wt">'+what+'</div>';
     const whoBlk = p.url
       ? '<a class="who" href="'+p.url+'">'+who+'</a>'
@@ -142,6 +215,18 @@ function render(d){
       '<div class="right">'+right+'</div>'+
       '</li>';
   }).join("");
+
+  /* 猫跟着今天来了的人。没人来它们就睡着。 */
+  const tryers=ps.filter(p=>p.here).map(p=>p.name);
+  const cb=document.getElementById("catsBox"), cl=document.getElementById("catLine");
+  cb.className="cats "+(tryers.length?"awake":"asleep");
+  if(!tryers.length){
+    cl.innerHTML="两只还在睡。<b>谁先来，谁把它们叫醒。</b>";
+  }else if(tryers.length===ps.length){
+    cl.innerHTML="今天全家都在，<b>两只忙不过来了</b>。";
+  }else{
+    cl.innerHTML="Snowy 和哆米今天跟着 <b>"+tryers.join("、")+"</b>。";
+  }
 
   const away=ps.filter(p=>!p.here).map(p=>p.name);
   const note=document.getElementById("note");
