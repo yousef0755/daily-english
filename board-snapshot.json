@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 20:29",
+ "at": "2026-08-15 20:30",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -44,10 +44,10 @@
     "done": 0,
     "total": 1,
     "here": true,
-    "mins": 0,
+    "mins": 1,
     "goal": 15,
     "finished": false,
-    "at": "20:28",
+    "at": "20:29",
     "streak": 0,
     "auto": true,
     "_ord": 2,
@@ -173,6 +173,14 @@
     "asGoodAsPair": false
    },
    {
+    "id": "xiya",
+    "name": "玺雅",
+    "days": 1,
+    "total": 6,
+    "here": true,
+    "asGoodAsPair": false
+   },
+   {
     "id": "amina",
     "name": "Amina",
     "days": 0,
@@ -183,14 +191,6 @@
    {
     "id": "baba",
     "name": "爸爸",
-    "days": 0,
-    "total": 6,
-    "here": false,
-    "asGoodAsPair": false
-   },
-   {
-    "id": "xiya",
-    "name": "玺雅",
     "days": 0,
     "total": 6,
     "here": false,
