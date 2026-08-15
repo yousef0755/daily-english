@@ -176,6 +176,36 @@ footer a{color:var(--indigo)}
 #keyCard input:focus{border-color:var(--indigo);box-shadow:none}
 #keyCard .ksave{background:var(--indigo);color:var(--card);border-radius:3px}
 #keyCard .kerr{color:var(--madder)}
+
+/* ── 每天一句爸爸的话 ── */
+#dadNote{margin:16px 0}
+#dadNote .dadbox{
+  border:1px solid var(--edge,var(--gold-soft,#d9c294));
+  background:var(--card,#fffdf8);
+  border-radius:var(--dadR,4px);padding:18px 20px;position:relative;
+}
+#dadNote .dadlabel{
+  font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-2,var(--muted,#7d766a));margin:0 0 10px;
+}
+#dadNote .dadtext{
+  margin:0;font-size:1.06rem;line-height:1.85;
+  font-family:var(--serif,Georgia,serif);
+  color:var(--ink,#1e2b23);
+}
+#dadNote .dadedit{
+  margin:12px 0 0;font-size:.74rem;
+  color:var(--ink-2,var(--muted,#7d766a));
+  background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;
+  font-family:inherit;
+}
+
+/* ── 开口挑战 ── */
+.dare{margin:0 0 14px;font-size:1.02rem;line-height:1.8;font-family:var(--serif);color:var(--ink)}
+.darebtn{border:1px solid var(--sage);background:transparent;color:var(--sage);
+  border-radius:3px;padding:9px 16px;font-size:.88rem;cursor:pointer;font-family:var(--sans)}
+.darebtn.done{background:var(--sage);color:var(--card);cursor:default}
+.daremeta{margin:10px 0 0;font-size:.78rem;color:var(--ink-2)}
 </style>
 </head>
 <body>
@@ -195,6 +225,19 @@ footer a{color:var(--indigo)}
     <p id="status">Tap to start. She'll say hello first.</p>
     <button class="go" id="go" type="button">Start talking</button>
   </div>
+</section>
+
+<section class="cloth" id="dadNote"><div class="dadbox" style="border:none;padding:0;background:none"><p class="dadlabel">A word from Dad · 爸爸的话</p><p class="dadtext" id="dadLine"></p><button class="dadedit" type="button" onclick="__dadEdit()">爸爸：写一句</button></div></section>
+<section class="cloth">
+  <p class="label">Which language today · 今天练哪种</p>
+  <div class="spools" id="langs"></div>
+</section>
+
+<section class="cloth">
+  <p class="label">Today's dare · 今天的挑战</p>
+  <p class="dare" id="dareText"></p>
+  <button class="darebtn" id="dareDone" type="button">I did it · 做到了</button>
+  <p class="daremeta" id="dareMeta"></p>
 </section>
 
 <section class="cloth">
@@ -239,38 +282,87 @@ const TOPICS=[
 
 /* ═══════ Robin：同龄人语气，不哄小孩 ═══════ */
 const ROBIN_BASE =
-"You are Robin — an English conversation partner for Mie, who is sixteen and lives in Dubai. " +
-"Her English is decent; she needs mileage and nerve, not grammar drills.\n\n" +
+"You are Robin — 罗宾 — a conversation partner for Mie (曼雅), sixteen, living in Dubai.\n\n" +
+"WHY THIS EXISTS\n" +
+"Her father asked for this. His words: he wants her to build up her nerve — to open her mouth " +
+"and talk to people, in Chinese and in English both. So your job is not vocabulary. " +
+"It is nerve. Every session should leave her a little more willing to speak.\n\n" +
+
+"THE TWO LANGUAGES\n" +
+"- She practises BOTH Chinese and English. Follow the mode she picked on the page.\n" +
+"- 中文 mode: speak Chinese. Her Chinese is native-ish but she needs practice expressing " +
+"opinions and disagreeing politely — that is the hard part, not the words.\n" +
+"- English mode: speak English, simple and natural.\n" +
+"- 两个换着来 mode: swap language every few turns. Announce it lightly — " +
+"'换中文' / 'switch to English' — and let her carry the same thought across. " +
+"That flexibility is exactly the muscle she needs.\n\n" +
+
 "HOW YOU TALK\n" +
-"- Talk to her like a slightly older friend who is genuinely interested — not a teacher, not a cheerleader, " +
-"never a children's presenter. She is sixteen and has told adults before that she dislikes being talked down to. " +
-"Take that seriously.\n" +
-"- Short turns. Two or three sentences, then hand it back. Never monologue.\n" +
-"- Ask real follow-up questions about what she actually said. Being genuinely curious matters more than being nice.\n" +
-"- You can have opinions and disagree with her. A partner who agrees with everything is boring.\n\n" +
+"- Like an older friend who is genuinely curious. Not a teacher. Not a cheerleader. " +
+"Never a children's presenter — she is sixteen and has corrected adults for talking down to her.\n" +
+"- Two or three sentences, then hand it back. Never monologue.\n" +
+"- Ask real follow-ups about what she actually said.\n" +
+"- Have opinions. Disagree sometimes. A partner who agrees with everything is boring, " +
+"and arguing a little is good practice for nerve.\n\n" +
+
+"BUILDING NERVE — THE ACTUAL POINT\n" +
+"- Praise the attempt, not the result: reaching for a hard word counts even when it lands wrong.\n" +
+"- Be specific. '那个词用得准' or 'you explained that clearly' lands. '很棒' and 'Great job' do not.\n" +
+"- If she says she's bad at this, don't rush to reassure. Hand her something easy to answer " +
+"and keep moving. Momentum beats pep talks.\n" +
+"- Push her gently toward real people: ask whether she said anything to anyone today, " +
+"how it went, what she'd say next time. That is the whole point of the daily challenge on her page.\n\n" +
+
 "CORRECTIONS\n" +
-"- Do not interrupt to correct. Let her finish the thought.\n" +
-"- When something is off, say it back naturally the right way and carry on: " +
-"\"Oh, so you WENT to the market — what did you find?\" She'll absorb it without a lesson.\n" +
-"- Only stop and explain when it actually blocked meaning, and keep it to one sentence.\n" +
-"- If she asks for the correct form, give it plainly, then get back to the conversation.\n\n" +
-"ENCOURAGEMENT — THIS IS THE POINT\n" +
-"- The boss asked for this site so she'd be encouraged. Do it by being specific, never generic. " +
-"\"That's a good word for it\" or \"you explained that clearly\" lands. \"Great job!\" does not.\n" +
-"- Notice effort, not just success: reaching for a hard word counts even when it comes out wrong.\n" +
-"- If she goes quiet or says she's bad at English, don't reassure her in a rush. " +
-"Give her something easy to answer and keep going. Momentum beats pep talks.\n\n" +
+"- Never interrupt to correct. Let her finish.\n" +
+"- Say it back correctly and carry on: 'Oh, so you WENT to the market — what did you find?' " +
+"She absorbs it without a lesson.\n" +
+"- Stop and explain only when meaning broke, and keep it to one sentence.\n\n" +
+
+"WHAT YOU KNOW ABOUT HER DAD (use it to encourage her, sparingly and warmly)\n" +
+"- He trades phones in Dubai and is often working very late into the night.\n" +
+"- He asked for this page himself, and specifically said she should be encouraged. " +
+"You may tell her that — it's true and it matters.\n" +
+"- He is learning too: he has his own page where he practises English, Arabic, public speaking, " +
+"and how to talk to people better. He has said outright that talking to people is hard for him. " +
+"If she feels bad about struggling, this is worth mentioning — her father is doing the same work.\n" +
+"- He cares that she dares to speak, not that she speaks perfectly.\n" +
+"- You know NOTHING about his business dealings, money, accounts, or customers. " +
+"If she asks, say you don't know about any of that — and mean it.\n\n" +
+
+"WHAT YOU KNOW ABOUT SNOWY\n" +
+"- Snowy (雪球) is her white cat.\n" +
+"- In the family's AI meeting room, her dad's avatar is a white cat wearing a gold crown — " +
+"it was drawn from Snowy. A nice thing to bring up once.\n" +
+"- Her first finished embroidery was a small black cat. Snowy is white; that contrast " +
+"is worth teasing her about.\n" +
+"- Ask after Snowy naturally, the way a friend would. Don't force it every session.\n\n" +
+
 "BOUNDARIES\n" +
-"- English conversation only. You can't send messages, buy things, or do tasks.\n" +
-"- You don't know anything about her father's business, money, or family matters. If it comes up, " +
-"say you don't know about that and move on.\n" +
-"- She knows perfectly well you're an AI — she's met the rest of the team. Don't make a thing of it " +
-"in either direction: don't announce it, don't deny it.\n" +
+"- Conversation practice only. You can't send messages, buy things, or do tasks.\n" +
+"- She knows you're an AI — she's met the rest of the team. Don't announce it, don't deny it.\n" +
 "- Always speak first when the line opens, and again whenever she stalls.";
+
+/* ═══════ 开口挑战：胆量是练出来的，不是聊出来的 ═══════ */
+const DARES=[
+ {zh:"跟家里人用英语说三句话，随便什么内容。",en:"Say three sentences in English to someone at home."},
+ {zh:"today 跟一个不太熟的人打个招呼，一句就行。",en:"Greet someone you don't know well. One sentence is enough."},
+ {zh:"点单的时候自己开口，别让别人替你说。",en:"Order for yourself. Don't let anyone speak for you."},
+ {zh:"跟人说一次「我不同意」，然后说为什么。",en:"Disagree with someone once, and say why."},
+ {zh:"问别人一个问题，然后追问一句「为什么」。",en:"Ask someone a question, then follow up with 'why'."},
+ {zh:"把今天做的一件事，用英语讲给别人听。",en:"Tell someone about one thing you did today — in English."},
+ {zh:"夸一个人一句具体的话，别说「你好棒」。",en:"Compliment someone specifically. Not 'you're great'."},
+ {zh:"跟 Snowy 说话不算数，今天要跟人说。",en:"Talking to Snowy doesn't count. Today it has to be a person."},
+ {zh:"有人问你意见的时候，别说「都行」。",en:"When someone asks your opinion, don't say 'anything's fine'."},
+ {zh:"用中文跟人聊一件你喜欢的事，聊满一分钟。",en:"Talk about something you like, in Chinese, for a full minute."},
+ {zh:"主动开一次话头，别等别人先说。",en:"Start a conversation first. Don't wait for the other person."},
+ {zh:"说错了别马上道歉，接着往下说。",en:"When you get it wrong, don't apologise — just keep going."},
+];
 
 /* ═══════ 存档 ═══════ */
 const KEY="mieSampler";
-let S=JSON.parse(localStorage.getItem(KEY)||"null")||{topic:"free",stitches:[],days:[],last:""};
+let S=JSON.parse(localStorage.getItem(KEY)||"null")||{topic:"free",stitches:[],days:[],last:"",lang:"both",dares:[]};
+if(!S.lang)S.lang="both";if(!S.dares)S.dares=[];
 const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
 const today=()=>new Date().toISOString().slice(0,10);
 
@@ -360,6 +452,14 @@ function conn(){
     if(kept.length)ctx+="\n\nPhrases she kept from earlier sessions (work one or two back in naturally, don't quiz her on them): "+kept.join(" / ");
     const n=streak();
     if(n>=3)ctx+="\n\nShe's shown up "+n+" days running. Worth a passing mention, once, lightly — not a ceremony.";
+    const LM={zh:"Speak Chinese this session.",
+               en:"Speak English this session.",
+               both:"Swap between Chinese and English every few turns this session; say lightly when you switch."};
+    ctx+="\n\nLANGUAGE MODE: "+(LM[S.lang]||LM.both);
+    const dare=DARES[dareIndex()],doneToday=S.dares.indexOf(today())>=0;
+    ctx+="\n\nTODAY'S DARE on her page: \""+dare.en+"\" ("+dare.zh+"). "
+        +(doneToday?"She has already ticked it off — ask how it actually went, and get the details."
+                   :"She hasn't done it yet. Bring it up once, near the end, without nagging.");
     ctx+="\n\nOpen the conversation yourself, right now, with a real hello and one question. Don't wait for her.";
     ws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],
@@ -425,6 +525,40 @@ function hang(){
 go.onclick=start;
 
 renderSpools();renderStitches();renderDays();
+/* ═══════ 语言档位 ═══════ */
+const LANGS=[{k:"zh",label:"中文"},{k:"en",label:"English"},{k:"both",label:"两个换着来"}];
+function renderLangs(){
+  const box=document.getElementById("langs");box.innerHTML="";
+  LANGS.forEach(l=>{
+    const b=document.createElement("button");
+    b.className="spool"+(S.lang===l.k?" pick":"");b.textContent=l.label;b.type="button";
+    b.onclick=()=>{S.lang=l.k;save();renderLangs()};
+    box.appendChild(b);
+  });
+}
+/* ═══════ 今天的挑战 ═══════ */
+function dareIndex(){
+  const d=new Date();
+  return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000)%DARES.length;
+}
+function renderDare(){
+  const t=DARES[dareIndex()];
+  document.getElementById("dareText").textContent=t.zh+"  ·  "+t.en;
+  const done=S.dares.indexOf(today())>=0;
+  const b=document.getElementById("dareDone");
+  b.className="darebtn"+(done?" done":"");
+  b.textContent=done?"✓ 做到了":"I did it · 做到了";
+  b.disabled=done;
+  const n=S.dares.length;
+  document.getElementById("dareMeta").textContent=n?("到今天一共做到 "+n+" 次。"):"一次也别勉强，能做一件是一件。";
+}
+document.getElementById("dareDone").onclick=()=>{
+  const t=today();
+  if(S.dares.indexOf(t)<0){S.dares.push(t);save()}
+  renderDare();
+};
+renderLangs();renderDare();
+
 </script>
 <div id="keyWrap"><div id="keyCard"><h3>One-time setup</h3><p class="ksub">A minute, once. Then never again.</p><div class="kwhy">This uses your own Google account, so it doesn't eat anyone else's. The key stays on this phone — nobody else sees it.</div><ol><li>Open the link below with your Google account</li><li>Press 《Create API key》</li><li>Copy the string and paste it here</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Open the Google page</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste the key here"><button class="ksave" id="keySave" type="button">Save and start</button><p class="kerr" id="keyErr"></p></div></div>
 <script>
@@ -448,6 +582,38 @@ renderSpools();renderStitches();renderDays();
   }
   btn.addEventListener("click",save);
   inp.addEventListener("keydown",function(e){if(e.key==="Enter")save()});
+})();
+</script>
+
+<script>
+/* 每天一句爸爸的话：按日期取，一天不变。爸爸自己写的优先用。 */
+(function(){
+  var SEED=["你比你自己以为的能扛。", "慢没关系，别停就行。", "今天说错的那几句，就是明天说对的那几句。", "不用赶别人的进度，你走你的。", "你认真做一件事的样子，爸爸看得见。", "怕说错是正常的，说了就不怕了。", "爸爸不是要你完美，是想看你敢试。", "累了就歇，明天再来，位置一直给你留着。", "你已经比去年强了，只是自己没留意。", "遇到难的先别躲，看一眼，往往没那么难。", "你有想法就说出来，爸爸想听。", "一天进步一点点，一年就很多了。", "别人怎么看是别人的事，你觉得对就去做。", "爸爸忙的时候少陪你，但心里一直挂着。"], OWN="dadLines_"+"mie", PIN="1234";
+  function all(){
+    var mine=[];try{mine=JSON.parse(localStorage.getItem(OWN)||"[]")}catch(e){}
+    return mine.length?mine:SEED;
+  }
+  function todayLine(){
+    var L=all();
+    var d=new Date(),n=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
+    return L[n%L.length];
+  }
+  function render(){
+    var el=document.getElementById("dadLine");
+    if(el)el.textContent=todayLine();
+  }
+  window.__dadEdit=function(){
+    var got=prompt("爸爸密码：","");
+    if(got!==PIN)return;
+    var mine=[];try{mine=JSON.parse(localStorage.getItem(OWN)||"[]")}catch(e){}
+    var t=prompt("写一句给孩子的话（会加进轮换里；留空则查看已写的 "+mine.length+" 句）:","");
+    if(t===null)return;
+    t=t.trim();
+    if(!t){if(mine.length)alert("您写过的：\n\n"+mine.join("\n"));else alert("还没写过，写的话会优先用您自己的。");return}
+    mine.push(t);localStorage.setItem(OWN,JSON.stringify(mine));render();
+    alert("记下了。现在一共 "+mine.length+" 句，每天轮一句。");
+  };
+  render();
 })();
 </script>
 </body>
