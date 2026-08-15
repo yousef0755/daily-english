@@ -2449,7 +2449,10 @@ function famPing(){
     if(k===famLast)return;
     famLast=k;
     fetch(NAG_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({who:"boyuan",done:done,total:total})}).catch(function(){});
+      body:JSON.stringify({who:"boyuan",done:done,total:total,
+        /* 老板：「博远现在已经开始学习了」——真动过手就该在榜上亮，
+           不用等做完一整门。光打开页面不算，得今天真拿到过星。 */
+        started:((D.starLog||{})[todayKey()]||0)>0 || done>0})}).catch(function(){});
   }catch(e){}
 }
 
@@ -2622,6 +2625,36 @@ function tcEnd(){
   b.addEventListener("touchend",function(e){e.preventDefault();tcEnd()});
 })();
 
+
+/* ═══ 真实学习时长（老板 2026-08-15：进去出来不算打卡）═══
+   只在「页面看得见」且「最近 90 秒有互动」的时候走秒。
+   开着不动、或者切到后台，都不计时——不然这个数没意义。 */
+(function(){
+  var WHO="boyuan", KEY="studyMins_"+WHO;
+  var lastAct=Date.now(), sec=0, sentAt=0;
+  function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+  function load(){try{var o=JSON.parse(localStorage.getItem(KEY)||"{}");return (o.d===today())?(o.s|0):0}catch(e){return 0}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({d:today(),s:sec}))}catch(e){}}
+  sec=load();
+  ["pointerdown","keydown","touchstart","wheel","input"].forEach(function(ev){
+    document.addEventListener(ev,function(){lastAct=Date.now()},{passive:true});
+  });
+  function report(){
+    var mins=Math.floor(sec/60);
+    fetch("https://yusufs-macbook-pro.tail63c9ae.ts.net/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:WHO,mins:mins,done:(typeof walkDone==='function'?walkDone():0),total:(typeof DIARY_SUBS!=='undefined'?DIARY_SUBS.length:6),started:sec>20})
+    }).catch(function(){});
+  }
+  setInterval(function(){
+    if(document.hidden)return;                       /* 切到后台不算 */
+    if(Date.now()-lastAct>90000)return;              /* 九十秒没动静，停表 */
+    sec++; save();
+    if(sec-sentAt>=30){ sentAt=sec; report() }       /* 每半分钟报一次 */
+  },1000);
+  window.addEventListener("pagehide",report);
+  document.addEventListener("visibilitychange",function(){ if(document.hidden)report() });
+  window.__studySec=function(){return sec};
+})();
 </script>
 </body>
 </html>

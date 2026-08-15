@@ -307,6 +307,19 @@ a.who:active .nm{opacity:.6}
 .knot-act .agree{border-color:rgba(255,120,149,.45);color:#ff9cb2}
 .knot-act .undo{border-color:rgba(217,180,95,.4);color:var(--gold)}
 .knot.broken{opacity:.6}
+
+
+/* 每个人按自己的门数走一条进度条（博远六门，别人一门） */
+.pbar{height:4px;border-radius:99px;background:rgba(255,255,255,.07);margin-top:7px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;border-radius:99px;background:var(--dim);
+  transition:width .7s cubic-bezier(.2,.8,.3,1)}
+.pbar.going i{background:linear-gradient(90deg,var(--gold),#e7cf95)}
+.pbar.done i{background:linear-gradient(90deg,var(--gold),var(--mint))}
+
+.mins{font-size:.7rem;color:var(--muted);margin-top:5px}
+.mins b{color:var(--ink);font-variant-numeric:tabular-nums}
+li.fin .mins b{color:var(--mint)}
+li.here .mins b{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -315,7 +328,7 @@ a.who:active .nm{opacity:.6}
 <header>
   <p class="eyebrow">苏 家</p>
   <h1>今天，谁来了</h1>
-  <div class="today"><span>已经来了</span><b id="hereN">—</b><span id="hereTot"></span></div>
+  <div class="today"><span>今天做完了</span><b id="hereN">—</b><span id="hereTot"></span></div>
 </header>
 
 <section class="cats" id="catsBox"><div class="cwrap" id="catStage" role="button" tabindex="0" aria-label="点一下看 Snowy 和哆米换玩具、继续说话"><svg class="fcat" id="fcatS" viewBox="0 0 200 170" aria-hidden="true">
@@ -388,9 +401,10 @@ function render(d){
   const ps=d.people||[];
   try{renderToys(d.toy)}catch(e){}
   const here=ps.filter(p=>p.here).length, fin=ps.filter(p=>p.finished).length;
-  document.getElementById("hereN").textContent=here;
+  /* 老板 2026-08-15：「他完成才算」——顶上这个数只数做完的，不是来过的。来过但没做完，看那一行的进度条。 */
+  document.getElementById("hereN").textContent=fin;
   document.getElementById("hereTot").textContent="／ "+ps.length+" 人";
-  document.getElementById("lamp").style.width=(ps.length?here/ps.length*100:0)+"%";
+  document.getElementById("lamp").style.width=(ps.length?fin/ps.length*100:0)+"%";
 
   document.getElementById("list").innerHTML=ps.map(p=>{
     const cls=p.finished?"fin":(p.here?"here":"away");
@@ -401,7 +415,8 @@ function render(d){
       ? '<div class="cnt">'+(p.here? p.done+" / "+p.total : "—")+'</div>'+
         '<div class="kp">'+chain(p.streak)+'</div>'
       : '<button class="tick'+(p.here?" on":"")+'" data-id="'+p.id+'" data-nm="'+p.name+
-        '" data-here="'+(p.here?1:0)+'">'+(p.here?"已打卡":"今天来了")+'</button>'+
+        '" data-here="'+(p.here?1:0)+'"'+(p.here?' disabled title="打完的卡不能自己取消"':'')+
+        '>'+(p.here?"已打卡":"今天来了")+'</button>'+
         '<div class="kp">'+chain(p.streak)+'</div>';
     /* 点名字进那个人自己的页面。玺雅还没有页面，就不做成链接。 */
     const paw = p.here ? '<svg class="paw" viewBox="0 0 24 24" fill="currentColor" '+
@@ -410,7 +425,16 @@ function render(d){
       '<ellipse cx="18.4" cy="10.6" rx="2.5" ry="3.1"/><ellipse cx="9.2" cy="6" rx="2.3" ry="2.9"/>'+
       '<ellipse cx="14.8" cy="6" rx="2.3" ry="2.9"/></svg>' : '';
     const who='<div class="nm">'+p.name+paw+(p.url?'<i class="go">›</i>':'')+'</div>'+
-              '<div class="wt">'+what+'</div>';
+              '<div class="wt">'+what+'</div>'+
+              /* 每人按自己的门数走一条进度（老板 2026-08-15） */
+              /* 老板 2026-08-15：进度条按「在里面待了多久」走，
+                 这样别人一眼看得出谁真学了很久，而不是进去出来点一下。 */
+              '<div class="pbar'+(p.finished?" done":p.here?" going":"")+'">'+
+                '<i style="width:'+Math.min(100,Math.round(((p.mins||0)/(p.goal||15))*100))+'%"></i>'+
+              '</div>'+
+              '<div class="mins">'+((p.mins||0)>0
+                 ? ('学了 <b>'+p.mins+'</b> 分钟'+(p.finished?'':' · 目标 '+p.goal+' 分'))
+                 : '还没开始')+'</div>';
     const whoBlk = p.url
       ? '<a class="who" href="'+p.url+'">'+who+'</a>'
       : '<div class="who">'+who+'</div>';
@@ -447,12 +471,16 @@ function render(d){
 function bindTicks(){
   [...document.querySelectorAll(".tick")].forEach(b=>{
     b.onclick=async ()=>{
-      const on=b.dataset.here==="1", nm=b.dataset.nm;
-      if(!confirm(on ? nm+"今天的打卡取消掉？" : nm+"今天学过了吗？")) return;
+      const nm=b.dataset.nm;
+      /* 老板 2026-08-15：「已打卡只能爸爸可以点，其他人不能点」——
+         所以打完就点不动了，界面上不放任何"我是爸爸"的开关。
+         要取消，爸爸跟小林说一声，我在后台改。 */
+      if(b.disabled)return;
+      if(!confirm(nm+"今天学过了吗？")) return;
       b.disabled=true;
       try{
         await fetch(API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({who:b.dataset.id,done:on?0:1,total:1})});
+          body:JSON.stringify({who:b.dataset.id,done:1,total:1,manual:true})});
       }catch(e){}
       load();
     };
@@ -460,11 +488,15 @@ function bindTicks(){
 }
 async function load(){
   try{
-    const r=await fetch(API+"/fam/board",{cache:"no-store"});
+    const r=await fetchT(API+"/fam/board",{cache:"no-store"},5000);
     render(await r.json());
   }catch(e){
     document.getElementById("list").innerHTML=
-      '<li><div class="who"><div class="nm">连不上</div><div class="wt">家里的电脑可能没开着</div></div></li>';
+      '<li><div class="who"><div class="nm">现在看不到今天的记录</div>'+
+      '<div class="wt">这个榜的数据放在家里那台电脑上，从外面的网络暂时连不进来。'+
+      '小林正在改。你自己那一页照常能用，学的时间会记着，等这边通了会自动补上。</div></div></li>';
+    document.getElementById("catLine").innerHTML=
+      '<span class="sp"><b>Snowy</b>　我们等一会儿，家里的线还没通。</span>';
   }
 }
 load(); renderPairs(); setInterval(load,60000); setInterval(renderPairs,60000);
@@ -647,8 +679,8 @@ function renderToys(toy){
 async function renderPairs(){
   const box=document.getElementById("pairBox"); if(!box)return;
   let d;
-  try{ d=await (await fetch(API+"/fam/pairs",{cache:"no-store"})).json() }
-  catch(e){ document.getElementById("pbTip").textContent="连不上"; return }
+  try{ d=await (await fetchT(API+"/fam/pairs",{cache:"no-store"},5000)).json() }
+  catch(e){ document.getElementById("pbTip").textContent="搭子这块暂时连不上，通了会自己回来。"; document.getElementById("pbList").innerHTML=""; document.getElementById("pbPick").innerHTML=""; return }
   document.getElementById("pbWeek").textContent=d.week||"";
   const L=document.getElementById("pbList"), P=document.getElementById("pbPick");
 
@@ -782,6 +814,17 @@ function rompMaybe(box, cl){
     if(catNext)catNext();
   },6200);
   return true;
+}
+
+
+/* 老板 2026-08-15：「新的手机点的时候老是网页显示不完」。
+   原因是取数据的请求连不上又不超时，页面就一直卡在「正在看…」。
+   加 5 秒上限：连不上就立刻按离线渲染，页面照样是完整的。 */
+function fetchT(url, opt, ms){
+  opt=opt||{}; ms=ms||5000;
+  var ac=new AbortController(); opt.signal=ac.signal;
+  var t=setTimeout(function(){ac.abort()},ms);
+  return fetch(url,opt).finally(function(){clearTimeout(t)});
 }
 </script>
 </body>
