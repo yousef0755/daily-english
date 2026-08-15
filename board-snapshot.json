@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 20:36",
+ "at": "2026-08-15 20:37",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -44,10 +44,10 @@
     "done": 0,
     "total": 6,
     "here": true,
-    "mins": 4,
+    "mins": 5,
     "goal": 30,
     "finished": false,
-    "at": "20:36",
+    "at": "20:37",
     "streak": 0,
     "auto": true,
     "_ord": 0,
