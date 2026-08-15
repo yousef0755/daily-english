@@ -211,6 +211,46 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 .cats .who{font-size:1.7rem;line-height:1}
 .cats .say{flex:1;font-size:.92rem;line-height:1.8}
 .cats .say b{color:var(--gold)}
+
+.rankbox{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:7px;font-size:.8rem}
+.rankbox .rk{display:flex;align-items:baseline;gap:7px}
+.rankbox .rk b{color:var(--mint);font-size:1rem}
+.rankbox small{color:var(--muted)}
+.rankbox .warn{color:#ff9b7a}
+.rankbox .hint{color:var(--muted)}
+
+/* ── 两只猫（手绘，跟曼雅站同一套画法） ── */
+.catsWrap{display:flex;align-items:flex-end;justify-content:center;gap:6px;margin-bottom:6px}
+.kcat{width:86px;height:auto;overflow:visible;transition:opacity .4s ease}
+.kcat .tail{transform-origin:152px 130px}
+.kcat .earL{transform-origin:76px 60px}
+.kcat .earR{transform-origin:124px 60px}
+.kcat .head{transform-origin:100px 78px}
+/* 默认打盹 */
+.kcat .open{opacity:0}
+.kcat .shut{opacity:1}
+.kcat{animation:kbreathe 4.2s ease-in-out infinite}
+@keyframes kbreathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+/* 轮到它说话：睁眼、耳朵转、尾巴甩 */
+.kcat.talking .open{opacity:1;animation:kblink 5.5s infinite}
+.kcat.talking .shut{opacity:0}
+.kcat.talking .open{transform-origin:100px 72px}
+@keyframes kblink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+.kcat.talking .earL{animation:kearL 2.6s ease-in-out infinite}
+.kcat.talking .earR{animation:kearR 2.6s ease-in-out infinite}
+.kcat.talking .tail{animation:kflick 1.4s ease-in-out infinite}
+.kcat.talking .head{animation:ktilt 3.4s ease-in-out infinite}
+@keyframes kearL{0%,100%{transform:rotate(0)}50%{transform:rotate(-11deg)}}
+@keyframes kearR{0%,100%{transform:rotate(0)}50%{transform:rotate(11deg)}}
+@keyframes kflick{0%,100%{transform:rotate(0)}50%{transform:rotate(-15deg)}}
+@keyframes ktilt{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+.kcat:not(.talking){opacity:.55}
+/* 夸他的时候抬爪 */
+.kcat.cheer .paws{animation:khop .5s ease-in-out 3}
+@keyframes khop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){.kcat,.kcat *{animation:none !important}}
+.cats{flex-direction:column;align-items:stretch}
+.cats .say{text-align:center}
 </style>
 </head>
 <body>
@@ -231,12 +271,79 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <div class="orbit-scene" aria-hidden="true"><span class="planet">🚀</span><i></i><i></i><i></i></div>
   </div>
   <div class="streak-row"><span>7 日探索进度</span><div class="streakbar" id="sbar"></div>
-  <div id="lvBadge" class="lvbadge"></div></div>
+  <div id="lvBadge" class="lvbadge"></div>
+  <div id="rankBox" class="rankbox"></div></div>
 </header>
 <main>
   <section class="page on" id="p-learn">
     <div class="card">
-      <div class="cats" id="catsBox"></div>
+      <div class="cats" id="catsBox"><div class="catsWrap" id="catsWrap"><svg class="kcat" id="catSnowy" viewBox="0 0 200 170" aria-hidden="true">
+  <defs><radialGradient id="gcatSnowy" cx="42%" cy="34%" r="72%">
+    <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e9e3d8"/>
+  </radialGradient></defs>
+  <g class="tail"><path d="M150 132 C176 130 184 112 176 98 C170 88 158 89 156 98"
+     fill="none" stroke="#e9e3d8" stroke-width="13" stroke-linecap="round"/></g>
+  <path d="M62 138 C58 108 74 86 100 86 C126 86 142 108 138 138 Z" fill="url(#gcatSnowy)"/>
+  <g class="paws"><ellipse cx="83" cy="140" rx="13" ry="8" fill="#f8f5ef"/>
+    <ellipse cx="117" cy="140" rx="13" ry="8" fill="#f8f5ef"/></g>
+  <g class="head">
+    <g class="earL"><path d="M70 62 L64 34 L90 50 Z" fill="#e9e3d8"/>
+      <path d="M72 58 L69 43 L83 51 Z" fill="#e6b7ae"/></g>
+    <g class="earR"><path d="M130 62 L136 34 L110 50 Z" fill="#e9e3d8"/>
+      <path d="M128 58 L131 43 L117 51 Z" fill="#e6b7ae"/></g>
+    <ellipse cx="100" cy="72" rx="38" ry="33" fill="url(#gcatSnowy)"/>
+    <g class="eyes">
+      <path class="shut" d="M79 74 q8 7 16 0" fill="none" stroke="#3a352e" stroke-width="2.6" stroke-linecap="round"/>
+      <path class="shut" d="M105 74 q8 7 16 0" fill="none" stroke="#3a352e" stroke-width="2.6" stroke-linecap="round"/>
+      <g class="open">
+        <ellipse cx="87" cy="72" rx="7" ry="8.5" fill="#3a352e"/>
+        <ellipse cx="113" cy="72" rx="7" ry="8.5" fill="#3a352e"/>
+        <circle cx="89.4" cy="69" r="2.4" fill="#fff"/>
+        <circle cx="115.4" cy="69" r="2.4" fill="#fff"/>
+      </g>
+    </g>
+    <path d="M96 85 L104 85 L100 90 Z" fill="#d99a8f"/>
+    <path d="M100 90 q-6 6 -11 2 M100 90 q6 6 11 2" fill="none" stroke="#3a352e"
+      stroke-width="2" stroke-linecap="round" opacity=".7"/>
+    <g stroke="#3a352e" stroke-width="1.5" stroke-linecap="round" opacity=".4">
+      <path d="M70 84 L46 80"/><path d="M70 88 L47 90"/>
+      <path d="M130 84 L154 80"/><path d="M130 88 L153 90"/>
+    </g>
+  </g>
+</svg><svg class="kcat" id="catDomi" viewBox="0 0 200 170" aria-hidden="true">
+  <defs><radialGradient id="gcatDomi" cx="42%" cy="34%" r="72%">
+    <stop offset="0%" stop-color="#43464f"/><stop offset="100%" stop-color="#2f3138"/>
+  </radialGradient></defs>
+  <g class="tail"><path d="M150 132 C176 130 184 112 176 98 C170 88 158 89 156 98"
+     fill="none" stroke="#2f3138" stroke-width="13" stroke-linecap="round"/></g>
+  <path d="M62 138 C58 108 74 86 100 86 C126 86 142 108 138 138 Z" fill="url(#gcatDomi)"/>
+  <g class="paws"><ellipse cx="83" cy="140" rx="13" ry="8" fill="#43464f"/>
+    <ellipse cx="117" cy="140" rx="13" ry="8" fill="#43464f"/></g>
+  <g class="head">
+    <g class="earL"><path d="M70 62 L64 34 L90 50 Z" fill="#2f3138"/>
+      <path d="M72 58 L69 43 L83 51 Z" fill="#8d6a68"/></g>
+    <g class="earR"><path d="M130 62 L136 34 L110 50 Z" fill="#2f3138"/>
+      <path d="M128 58 L131 43 L117 51 Z" fill="#8d6a68"/></g>
+    <ellipse cx="100" cy="72" rx="38" ry="33" fill="url(#gcatDomi)"/>
+    <g class="eyes">
+      <path class="shut" d="M79 74 q8 7 16 0" fill="none" stroke="#f0e6c8" stroke-width="2.6" stroke-linecap="round"/>
+      <path class="shut" d="M105 74 q8 7 16 0" fill="none" stroke="#f0e6c8" stroke-width="2.6" stroke-linecap="round"/>
+      <g class="open">
+        <ellipse cx="87" cy="72" rx="7" ry="8.5" fill="#f0e6c8"/>
+        <ellipse cx="113" cy="72" rx="7" ry="8.5" fill="#f0e6c8"/>
+        <circle cx="89.4" cy="69" r="2.4" fill="#fff8dc"/>
+        <circle cx="115.4" cy="69" r="2.4" fill="#fff8dc"/>
+      </g>
+    </g>
+    <path d="M96 85 L104 85 L100 90 Z" fill="#b07d76"/>
+    <path d="M100 90 q-6 6 -11 2 M100 90 q6 6 11 2" fill="none" stroke="#f0e6c8"
+      stroke-width="2" stroke-linecap="round" opacity=".7"/>
+    <g stroke="#f0e6c8" stroke-width="1.5" stroke-linecap="round" opacity=".4">
+      <path d="M70 84 L46 80"/><path d="M70 88 L47 90"/>
+      <path d="M130 84 L154 80"/><path d="M130 88 L153 90"/>
+    </g>
+  </g>
+</svg></div><div class="say" id="catsSay"></div></div>
       <div class="section-head">
         <div><span class="kicker">MISSION MAP</span><h2>今天想先挑战哪一关？</h2></div>
         <span class="mini-chip">6 个任务</span>
@@ -776,6 +883,52 @@ function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
     localStorage.setItem(MARK,"1");
   }catch(e){}
 })();
+
+/* ═══ 排名：不学就会掉下来（老板 09:12） ═══
+   等级 V 是攒出来的，只升不降——那是他的功劳，不该收回。
+   排名不一样：只看最近七天。停一天就少一天的分，名次自己往下滑。
+   这样「不学就掉」是真的掉，不是吓唬他。 */
+const RANKS=[
+  {min:0,  name:"小树苗"},
+  {min:12, name:"小树"},
+  {min:30, name:"大树"},
+  {min:55, name:"森林小卫士"},
+  {min:85, name:"森林之星"}
+];
+function dayKey(t){return new Date(t).toISOString().slice(0,10)}
+function recentScore(){
+  D.starLog=D.starLog||{};
+  let sum=0;
+  const now=Date.now();
+  for(let i=0;i<7;i++){
+    const k=dayKey(now-i*86400000);
+    sum += (D.starLog[k]||0);
+  }
+  return sum;
+}
+function rankOf(){
+  const sc=recentScore();
+  let r=RANKS[0];
+  RANKS.forEach(function(x){ if(sc>=x.min) r=x });
+  return {rank:r, score:sc, idx:RANKS.indexOf(r)};
+}
+function renderRank(){
+  const el=document.getElementById("rankBox"); if(!el)return;
+  const r=rankOf();
+  const next=RANKS[r.idx+1];
+  /* 明天会掉多少：七天前那一天的分明天就出窗口了 */
+  const drop=(D.starLog||{})[dayKey(Date.now()-6*86400000)]||0;
+  let tail;
+  if(drop>0 && r.idx>0 && r.score-drop < RANKS[r.idx].min){
+    tail='<span class="warn">今天不学，明天会掉回「'+RANKS[r.idx-1].name+'」</span>';
+  }else if(next){
+    tail='<span class="hint">再攒 '+(next.min-r.score)+' 颗升「'+next.name+'」</span>';
+  }else{
+    tail='<span class="hint">已经是最高一档了，别掉下来</span>';
+  }
+  el.innerHTML='<div class="rk"><b>'+r.rank.name+'</b>'+
+    '<small>最近七天 '+r.score+' 颗</small></div>'+tail;
+}
 function levelOf(){
   const t=D.total||0;
   return 1+Math.floor(t/60);          /* 每 60 颗星升一级 */
@@ -792,6 +945,10 @@ function renderBadge(){
     (d>0?('<span class="keep">坚持了 '+d+' 天</span>'):'<span class="keep">今天开始</span>');
 }
 function addStar(n){
+  try{D.starLog=D.starLog||{};var _k=todayKey();
+     var _add=Math.min(n,(typeof capLeft==="function")?capLeft():n);
+     if(_add>0)D.starLog[_k]=(D.starLog[_k]||0)+_add;}catch(e){}
+
   setTimeout(function(){try{renderBadge();renderCats('going')}catch(e){}},50);
   n=Math.min(n,capLeft());
   if(n<=0)return;
@@ -805,7 +962,7 @@ function addStar(n){
   }
   save();render();
 }
-function render(){try{renderBadge();renderCats("going")}catch(e){}
+function render(){try{renderBadge();renderRank();celebrateIfDue()}catch(e){}
   document.getElementById("starCount").textContent=D.stars;
   document.getElementById("todayStars").textContent=D.todayStars;
   document.getElementById("streak").textContent=D.streak;
@@ -1383,7 +1540,7 @@ document.getElementById("rDone").onclick=function(){
 })();
 render();renderHanzi();renderDiary();
 
-try{renderBadge();renderCats("start")}catch(e){}
+try{renderBadge();renderRank();if(!catsMissYou())renderCats("start")}catch(e){}
 </script>
 <div id="keyWrap"><div id="keyCard"><h3>第一次设置</h3><p class="ksub">让爸爸帮你弄一下，一分钟就好</p><div class="kwhy">钥匙只存在这台手机上，不会传给别人。</div><ol><li>用 Google 账号打开下面的链接</li><li>点「Create API key」</li><li>复制那串字符，粘到下面</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">打开 Google 页面</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="把钥匙粘在这里"><button class="ksave" id="keySave" type="button">保存，开始</button><p class="kerr" id="keyErr"></p></div></div>
 <script>
@@ -1529,6 +1686,82 @@ const CATLINES={
   keep:[["Snowy","你已经坚持 __D__ 天了。"],
         ["哆米","连着来这么多天，不容易。"]]
 };
+
+/* ═══ 分档鼓励（老板 09:1x）＋我自己加的三样 ═══
+   一档：做得好 → 一只猫说
+   二档：做得特别好（当天五科全过 / 里程碑）→ 两只猫一起，都抬爪
+   我加的：
+   ① 哆米吃醋——Snowy 夸多了它要插一句，两只猫有性格，不像两个喇叭
+   ② 隔了几天回来，猫会说想他——跟排名下滑配套，掉下去了也有人等他
+   ③ 里程碑（3/7/14/30 天）两只一起说一句特别的 */
+const BOTH={
+  allDone:[["Snowy","今天五样全过了。"],["哆米","这一天，你没白过。"]],
+  m3:[["Snowy","三天了。"],["哆米","第三天最难，你过了。"]],
+  m7:[["Snowy","整整一周。"],["哆米","一周没断，我记着呢。"]],
+  m14:[["Snowy","两周了，真的。"],["哆米","我开始信你了。"]],
+  m30:[["Snowy","一个月。"],["哆米","一个月不断，这不是运气。"]]
+};
+const MISS=[["哆米","两天没见你了，我一直趴在你椅子上。"],
+            ["Snowy","你去哪儿了？线团都没人陪我玩。"],
+            ["哆米","回来就好。坐下吧。"]];
+const JEALOUS=[["哆米","Snowy 又夸你。它谁都夸。"],
+               ["哆米","行吧，你确实做得不错。"],
+               ["哆米","我不说话不代表我没看见。"]];
+
+function catsBoth(key){
+  const wrap=document.getElementById("catsWrap"), sayEl=document.getElementById("catsSay");
+  if(!wrap||!sayEl)return;
+  const sn=document.getElementById("catSnowy"), dm=document.getElementById("catDomi");
+  if(sn)sn.setAttribute("class","kcat talking cheer");
+  if(dm)dm.setAttribute("class","kcat talking cheer");
+  const pair=BOTH[key]||BOTH.allDone;
+  sayEl.innerHTML=pair.map(function(x){return '<b>'+x[0]+'</b>　'+x[1]}).join('<br>');
+}
+/* 隔了几天回来 */
+function catsMissYou(){
+  const last=D.lastVisit||"";
+  const t=todayKey();
+  if(last && last!==t){
+    const gap=Math.round((new Date(t)-new Date(last))/86400000);
+    if(gap>=2){
+      const pick=MISS[Math.floor(Date.now()/17000)%MISS.length];
+      const dm=document.getElementById("catDomi"), sn=document.getElementById("catSnowy");
+      if(pick[0]==="哆米"){ if(dm)dm.setAttribute("class","kcat talking"); if(sn)sn.setAttribute("class","kcat"); }
+      else { if(sn)sn.setAttribute("class","kcat talking"); if(dm)dm.setAttribute("class","kcat"); }
+      const sayEl=document.getElementById("catsSay");
+      if(sayEl)sayEl.innerHTML='<b>'+pick[0]+'</b>　'+pick[1];
+      D.lastVisit=t; save();
+      return true;
+    }
+  }
+  D.lastVisit=t; save();
+  return false;
+}
+/* 当天五科是不是都过了 */
+function allFiveDone(){
+  return typeof DIARY_SUBS!=="undefined" &&
+         DIARY_SUBS.every(function(x){return subDoneToday(x[0])});
+}
+/* 每次加星后判一次档 */
+function celebrateIfDue(){
+  const d=keepDays();
+  if(d===3){catsBoth("m3");return}
+  if(d===7){catsBoth("m7");return}
+  if(d===14){catsBoth("m14");return}
+  if(d===30){catsBoth("m30");return}
+  if(allFiveDone()){catsBoth("allDone");return}
+  /* 哆米偶尔吃个醋 */
+  if(Math.random()<.22){
+    const pick=JEALOUS[Math.floor(Date.now()/13000)%JEALOUS.length];
+    const dm=document.getElementById("catDomi"), sn=document.getElementById("catSnowy");
+    if(dm)dm.setAttribute("class","kcat talking");
+    if(sn)sn.setAttribute("class","kcat");
+    const sayEl=document.getElementById("catsSay");
+    if(sayEl)sayEl.innerHTML='<b>'+pick[0]+'</b>　'+pick[1];
+    return;
+  }
+  renderCats("going");
+}
 function renderCats(where){
   const box=document.getElementById("catsBox"); if(!box)return;
   const d=keepDays();
@@ -1536,16 +1769,22 @@ function renderCats(where){
   if(where==="going" && d>=3 && Math.random()<.4) pool=CATLINES.keep;
   const pick=pool[Math.floor(Date.now()/20000)%pool.length];
   const who=pick[0], say=pick[1].replace("__D__", d);
-  box.innerHTML='<div class="who">'+(who==="Snowy"?"🐈":"🐈‍⬛")+'</div>'+
-    '<div class="say"><b>'+who+'</b>　'+say+'</div>';
+  const wrap=document.getElementById("catsWrap");
+  if(wrap){
+    const sn=document.getElementById("catSnowy"), dm=document.getElementById("catDomi");
+    if(sn)sn.setAttribute("class","kcat"+(who==="Snowy"?" talking":""));
+    if(dm)dm.setAttribute("class","kcat"+(who==="哆米"?" talking":""));
+  }
+  const sayEl=document.getElementById("catsSay");
+  if(sayEl)sayEl.innerHTML='<b>'+who+'</b>　'+say;
 }
 
 /* 页面就绪后再渲一次——render() 首次跑的时候容器可能还没解析到 */
 if(document.readyState==="loading"){
   document.addEventListener("DOMContentLoaded",function(){
-    try{renderBadge();renderCats("start")}catch(e){}
+    try{renderBadge();renderRank();if(!catsMissYou())renderCats("start")}catch(e){}
   });
-}else{ setTimeout(function(){try{renderBadge();renderCats("start")}catch(e){}},0) }
+}else{ setTimeout(function(){try{renderBadge();renderRank();if(!catsMissYou())renderCats("start")}catch(e){}},0) }
 </script>
 </body>
 </html>
