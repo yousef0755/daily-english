@@ -1302,9 +1302,14 @@ function tLive(){
     if(r>GATE) tLoudAt=now;
     /* 老师正在说话时门槛更高，避免外放的声音自己打断自己 */
     var need = (tPlaying? GATE*2.2 : GATE);
-    if(r<=need && (now-tLoudAt)>HANG) return;
+    var quiet = (r<=need && (now-tLoudAt)>HANG);
+    /* 2026-08-15 修正：上一版低于阈值就**不发**，结果流断了，
+       服务端判断不出「孩子说完了」，老师就一直不回话。
+       正解是照发，但把内容清成静音——流不断，噪音也不算说话。 */
     var i16=new Int16Array(f.length);
-    for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
+    if(!quiet){
+      for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
+    }
     tws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   tPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});tAt=tPlay.currentTime;
