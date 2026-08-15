@@ -78,6 +78,23 @@ section.pane.on{display:block}
 footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
   color:var(--dim);font-size:.76rem;line-height:1.9}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.tk-why{margin:6px 0 0;color:var(--muted);font-size:.86rem}
+.tk-step{margin:11px 0 8px;font-size:.83rem;color:var(--muted);line-height:1.75}
+#taskIn{width:100%;background:#141922;border:1px solid var(--line);border-radius:12px;
+  color:var(--ink);font-family:inherit;font-size:.9rem;line-height:1.7;padding:11px 12px;resize:vertical}
+#taskIn:focus{outline:none;border-color:var(--accent)}
+.tk-row{display:flex;align-items:center;gap:11px;margin-top:10px;flex-wrap:wrap}
+.tk-go{border:1px solid var(--accent);background:rgba(201,162,39,.14);color:var(--accent);
+  border-radius:999px;padding:8px 18px;font-size:.88rem;font-weight:650;font-family:inherit;cursor:pointer}
+.tk-go:disabled{opacity:.45}
+.tk-hint{font-size:.78rem;color:var(--muted)}
+.log{margin:22px 0 0;padding:16px 17px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.log .lbl{font-size:.68rem;letter-spacing:.22em;color:var(--dim);margin-bottom:10px}
+.log .e{padding:10px 0;border-top:1px solid var(--line);font-size:.87rem;line-height:1.75}
+.log .e:first-child{border-top:none}
+.log .e .d{font-size:.7rem;color:var(--dim);margin-bottom:3px}
+.log .e .t{color:var(--muted);font-size:.78rem}
 </style>
 </head>
 <body>
@@ -91,18 +108,34 @@ footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
   怎么让它真的省你的时间——以及哪些地方它会把你坑了。</p>
 </header>
 
-<div class="today">
-  <div class="lbl">今 天 这 一 条</div>
-  <div class="txt" id="todayTip">…</div>
+<div class="today" id="taskBox">
+  <div class="lbl">今 天 做 这 一 件</div>
+  <div class="txt" id="taskTitle">…</div>
+  <p class="tk-why" id="taskWhy"></p>
+  <div class="ask" id="taskAsk" style="margin-top:12px">
+    <button class="copy" aria-label="复制">复</button>
+  </div>
+  <p class="tk-step">拿你手上真在做的东西去问——正在读的那篇、正在跑的那份数据、正在写的那一段。
+  问完回来，把你的发现写两句。</p>
+  <textarea id="taskIn" rows="3" placeholder="它给了什么？哪里有用、哪里不对？两句就够。"></textarea>
+  <div class="tk-row">
+    <button class="tk-go" id="taskDone">做完了，交上去</button>
+    <span class="tk-hint" id="taskHint"></span>
+  </div>
 </div>
+
+<section class="log" id="logBox" style="display:none">
+  <div class="lbl">你 记 下 的</div>
+  <div id="logList"></div>
+</section>
 
 <nav class="tabs" id="tabs"></nav>
 <div id="panes"></div>
 
 <div class="done-row">
-  <div class="st" id="stTxt">今天还没开始</div>
+  <div class="st" id="stTxt">今天这件还没做</div>
   <div class="bar"><i id="stBar"></i></div>
-  <div class="st" style="font-size:.74rem;opacity:.75">在这页上认真待够，家里那张榜上你就亮了</div>
+  <div class="st" style="font-size:.74rem;opacity:.75">做完上面那一件、写两句交上去，家里那张榜上你就亮了</div>
 </div>
 
 <footer>
@@ -217,14 +250,6 @@ panes.addEventListener("click",function(e){
   }).catch(function(){});
 });
 
-/* 今天这一条：每天换一个，不用自己挑 */
-(function(){
-  const all=[];
-  DATA.forEach(g=>g[1].forEach(it=>all.push(g[0]+" · "+it.h)));
-  const d=new Date();
-  const n=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
-  document.getElementById("todayTip").textContent=all[n%all.length];
-})();
 
 /* ── 学习时长：跟家里那张榜同一套规矩 ──
    只在页面看得见、且最近 90 秒有互动的时候走秒。
@@ -242,8 +267,12 @@ const API="https://yusufs-macbook-pro.tail63c9ae.ts.net", GOAL=15;
   function paint(){
     const m=Math.floor(sec/60);
     document.getElementById("stBar").style.width=Math.min(100,Math.round(m/GOAL*100))+"%";
-    document.getElementById("stTxt").innerHTML = m>=GOAL
-      ? "<b>今天这一次够了。</b>" : (m>0 ? "在学着" : "今天还没开始");
+    /* 时间只当参考，不当门槛 —— 她真干活的十分钟多半人不在这页上。
+       完成与否看上面那一件做没做。 */
+    const doneToday=logLoad().some(x=>x.d===xToday());
+    document.getElementById("stTxt").innerHTML = doneToday
+      ? "<b>今天这件做完了。</b>" : (m>0 ? "在看着" : "今天这件还没做");
+    if(doneToday)document.getElementById("stBar").style.width="100%";
   }
   function report(){
     fetch(API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
@@ -260,6 +289,93 @@ const API="https://yusufs-macbook-pro.tail63c9ae.ts.net", GOAL=15;
   window.addEventListener("pagehide",report);
   document.addEventListener("visibilitychange",function(){if(document.hidden)report()});
 })();
+
+/* ── 今天做这一件 ──
+   老板 2026-08-15：「玺雅里面的内容太少了。他进去2分钟就看完了。15分钟他要做什么。」
+   他说得对。我原来做的是一张参考卡，看完两分钟，剩下十三分钟干坐着。
+   而且更不对的是：她真去 ChatGPT 干活的那十分钟，人不在这页上，我的计时反而停了。
+   所以她的"完成"不该按待多久算，该按**有没有真做一件事**算。
+   现在：给她一件当天的活 + 现成的问法，她拿自己手上的东西去做，回来写两句。
+   写了才算完成。 */
+const TASKS=[
+ {t:"把你正在读的一篇论文，压成四句话",
+  w:"读文献最花时间的不是读，是理。今天只练这一件：让它给骨架，你拿骨架去读原文。",
+  a:"这篇论文我要在一小时内读完并能跟人讨论。请给我：\n1) 它想回答什么问题\n2) 用了什么数据和方法\n3) 主要结论是什么、边界条件是什么\n4) 我读原文时应该重点看哪三段\n先不要评价好坏。"},
+ {t:"让它当一次审稿人，挑你选的那篇论文的毛病",
+  w:"你觉得有道理的东西，最需要有人站到对面。比再读三篇同方向的有用。",
+  a:"我准备引用这篇论文的结论。请你扮演审稿人，尽量挑它的毛病：样本、识别策略、内生性、外部有效性、以及它没说清楚的地方。不用照顾我的感受。"},
+ {t:"抓一次它编的东西",
+  w:"这是这页最要紧的一条。经济学论文里编一个数据出处，是要出事的。今天专门练「抓它说谎」。",
+  a:"你刚才给的这几个数据和引用，请逐条标出：哪些是你确定有出处的、哪些是你不确定的、哪些是你推断的。不确定的请直接说不确定，不要补一个看起来像真的来源。"},
+ {t:"把你写的一段，交给它挑逻辑，但不许它改",
+  w:"教写不代写。它替你写，答辩时讲不出来的是你。",
+  a:"这是我自己写的一段（贴上来）。请不要替我重写。请指出：哪句话逻辑跳了、哪个论断没有证据支撑、哪里用词不够准确。每一条给我一个修改方向，但让我自己改。"},
+ {t:"让它连问你五个问题，把卡住的那节问通",
+  w:"写不下去多半不是不会写，是没想清楚。让它审你，比让它写强。",
+  a:"我这一节写不下去了。请不要给我内容，请连着问我五个问题，帮我把这一节到底想说什么问出来。一次问一个，等我答完再问下一个。"},
+ {t:"同一个问题换两种问法，看它答得一不一致",
+  w:"两次对不上，就说明它在猜。这是最便宜的测谎。",
+  a:"（先按你的原问法问一遍，记下答案；再用完全不同的措辞问同一件事，比较两次的差别，把不一致的地方记下来）"},
+ {t:"让它教你跑一次回归，但一次只给一步",
+  w:"你自己敲出来的，答辩时才讲得出来。",
+  a:"我有一份面板数据，想做固定效应回归。请一步一步教我在 Stata（或 Python）里怎么做，每一步告诉我这一步在做什么、为什么要这么做。先不要给我完整代码，一次给一步，我做完了再给下一步。"},
+ {t:"问一张图「读者会怎么看错」",
+  w:"图不是好看就行，是别让人看错。",
+  a:"这是我论文里的一张图（描述：____）。请指出：一个不熟悉这个领域的读者最可能从这张图里读出什么错误结论？我该怎么改坐标轴、标注或图例来堵住它？"},
+ {t:"把「我想要的那种感觉」翻译成能搜的词",
+  w:"画画那边的一件。不生成作品，只帮你找参考。",
+  a:"我想画的感觉是 ____（描述）。请帮我把它翻译成可以去搜索的具体词：画派、时期、光线类型、色调、构图方式。给我一份能拿去搜的关键词表。"},
+ {t:"让它只讲你这张画的构图，不许给改好的版本",
+  w:"讲完你自己动手。它讲得清楚，但手得是你的。",
+  a:"这是我画的一张（描述或上传）。请只从构图和视觉引导上讲：视线第一眼落在哪、然后往哪走、哪里断了。不要评价我画得好不好，也不要给我改好的版本。"}
+];
+const LKEY="xiya_log";
+function xToday(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function logLoad(){try{return JSON.parse(localStorage.getItem(LKEY)||"[]")}catch(e){return []}}
+function logSave(a){try{localStorage.setItem(LKEY,JSON.stringify(a.slice(-60)))}catch(e){}}
+function todayTask(){
+  const d=new Date();
+  const n=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
+  return TASKS[n%TASKS.length];
+}
+function paintTask(){
+  const t=todayTask();
+  document.getElementById("taskTitle").textContent=t.t;
+  document.getElementById("taskWhy").textContent=t.w;
+  const ask=document.getElementById("taskAsk");
+  ask.childNodes[0] && ask.removeChild(ask.childNodes[0]);
+  ask.insertBefore(document.createTextNode(t.a), ask.firstChild);
+  const done=logLoad().some(x=>x.d===xToday());
+  const btn=document.getElementById("taskDone"), hint=document.getElementById("taskHint");
+  if(done){ btn.disabled=true; btn.textContent="今天这件做过了"; hint.textContent="想再记一条也行，改上面那段再交一次。"; btn.disabled=false }
+  paintLog();
+}
+function paintLog(){
+  const a=logLoad().slice().reverse();
+  const box=document.getElementById("logBox"), list=document.getElementById("logList");
+  if(!a.length){ box.style.display="none"; return }
+  box.style.display="";
+  list.innerHTML=a.slice(0,12).map(function(x){
+    return '<div class="e"><div class="d">'+x.d+'</div>'+
+      (x.t?'<div class="t">'+x.t.replace(/</g,"&lt;")+'</div>':'')+
+      '<div>'+x.n.replace(/</g,"&lt;")+'</div></div>';
+  }).join("");
+}
+document.getElementById("taskDone").onclick=function(){
+  const el=document.getElementById("taskIn"), v=(el.value||"").trim();
+  if(v.length<10){ document.getElementById("taskHint").textContent="写两句再交，十个字以上。"; el.focus(); return }
+  const a=logLoad(); a.push({d:xToday(), t:todayTask().t, n:v}); logSave(a);
+  el.value="";
+  document.getElementById("taskHint").textContent="记下了。今天这件算完成。";
+  paintLog();
+  /* 交了才算完成 —— 不按待多久算 */
+  fetch(API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({who:"xiya",done:1,total:1,started:true})}).catch(function(){});
+  const bar=document.getElementById("stBar"), st=document.getElementById("stTxt");
+  if(bar)bar.style.width="100%";
+  if(st)st.innerHTML="<b>今天这件做完了。</b>";
+};
+paintTask();
 </script>
 </body>
 </html>
