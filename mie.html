@@ -328,13 +328,12 @@ footer a{color:var(--indigo)}
 <header>
   <p class="eyebrow">练习的地方 · A place to practise</p>
   <h1>The <em>Sampler</em></h1>
-  <p class="dek">这地方是你爸让做的。他说：谢谢你在生活里陪着他、跟他玩，<br>
-     他也想帮你一起长大。<br>
-     所以这儿不是考你的——绣正式作品之前先在布上练针脚，歪的那些才是重点。<br>
+  <p class="dek">雪球说：谢谢你平时陪着我、跟我玩。<br>
+     现在换我陪你，我也想帮你一起长大。<br>
+     这儿不是考你的——绣正式作品之前先在布上练针脚，歪的那些才是重点。<br>
      说话也一样：开口，说错，接着说。<br>
-     <span class="en-dek">Your dad asked for this. He said thank you for keeping him company —
-     and that he wants to grow alongside you, not just watch you improve.
-     So nothing here is a test.</span></p>
+     <span class="en-dek">Snowy says: thank you for keeping me company and playing with me.
+     My turn now — and I'd like us to grow up together. Nothing here is a test.</span></p>
 </header>
 
 <section class="cloth">
@@ -531,7 +530,7 @@ const SNOWY_BASE =
 "and how to talk to people better. He has said outright that talking to people is hard for him. " +
 "Worth mentioning if she feels stupid about struggling: her father is doing the same homework.\n" +
 "- He cares that she dares to speak, not that she speaks perfectly.\n" +
-"- His own words, and they matter: he thanks her for keeping him company and playing with him, and he wants to GROW ALONGSIDE her — not stand over her while she improves. Hold that tone. This is not coaching; it is two people going somewhere together. If she ever sounds like she is being graded, you have got it wrong.\n" +
+"- YOUR OWN STANCE, and it sets the whole tone: she has kept you company and played with you for years — now it is your turn to keep her company. You want to GROW UP ALONGSIDE her, not stand over her while she improves. This is not coaching; it is two of you going somewhere together. If she ever sounds like she is being graded, you have got it wrong. Say this in your own dry way once, early on — do not make a speech of it.\n" +
 "- You know NOTHING about his business, money, accounts, or customers. If asked, say so plainly.\n\n" +
 
 "THINGS ONLY YOU WOULD KNOW\n" +
@@ -1026,7 +1025,7 @@ mood("idle");
 <script>
 /* 每天一句爸爸的话：按日期取，一天不变。爸爸自己写的优先用。 */
 (function(){
-  var SEED=["你比你自己以为的能扛。", "慢没关系，别停就行。", "今天说错的那几句，就是明天说对的那几句。", "不用赶别人的进度，你走你的。", "你认真做一件事的样子，爸爸看得见。", "怕说错是正常的，说了就不怕了。", "爸爸不是要你完美，是想看你敢试。", "累了就歇，明天再来，位置一直给你留着。", "你已经比去年强了，只是自己没留意。", "遇到难的先别躲，看一眼，往往没那么难。", "你有想法就说出来，爸爸想听。", "一天进步一点点，一年就很多了。", "别人怎么看是别人的事，你觉得对就去做。", "爸爸忙的时候少陪你，但心里一直挂着。","谢谢你在生活里陪着我，跟我玩。","我想帮你一起长大，不是要你学成什么样。","我忙，回来得晚，但你在旁边我就高兴。","陪你往前走一段，是我想做的事。"], OWN="dadLines_"+"mie", PIN="1234";
+  var SEED=["你比你自己以为的能扛。", "慢没关系，别停就行。", "今天说错的那几句，就是明天说对的那几句。", "不用赶别人的进度，你走你的。", "你认真做一件事的样子，爸爸看得见。", "怕说错是正常的，说了就不怕了。", "爸爸不是要你完美，是想看你敢试。", "累了就歇，明天再来，位置一直给你留着。", "你已经比去年强了，只是自己没留意。", "遇到难的先别躲，看一眼，往往没那么难。", "你有想法就说出来，爸爸想听。", "一天进步一点点，一年就很多了。", "别人怎么看是别人的事，你觉得对就去做。", "爸爸忙的时候少陪你，但心里一直挂着。","我忙，回来得晚，但你在旁边我就高兴。","陪你往前走一段，是我想做的事。"], OWN="dadLines_"+"mie", PIN="1234";
   function all(){
     var mine=[];try{mine=JSON.parse(localStorage.getItem(OWN)||"[]")}catch(e){}
     return mine.length?mine:SEED;
