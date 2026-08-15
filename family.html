@@ -501,10 +501,17 @@ function bindTicks(){
       if(b.disabled)return;
       if(!confirm(nm+"今天学过了吗？")) return;
       b.disabled=true;
+      const body={who:b.dataset.id,done:1,total:1,manual:true};
+      let sent=false;
       try{
-        await fetch(API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({who:b.dataset.id,done:1,total:1,manual:true})});
+        const r=await fetchT(API+"/fam/ping",{method:"POST",
+          headers:{"Content-Type":"application/json"},body:JSON.stringify(body)},4000);
+        sent=r.ok;
       }catch(e){}
+      if(!sent){
+        qPush(body);
+        alert(nm+"的卡先记在这台手机上了。\n现在连不上家里的电脑，等回到家里的网络会自动补上去，不会丢。");
+      }
       load();
     };
   });
@@ -538,8 +545,8 @@ async function load(){
       '<span class="sp"><b>Snowy</b>　我们等一会儿，家里的线还没通。</span>';
   }
 }
-load(); renderPairs(); setInterval(load,60000); setInterval(renderPairs,60000);
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden)load() });
+qFlush().then(function(n){if(n)load()}); load(); renderPairs(); setInterval(load,60000); setInterval(renderPairs,60000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){qFlush().then(function(n){if(n)load()});load()} });
 
 /* ── 没人来的时候，两只自己玩、自己聊（老板 2026-08-15：
       「能不能有一些互动，他们俩之间相互玩耍」「说一些希望家人来参与的一些话」）──
@@ -905,6 +912,35 @@ function fetchT(url, opt, ms){
   var t=setTimeout(function(){ac.abort()},ms);
   return fetch(url,opt).finally(function(){clearTimeout(t)});
 }
+
+/* ═══ 在外面打的卡不丢 ═══
+   老板 2026-08-15：「先让整个数据上网，这样就不会打不开」。
+   「看」已经在网上了（读 GitHub 上的快照）；「写」还要等 Cloudflare 的 token，
+   因为写必须有个能认证的地方。
+   在那之前，至少别让人白点：外面打的卡先存在这台手机上，
+   等回到家里的网络（或者云上通了）自动补上去。 */
+const QKEY="famQueue";
+function qLoad(){ try{ return JSON.parse(localStorage.getItem(QKEY)||"[]") }catch(e){ return [] } }
+function qSave(a){ try{ localStorage.setItem(QKEY, JSON.stringify(a.slice(-50))) }catch(e){} }
+function qPush(body){
+  const a=qLoad();
+  a.push({body:body, at:Date.now()});
+  qSave(a);
+}
+async function qFlush(){
+  const a=qLoad(); if(!a.length)return 0;
+  let ok=0, left=[];
+  for(const it of a){
+    try{
+      const r=await fetchT(API+"/fam/ping",{method:"POST",
+        headers:{"Content-Type":"application/json"},body:JSON.stringify(it.body)},4000);
+      if(r.ok){ ok++ } else { left.push(it) }
+    }catch(e){ left.push(it) }
+  }
+  qSave(left);
+  return ok;
+}
+function qCount(){ return qLoad().length }
 </script>
 </body>
 </html>
