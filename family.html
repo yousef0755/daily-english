@@ -786,25 +786,9 @@ function paintPairs(d, offline){
       '<span class="kn ghost">谁</span></div>'+
       '<div class="knot-foot">本周还没有人成对。两个人选中彼此，才算一对。</div></div>';
 
-  /* 老板 2026-08-15：「没有成为搭子的也可以自己学，但是排名你看着如何设计」
-     我的设计：两个榜分开排。
-     搭子榜按「两个人都到的天数」，单飞榜按「自己到的天数」。
-     不混排——搭子那个数天生更难拿（要两个人都到），混在一起对搭子不公平；
-     分开之后，一个人学的也有自己的头名可争。
-     年纪、做了多少题一律不进排名，只看到没到。 */
-  const S=document.getElementById("pbSolo");
-  if(S){
-    const so=d.solo||[];
-    S.innerHTML = so.length
-      ? '<div class="solo-h">一个人学的</div>'+so.map(function(x,i){
-          return '<div class="solo'+(x.here?" on":"")+'">'+
-            '<span class="si">'+(i+1)+'</span>'+
-            '<span class="sn">'+x.name+'</span>'+
-            (x.asGoodAsPair?'<span class="sbadge">顶得上一对</span>':'')+
-            '<span class="sd"><b>'+x.days+'</b> / '+x.total+' 天</span></div>';
-        }).join("")
-      : "";
-  }
+  /* 单飞榜按老板 2026-08-15 的话撤掉了：「把一个人学习改掉。还是搞成之前的搭子」。
+     没成对的人照样能学、照样上今天这张榜，只是不再单独排一个榜。 */
+  const S=document.getElementById("pbSolo"); if(S)S.innerHTML="";
   /* 老板 2026-08-15 看了截图说「这个界面好丑」——原来用浏览器原生 prompt 弹窗，
      还得手打名字。手机上难用，博远十岁更打不来。改成点两下：
      先点自己，下面就出来能选的人，再点一个，成。 */
