@@ -697,6 +697,19 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       </div>
       <button class="main" id="diarySend" style="display:none;margin-top:10px">写好了，交给小林姐姐</button>
       <div class="tip" id="diaryDone" style="margin-top:8px"></div>
+      <!-- 老板 2026-08-15：全学完 + 日记写完，才出现这个框；
+           他写的话，第二天由猫咪说出来 -->
+      <div id="catSayBox" style="display:none;margin-top:16px;padding:14px;
+        border:1px solid rgba(255,212,121,.3);border-radius:14px;
+        background:rgba(255,212,121,.06)">
+        <div style="font-size:.92rem;color:var(--gold);font-weight:700;margin-bottom:4px">
+          想跟猫咪说句话吗</div>
+        <div class="tip" style="text-align:left;margin:0 0 8px">
+          你写下来，明天 Snowy 和哆米就会说给你听。</div>
+        <textarea id="catSayText" rows="2" placeholder="想说什么都行"></textarea>
+        <button class="main" id="catSaySave" style="margin-top:9px">交给猫咪</button>
+        <div class="tip" id="catSayDone" style="margin-top:7px"></div>
+      </div>
     </div>
     <div class="card">
       <h2>写过的日记</h2>
@@ -2018,6 +2031,7 @@ function renderDiary(){
     x.t.replace(/</g,"&lt;")+'</div>').join(""):"还没有写过日记，今天写第一篇吧。";
   const doneToday=(D.diaries||[]).some(x=>x.d===todayKey());
   document.getElementById("diaryDone").textContent=doneToday?"今天的日记已经写好啦 ✓":"";
+  try{ renderCatSay() }catch(e){}
 }
 
 document.getElementById("saveDiary").onclick=function(){
@@ -2343,7 +2357,13 @@ function renderCats(where){
   const d=keepDays();
   let pool=CATLINES[where]||CATLINES.going;
   if(where==="going" && d>=3 && Math.random()<.4) pool=CATLINES.keep;
-  const pick=pool[Math.floor(Date.now()/20000)%pool.length];
+  let pick=pool[Math.floor(Date.now()/20000)%pool.length];
+  /* 他昨天留给猫咪的话，今天先说这句——这是他自己的话回来了，
+     比任何系统词都重要（老板 2026-08-15） */
+  const mine=(typeof catSayPending==="function")?catSayPending():null;
+  if(mine && where!=="done" && Math.floor(Date.now()/20000)%3===0){
+    pick=[(D.walker||"Snowy"), "你昨天让我说的——" + mine.t];
+  }
   const who=pick[0], say=pick[1].replace("__D__", d);
   const wrap=document.getElementById("catsWrap");
   if(wrap){
@@ -3233,6 +3253,50 @@ function idiomLeft(){
     return readGot("idiom",k,0) < READ_GOAL;
   });
 }
+
+/* ═══ 想跟猫咪说的话（老板 2026-08-15）═══
+   今天写的，明天猫咪说。存的时候记下是哪一天写的，
+   读的时候只认「不是今天写的、而且还没说过的最近一条」。 */
+function catSayAll(){ D.catSay=D.catSay||[]; return D.catSay }
+function catSayPending(){
+  const all=catSayAll(), t=todayKey();
+  for(let i=all.length-1;i>=0;i--) if(all[i].d!==t) return all[i];
+  return null;
+}
+function renderCatSay(){
+  const box=document.getElementById("catSayBox"); if(!box)return;
+  /* 六门全过 + 今天日记写完，这个框才出现 */
+  const allDone=(typeof diaryUnlocked==="function") && diaryUnlocked();
+  const diaryDone=(D.diaries||[]).some(function(x){return x.d===todayKey()});
+  box.style.display=(allDone&&diaryDone)?"block":"none";
+  const wrote=catSayAll().some(function(x){return x.d===todayKey()});
+  const t=document.getElementById("catSayText"),
+        b=document.getElementById("catSaySave"),
+        d=document.getElementById("catSayDone");
+  if(wrote){
+    if(t)t.style.display="none";
+    if(b)b.style.display="none";
+    if(d)d.textContent="记下了，明天猫咪说给你听。";
+  }else{
+    if(t)t.style.display="";
+    if(b)b.style.display="";
+    if(d)d.textContent="";
+  }
+}
+(function(){
+  const b=document.getElementById("catSaySave");
+  if(!b)return;
+  b.onclick=function(){
+    const el=document.getElementById("catSayText");
+    const v=(el.value||"").trim();
+    if(v.length<2){ toast("写一句吧"); return }
+    if(catSayAll().some(function(x){return x.d===todayKey()})){ toast("今天已经交过啦"); return }
+    D.catSay.push({d:todayKey(), t:v.slice(0,80)});   /* 太长猫说不完，截到 80 字 */
+    save(); el.value="";
+    toast("猫咪收到了，明天说给你听");
+    renderCatSay();
+  };
+})();
 </script>
 </body>
 </html>
