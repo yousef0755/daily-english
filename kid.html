@@ -486,22 +486,10 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   <section class="page" id="p-write">
     <div class="card">
       <h2>第4课 生字（会写 13 个）</h2>
-      <div class="tip" style="text-align:left;margin:0 0 10px">点字听读音 · 点「写一写」用手指在田字格里描 · 写满三遍算会写</div>
+      <div class="tip" style="text-align:left;margin:0 0 10px">点右边的喇叭听读音 · 跟着念，念熟了自己在本子上写</div>
       <div id="hanziBox"></div>
     </div>
-    <div class="card" id="padCard" style="display:none">
-      <h2 id="padTitle">写一写</h2>
-      <div class="tip" style="text-align:left;margin:0 0 10px">用手指照着淡色的字描一遍 · 写满三遍这个字就算会了</div>
-      <div style="display:flex;justify-content:center"><!-- 笔顺演示已按老板要求撤掉（他说老是不行） -->
-
-        <canvas id="pad" width="300" height="300" style="border-radius:16px;background:#fdfbf4;touch-action:none"></canvas>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="main ghost" id="padClear" style="flex:1">擦掉重写</button>
-        <button class="main" id="padOk" style="flex:2">写好这一遍</button>
-      </div>
-      <div class="tip" id="padProg" style="margin-top:8px"></div>
-    </div>
+    <!-- 手写格已按老板要求去掉（A） -->
   </section>
 
   <section class="page" id="p-diary">
@@ -1493,14 +1481,9 @@ function renderHanzi(){
       "color:var(--gold);border-radius:11px;padding:9px 13px;font-size:1rem;cursor:pointer;flex-shrink:0";
     spk.onclick=function(ev){ ev.stopPropagation(); if(typeof speakRoster==="function")speakRoster(h.z) };
     d.appendChild(spk);
-    const b=document.createElement("button");
-    b.style.cssText="border:none;border-radius:11px;padding:9px 14px;font-family:inherit;font-size:.85rem;cursor:pointer;"+
-      (done[k]?"background:var(--mint);color:#0a2018;font-weight:700":"background:rgba(243,239,226,.1);color:var(--cream)");
-    const padN=((D.padDone||{})[todayKey()+"_pad_"+h.z])||0;
-    b.textContent=done[k]?"✓ 会写了":(padN?("写 "+padN+"/3"):"✍️ 写一写");
-    b.onclick=()=>openPad(h);
+    /* 「写一写」按钮已按老板要求去掉（A：只去掉手写格，生字留看和听） */
     d.querySelector("div").onclick=()=>{if(typeof speakRoster==="function")speakRoster(h.z)};
-    d.appendChild(b);box.appendChild(d);
+    box.appendChild(d);
   });
 }
 
