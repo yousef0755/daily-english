@@ -433,7 +433,7 @@ function render(d){
       ? '<em>今天做完了</em>'
       : (p.here ? p.what+" · 在做" : p.what);
     const right = p.auto
-      ? '<div class="cnt">'+(p.here? p.done+" / "+p.total : "—")+'</div>'+
+      ? '<div class="cnt">'+(p.finished?"完成":p.here?"在学":"—")+'</div>'+
         '<div class="kp">'+chain(p.streak)+'</div>'
       : '<button class="tick'+(p.here?" on":"")+'" data-id="'+p.id+'" data-nm="'+p.name+
         '" data-here="'+(p.here?1:0)+'"'+(p.here?' disabled title="打完的卡不能自己取消"':'')+
