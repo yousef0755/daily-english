@@ -197,7 +197,7 @@ a.who:active .nm{opacity:.6}
 .toybadge{flex:0 0 auto;display:grid;place-items:center;width:32px;height:29px;border:1px solid rgba(217,180,95,.25);
   border-radius:9px;background:rgba(217,180,95,.07)}
 .toybadge svg{display:block;width:18px;max-height:21px}
-.toybadge.locked{border-color:var(--line);color:var(--dim);background:rgba(255,255,255,.025);font-size:.72rem}
+.toybadge.locked{border-color:var(--line);color:var(--muted);background:rgba(255,255,255,.025);font-size:.62rem;width:auto;padding:0 9px;white-space:nowrap;letter-spacing:.02em}
 @media (prefers-reduced-motion:reduce){.toy,.toy *{animation:none !important}}
 
 /* ── 本周搭子（老板 2026-08-15：一星期选一次搭子）──
@@ -227,6 +227,86 @@ a.who:active .nm{opacity:.6}
 .pk .go2{border-color:rgba(217,180,95,.5);background:rgba(217,180,95,.14);color:var(--gold);font-weight:600}
 .pk .cancel{opacity:.6}
 .pk .wait{opacity:.55;font-size:.76rem}
+
+/* ── 搭子重画（老板说原来那版难看）── */
+.knot{padding:15px 14px 13px;margin-bottom:10px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+  border:1px solid var(--line)}
+.knot.strong{border-color:rgba(126,214,178,.42)}
+.knot.empty{opacity:.62}
+.knot-top{display:flex;align-items:center;gap:0}
+.kn{flex:1;text-align:center;font-size:1rem;font-weight:600;letter-spacing:.02em;
+  color:var(--muted);padding:7px 4px;border-radius:11px;background:rgba(255,255,255,.04)}
+.kn.on{color:var(--ink);background:rgba(217,180,95,.13)}
+.kn.ghost{color:var(--dim);font-weight:400}
+.link{flex:0 0 46px;height:2px;background:linear-gradient(90deg,transparent,var(--line),transparent);
+  position:relative}
+.link b{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;
+  border-radius:50%;background:var(--line)}
+.knot.strong .link{background:linear-gradient(90deg,transparent,rgba(126,214,178,.6),transparent)}
+.knot.strong .link b{background:var(--mint);box-shadow:0 0 0 3px rgba(126,214,178,.18)}
+.week7{display:flex;gap:6px;justify-content:center;margin:13px 0 9px}
+.dot7{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
+  background:rgba(255,255,255,.045);border:1px solid transparent}
+.dot7 i{font-style:normal;font-size:.66rem;color:var(--dim)}
+.dot7.half{background:rgba(217,180,95,.10)}
+.dot7.half i{color:rgba(217,180,95,.75)}
+.dot7.on{background:rgba(126,214,178,.20)}
+.dot7.on i{color:var(--mint);font-weight:700}
+.dot7.today{border-color:rgba(255,255,255,.22)}
+.knot-foot{text-align:center;font-size:.78rem;color:var(--muted)}
+.knot-foot b{color:var(--ink);font-size:.95rem;font-variant-numeric:tabular-nums}
+.knot.strong .knot-foot b{color:var(--mint)}
+/* 选人的圆头像 */
+.pk button[data-me],.pk button[data-pick]{width:44px;height:44px;padding:0;border-radius:50%;
+  font-size:.82rem;font-weight:600;display:grid;place-items:center}
+.pk button[data-pick]{border-color:rgba(217,180,95,.5);background:rgba(217,180,95,.14);color:var(--gold)}
+.pk .cancel{width:auto;height:32px;padding:0 13px;border-radius:999px;font-size:.76rem}
+
+/* ── 玩闹：不说话的时候两只来回跑、互相追（老板 2026-08-15）── */
+.cats.romp .cwrap{position:relative}
+.cats.romp #fcatS{animation:runS 5.2s cubic-bezier(.45,0,.55,1) infinite}
+.cats.romp #fcatD{animation:runD 5.2s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes runS{
+  0%{transform:translateX(0) scaleX(1)}
+  22%{transform:translateX(58px) scaleX(1)}
+  26%{transform:translateX(58px) scaleX(-1)}
+  50%{transform:translateX(-46px) scaleX(-1)}
+  54%{transform:translateX(-46px) scaleX(1)}
+  78%{transform:translateX(30px) scaleX(1)}
+  100%{transform:translateX(0) scaleX(1)}}
+@keyframes runD{
+  0%{transform:translateX(0) scaleX(1)}
+  8%{transform:translateX(6px)}
+  30%{transform:translateX(62px) scaleX(1)}
+  34%{transform:translateX(62px) scaleX(-1)}
+  58%{transform:translateX(-40px) scaleX(-1)}
+  62%{transform:translateX(-40px) scaleX(1)}
+  86%{transform:translateX(26px) scaleX(1)}
+  100%{transform:translateX(0) scaleX(1)}}
+/* 跑起来的时候腿脚有点动静 */
+.cats.romp .fcat{animation-name:runS,hopper}
+.cats.romp #fcatD{animation-name:runD,hopper}
+@keyframes hopper{0%,100%{margin-top:0}25%{margin-top:-5px}50%{margin-top:0}75%{margin-top:-3px}}
+.cats.romp .fcat .tail{animation:fflick .5s ease-in-out infinite}
+.cats.romp .cline .sp{opacity:0;transition:opacity .3s}
+.romp-tip{display:block;text-align:center;font-size:.72rem;color:var(--muted);opacity:.8}
+@media (prefers-reduced-motion:reduce){.cats.romp .fcat{animation:none !important}}
+
+.tag-go{font-size:.68rem;color:var(--mint);border:1px solid rgba(126,214,178,.4);
+  border-radius:99px;padding:1px 7px}
+.tag-w{font-size:.68rem;color:var(--muted);border:1px solid var(--line);
+  border-radius:99px;padding:1px 7px}
+.tag-x{font-size:.68rem;color:#ff9cb2;border:1px solid rgba(255,120,149,.4);
+  border-radius:99px;padding:1px 7px}
+.knot-act{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:center}
+.knot-act span{flex-basis:100%;text-align:center;font-size:.72rem;color:var(--muted)}
+.knot-act button{border:1px solid var(--line);background:rgba(255,255,255,.05);
+  color:var(--muted);border-radius:999px;padding:5px 12px;font-size:.75rem;font-family:inherit}
+.knot-act .agree{border-color:rgba(255,120,149,.45);color:#ff9cb2}
+.knot-act .undo{border-color:rgba(217,180,95,.4);color:var(--gold)}
+.knot.broken{opacity:.6}
 </style>
 </head>
 <body>
@@ -478,6 +558,7 @@ function catsActive(box, cl, ps){
   const pool=lines();
   let n=Math.floor(Math.random()*pool.length);
   function tick(){
+    if(rompMaybe(box, cl))return;      /* 有人来了也一样，说三轮跑一段 */
     const pair=pool[n%pool.length]; n++;
     cl.innerHTML=pair.map(function(x){
       return '<span class="sp'+(x[0]==="哆米"?" d":"")+'"><b>'+x[0]+'</b>　'+x[1]+'</span>';
@@ -551,7 +632,8 @@ function renderToys(toy){
               line.parentNode.appendChild(shelf) }
   shelf.innerHTML=TOYS.slice(0,n).map(function(t){
     return '<span class="toybadge" title="'+t[1]+'" aria-label="'+t[1]+'">'+t[2]+'</span>';
-  }).join("")+(n<TOYS.length?'<span class="toybadge locked" aria-label="下一件还未解锁">🔒</span>':'');
+  }).join("")+(n<TOYS.length?'<span class="toybadge locked" aria-label="下一件还未解锁">'+
+      (toy.need?('还差 '+toy.need+' 次'):'下一件')+'</span>':'');
   if(n===0){ line.innerHTML="蝴蝶带毛球来陪它们试玩。全家一起学满 <b>1</b> 次，毛球就真正留下。"; return }
   line.innerHTML = toy.next
     ? "玩具篮 <b>"+n+" / "+total+"</b> 件 · 全家再学 <b>"+toy.need+"</b> 次，又多一件。"
@@ -573,14 +655,45 @@ async function renderPairs(){
   document.getElementById("pbTip").innerHTML =
     "搭子的天数<b>只算两个人都来的日子</b>。一个人没来，那天就不算。";
 
+  /* 老板 2026-08-15 说这块「设计得很难看」。重画：
+     两个名字用一条线连起来，中间一个结；下面七个点是这一周，
+     两个人都来的那天才亮。一眼看得出这周绑得牢不牢。 */
+  const WD=["一","二","三","四","五","六","日"];
   L.innerHTML=(d.pairs||[]).map(function(p,i){
-    const strong=p.weekDays>0;
-    return '<div class="pr'+(strong?" strong":"")+'">'+
-      '<span class="rank">'+(i+1)+'</span>'+
-      '<span class="nm2"><span class="'+(p.aHere?"":"off")+'">'+p.aName+'</span>'+
-      '<i>＋</i><span class="'+(p.bHere?"":"off")+'">'+p.bName+'</span></span>'+
-      '<span class="dd"><b>'+p.weekDays+'</b> / '+p.weekTotal+' 天</span></div>';
-  }).join("") || '<p class="pb-tip" style="margin:0">本周还没有人成对。</p>';
+    const lit=p.weekDays, strong=lit>0;
+    const dots=(p.days||[]).map(function(x,j){
+      const both=x.a&&x.b, half=(x.a||x.b)&&!both;
+      const today=j===(p.days.length-1);
+      return '<span class="dot7'+(both?" on":half?" half":"")+(today?" today":"")+'">'+
+             '<i>'+WD[j]+'</i></span>';
+    }).join("");
+    return '<div class="knot'+(p.broken?" broken":strong?" strong":"")+'">'+
+      '<div class="knot-top">'+
+        '<span class="kn '+(p.aHere?"on":"")+'">'+p.aName+'</span>'+
+        '<span class="link"><b></b></span>'+
+        '<span class="kn '+(p.bHere?"on":"")+'">'+p.bName+'</span>'+
+      '</div>'+
+      '<div class="week7">'+dots+'</div>'+
+      '<div class="knot-foot">这周一起来了 <b>'+lit+'</b> 天'+
+        (p.broken?'　<span class="tag-x">已解除</span>':
+         p.started?'　<span class="tag-go">已开始</span>':
+                   '　<span class="tag-w">还没开始</span>')+'</div>'+
+      (p.broken?'':
+        p.quitBy
+          ? '<div class="knot-act"><span>'+(p.quitBy===p.a?p.aName:p.bName)+
+            ' 想散伙了。对方点头才算数。</span>'+
+            '<button class="agree" data-agree="'+(p.quitBy===p.a?p.b:p.a)+'">我同意</button></div>'
+          : (p.started
+              ? '<div class="knot-act"><span>开始了就不能重选。真要散，得对方同意。</span>'+
+                '<button class="quit" data-quit="'+p.a+'">'+p.aName+' 提散伙</button>'+
+                '<button class="quit" data-quit="'+p.b+'">'+p.bName+' 提散伙</button></div>'
+              : '<div class="knot-act"><span>还没开始，选错了可以改。</span>'+
+                '<button class="undo" data-undo="'+p.a+'" data-undo2="'+p.b+'">重选</button></div>'))+
+      '</div>';
+  }).join("") || '<div class="knot empty"><div class="knot-top">'+
+      '<span class="kn ghost">谁</span><span class="link"><b></b></span>'+
+      '<span class="kn ghost">谁</span></div>'+
+      '<div class="knot-foot">本周还没有人成对。两个人选中彼此，才算一对。</div></div>';
 
   let html="";
   if((d.asked||[]).length){
@@ -606,11 +719,11 @@ async function renderPairs(){
       const me=(d.free||[]).find(f=>f.id===picking)||{name:""};
       const others=(d.free||[]).filter(f=>f.id!==picking);
       h+='<div class="pk"><span class="who2">'+me.name+'，想跟谁做这周的搭子？</span>'+
-        others.map(o=>'<button class="go2" data-pick="'+o.id+'">'+o.name+'</button>').join("")+
+        others.map(o=>'<button class="go2" data-pick="'+o.id+'" title="'+o.name+'">'+shortName(o.name)+'</button>').join("")+
         '<button class="cancel" data-cancel="1">算了</button></div>';
     }else if((d.free||[]).length){
       h+='<div class="pk"><span class="who2">还没选搭子的，点自己的名字：</span>'+
-        d.free.map(f=>'<button data-me="'+f.id+'">'+f.name+'</button>').join("")+'</div>';
+        d.free.map(f=>'<button data-me="'+f.id+'" title="'+f.name+'">'+shortName(f.name)+'</button>').join("")+'</div>';
     }
     P.innerHTML=h;
     [...P.querySelectorAll("button[data-me]")].forEach(b=>b.onclick=()=>{picking=b.dataset.me;paint()});
@@ -626,6 +739,49 @@ async function renderPairs(){
     });
   }
   paint();
+  /* 老板 2026-08-15 定的规矩：没开始能重选；开始了要散伙得对方点头；
+     散过的这周就当不成第一（服务端已经把它排到最后）。 */
+  async function act(url, body){
+    const r=await (await fetch(API+url,{method:"POST",
+      headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})).json();
+    if(r.why==="started")alert("已经开始了，不能直接换。真要散，得对方同意。");
+    renderPairs();
+  }
+  [...L.querySelectorAll("button[data-undo]")].forEach(b=>b.onclick=async()=>{
+    if(!confirm("重选搭子？这一对会解开。"))return;
+    await act("/fam/pair",{who:b.dataset.undo,partner:""});
+    await act("/fam/pair",{who:b.dataset.undo2,partner:""});
+  });
+  [...L.querySelectorAll("button[data-quit]")].forEach(b=>b.onclick=async()=>{
+    if(!confirm("提出散伙？对方同意之后，这周你们就当不成第一了。"))return;
+    await act("/fam/quit",{who:b.dataset.quit});
+  });
+  [...L.querySelectorAll("button[data-agree]")].forEach(b=>b.onclick=async()=>{
+    if(!confirm("同意散伙？散了就不能反悔，这周的成绩也不算了。"))return;
+    await act("/fam/quit",{who:b.dataset.agree,agree:true});
+  });
+}
+
+/* 中文名取后两字，拉丁名取前两字 —— 之前一律取末两字，Amina 成了 "na"。 */
+function shortName(n){
+  return /^[\x00-\x7f]+$/.test(n) ? n.slice(0,2) : n.slice(-2);
+}
+
+/* ── 玩闹一小会儿 ──
+   老板：「不对话的时候让他们在屏幕来回跑，一起玩耍」。
+   每说三轮话，插一段六秒的追逐，跑完接着说。不抢话，只在空档里跑。 */
+let rompN=0;
+function rompMaybe(box, cl){
+  rompN++;
+  if(rompN % 3 !== 0) return false;
+  const keep=box.className;
+  box.className=keep+" romp";
+  cl.innerHTML='<small class="romp-tip">（两只跑起来了）</small>';
+  setTimeout(function(){
+    box.className=keep;
+    if(catNext)catNext();
+  },6200);
+  return true;
 }
 </script>
 </body>
