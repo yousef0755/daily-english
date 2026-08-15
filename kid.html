@@ -1623,6 +1623,12 @@ function openRecite(sub){
   const day=Math.floor(Date.now()/86400000);
   rIdx=(D.recitePos&&D.recitePos[sub]!=null)?D.recitePos[sub]:0;
   if(rIdx>=pack.list.length)rIdx=0;
+  /* 成语：直接落到今天这三个里还没念够的那一个，省得他自己找（老板 2026-08-15） */
+  if(sub==="idiom"){
+    const today=idiomToday(), left=idiomLeft();
+    if(today.indexOf(rIdx)<0) rIdx = left.length ? left[0] : today[0];
+    else if(readGot("idiom",rIdx,0)>=READ_GOAL && left.length) rIdx=left[0];
+  }
   document.getElementById("quizCard").style.display="none";
   document.getElementById("reciteCard").style.display="block";
   renderRecite();
@@ -1633,7 +1639,10 @@ function renderRecite(){
   document.getElementById("rTitle").textContent=pack.title+" · "+item.name;
   const pick=document.getElementById("rPick");
   pick.innerHTML="";
-  pack.list.forEach((x,k)=>{
+  /* 成语一天只给三个，别把 20 个全铺出来让他挑（老板 2026-08-15） */
+  const showIdx = (rSub==="idiom") ? idiomToday() : pack.list.map(function(_,k){return k});
+  showIdx.forEach((k)=>{
+    const x=pack.list[k];
     const b=document.createElement("button");
     b.className="pill"+(k===rIdx?" on":"");
     b.style.cssText="border:1px solid var(--line);border-radius:14px;padding:5px 12px;margin:0 6px 6px 0;font-size:.8rem;font-family:inherit;cursor:pointer;"+
@@ -1650,6 +1659,12 @@ function renderRecite(){
     b.onclick=()=>{rIdx=k;rHidden=false;D.recitePos=D.recitePos||{};D.recitePos[rSub]=k;save();renderRecite()};
     pick.appendChild(b);
   });
+  /* 今天这三个走到第几个了，写在标题上，别让他自己数 */
+  if(rSub==="idiom"){
+    const t=idiomToday(), pos=t.indexOf(rIdx);
+    if(pos>=0) document.getElementById("rTitle").textContent=
+      pack.title+" · 今天第 "+(pos+1)+"/"+IDIOM_PER_DAY+" 个 · "+item.name.split(/\s{2,}/)[0];
+  }
   const box=document.getElementById("rLines");box.innerHTML="";
   /* 成语：要念的是成语本身 */
   if(rSub==="idiom"){
@@ -1936,6 +1951,11 @@ const DIARY_SUBS=[["poem","语文古诗"],["idiom","成语"],["arabic","阿拉�
 function subDoneToday(sub){
   if(sub==="math"){ return ((D.mathDone||{})[todayKey()]===1) }
   const rd=D.reciteDone||{}, pre=todayKey()+"_"+sub+"_";
+  /* 成语一天三个，三个都念够才算这门过——不然他念完第一个就打勾，
+     剩下两个白摆（老板 2026-08-15：「成语，一天3个吧」）。 */
+  if(sub==="idiom" && typeof idiomToday==="function"){
+    return idiomToday().every(function(k){ return (rd[pre+k]||0)>=3 });
+  }
   for(const k in rd){ if(k.indexOf(pre)===0 && rd[k]>=3) return true }
   return false;
 }
@@ -3095,6 +3115,19 @@ function finishRecite(){
   addStar(rSub==="quran"?3:2);
   toast("这一段每句都念够十遍了 +"+(rSub==="quran"?3:2)+" ⭐");
   const pack=RECITE[rSub];
+  /* 成语走今天这三个，不是整个 20 个的队列（老板 2026-08-15） */
+  if(rSub==="idiom"){
+    const left=idiomLeft();
+    if(left.length){
+      setTimeout(function(){ rIdx=left[0]; rHidden=false;
+        D.recitePos=D.recitePos||{}; D.recitePos.idiom=rIdx; save(); renderRecite();
+        toast("今天还剩 "+left.length+" 个：" + pack.list[rIdx].name.split(/\s{2,}/)[0]) },1200);
+    }else{
+      setTimeout(function(){ toast("今天三个成语都念完了") },1200);
+    }
+    try{renderWalk()}catch(e){}
+    return;
+  }
   if(rIdx<pack.list.length-1){
     setTimeout(function(){ rIdx++; rHidden=false;
       D.recitePos=D.recitePos||{}; D.recitePos[rSub]=rIdx; save(); renderRecite();
@@ -3181,6 +3214,25 @@ function wireRead(btn, getText, sub, idx, li, onOk){
   addEventListener("resize",navh);
   addEventListener("orientationchange",function(){setTimeout(navh,300)});
 })();
+
+/* ═══ 成语一天三个（老板 2026-08-15：「成语，一天3个吧」）═══
+   哪三个由「第几天」算出来，跟刷新无关；一天一挪三个，20 个转一圈。 */
+const IDIOM_PER_DAY = 3;
+function idiomToday(){
+  const pack=RECITE.idiom, n=pack.list.length;
+  const day=Math.floor((Date.now()+4*3600000)/86400000);   /* 按迪拜时间算这一天 */
+  const start=(day*IDIOM_PER_DAY)%n;
+  const out=[];
+  for(let i=0;i<IDIOM_PER_DAY;i++) out.push((start+i)%n);
+  return out;
+}
+/* 今天这三个里，还有哪个没念够 */
+function idiomLeft(){
+  return idiomToday().filter(function(k){
+    const it=RECITE.idiom.list[k];
+    return readGot("idiom",k,0) < READ_GOAL;
+  });
+}
 </script>
 </body>
 </html>
