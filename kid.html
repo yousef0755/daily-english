@@ -264,6 +264,9 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 .kcat.returning{animation:kcomeback .9s ease-out}
 @keyframes kcomeback{from{transform:translateX(70px);opacity:0}to{transform:translateX(0);opacity:1}}
 @media (prefers-reduced-motion:reduce){.kcat.poked,.kcat.purring,.kcat.leaving,.kcat.returning{animation:none !important;transition:none !important;transform:none !important;opacity:1 !important}}
+
+#strokeSpeak{border-color:var(--mint) !important;color:var(--mint) !important}
+.strokeBar button.go{background:var(--gold);color:#231a05;font-weight:700}
 </style>
 </head>
 <body>
@@ -411,8 +414,8 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <div style="display:flex;justify-content:center"><div id="strokeBox">
   <svg id="strokeSvg" viewBox="0 0 1024 1024"></svg>
   <div class="strokeBar">
-    <button type="button" id="strokeDemoBtn">看笔顺</button>
-    <button type="button" id="strokeFollowBtn">跟着写</button>
+    <button type="button" id="strokeSpeak">🔊 读一遍</button>
+    <button type="button" id="strokeFollowBtn" class="go">跟着写</button>
     <button type="button" id="strokeNext" style="display:none">下一笔</button>
   </div>
   <div id="strokeTip"></div>
@@ -1689,10 +1692,10 @@ function strokeFollow(ch){
 
 /* 点开一个生字 → 笔顺跟着换 */
 (function(){
-  var db=document.getElementById("strokeDemoBtn"), fb=document.getElementById("strokeFollowBtn");
+  var fb=document.getElementById("strokeFollowBtn");
   function cur(){ return (typeof padChar!=="undefined"&&padChar) ? padChar
                  : (window.__curHanzi||null); }
-  if(db)db.onclick=function(){var c=cur(); if(c)strokeDemo(c)};
+  /* 看笔顺按钮已按老板要求去掉，只留跟着写 */
   if(fb)fb.onclick=function(){var c=cur(); if(c)strokeFollow(c)};
   /* 包住原来的开笔函数，记住当前是哪个字并预渲染 */
   if(typeof window.openPad==="function"){
@@ -1880,6 +1883,23 @@ function purr(who){
     el.addEventListener("touchend",function(e){e.preventDefault();up(e)});
     el.addEventListener("mouseleave",function(){clearTimeout(t)});
   });
+})();
+
+/* 生字朗读（老板：生字那边弄个播音）——用云夏那批已生成的音频 */
+(function(){
+  var sp=document.getElementById("strokeSpeak");
+  function cur(){ return (typeof padZ!=="undefined"&&padZ&&padZ.z) ? padZ.z
+                 : (window.__curHanzi||null); }
+  if(sp)sp.onclick=function(){ var c=cur(); if(c&&typeof speakRoster==="function")speakRoster(c) };
+  /* 打开一个字时自动念一遍，孩子先听见再动笔 */
+  if(typeof window.openPad==="function"){
+    var _o=window.openPad;
+    window.openPad=function(ch){
+      var r=_o.apply(this,arguments);
+      setTimeout(function(){ if(ch&&typeof speakRoster==="function")speakRoster(ch) },220);
+      return r;
+    };
+  }
 })();
 </script>
 </body>
