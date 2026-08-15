@@ -520,6 +520,7 @@ async function load(){
         if(note)note.innerHTML='<b>这是 '+sn.at+' 的样子。</b>'+
           '现在连不上家里那台电脑，看到的不是实时的。'+
           '打卡和选搭子要在家里的 wifi 上才能做，小林正在把这块搬到网上。';
+        try{ if(sn.pairs)paintPairs(sn.pairs, true) }catch(e3){}
         document.getElementById("foot").textContent=sn.at+" 的快照 · 不是实时";
         return;
       }
@@ -713,7 +714,20 @@ async function renderPairs(){
   const box=document.getElementById("pairBox"); if(!box)return;
   let d;
   try{ d=await (await fetchT(API+"/fam/pairs",{cache:"no-store"},5000)).json() }
-  catch(e){ document.getElementById("pbTip").textContent="搭子这块暂时连不上，通了会自己回来。"; document.getElementById("pbList").innerHTML=""; document.getElementById("pbPick").innerHTML=""; return }
+  catch(e){
+    /* 连不上家里那台机器时，用快照里的搭子数据画 —— 快照里本来就存了，
+       我第一版只画了榜、忘了画搭子，凯问「本周搭子出不来」就是这个。 */
+    try{
+      const sn=await (await fetchT("./board-snapshot.json?cb="+Date.now(),{cache:"no-store"},5000)).json();
+      if(sn && sn.pairs){ paintPairs(sn.pairs, true); return }
+    }catch(e2){}
+    document.getElementById("pbTip").textContent="搭子这块暂时连不上，通了会自己回来。";
+    document.getElementById("pbList").innerHTML=""; document.getElementById("pbPick").innerHTML="";
+    return;
+  }
+  paintPairs(d, false);
+}
+function paintPairs(d, offline){
   document.getElementById("pbWeek").textContent=d.week||"";
   const L=document.getElementById("pbList"), P=document.getElementById("pbPick");
 
@@ -779,21 +793,18 @@ async function renderPairs(){
         }).join("")
       : "";
   }
-  let html="";
-  if((d.asked||[]).length){
-    html+='<div class="pk"><span class="who2">还在等对方点头：</span>'+
-      d.asked.map(a=>'<button disabled>'+a.aName+' 想约 '+a.bName+'</button>').join("")+'</div>';
-  }
-  if((d.free||[]).length){
-    html+='<div class="pk"><span class="who2">还没选搭子的，点自己的名字去选：</span>'+
-      d.free.map(f=>'<button data-me="'+f.id+'" data-nm="'+f.name+'">'+f.name+'</button>').join("")+'</div>';
-  }
-  P.innerHTML=html;
   /* 老板 2026-08-15 看了截图说「这个界面好丑」——原来用浏览器原生 prompt 弹窗，
      还得手打名字。手机上难用，博远十岁更打不来。改成点两下：
      先点自己，下面就出来能选的人，再点一个，成。 */
   let picking=null;
   function paint(){
+    /* 离线（读的是快照）时不给选人的入口 —— 点了也写不进去，
+       给个真按钮却按不动，比不给更糟。 */
+    if(offline){
+      P.innerHTML='<p class="pb-tip" style="margin:10px 0 0">'+
+        '这是快照。选搭子、打卡要在家里的 wifi 上做。</p>';
+      return;
+    }
     let h="";
     if((d.asked||[]).length){
       h+='<div class="pk"><span class="who2">还在等对方点头：</span>'+
@@ -805,11 +816,11 @@ async function renderPairs(){
       h+='<div class="pk"><span class="who2">'+me.name+'，想跟谁做这周的搭子？</span>'+
         others.map(o=>'<button class="go2" data-pick="'+o.id+'" title="'+o.name+'">'+shortName(o.name)+'</button>').join("")+
         '<button class="cancel" data-cancel="1">算了</button></div>';
-    }else if((d.free||[]).length){
+    }else if(!offline && (d.free||[]).length){
       h+='<div class="pk"><span class="who2">还没选搭子的，点自己的名字：</span>'+
         d.free.map(f=>'<button data-me="'+f.id+'" title="'+f.name+'">'+shortName(f.name)+'</button>').join("")+'</div>';
     }
-    P.innerHTML=h;
+      P.innerHTML=h;
     [...P.querySelectorAll("button[data-me]")].forEach(b=>b.onclick=()=>{picking=b.dataset.me;paint()});
     [...P.querySelectorAll("button[data-cancel]")].forEach(b=>b.onclick=()=>{picking=null;paint()});
     [...P.querySelectorAll("button[data-pick]")].forEach(function(b){
