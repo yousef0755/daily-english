@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 19:53",
+ "at": "2026-08-15 19:54",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -117,39 +117,28 @@
  "pairs": {
   "week": "2026-W33",
   "pairs": [],
-  "asked": [
-   {
-    "a": "manya",
-    "b": "boyuan",
-    "aName": "曼雅",
-    "bName": "博远"
-   },
-   {
-    "a": "amina",
-    "b": "baba",
-    "aName": "Amina",
-    "bName": "爸爸"
-   },
-   {
-    "a": "xiya",
-    "b": "baba",
-    "aName": "玺雅",
-    "bName": "爸爸"
-   },
-   {
-    "a": "boyuan",
-    "b": "baba",
-    "aName": "博远",
-    "bName": "爸爸"
-   },
-   {
-    "a": "feiya",
-    "b": "baba",
-    "aName": "霏雅",
-    "bName": "爸爸"
-   }
-  ],
+  "asked": [],
   "free": [
+   {
+    "id": "boyuan",
+    "name": "博远"
+   },
+   {
+    "id": "manya",
+    "name": "曼雅"
+   },
+   {
+    "id": "xiya",
+    "name": "玺雅"
+   },
+   {
+    "id": "feiya",
+    "name": "霏雅"
+   },
+   {
+    "id": "amina",
+    "name": "Amina"
+   },
    {
     "id": "baba",
     "name": "爸爸"
