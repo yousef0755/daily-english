@@ -395,6 +395,76 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   animation:rdpulse 1s ease-in-out infinite}
 .rbtn.done{border-color:rgba(126,214,178,.5);color:var(--mint);background:rgba(126,214,178,.12)}
 @keyframes rdpulse{0%,100%{opacity:1}50%{opacity:.72}}
+
+.readfoot{margin-left:8px;border:1px solid var(--line);background:rgba(255,255,255,.06);
+  color:var(--muted);border-radius:999px;padding:7px 14px;font-size:.82rem;
+  font-family:inherit;font-weight:600;white-space:nowrap}
+.readfoot.full{border-color:rgba(126,214,178,.5);color:var(--mint);background:rgba(126,214,178,.12)}
+.readrow.flash{animation:rdflash 1.4s ease}
+@keyframes rdflash{0%,100%{background:transparent}30%{background:rgba(255,212,121,.16)}}
+
+/* 行内那个「念 N/10」——排在喇叭前面 */
+.rbtn.inline{flex-shrink:0;padding:8px 12px;font-size:.8rem;
+  border-color:rgba(255,212,121,.45);color:var(--gold);background:rgba(255,212,121,.08)}
+.rbtn.inline.reading{background:#c0392b;color:#fff;border-color:#c0392b}
+.rbtn.inline.done{border-color:rgba(126,214,178,.5);color:var(--mint);background:rgba(126,214,178,.12)}
+
+/* ── 底下那一条（老板说要好看点）── */
+.recbar{display:flex !important;gap:0 !important;margin-top:16px !important;
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:rgba(255,255,255,.035)}
+.recbar #rHide{flex:0 0 40% !important;margin:0 !important;border:none !important;
+  border-radius:0 !important;background:transparent !important;color:var(--muted) !important;
+  font-size:.88rem !important;font-weight:600;padding:14px 10px !important;
+  border-right:1px solid var(--line) !important}
+.recbar #rHide:active{background:rgba(255,255,255,.06) !important}
+.readfoot{flex:1;margin:0 !important;border:none !important;border-radius:0 !important;
+  background:transparent !important;padding:11px 14px !important;
+  display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+  font-family:inherit;cursor:pointer}
+.readfoot .rf-t{font-size:.74rem;color:var(--muted);letter-spacing:.08em}
+.readfoot .rf-bar{display:block;width:100%;height:4px;border-radius:99px;
+  background:rgba(255,255,255,.09);overflow:hidden}
+.readfoot .rf-bar i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--gold),#ffe7ab);
+  transition:width .6s cubic-bezier(.2,.8,.3,1)}
+.readfoot .rf-n{font-size:.78rem;color:var(--cream);font-variant-numeric:tabular-nums}
+.readfoot.full .rf-bar i{background:linear-gradient(90deg,var(--gold),var(--mint))}
+.readfoot.full .rf-n{color:var(--mint)}
+.readfoot:active{background:rgba(255,255,255,.05) !important}
+
+/* ── 遮住的写法统一成「影子法」（老板 2026-08-15 指定）──
+   原来用 filter:blur(7px)，整块糊掉、边缘发虚。
+   改成把字设成透明、只留一层投影：排版一点不动，字影还在，
+   点一下过渡回来也顺。爸爸那页用的就是这个。 */
+.veil{color:transparent !important;text-shadow:0 0 10px rgba(243,239,226,.55);
+  cursor:pointer;user-select:none;transition:color .26s ease,text-shadow .26s ease}
+.veil:active{text-shadow:0 0 6px rgba(243,239,226,.75)}
+/* 用 inherit 会解析不出颜色，点开后字还是透明的——写死主题色 */
+.veil.off{color:var(--cream,#f3efe2) !important;text-shadow:none !important}
+.veil-ar{text-shadow:0 0 12px rgba(255,222,150,.55)}
+
+/* ── 听/录 一对（老板 2026-08-15：「按键设计小点，协调一点」）──
+   同样的高度、同样的圆角，图标一样大。听=金色，录=米色，录音中变红。 */
+.rbtn.inline{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+  height:34px;padding:0 12px;border-radius:11px;font-size:.78rem;font-weight:700;
+  font-variant-numeric:tabular-nums;line-height:1;cursor:pointer;
+  border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--cream);
+  transition:background .15s,border-color .15s,color .15s}
+.rbtn.inline svg{flex-shrink:0}
+.rbtn.inline b{font-weight:700;letter-spacing:.02em}
+.rbtn.inline.listen{border-color:rgba(255,212,121,.55);
+  background:rgba(255,212,121,.1);color:var(--gold);padding:0 11px}
+.rbtn.inline.reading{background:#c0392b;color:#fff;border-color:#c0392b;
+  animation:rdpulse 1s ease-in-out infinite}
+.rbtn.inline.done{border-color:rgba(126,214,178,.5);color:var(--mint);
+  background:rgba(126,214,178,.12)}
+
+/* 现代文解释（老板 2026-08-15 指了爸爸那页的样子：浅底块 + 左边一道金杠） */
+.meanbox{flex-basis:100%;margin-top:9px;padding:10px 14px;
+  background:rgba(255,212,121,.07);border-left:3px solid rgba(255,212,121,.65);
+  border-radius:4px 12px 12px 4px;font-size:.85rem;line-height:1.9;color:var(--cream);
+  opacity:.9}
 </style>
 </head>
 <body>
@@ -559,7 +629,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <div class="tip" id="rTip" style="text-align:left;color:var(--muted)"></div>
       <div style="display:flex;gap:8px;margin-top:14px">
         <button class="main" id="rHide" style="flex:1">遮住背一遍</button>
-        <div id="readBox" style="flex:1"></div>
+        
       </div>
       <div class="tip" id="rProg" style="margin-top:8px"></div>
     </div>
@@ -798,10 +868,13 @@ idiom:{title:"成语",unit:"语文 · 常用成语",list:[
 ]},
  poem:{title:"古诗背诵",unit:"语文 · 第4课",list:[
  {name:"《山行》 杜牧",lines:["远上寒山石径斜，","白云生处有人家。","停车坐爱枫林晚，","霜叶红于二月花。"],
+  mean:["一条石头小路弯弯曲曲，一直伸向深秋的远山。", "白云升起的地方，隐隐约约住着几户人家。", "我停下车，只因为爱看这傍晚的枫树林。", "被秋霜打过的枫叶，比二月的春花还要红。"],
   tip:"深秋的山，一条石头小路弯弯上去，白云飘着的地方有人家。"},
  {name:"《赠刘景文》 苏轼",lines:["荷尽已无擎雨盖，","菊残犹有傲霜枝。","一年好景君须记，","正是橙黄橘绿时。"],
+  mean:["荷花谢了，连那像伞一样挡雨的荷叶也没有了。", "菊花残了，可枝条还挺着，不怕寒霜。", "一年里最好的景色，你一定要记住。", "就是橙子发黄、橘子还绿的这个时候。"],
   tip:"荷花谢了，菊花也残了，但一年最好的景色，正是橙子黄、橘子绿的时候。"},
  {name:"《夜书所见》 叶绍翁",lines:["萧萧梧叶送寒声，","江上秋风动客情。","知有儿童挑促织，","夜深篱落一灯明。"],
+  mean:["风吹梧桐叶沙沙作响，送来一阵阵寒意。", "江面上的秋风，勾起了在外面的人想家的心情。", "猜想是有小孩在拨弄蟋蟀，逗它们玩。", "夜深了，篱笆那边还亮着一盏灯。"],
   tip:"秋风吹梧桐叶，江上很冷。远处有小孩在捉蟋蟀，深夜篱笆边一盏灯还亮着。"}
 ]},
 arabic:{title:"阿拉伯语",unit:"日常用语 · 迪拜天天用得上",list:[
@@ -1468,11 +1541,51 @@ function renderRecite(){
     b.className="pill"+(k===rIdx?" on":"");
     b.style.cssText="border:1px solid var(--line);border-radius:14px;padding:5px 12px;margin:0 6px 6px 0;font-size:.8rem;font-family:inherit;cursor:pointer;"+
       (k===rIdx?"background:var(--gold);color:#20130a;font-weight:700":"background:rgba(243,239,226,.06);color:var(--muted)");
-    b.textContent=x.name.split(" ")[0];
+    /* 老板 2026-08-15：英语那三段全显示成 "Day"，分不出 Day 1/2/3。
+       原来取的是空格前第一段——中文名没事，英文名就废了。
+       改成取「·」前面那一整段，没有「·」才退回按空格切。 */
+    b.textContent=(function(n){
+      const t=String(n||"");
+      if(t.indexOf("·")>=0) return t.split("·")[0].trim();
+      const parts=t.trim().split(/\s+/);
+      return (parts.length>1 && /^[A-Za-z]+$/.test(parts[0])) ? parts.slice(0,2).join(" ") : parts[0];
+    })(x.name);
     b.onclick=()=>{rIdx=k;rHidden=false;D.recitePos=D.recitePos||{};D.recitePos[rSub]=k;save();renderRecite()};
     pick.appendChild(b);
   });
   const box=document.getElementById("rLines");box.innerHTML="";
+  /* 成语：要念的是成语本身 */
+  if(rSub==="idiom"){
+    const word=(item.name||"").split(/\s{2,}/)[0].trim();
+    const wrap=document.createElement("div");
+    wrap.style.cssText="padding:14px 0;border-bottom:1px dashed var(--line)";
+    const w=document.createElement("div");
+    w.style.cssText="font-size:1.5rem;letter-spacing:.12em;font-weight:700;flex:1";
+    w.textContent=word;
+    if(rHidden){ w.classList.add("veil");
+      w.onclick=function(){w.classList.add("off")} }
+    /* 成语这一行也做成「一个听、一个录」，跟别的门统一（老板 2026-08-15） */
+    const hd3=document.createElement("div");
+    hd3.style.cssText="display:flex;align-items:center;gap:10px;flex-wrap:wrap";
+    const sp3=document.createElement("button");
+    sp3.className="rbtn inline listen"; sp3.type="button";
+    sp3.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+    sp3.onclick=function(){ if(typeof speakRoster==="function")speakRoster(word) };
+    const rb3=makeReadBtn(rSub,rIdx,0);
+    hd3.appendChild(w); hd3.appendChild(sp3); hd3.appendChild(rb3);
+    wrap.appendChild(hd3);
+    const rr3=document.createElement("div");
+    rr3.className="readrow"; rr3.id="rd_"+rSub+"_"+rIdx+"_0";
+    rr3.innerHTML='<span class="rdots"></span><span class="rcnt"></span>';
+    wireRead(rb3, function(){return word}, rSub, rIdx, 0, function(how){
+      const n=readBump(rSub,rIdx,0);
+      toast(how+"　"+n+"/"+READ_GOAL);
+      renderReadFoot();
+      if(n>=READ_GOAL){ try{ finishRecite() }catch(e){} }
+    });
+    wrap.appendChild(rr3); box.appendChild(wrap);
+    setTimeout(function(){ renderReadRow(rSub,rIdx,0) },0);
+  }
   if(item.hadith&&item.hadith.length){
     window.__pendingHadith=item.hadith;
   }else{window.__pendingHadith=null}
@@ -1485,43 +1598,37 @@ function renderRecite(){
   item.lines.forEach((ln,k)=>{
     if(typeof ln==="object"){
       const d=document.createElement("div");
-      d.style.cssText="padding:14px 0;border-bottom:1px dashed var(--line)";
+      d.style.cssText="padding:14px 0;border-bottom:1px dashed var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap";
       const row=document.createElement("div");
       row.style.cssText="display:flex;align-items:center;gap:10px";
       const ar=document.createElement("div");
-      ar.style.cssText="flex:1;font-size:1.35rem;line-height:2;direction:rtl;text-align:right;"+(rHidden?"filter:blur(7px);cursor:pointer":"");
+      ar.style.cssText="flex:1;font-size:1.35rem;line-height:2;direction:rtl;text-align:right;";
       ar.textContent=ln.ar;
-      if(rHidden)ar.onclick=()=>{ar.style.filter="none";ar.style.cursor="default"};
+      if(rHidden){ ar.classList.add("veil","veil-ar");
+        ar.onclick=()=>{ar.classList.add("off")} }
       const b=document.createElement("button");
       b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
-      b.style.cssText="border:1px solid var(--gold);background:rgba(255,212,121,.1);color:var(--gold);border-radius:11px;padding:8px 13px;font-size:1rem;cursor:pointer;flex-shrink:0";
+      b.className="rbtn inline listen"; b.type="button";
       b.onclick=()=>{if(typeof speakRoster==="function")speakRoster(ln.ar)};
-      row.appendChild(ar);row.appendChild(b);d.appendChild(row);
+      /* 老板 2026-08-15：「阿拉伯语在他的播放音量前面设置一个按键朗读10遍」
+         —— 所以这个按钮放进同一行，排在喇叭前面，不再单独占一行。 */
+      const inb=makeReadBtn(rSub,rIdx,k);
+      row.appendChild(ar); row.appendChild(inb); row.appendChild(b);
+      d.appendChild(row);
       /* 老板 2026-08-15：不用背了，每句念十遍就过。这一排就是那十遍。 */
       const rr=document.createElement("div");
       rr.className="readrow"; rr.id="rd_"+rSub+"_"+rIdx+"_"+k;
-      rr.innerHTML='<span class="rdots"></span><span class="rcnt"></span>'+
-                   '<button class="rbtn" type="button">按住念一遍</button>';
-      const rb=rr.querySelector(".rbtn");
-      const startFn=function(ev){ if(ev&&ev.preventDefault)ev.preventDefault();
-        if(readGot(rSub,rIdx,k)>=READ_GOAL){toast("这句已经念够十遍了");return}
-        readStart(rb, ln.ar, rSub, rIdx, k) };
-      const stopFn=function(ev){ if(ev&&ev.preventDefault)ev.preventDefault();
-        readStop(rb, ln.ar, rSub, rIdx, k, function(how){
-          const n=readBump(rSub,rIdx,k);
-          toast(how+"　"+n+"/"+READ_GOAL);
-          if(n>=READ_GOAL){
-            /* 念够十遍 = 这一句过。整段每句都过，这一段就算做完 */
-            const all=item.lines.every(function(x,i){
-              return (typeof x!=="object") || readGot(rSub,rIdx,i)>=READ_GOAL });
-            if(all){ try{ finishRecite() }catch(e){} }
-          }
-        }) };
-      rb.addEventListener("mousedown",startFn);
-      rb.addEventListener("mouseup",stopFn);
-      rb.addEventListener("mouseleave",function(){ if(rdOn)stopFn() });
-      rb.addEventListener("touchstart",startFn,{passive:false});
-      rb.addEventListener("touchend",stopFn);
+      rr.innerHTML='<span class="rdots"></span><span class="rcnt"></span>';
+      wireRead(inb, function(){return ln.ar}, rSub, rIdx, k, function(how){
+        const n=readBump(rSub,rIdx,k);
+        toast(how+"　"+n+"/"+READ_GOAL);
+        if(typeof renderReadFoot==="function")renderReadFoot();
+        if(n>=READ_GOAL){
+          const all=item.lines.every(function(x,i){
+            return (typeof x!=="object") || readGot(rSub,rIdx,i)>=READ_GOAL });
+          if(all){ try{ finishRecite() }catch(e){} }
+        }
+      });
       d.appendChild(rr);
       setTimeout(function(){ renderReadRow(rSub,rIdx,k) },0);
       const zh=document.createElement("div");
@@ -1535,23 +1642,60 @@ function renderRecite(){
       box.appendChild(d);return;
     }
     const d=document.createElement("div");
-    d.style.cssText="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px dashed var(--line)";
+    d.style.cssText="padding:12px 0;border-bottom:1px dashed var(--line)";
+    /* 第一排：句子 + 听 + 录。解释和十个点各自另起一排，不跟它挤。 */
+    const hd=document.createElement("div");
+    hd.style.cssText="display:flex;align-items:center;gap:10px";
     const txt=document.createElement("div");
     txt.style.cssText="flex:1;font-size:"+(rSub==="quran"?"1.35rem":"1.1rem")+";line-height:1.9;"+
       (rSub==="quran"?"direction:rtl;text-align:right;":"")+
-      (rHidden?"filter:blur(7px);cursor:pointer":"");
+      "";
     txt.textContent=ln;
-    if(rHidden)txt.onclick=()=>{txt.style.filter="none";txt.style.cursor="default"};
+    if(rHidden){ txt.classList.add("veil");
+      txt.onclick=()=>{txt.classList.add("off")} }
     const b=document.createElement("button");
     b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
-    b.style.cssText="border:1px solid var(--gold);background:rgba(255,212,121,.1);color:var(--gold);border-radius:11px;padding:8px 13px;font-size:1rem;cursor:pointer;flex-shrink:0";
+    b.className="rbtn inline listen"; b.type="button";
     b.onclick=()=>{if(typeof speakRoster==="function")speakRoster(ln.replace(/ — .*/,""))};
-    d.appendChild(txt);d.appendChild(b);box.appendChild(d);
+    /* 老板 2026-08-15：「语文也是在音量后面设置一个读10遍」——
+       跟阿语一样，按钮放进同一行，挨着喇叭。 */
+    const inb2=makeReadBtn(rSub,rIdx,k);
+    hd.appendChild(txt);hd.appendChild(b);hd.appendChild(inb2);
+    d.appendChild(hd);
+    /* 老板 2026-08-15：「古诗带上现代文的解释」——跟在这句下面，
+       遮住的时候它不遮，靠意思想起原句。 */
+    if(item.mean&&item.mean[k]){
+      const mn=document.createElement("div");
+      mn.className="meanbox";
+      mn.textContent=item.mean[k];
+      d.appendChild(mn);
+    }
+    /* 老板 2026-08-15：「博远的古诗，让他每句念10遍」——
+       原来只有阿语那种带 .ar 的行有这一排，古诗是纯文本行，漏了。
+       但成语这门例外：它的 lines 是「意思」和「例句」，成语本身在标题里。
+       老板说把这两条去掉——该练的是成语，不是解释。所以成语只在标题下放一排。 */
+    if(rSub==="idiom"){ box.appendChild(d); return }
+    const rr2=document.createElement("div");
+    rr2.className="readrow"; rr2.id="rd_"+rSub+"_"+rIdx+"_"+k;
+    rr2.innerHTML='<span class="rdots"></span><span class="rcnt"></span>';
+    wireRead(inb2, function(){return readTarget(ln)}, rSub, rIdx, k, function(how){
+      const n=readBump(rSub,rIdx,k);
+      toast(how+"　"+n+"/"+READ_GOAL);
+      renderReadFoot();
+      if(n>=READ_GOAL){
+        const all=item.lines.every(function(x,i){ return readGot(rSub,rIdx,i)>=READ_GOAL });
+        if(all){ try{ finishRecite() }catch(e){} }
+      }
+    });
+    d.appendChild(rr2);
+    setTimeout(function(){ renderReadRow(rSub,rIdx,k) },0);
+    box.appendChild(d);
   });
   document.getElementById("rTip").textContent="💡 "+item.tip;
   const done=(D.reciteDone||{})[todayKey()+"_"+rSub+"_"+rIdx]||0;
   document.getElementById("rProg").textContent=done>=3?"这一段今天背对 3 遍了 ✓ 很棒！":("今天背对了 "+done+" / 3 遍");
-  document.getElementById("rHide").textContent=rHidden?"显示出来":"遮住背一遍";
+  document.getElementById("rHide").textContent=rHidden?"显示出来":"遮住";
+  renderReadFoot();
   /* 相关圣训：每条标出处，编号只作索引，集子名为准 */
   if(window.__pendingHadith){
     const hw=document.createElement("div");
@@ -2650,8 +2794,15 @@ function arBare(t){
    毫不相干的话居然有 54%，超过 50% 就能蒙过去——阿语常用字母就那几个，
    按字符袋比，孩子随便说句阿语都能过。那个门槛是假的。
    二元组看的是"字母的先后搭配"，蒙不过去。 */
+function isAr(t){ return /[\u0600-\u06ff]/.test(String(t||"")) }
+/* 英语那门的行是 "school — 学校"，要念的、要比的都是破折号前面那半 */
+function readTarget(t){ return String(t||"").replace(/\s*—.*$/,"").trim() }
+/* 中文只留汉字来比；阿语走原来那套去音符 */
+function zhBare(t){ return String(t||"").replace(/[^\u4e00-\u9fff]/g,"") }
+function enBare(t){ return String(t||"").toLowerCase().replace(/[^a-z]/g,"") }
 function bigrams(t){
-  t=arBare(t); const out=[];
+  t = isAr(t) ? arBare(t) : (/[\u4e00-\u9fff]/.test(t) ? zhBare(t) : enBare(t));
+  const out=[];
   for(let i=0;i<t.length-1;i++) out.push(t.slice(i,i+2));
   return out;
 }
@@ -2673,10 +2824,11 @@ function readBump(sub,idx,li){
   return D.readN[k];
 }
 
+let rdBtn=null, rdArgs=null;
 let rdOn=false, rdCtx=null, rdStream=null, rdProc=null,
     rdPts=0, rdLoud=0, rdT0=0, rdRec=null, rdHeard="";
 
-async function readStart(btn, text, sub, idx, li){
+async function readStart(btn, text, sub, idx, li, onOk){
   if(rdOn)return;
   try{
     if(!rdStream)rdStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
@@ -2691,19 +2843,29 @@ async function readStart(btn, text, sub, idx, li){
     rdProc.connect(g); g.connect(rdCtx.destination);
   }
   rdPts=0; rdLoud=0; rdT0=Date.now(); rdOn=true; rdHeard="";
+  rdBtn=btn; rdArgs={text:text,sub:sub,idx:idx,li:li,onOk:onOk};
+  let spoke=0, lastLoud=0;
   rdProc.onaudioprocess=function(e){
     if(!rdOn)return;
     const d=e.inputBuffer.getChannelData(0);
     let r=0; for(let i=0;i<d.length;i++)r+=d[i]*d[i];
     r=Math.sqrt(r/d.length); rdPts++;
-    if(r>0.012)rdLoud++;
+    const now=Date.now();
+    if(r>0.012){ rdLoud++; spoke=1; lastLoud=now }
+    /* 自动收尾（老板：「不说话自动跳起来」）：
+       开口过 + 静了 1.1 秒 → 停；一直没出声 4 秒 → 也停，顺便提醒他大点声。
+       从头到尾最多 20 秒，别让它一直开着。 */
+    if(spoke && lastLoud && now-lastLoud>1100) readFinish();
+    else if(!spoke && now-rdT0>4000) readFinish();
+    else if(now-rdT0>20000) readFinish();
   };
-  /* 能识别就顺手识别，识别不了也不影响念 */
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(SR){
     try{
       rdRec=new SR();
-      rdRec.lang="ar-SA"; rdRec.interimResults=false; rdRec.maxAlternatives=3;
+      rdRec.lang = (sub==="quran"||sub==="arabic") ? "ar-SA"
+                 : (sub==="english") ? "en-US" : "zh-CN";
+      rdRec.interimResults=false; rdRec.maxAlternatives=3;
       rdRec.onresult=function(ev){
         for(let i=0;i<ev.results.length;i++)
           for(let j=0;j<ev.results[i].length;j++)
@@ -2714,7 +2876,13 @@ async function readStart(btn, text, sub, idx, li){
     }catch(e){ rdRec=null }
   }
   btn.classList.add("reading");
-  btn.textContent="正在听…松手";
+  btn.innerHTML=MIC_SVG+'<b>在听…</b>';
+}
+/* 收尾只走这一条路：自动停、再点一下、切换课文，都从这儿走 */
+function readFinish(){
+  if(!rdOn||!rdBtn||!rdArgs)return;
+  const a=rdArgs, btn=rdBtn;
+  readStop(btn, a.text, a.sub, a.idx, a.li, a.onOk);
 }
 
 function readStop(btn, text, sub, idx, li, onOk){
@@ -2723,6 +2891,8 @@ function readStop(btn, text, sub, idx, li, onOk){
   if(rdProc)rdProc.onaudioprocess=null;
   if(rdRec){ try{rdRec.stop()}catch(e){} }
   btn.classList.remove("reading");
+  rdBtn=null; rdArgs=null;
+  readBtnFace(btn, readGot(sub,idx,li));
   const sec=(Date.now()-rdT0)/1000;
   const ratio=rdPts?(rdLoud/rdPts):0;
   const need=Math.max(2, Math.round(arBare(text).length*0.16));   /* 这句大概要念多久 */
@@ -2754,9 +2924,19 @@ function renderReadRow(sub, idx, li){
   }).join("");
   row.querySelector(".rdots").innerHTML=dots;
   const b=row.querySelector(".rbtn");
-  b.textContent = n>=READ_GOAL ? "这句念够了" : "按住念一遍";
-  b.classList.toggle("done", n>=READ_GOAL);
-  row.querySelector(".rcnt").textContent = n+" / "+READ_GOAL;
+  if(b){
+    b.textContent = n>=READ_GOAL ? "这句念够了" : "按住念一遍";
+    b.classList.toggle("done", n>=READ_GOAL);
+  }
+  /* 阿语那种按钮在上一行里，单独找 */
+  const inline=row.previousElementSibling &&
+               row.previousElementSibling.querySelector &&
+               row.previousElementSibling.querySelector(".rbtn.inline");
+  if(inline){
+    inline.textContent = n>=READ_GOAL ? "念够了" : ("念 "+n+"/"+READ_GOAL);
+    inline.classList.toggle("done", n>=READ_GOAL);
+  }
+  const c=row.querySelector(".rcnt"); if(c)c.textContent = n+" / "+READ_GOAL;
 }
 
 /* 这一段每句都念够十遍 → 这一段过。星星和进下一段沿用原来的规矩。 */
@@ -2774,6 +2954,74 @@ function finishRecite(){
       toast("下一段：" + pack.list[rIdx].name.split(" ")[0]) },1200);
   }
   try{renderWalk()}catch(e){}
+}
+
+/* 底下那一条：左边「显示/遮住」是原来就有的，右边加一个「朗读十遍」的总数。
+   老板 2026-08-15：「最下面显示一个是显示，遮住。旁边的在弄一个按键显示朗读10遍」
+   点它会跳到下一句还没念够的，省得他自己找。 */
+function renderReadFoot(){
+  const host=document.getElementById("rHide");
+  if(!host||!host.parentNode)return;
+  let btn=document.getElementById("readFoot");
+  if(!btn){
+    /* 老板 2026-08-15：「你看下如何设计才更好看」——
+       原来这一排里还留着一个空的 div 占着半行，两个钮全挤在左边。
+       改成一条完整的横杠：左边遮住/显示，右边朗读进度，中间一条细线分开。 */
+    host.parentNode.classList.add("recbar");
+    btn=document.createElement("button");
+    btn.id="readFoot"; btn.className="readfoot";
+    btn.type="button";
+    btn.innerHTML='<span class="rf-t">朗读 10 遍</span>'+
+                  '<span class="rf-bar"><i></i></span>'+
+                  '<span class="rf-n"></span>';
+    host.parentNode.insertBefore(btn, host.nextSibling);
+    btn.onclick=function(){
+      const item=(RECITE[rSub]&&RECITE[rSub].list[rIdx])||{lines:[]};
+      for(let i=0;i<item.lines.length;i++){
+        if(readGot(rSub,rIdx,i)<READ_GOAL){
+          const row=document.getElementById("rd_"+rSub+"_"+rIdx+"_"+i);
+          if(row){ row.scrollIntoView({block:"center",behavior:"smooth"});
+                   row.classList.add("flash");
+                   setTimeout(function(){row.classList.remove("flash")},1400) }
+          return;
+        }
+      }
+      toast("这一段每句都念够十遍了");
+    };
+  }
+  const item=(RECITE[rSub]&&RECITE[rSub].list[rIdx])||{lines:[]};
+  let got=0, need=0;
+  if(rSub==="idiom"){ need=READ_GOAL; got=Math.min(READ_GOAL, readGot(rSub,rIdx,0)) }
+  else item.lines.forEach(function(_,i){ need+=READ_GOAL; got+=Math.min(READ_GOAL, readGot(rSub,rIdx,i)) });
+  const pct = need? Math.round(got/need*100) : 0;
+  const bar=btn.querySelector(".rf-bar i"), num=btn.querySelector(".rf-n");
+  if(bar)bar.style.width=pct+"%";
+  if(num)num.textContent=got+" / "+need;
+  btn.classList.toggle("full", need>0 && got>=need);
+}
+
+/* ═══ 听 / 录 一对按钮（老板 2026-08-15：「一个是听，一个是录，按键小点协调一点」）═══
+   两个键同样大小、同样圆角，一个喇叭一个麦克风。
+   录音键：**点一下开始，静下来自己停**——老板说「不需要一直按住不放」。 */
+const MIC_SVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>';
+function readBtnFace(btn,n){
+  if(n>=READ_GOAL){ btn.innerHTML=MIC_SVG+'<b>够了</b>'; btn.classList.add("done") }
+  else { btn.innerHTML=MIC_SVG+'<b>'+n+'/'+READ_GOAL+'</b>'; btn.classList.remove("done") }
+}
+function makeReadBtn(sub,idx,li){
+  const b=document.createElement("button");
+  b.className="rbtn inline"; b.type="button";
+  readBtnFace(b, readGot(sub,idx,li));
+  return b;
+}
+/* 点一下 = 开录；再点一下 = 提前结束；不点也会自己停 */
+function wireRead(btn, getText, sub, idx, li, onOk){
+  btn.addEventListener("click", function(ev){
+    ev.preventDefault();
+    if(rdOn){ if(rdBtn===btn) readFinish(); return }
+    if(readGot(sub,idx,li)>=READ_GOAL){ toast("这句已经念够十遍了"); return }
+    readStart(btn, getText(), sub, idx, li, onOk);
+  });
 }
 </script>
 </body>
