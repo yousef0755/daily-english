@@ -75,6 +75,10 @@ footer{margin-top:22px;text-align:center;font-size:.7rem;color:var(--dim)}
   font-weight:600;cursor:pointer;white-space:nowrap}
 .tick.on{border-color:rgba(126,214,178,.45);background:rgba(126,214,178,.14);color:var(--mint)}
 .tick:disabled{opacity:.5}
+
+a.who{text-decoration:none;color:inherit;display:block}
+a.who:active .nm{opacity:.6}
+.nm .go{font-style:normal;color:var(--gold);margin-left:6px;font-size:.95em;opacity:.75}
 </style>
 </head>
 <body>
@@ -124,9 +128,14 @@ function render(d){
       : '<button class="tick'+(p.here?" on":"")+'" data-id="'+p.id+'" data-nm="'+p.name+
         '" data-here="'+(p.here?1:0)+'">'+(p.here?"已打卡":"今天来了")+'</button>'+
         '<div class="kp">'+chain(p.streak)+'</div>';
+    /* 点名字进那个人自己的页面。玺雅还没有页面，就不做成链接。 */
+    const who='<div class="nm">'+p.name+(p.url?'<i class="go">›</i>':'')+'</div>'+
+              '<div class="wt">'+what+'</div>';
+    const whoBlk = p.url
+      ? '<a class="who" href="'+p.url+'">'+who+'</a>'
+      : '<div class="who">'+who+'</div>';
     return '<li class="'+cls+'">'+
-      '<span class="dot"></span>'+
-      '<div class="who"><div class="nm">'+p.name+'</div><div class="wt">'+what+'</div></div>'+
+      '<span class="dot"></span>'+ whoBlk +
       '<div class="right">'+right+'</div>'+
       '</li>';
   }).join("");
@@ -152,7 +161,7 @@ function render(d){
       load();
     };
   });
-  document.getElementById("foot").textContent=d.date+" · 每分钟自己刷新";
+  document.getElementById("foot").textContent=d.date+" · 点名字进各自的页面 · 每分钟自己刷新";
 }
 async function load(){
   try{
