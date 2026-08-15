@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 19:56",
+ "at": "2026-08-15 19:57",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -21,23 +21,6 @@
     "url": "./mie.html"
    },
    {
-    "id": "xiya",
-    "name": "玺雅",
-    "what": "AI 怎么用",
-    "done": 1,
-    "total": 1,
-    "here": true,
-    "mins": 0,
-    "goal": 15,
-    "finished": true,
-    "at": "19:56",
-    "streak": 1,
-    "auto": false,
-    "_ord": 2,
-    "manual": true,
-    "url": ""
-   },
-   {
     "id": "boyuan",
     "name": "博远",
     "what": "六门功课",
@@ -53,6 +36,23 @@
     "_ord": 0,
     "manual": false,
     "url": "./kid.html"
+   },
+   {
+    "id": "xiya",
+    "name": "玺雅",
+    "what": "AI 怎么用",
+    "done": 0,
+    "total": 1,
+    "here": false,
+    "mins": 0,
+    "goal": 15,
+    "finished": false,
+    "at": "",
+    "streak": 0,
+    "auto": false,
+    "_ord": 2,
+    "manual": false,
+    "url": ""
    },
    {
     "id": "feiya",
@@ -107,11 +107,11 @@
    }
   ],
   "toy": {
-   "points": 3,
-   "toys": 2,
+   "points": 2,
+   "toys": 1,
    "total": 12,
-   "next": 6,
-   "need": 3
+   "next": 3,
+   "need": 1
   }
  },
  "pairs": {
@@ -162,14 +162,6 @@
     "asGoodAsPair": false
    },
    {
-    "id": "xiya",
-    "name": "玺雅",
-    "days": 1,
-    "total": 6,
-    "here": true,
-    "asGoodAsPair": false
-   },
-   {
     "id": "amina",
     "name": "Amina",
     "days": 0,
@@ -180,6 +172,14 @@
    {
     "id": "baba",
     "name": "爸爸",
+    "days": 0,
+    "total": 6,
+    "here": false,
+    "asGoodAsPair": false
+   },
+   {
+    "id": "xiya",
+    "name": "玺雅",
     "days": 0,
     "total": 6,
     "here": false,
