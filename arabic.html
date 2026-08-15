@@ -97,8 +97,8 @@ header .pill.on{
   <div class="sub">Fatima 全程教授现代标准阿拉伯语 · العربية الفصحى الحديثة</div>
   <div class="streak" id="streak">🔥 0-day streak</div>
   <div style="margin-top:10px;display:flex;gap:8px;justify-content:center">
-    <button class="pill" id="modeEn">英语 English</button>
-    <button class="pill on" id="modeAr">标准阿语 · العربية الفصحى</button>
+    <button class="pill" id="modeEn" hidden aria-hidden="true">英语 English</button>
+    <button class="pill on" id="modeAr">现代标准阿语 · العربية الفصحى الحديثة</button>
     <button class="pill" id="modeSpeech" style="display:none">演讲</button>
     <button class="pill" id="modeChat" style="display:none">交谈</button>
   </div>
@@ -132,7 +132,7 @@ header .pill.on{
 
 /* ===== 真人语音（花名册声线，预生成 MP3；缺文件才退回系统音） ===== */
 var VOICE_IDX=null, _vplayer=new Audio();
-fetch("kidaudio/index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+fetch("kidaudio/msa-index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
 function speakRoster(text){
   if(!text)return;
   var key=String(text).trim();
@@ -272,9 +272,12 @@ const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},se
 let state;
 try{state=JSON.parse(store.get(KEY)||'{"streak":0,"last":"","log":[]}');}catch(e){state={streak:0,last:"",log:[]};}
 const today=new Date().toISOString().slice(0,10);
-const packNames=Object.keys(PACKS);
+/* 从首屏开始只加载现代标准阿拉伯语，避免先闪出旧英语课程。 */
+const packNames=Object.keys(AR_PACKS);
 const dayIndex=Math.floor(Date.now()/86400000)%packNames.length;
 let currentPack=packNames[dayIndex];
+window.__PACKS_ACTIVE=AR_PACKS;
+window.__packNamesActive=packNames;
 let lastResult=null;
 let player=new Audio();
 
@@ -301,14 +304,15 @@ function play(pack,i,kind,fallback,clean){
 function renderStreak(){document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
 function renderPills(){
   const p=document.getElementById("pills");p.innerHTML="";
-  (window.__packNamesActive||packNames).forEach(n=>{const b=document.createElement("button");b.className="pill"+(n===currentPack?" on":"");b.textContent=n+(n===packNames[dayIndex]?" · today":"");b.onclick=()=>{currentPack=n;renderPills();renderWords();};p.appendChild(b);});
+  const activeNames=window.__packNamesActive||packNames;
+  activeNames.forEach(n=>{const b=document.createElement("button");b.className="pill"+(n===currentPack?" on":"");b.textContent=n+(n===activeNames[dayIndex%activeNames.length]?" · 今日":"");b.onclick=()=>{currentPack=n;renderPills();renderWords();};p.appendChild(b);});
 }
 function renderWords(){
   const area=document.getElementById("wordArea");area.innerHTML="";
-  document.getElementById("dayTag").textContent="Today's topic · "+packNames[dayIndex]+" · "+today;
+  document.getElementById("dayTag").textContent="دَرْسُ الْيَوْمِ · "+currentPack+" · "+today;
   ((window.__PACKS_ACTIVE||PACKS)[currentPack]||PACKS[currentPack]).items.forEach((it,i)=>{
     const c=document.createElement("div");c.className="card";
-    c.innerHTML='<div class="word-row"><div class="phrase">'+it[0]+'</div><button class="speak">🎧 Listen</button></div><div class="use">'+it[1]+'</div>';
+    c.innerHTML='<div class="word-row"><div class="phrase">'+it[0]+'</div><button class="speak">🎧 اِسْتَمِعْ · 听</button></div><div class="use">'+it[1]+'</div>';
     const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
     if(/[\u0600-\u06ff]/.test(it[0]))ph.setAttribute("dir","rtl");
     c.querySelector(".speak").onclick=()=>(/[\u0600-\u06ff]/.test(it[0])?playPair(it[0],it[1]):play(currentPack,i,"s",it[0]+". "+it[1],it[0]));
@@ -336,7 +340,7 @@ function startQuiz(){
     const wi=idx[i],it=PK[pk].items[wi];
     const others=[...PK[pk].items].filter(x=>x[0]!==it[0]).sort(()=>Math.random()-.5).slice(0,2).map(x=>x[0]);
     const opts=[it[0],...others].sort(()=>Math.random()-.5);
-    area.innerHTML='<div class="quiz-q">Q'+(i+1)+' · 🎧 What did she say?</div><button class="replay" id="rp">▶ Play it again</button>'+opts.map(o=>'<button class="quiz-opt">'+o+"</button>").join("");
+    area.innerHTML='<div class="quiz-q">السُّؤَالُ '+(i+1)+' · 🎧 她说的是哪一句？</div><button class="replay" id="rp">▶ 再听一次</button>'+opts.map(o=>'<button class="quiz-opt">'+o+"</button>").join("");
     play(pk,wi,"w",it[0]);
     document.getElementById("rp").onclick=()=>play(pk,wi,"w",it[0]);
     area.querySelectorAll(".quiz-opt").forEach(b=>{
@@ -458,6 +462,7 @@ var CHAT_PERSONA="你是 Aria，一位真人交谈教练——美国人，三十
 var AR_IMMERSE=AR_PERSONA;
 var AR_LEVEL=(function(){try{return localStorage.getItem('arLevel')||'zh'}catch(e){return 'zh'}})();
 var LANG_MODE="ar";
+try{localStorage.setItem("langMode","ar")}catch(e){}
 var mEn=document.getElementById("modeEn"),mAr=document.getElementById("modeAr");
 var mSp=document.getElementById("modeSpeech"),mCh=document.getElementById("modeChat");
 function applyMode(){

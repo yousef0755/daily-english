@@ -12,7 +12,7 @@ import edge_tts
 
 ROOT = pathlib.Path(__file__).parent
 OUT = ROOT / "kidaudio"
-INDEX_PATH = OUT / "index.json"
+INDEX_PATH = OUT / "msa-index.json"
 VOICE = "ar-SA-ZariyahNeural"
 ARABIC = re.compile(r"[\u0600-\u06ff]")
 ITEM = re.compile(r'\["([^"]*[\u0600-\u06ff][^"]*)","')
@@ -42,7 +42,10 @@ async def generate(text: str, path: pathlib.Path) -> None:
 
 async def main() -> None:
     OUT.mkdir(exist_ok=True)
-    index = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
+    # Keep a dedicated index containing only the current MSA lesson phrases.
+    # The legacy roster also contains old Gulf/Egyptian clips; using it here
+    # made it possible for stale dialect recordings to leak back into lessons.
+    index: dict[str, str] = {}
     phrases = lesson_phrases()
     for start in range(0, len(phrases), 8):
         batch = phrases[start : start + 8]
