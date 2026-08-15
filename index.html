@@ -351,6 +351,12 @@ header .pill.on{
 }
 .mode-tabs .pill{width:100%;text-align:center;white-space:nowrap;
   padding-left:8px;padding-right:8px;font-size:.94rem}
+
+/* 老板 2026-08-15：这句要排成一条线 */
+.hero-copy h2.oneline{
+  white-space:nowrap;
+  font-size:clamp(1.15rem, 6.4vw, 2.5rem);
+  line-height:1.25;letter-spacing:-.01em;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -370,7 +376,7 @@ header .pill.on{
     </div>
     <div class="hero-copy">
       <p class="eyebrow">اِسْتَمِعْ · لَاحِظْ · تَكَلَّمْ</p>
-      <h2>每天五分钟，<br>变成更好的自己。</h2>
+      <h2 class="oneline">每天五分钟，变成更好的自己！</h2>
       <p id="heroSub">今天就练一件。练完了，家里人在榜上看得见。</p>
     </div>
     <nav class="mode-tabs" aria-label="Learning mode">
