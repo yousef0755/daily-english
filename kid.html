@@ -201,6 +201,16 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   font-family:inherit}
 .strokeBar button.on{background:var(--gold);color:#231a05;font-weight:700}
 #strokeTip{font-size:.85rem;color:var(--muted);min-height:1.3em;text-align:center}
+
+.lvbadge{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:.82rem;color:var(--muted)}
+.lvbadge b{background:var(--gold);color:#231a05;border-radius:9px;padding:2px 10px;font-size:.9rem}
+.lvbadge .keep{color:var(--mint)}
+/* 两只猫 */
+.cats{display:flex;gap:10px;align-items:flex-start;background:rgba(0,0,0,.16);
+  border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin:14px 0}
+.cats .who{font-size:1.7rem;line-height:1}
+.cats .say{flex:1;font-size:.92rem;line-height:1.8}
+.cats .say b{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -220,11 +230,13 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     </div>
     <div class="orbit-scene" aria-hidden="true"><span class="planet">🚀</span><i></i><i></i><i></i></div>
   </div>
-  <div class="streak-row"><span>7 日探索进度</span><div class="streakbar" id="sbar"></div></div>
+  <div class="streak-row"><span>7 日探索进度</span><div class="streakbar" id="sbar"></div>
+  <div id="lvBadge" class="lvbadge"></div></div>
 </header>
 <main>
   <section class="page on" id="p-learn">
     <div class="card">
+      <div class="cats" id="catsBox"></div>
       <div class="section-head">
         <div><span class="kicker">MISSION MAP</span><h2>今天想先挑战哪一关？</h2></div>
         <span class="mini-chip">6 个任务</span>
@@ -746,7 +758,41 @@ function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
 function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1500)}
 const DAY_CAP=60;                                   // 每天最多 60 ⭐，防止刷题攒星
 function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
+
+/* ═══ 等级从 V1 起 + 坚持了几天（老板 09:07） ═══
+   不做排行榜跟别人比——只跟昨天的自己比。 */
+
+/* ═══ 一次性归零（老板 09:07：把所有的数据都归零，排名也是V1） ═══
+   之前刷出来的星星和进度全部作废，从 V1、坚持 0 天重新开始。
+   只执行一次，靠这个标记认；以后正常累计。 */
+(function(){
+  var MARK="reset_0815";
+  try{
+    if(localStorage.getItem(MARK))return;
+    D={stars:0,total:0,today:"",todayStars:0,streak:0,last:"",phone:0,
+       wishes:D.wishes||[],done:{},reciteDone:{},reciteAt:{},recitePos:{},
+       hanziDone:{},diaries:[],classStars:{}};
+    save();
+    localStorage.setItem(MARK,"1");
+  }catch(e){}
+})();
+function levelOf(){
+  const t=D.total||0;
+  return 1+Math.floor(t/60);          /* 每 60 颗星升一级 */
+}
+function keepDays(){
+  const set=new Set(Object.keys(D.reciteDone||{}).map(function(k){return k.split("_")[0]}));
+  (D.diaries||[]).forEach(function(x){set.add(x.d)});
+  return set.size;
+}
+function renderBadge(){
+  const el=document.getElementById("lvBadge"); if(!el)return;
+  const d=keepDays();
+  el.innerHTML='<b>V'+levelOf()+'</b>'+
+    (d>0?('<span class="keep">坚持了 '+d+' 天</span>'):'<span class="keep">今天开始</span>');
+}
 function addStar(n){
+  setTimeout(function(){try{renderBadge();renderCats('going')}catch(e){}},50);
   n=Math.min(n,capLeft());
   if(n<=0)return;
   D.stars+=n;D.total+=n;D.todayStars+=n;
@@ -759,7 +805,7 @@ function addStar(n){
   }
   save();render();
 }
-function render(){
+function render(){try{renderBadge();renderCats("going")}catch(e){}
   document.getElementById("starCount").textContent=D.stars;
   document.getElementById("todayStars").textContent=D.todayStars;
   document.getElementById("streak").textContent=D.streak;
@@ -1002,7 +1048,7 @@ function tEnd(){
   tClean();
   if(typeof addStar==="function"){
     var mins=Math.round(((uGet().sec)||0)/60);
-    var earn=mins>=10?8:mins>=5?5:mins>=2?3:1;      // 跟老师上课：10分钟 8⭐
+    var earn=mins>=10?8:mins>=5?5:mins>=2?3:0;/* 2026-08-15 堵漏洞：原来保底给 1 颗，连上马上断也算，反复连就能刷。 不满两分钟一颗不给。 */D.classStars=D.classStars||{};var _ck=todayKey();var _got=D.classStars[_ck]||0;if(_got>=8){earn=0}else if(_got+earn>8){earn=8-_got}D.classStars[_ck]=_got+earn;      // 跟老师上课：10分钟 8⭐
     addStar(earn);setTimeout(function(){toast("上课 "+mins+" 分钟，+"+earn+" ⭐")},600);
   }
 }
@@ -1279,6 +1325,21 @@ document.getElementById("rHide").onclick=function(){rHidden=!rHidden;renderRecit
 document.getElementById("rDone").onclick=function(){
   const k=todayKey()+"_"+rSub+"_"+rIdx;
   D.reciteDone=D.reciteDone||{};
+  /* 2026-08-15 堵漏洞：原来一秒点三下就算背了三遍。
+     背一段要多久，按这段的字数算——不到时间不算数。 */
+  const item=(RECITE[rSub]&&RECITE[rSub].list[rIdx])||{};
+  let len=0;
+  (item.lines||[]).forEach(function(ln){ len += (typeof ln==="object" ? (ln.ar||"") : ln).length });
+  len += (item.name||"").length;
+  const need=Math.max(8, Math.round(len*0.42));      /* 秒 */
+  D.reciteAt=D.reciteAt||{};
+  const now=Math.floor(Date.now()/1000), last=D.reciteAt[k]||0;
+  if(now-last < need){
+    const wait=need-(now-last);
+    toast("太快了 —— 认真背一遍再点，还差 "+wait+" 秒");
+    return;
+  }
+  D.reciteAt[k]=now;
   const n=(D.reciteDone[k]||0)+1;D.reciteDone[k]=n;save();
   if(n<=3){addStar(rSub==="quran"?3:2);toast("背对 "+n+"/3 遍，+"+(rSub==="quran"?3:2)+" ⭐")}
   else{toast("今天这段已经拿满啦")}
@@ -1321,6 +1382,8 @@ document.getElementById("rDone").onclick=function(){
   };
 })();
 render();renderHanzi();renderDiary();
+
+try{renderBadge();renderCats("start")}catch(e){}
 </script>
 <div id="keyWrap"><div id="keyCard"><h3>第一次设置</h3><p class="ksub">让爸爸帮你弄一下，一分钟就好</p><div class="kwhy">钥匙只存在这台手机上，不会传给别人。</div><ol><li>用 Google 账号打开下面的链接</li><li>点「Create API key」</li><li>复制那串字符，粘到下面</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">打开 Google 页面</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="把钥匙粘在这里"><button class="ksave" id="keySave" type="button">保存，开始</button><p class="kerr" id="keyErr"></p></div></div>
 <script>
@@ -1452,6 +1515,37 @@ function strokeFollow(ch){
       return r; };
   }
 })();
+
+/* ═══ Snowy（白猫）和哆米（黑猫）来鼓励他 ═══
+   老板 09:07 交代。两只都是家里真的猫，说话要像猫，不讲大道理。 */
+const CATLINES={
+  start:[["Snowy","今天也来了。坐下吧，我在旁边。"],
+         ["哆米","我不打扰你，我就趴这儿。"]],
+  going:[["Snowy","背错了没关系，我又听不懂。"],
+         ["哆米","慢一点念，我在听。"],
+         ["Snowy","再来一遍，这次肯定顺。"]],
+  done:[["Snowy","今天的都过了。你可以去玩了。"],
+        ["哆米","做到了就是做到了，不用管几颗星。"]],
+  keep:[["Snowy","你已经坚持 __D__ 天了。"],
+        ["哆米","连着来这么多天，不容易。"]]
+};
+function renderCats(where){
+  const box=document.getElementById("catsBox"); if(!box)return;
+  const d=keepDays();
+  let pool=CATLINES[where]||CATLINES.going;
+  if(where==="going" && d>=3 && Math.random()<.4) pool=CATLINES.keep;
+  const pick=pool[Math.floor(Date.now()/20000)%pool.length];
+  const who=pick[0], say=pick[1].replace("__D__", d);
+  box.innerHTML='<div class="who">'+(who==="Snowy"?"🐈":"🐈‍⬛")+'</div>'+
+    '<div class="say"><b>'+who+'</b>　'+say+'</div>';
+}
+
+/* 页面就绪后再渲一次——render() 首次跑的时候容器可能还没解析到 */
+if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",function(){
+    try{renderBadge();renderCats("start")}catch(e){}
+  });
+}else{ setTimeout(function(){try{renderBadge();renderCats("start")}catch(e){}},0) }
 </script>
 </body>
 </html>
