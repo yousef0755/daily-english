@@ -130,7 +130,9 @@ header{max-width:760px;margin:0 auto;padding:22px 16px 12px;text-align:left}
 .streakbar i{width:24px;height:5px;border-radius:999px;background:rgba(255,255,255,.11)}
 .streakbar i.on{background:linear-gradient(90deg,var(--gold),#ff9d55);box-shadow:0 0 10px rgba(255,200,87,.28)}
 
-main{max-width:760px;margin:0 auto;padding:7px 16px}
+main{max-width:760px;margin:0 auto;padding:7px 16px;
+  /* 让出栏杆 + 趴在上面那两只猫的高度，别让卡片被猫盖住 */
+  padding-bottom:calc(var(--navh,74px) + 58px + max(10px,env(safe-area-inset-bottom)))}
 .page{display:none}.page.on{display:block;animation:pageIn .32s ease both}
 .card{position:relative;background:linear-gradient(145deg,rgba(17,37,64,.9),rgba(10,24,43,.93));border:1px solid var(--line);border-radius:24px;padding:19px;margin-bottom:14px;box-shadow:0 14px 38px rgba(0,0,0,.2);overflow:hidden}
 .card:before{content:"";position:absolute;left:18px;right:18px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent)}
@@ -465,6 +467,32 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   background:rgba(255,212,121,.07);border-left:3px solid rgba(255,212,121,.65);
   border-radius:4px 12px 12px 4px;font-size:.85rem;line-height:1.9;color:var(--cream);
   opacity:.9}
+
+/* ── 两只猫趴在底栏上（老板 2026-08-15）──
+   跟底栏同宽同位，层级 49 < 底栏的 50，所以下半身被栏杆挡住，
+   看着就是扒着栏杆。眨眼 = 睁眼那组和闭眼那组交替闪一下，两只错开节奏。 */
+.navcats{position:fixed;z-index:49;left:50%;transform:translateX(-50%);
+  width:min(calc(100% - 24px),720px);bottom:max(10px,env(safe-area-inset-bottom));
+  height:var(--navh,56px);pointer-events:none}
+.navcat{position:absolute;bottom:calc(100% - 11px);width:58px;height:auto;
+  filter:drop-shadow(0 5px 12px rgba(0,0,0,.5))}
+/* 哆米是黑猫，页面又是深色的，加一圈很淡的月光边才看得出轮廓 */
+.navcat.right{filter:drop-shadow(0 0 1.5px rgba(190,214,244,.55))
+  drop-shadow(0 5px 12px rgba(0,0,0,.5))}
+.navcat.left{left:14px}
+.navcat.right{right:14px;transform:scaleX(-1)}
+.navcat .shut{opacity:0}
+@keyframes ncOpen{0%,93%,100%{opacity:1}95%,98%{opacity:0}}
+@keyframes ncShut{0%,93%,100%{opacity:0}95%,98%{opacity:1}}
+@keyframes ncTail{0%,100%{transform:rotate(0)}50%{transform:rotate(-7deg)}}
+.navcat .open{animation:ncOpen 5.4s infinite}
+.navcat .shut{animation:ncShut 5.4s infinite}
+.navcat .ntail{transform-origin:150px 132px;animation:ncTail 3.6s ease-in-out infinite}
+.navcat.right .open,.navcat.right .shut{animation-duration:7.1s;animation-delay:1.6s}
+.navcat.right .ntail{animation-duration:4.9s;animation-delay:.7s}
+@media (prefers-reduced-motion:reduce){
+  .navcat .open,.navcat .shut,.navcat .ntail{animation:none}
+}
 </style>
 </head>
 <body>
@@ -704,6 +732,69 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
 </main>
 
+<div class="navcats" aria-hidden="true"><svg class="navcat left" viewBox="0 0 200 150" aria-hidden="true">
+  <defs><radialGradient id="gnavS" cx="42%" cy="34%" r="72%">
+    <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e9e3d8"/>
+  </radialGradient></defs>
+  <g class="ntail"><path d="M150 132 C176 130 184 112 176 98 C170 88 158 89 156 98"
+     fill="none" stroke="#e9e3d8" stroke-width="13" stroke-linecap="round"/></g>
+  <path d="M62 145 C58 108 74 86 100 86 C126 86 142 108 138 145 Z" fill="url(#gnavS)"/>
+  <ellipse cx="83" cy="138" rx="13" ry="8" fill="#f8f5ef"/>
+  <ellipse cx="117" cy="138" rx="13" ry="8" fill="#f8f5ef"/>
+  <g class="earL"><path d="M70 62 L64 34 L90 50 Z" fill="#e9e3d8"/>
+    <path d="M72 58 L69 43 L83 51 Z" fill="#e6b7ae"/></g>
+  <g class="earR"><path d="M130 62 L136 34 L110 50 Z" fill="#e9e3d8"/>
+    <path d="M128 58 L131 43 L117 51 Z" fill="#e6b7ae"/></g>
+  <ellipse cx="100" cy="72" rx="38" ry="33" fill="url(#gnavS)"/>
+  <g class="shut">
+    <path d="M79 74 q8 7 16 0" fill="none" stroke="#3a352e" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M105 74 q8 7 16 0" fill="none" stroke="#3a352e" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+  <g class="open">
+    <ellipse cx="87" cy="72" rx="7" ry="8.5" fill="#3a352e"/>
+    <ellipse cx="113" cy="72" rx="7" ry="8.5" fill="#3a352e"/>
+    <circle cx="89.4" cy="69" r="2.4" fill="#fff"/>
+    <circle cx="115.4" cy="69" r="2.4" fill="#fff"/>
+  </g>
+  <path d="M96 85 L104 85 L100 90 Z" fill="#d99a8f"/>
+  <path d="M100 90 q-6 6 -11 2 M100 90 q6 6 11 2" fill="none" stroke="#3a352e"
+    stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  <g stroke="#3a352e" stroke-width="1.5" stroke-linecap="round" opacity=".35">
+    <path d="M70 84 L46 80"/><path d="M70 88 L47 90"/>
+    <path d="M130 84 L154 80"/><path d="M130 88 L153 90"/>
+  </g>
+</svg><svg class="navcat right" viewBox="0 0 200 150" aria-hidden="true">
+  <defs><radialGradient id="gnavD" cx="42%" cy="34%" r="72%">
+    <stop offset="0%" stop-color="#43464f"/><stop offset="100%" stop-color="#2f3138"/>
+  </radialGradient></defs>
+  <g class="ntail"><path d="M150 132 C176 130 184 112 176 98 C170 88 158 89 156 98"
+     fill="none" stroke="#2f3138" stroke-width="13" stroke-linecap="round"/></g>
+  <path d="M62 145 C58 108 74 86 100 86 C126 86 142 108 138 145 Z" fill="url(#gnavD)"/>
+  <ellipse cx="83" cy="138" rx="13" ry="8" fill="#43464f"/>
+  <ellipse cx="117" cy="138" rx="13" ry="8" fill="#43464f"/>
+  <g class="earL"><path d="M70 62 L64 34 L90 50 Z" fill="#2f3138"/>
+    <path d="M72 58 L69 43 L83 51 Z" fill="#8d6a68"/></g>
+  <g class="earR"><path d="M130 62 L136 34 L110 50 Z" fill="#2f3138"/>
+    <path d="M128 58 L131 43 L117 51 Z" fill="#8d6a68"/></g>
+  <ellipse cx="100" cy="72" rx="38" ry="33" fill="url(#gnavD)"/>
+  <g class="shut">
+    <path d="M79 74 q8 7 16 0" fill="none" stroke="#3a352e" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M105 74 q8 7 16 0" fill="none" stroke="#3a352e" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+  <g class="open">
+    <ellipse cx="87" cy="72" rx="7" ry="8.5" fill="#3a352e"/>
+    <ellipse cx="113" cy="72" rx="7" ry="8.5" fill="#3a352e"/>
+    <circle cx="89.4" cy="69" r="2.4" fill="#fff"/>
+    <circle cx="115.4" cy="69" r="2.4" fill="#fff"/>
+  </g>
+  <path d="M96 85 L104 85 L100 90 Z" fill="#d99a8f"/>
+  <path d="M100 90 q-6 6 -11 2 M100 90 q6 6 11 2" fill="none" stroke="#3a352e"
+    stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  <g stroke="#3a352e" stroke-width="1.5" stroke-linecap="round" opacity=".35">
+    <path d="M70 84 L46 80"/><path d="M70 88 L47 90"/>
+    <path d="M130 84 L154 80"/><path d="M130 88 L153 90"/>
+  </g>
+</svg></div>
 <nav>
   <button class="on" data-p="learn"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></span>任务</button>
   <button data-p="write"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 4.6l4.2 4.2M4 20l1-4.2L16.1 4.7a1.6 1.6 0 0 1 2.3 0l.9.9a1.6 1.6 0 0 1 0 2.3L8.2 19z"/></svg></span>练字</button>
@@ -3023,6 +3114,17 @@ function wireRead(btn, getText, sub, idx, li, onOk){
     readStart(btn, getText(), sub, idx, li, onOk);
   });
 }
+
+/* 猫要正好坐在栏杆上，所以得知道栏杆多高——量一次，转屏再量 */
+(function(){
+  function navh(){
+    var n=document.querySelector("nav");
+    if(n)document.documentElement.style.setProperty("--navh", n.offsetHeight+"px");
+  }
+  navh();
+  addEventListener("resize",navh);
+  addEventListener("orientationchange",function(){setTimeout(navh,300)});
+})();
 </script>
 </body>
 </html>
