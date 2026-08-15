@@ -507,6 +507,21 @@ async function load(){
     const r=await fetchT(API+"/fam/board",{cache:"no-store"},5000);
     render(await r.json());
   }catch(e){
+    /* 连不上家里那台机器时，退回读 GitHub 上的快照。
+       快照是每两分钟推一次的，看到的不是实时，但外面的人至少看得见。
+       打卡和选搭子还是得在家里的网络上做——这一点在下面写明了，不含糊。 */
+    try{
+      const sn=await (await fetchT("./board-snapshot.json?cb="+Date.now(),{cache:"no-store"},5000)).json();
+      if(sn && sn.board){
+        render(sn.board);
+        const note=document.getElementById("note");
+        if(note)note.innerHTML='<b>这是 '+sn.at+' 的样子。</b>'+
+          '现在连不上家里那台电脑，看到的不是实时的。'+
+          '打卡和选搭子要在家里的 wifi 上才能做，小林正在把这块搬到网上。';
+        document.getElementById("foot").textContent=sn.at+" 的快照 · 不是实时";
+        return;
+      }
+    }catch(e2){}
     document.getElementById("list").innerHTML=
       '<li><div class="who"><div class="nm">现在看不到今天的记录</div>'+
       '<div class="wt">这个榜的数据放在家里那台电脑上，从外面的网络暂时连不进来。'+
