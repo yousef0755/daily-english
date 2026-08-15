@@ -320,6 +320,21 @@ a.who:active .nm{opacity:.6}
 .mins b{color:var(--ink);font-variant-numeric:tabular-nums}
 li.fin .mins b{color:var(--mint)}
 li.here .mins b{color:var(--gold)}
+
+/* 单飞榜 */
+.solo-h{font-size:.74rem;color:var(--muted);letter-spacing:.1em;margin:14px 0 8px;
+  padding-top:12px;border-top:1px solid var(--line)}
+.solo{display:flex;align-items:center;gap:10px;padding:8px 11px;margin-bottom:6px;
+  background:rgba(255,255,255,.03);border:1px solid transparent;border-radius:12px}
+.solo.on{border-color:rgba(217,180,95,.28);background:rgba(217,180,95,.07)}
+.solo .si{width:15px;text-align:center;font-size:.74rem;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.solo .sn{flex:1;font-size:.92rem;font-weight:600}
+.solo .sd{font-size:.76rem;color:var(--muted);white-space:nowrap}
+.solo .sd b{color:var(--ink);font-size:.92rem;font-variant-numeric:tabular-nums}
+.solo.on .sd b{color:var(--gold)}
+.sbadge{font-size:.63rem;color:var(--mint);border:1px solid rgba(126,214,178,.4);
+  border-radius:99px;padding:1px 7px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -379,6 +394,7 @@ li.here .mins b{color:var(--gold)}
   <div class="pb-head"><span>本周搭子</span><span id="pbWeek"></span></div>
   <p class="pb-tip" id="pbTip">正在看…</p>
   <div id="pbList"></div>
+  <div id="pbSolo"></div>
   <div id="pbPick"></div>
 </section>
 <p class="note" id="note"></p>
@@ -727,6 +743,25 @@ async function renderPairs(){
       '<span class="kn ghost">谁</span></div>'+
       '<div class="knot-foot">本周还没有人成对。两个人选中彼此，才算一对。</div></div>';
 
+  /* 老板 2026-08-15：「没有成为搭子的也可以自己学，但是排名你看着如何设计」
+     我的设计：两个榜分开排。
+     搭子榜按「两个人都到的天数」，单飞榜按「自己到的天数」。
+     不混排——搭子那个数天生更难拿（要两个人都到），混在一起对搭子不公平；
+     分开之后，一个人学的也有自己的头名可争。
+     年纪、做了多少题一律不进排名，只看到没到。 */
+  const S=document.getElementById("pbSolo");
+  if(S){
+    const so=d.solo||[];
+    S.innerHTML = so.length
+      ? '<div class="solo-h">一个人学的</div>'+so.map(function(x,i){
+          return '<div class="solo'+(x.here?" on":"")+'">'+
+            '<span class="si">'+(i+1)+'</span>'+
+            '<span class="sn">'+x.name+'</span>'+
+            (x.asGoodAsPair?'<span class="sbadge">顶得上一对</span>':'')+
+            '<span class="sd"><b>'+x.days+'</b> / '+x.total+' 天</span></div>';
+        }).join("")
+      : "";
+  }
   let html="";
   if((d.asked||[]).length){
     html+='<div class="pk"><span class="who2">还在等对方点头：</span>'+
