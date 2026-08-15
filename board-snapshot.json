@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 20:42",
+ "at": "2026-08-15 20:43",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -90,7 +90,7 @@
    },
    {
     "id": "amina",
-    "name": "Amina",
+    "name": "妈妈",
     "what": "阿拉伯语",
     "done": 0,
     "total": 1,
@@ -134,25 +134,25 @@
     "a": "xiya",
     "b": "amina",
     "aName": "玺雅",
-    "bName": "Amina"
+    "bName": "妈妈"
    },
    {
     "a": "baba",
     "b": "amina",
     "aName": "爸爸",
-    "bName": "Amina"
+    "bName": "妈妈"
    },
    {
     "a": "feiya",
     "b": "amina",
     "aName": "霏雅",
-    "bName": "Amina"
+    "bName": "妈妈"
    }
   ],
   "free": [
    {
     "id": "amina",
-    "name": "Amina"
+    "name": "妈妈"
    }
   ],
   "solo": [
@@ -182,7 +182,7 @@
    },
    {
     "id": "amina",
-    "name": "Amina",
+    "name": "妈妈",
     "days": 0,
     "total": 6,
     "here": false,
