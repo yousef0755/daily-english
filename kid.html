@@ -1259,16 +1259,9 @@ document.getElementById("buyTime").onclick=()=>{
 (function(){
   const hb=document.querySelector("#p-reward h2");let tb=null;
   const openBoxAdmin=()=>{
-    const PIN=(function(){try{return localStorage.getItem("dadPin")||"1234"}catch(e){return "1234"}})();
-    const got=prompt("爸爸密码：","");
-    if(got===null)return;
-    if(got.trim()!==PIN){alert("密码不对");return}
-    const cost=prompt("设置哪个盒子？输入 30 / 80 / 200（输入 pin 可改密码）：","30");
-    if(cost&&cost.trim().toLowerCase()==="pin"){
-      const np=prompt("设置新的爸爸密码：",PIN);
-      if(np&&np.trim()){try{localStorage.setItem("dadPin",np.trim())}catch(e){}alert("密码已改")}
-      return;
-    }
+    /* 老板 2026-08-15：把爸爸的密码也去掉。原来这里要输 1234，
+       而且那串写死在源码里，等于没锁。直接进。 */
+    const cost=prompt("设置哪个盒子？输入 30 / 80 / 200：","30");
     if(!cost||!["30","80","200"].includes(cost.trim()))return;
     const c=cost.trim();
     let all={};try{all=JSON.parse(localStorage.getItem("boxPool")||"{}")}catch(e){}
