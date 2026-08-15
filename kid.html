@@ -492,15 +492,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <div class="card" id="padCard" style="display:none">
       <h2 id="padTitle">写一写</h2>
       <div class="tip" style="text-align:left;margin:0 0 10px">用手指照着淡色的字描一遍 · 写满三遍这个字就算会了</div>
-      <div style="display:flex;justify-content:center"><div id="strokeBox">
-  <svg id="strokeSvg" viewBox="0 0 1024 1024"></svg>
-  <div class="strokeBar">
-    <button type="button" id="strokeSpeak">🔊 读一遍</button>
-    <button type="button" id="strokeFollowBtn" class="go">跟着写</button>
-    <button type="button" id="strokeNext" style="display:none">下一笔</button>
-  </div>
-  <div id="strokeTip"></div>
-</div>
+      <div style="display:flex;justify-content:center"><!-- 笔顺演示已按老板要求撤掉（他说老是不行） -->
 
         <canvas id="pad" width="300" height="300" style="border-radius:16px;background:#fdfbf4;touch-action:none"></canvas>
       </div>
@@ -979,12 +971,12 @@ function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
    之前刷出来的星星和进度全部作废，从 V1、坚持 0 天重新开始。
    只执行一次，靠这个标记认；以后正常累计。 */
 (function(){
-  var MARK="reset_0815";
+  var MARK="reset_0815c";
   try{
     if(localStorage.getItem(MARK))return;
     D={stars:0,total:0,today:"",todayStars:0,streak:0,last:"",phone:0,
        wishes:D.wishes||[],done:{},reciteDone:{},reciteAt:{},recitePos:{},
-       hanziDone:{},diaries:[],classStars:{}};
+       hanziDone:{},diaries:[],classStars:{},padDone:{},starLog:{},mathDone:{},walkMark:{},phoneDay:{},lastVisit:'',walker:'Snowy'};
     save();
     localStorage.setItem(MARK,"1");
   }catch(e){}
@@ -1492,6 +1484,14 @@ function renderHanzi(){
     d.innerHTML='<div style="font-size:2.6rem;line-height:1;min-width:56px;text-align:center;cursor:pointer">'+h.z+'</div>'+
       '<div style="flex:1"><div style="font-size:.95rem">'+h.py+' · '+h.bh+' 画</div>'+
       '<div style="font-size:.8rem;color:var(--muted)">组词：'+h.ci.join(" · ")+'</div></div>';
+    /* 老板 09:45 圈的位置：每一行加个发音键 */
+    const spk=document.createElement("button");
+    spk.textContent="🔊";
+    spk.setAttribute("aria-label","读一遍 "+h.z);
+    spk.style.cssText="border:1px solid var(--gold);background:rgba(255,212,121,.1);"+
+      "color:var(--gold);border-radius:11px;padding:9px 13px;font-size:1rem;cursor:pointer;flex-shrink:0";
+    spk.onclick=function(ev){ ev.stopPropagation(); if(typeof speakRoster==="function")speakRoster(h.z) };
+    d.appendChild(spk);
     const b=document.createElement("button");
     b.style.cssText="border:none;border-radius:11px;padding:9px 14px;font-family:inherit;font-size:.85rem;cursor:pointer;"+
       (done[k]?"background:var(--mint);color:#0a2018;font-weight:700":"background:rgba(243,239,226,.1);color:var(--cream)");
@@ -1814,7 +1814,7 @@ function strokeFollow(ch){
   function cur(){ return (typeof padChar!=="undefined"&&padChar) ? padChar
                  : (window.__curHanzi||null); }
   /* 看笔顺按钮已按老板要求去掉，只留跟着写 */
-  if(fb)fb.onclick=function(){var c=cur(); if(c)strokeFollow(c)};
+  
   /* 包住原来的开笔函数，记住当前是哪个字并预渲染 */
   if(typeof window.openPad==="function"){
     var _o=window.openPad;
@@ -2009,7 +2009,7 @@ function purr(who){
   var sp=document.getElementById("strokeSpeak");
   function cur(){ return (typeof padZ!=="undefined"&&padZ&&padZ.z) ? padZ.z
                  : (window.__curHanzi||null); }
-  if(sp)sp.onclick=function(){ var c=cur(); if(c&&typeof speakRoster==="function")speakRoster(c) };
+  
   /* 打开一个字时自动念一遍，孩子先听见再动笔 */
   if(typeof window.openPad==="function"){
     var _o=window.openPad;
