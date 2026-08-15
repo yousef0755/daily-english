@@ -267,6 +267,19 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
 #strokeSpeak{border-color:var(--mint) !important;color:var(--mint) !important}
 .strokeBar button.go{background:var(--gold);color:#231a05;font-weight:700}
+
+/* ── 段位（老板：这一块太乱了，放在最下面） ── */
+.rankfoot{margin:26px 12px 90px;background:rgba(255,255,255,.04);
+  border:1px solid var(--line);border-radius:18px;padding:16px 18px 18px}
+.rf-head{font-size:.72rem;letter-spacing:.18em;color:var(--muted);margin-bottom:10px}
+.rf-name{font-size:1.5rem;font-weight:700;color:var(--mint);line-height:1.2}
+.rf-meta{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 12px;
+  font-size:.82rem;color:var(--muted)}
+.rf-bar{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.rf-fill{height:100%;width:0;background:var(--mint);border-radius:99px;
+  transition:width .6s cubic-bezier(.2,.8,.3,1)}
+.rf-tip{margin-top:10px;font-size:.82rem;color:var(--muted);line-height:1.7}
+.rf-tip.warn{color:#ff9b7a}
 </style>
 </head>
 <body>
@@ -287,8 +300,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <div class="orbit-scene" aria-hidden="true"><span class="planet">🚀</span><i></i><i></i><i></i></div>
   </div>
   <div class="streak-row"><span>7 日探索进度</span><div class="streakbar" id="sbar"></div>
-  <div id="lvBadge" class="lvbadge"></div>
-  <div id="rankBox" class="rankbox"></div></div>
+  </div>
 </header>
 <main>
   <section class="page on" id="p-learn">
@@ -465,6 +477,15 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     </div>
   </section>
 
+<section class="rankfoot" id="rankFoot">
+  <div class="rf-head">我的段位</div>
+  <div class="rf-body">
+    <div class="rf-name" id="rfName">小树苗</div>
+    <div class="rf-meta"><span id="rfScore">最近七天 0 颗</span><span id="rfKeep">今天开始</span></div>
+    <div class="rf-bar"><div class="rf-fill" id="rfFill"></div></div>
+    <div class="rf-tip" id="rfTip"></div>
+  </div>
+</section>
 </main>
 
 <nav>
@@ -929,21 +950,29 @@ function rankOf(){
   return {rank:r, score:sc, idx:RANKS.indexOf(r)};
 }
 function renderRank(){
-  const el=document.getElementById("rankBox"); if(!el)return;
-  const r=rankOf();
-  const next=RANKS[r.idx+1];
-  /* 明天会掉多少：七天前那一天的分明天就出窗口了 */
+  const nm=document.getElementById("rfName"); if(!nm)return;
+  const r=rankOf(), next=RANKS[r.idx+1];
+  nm.textContent=r.rank.name;
+  document.getElementById("rfScore").textContent="最近七天 "+r.score+" 颗";
+  const d=keepDays();
+  document.getElementById("rfKeep").textContent=d>0?("坚持了 "+d+" 天"):"今天开始";
+  /* 进度条：离下一档还差多少 */
+  const base=RANKS[r.idx].min, top=next?next.min:base+30;
+  const pct=Math.max(0,Math.min(100,Math.round((r.score-base)/(top-base)*100)));
+  document.getElementById("rfFill").style.width=pct+"%";
+  /* 明天会不会掉 */
   const drop=(D.starLog||{})[dayKey(Date.now()-6*86400000)]||0;
-  let tail;
+  const tip=document.getElementById("rfTip");
   if(drop>0 && r.idx>0 && r.score-drop < RANKS[r.idx].min){
-    tail='<span class="warn">今天不学，明天会掉回「'+RANKS[r.idx-1].name+'」</span>';
+    tip.className="rf-tip warn";
+    tip.textContent="今天不学，明天会掉回「"+RANKS[r.idx-1].name+"」";
   }else if(next){
-    tail='<span class="hint">再攒 '+(next.min-r.score)+' 颗升「'+next.name+'」</span>';
+    tip.className="rf-tip";
+    tip.textContent="再攒 "+(next.min-r.score)+" 颗升「"+next.name+"」";
   }else{
-    tail='<span class="hint">已经是最高一档了，别掉下来</span>';
+    tip.className="rf-tip";
+    tip.textContent="已经是最高一档了，别掉下来";
   }
-  el.innerHTML='<div class="rk"><b>'+r.rank.name+'</b>'+
-    '<small>最近七天 '+r.score+' 颗</small></div>'+tail;
 }
 function levelOf(){
   const t=D.total||0;
@@ -965,7 +994,7 @@ function addStar(n){
      var _add=Math.min(n,(typeof capLeft==="function")?capLeft():n);
      if(_add>0)D.starLog[_k]=(D.starLog[_k]||0)+_add;}catch(e){}
 
-  setTimeout(function(){try{renderBadge();renderCats('going')}catch(e){}},50);
+  setTimeout(function(){try{renderCats('going')}catch(e){}},50);
   n=Math.min(n,capLeft());
   if(n<=0)return;
   D.stars+=n;D.total+=n;D.todayStars+=n;
@@ -978,7 +1007,7 @@ function addStar(n){
   }
   save();render();
 }
-function render(){try{renderBadge();renderRank();celebrateIfDue()}catch(e){}
+function render(){try{renderRank();celebrateIfDue()}catch(e){}
   document.getElementById("starCount").textContent=D.stars;
   document.getElementById("todayStars").textContent=D.todayStars;
   document.getElementById("streak").textContent=D.streak;
@@ -1573,7 +1602,7 @@ document.getElementById("rDone").onclick=function(){
 })();
 render();renderHanzi();renderDiary();
 
-try{renderBadge();renderRank();if(!catsMissYou())renderCats("start")}catch(e){}
+try{renderRank();if(!catsMissYou())renderCats("start")}catch(e){}
 </script>
 <div id="keyWrap"><div id="keyCard"><h3>第一次设置</h3><p class="ksub">让爸爸帮你弄一下，一分钟就好</p><div class="kwhy">钥匙只存在这台手机上，不会传给别人。</div><ol><li>用 Google 账号打开下面的链接</li><li>点「Create API key」</li><li>复制那串字符，粘到下面</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">打开 Google 页面</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="把钥匙粘在这里"><button class="ksave" id="keySave" type="button">保存，开始</button><p class="kerr" id="keyErr"></p></div></div>
 <script>
@@ -1815,9 +1844,9 @@ function renderCats(where){
 /* 页面就绪后再渲一次——render() 首次跑的时候容器可能还没解析到 */
 if(document.readyState==="loading"){
   document.addEventListener("DOMContentLoaded",function(){
-    try{renderBadge();renderRank();if(!catsMissYou())renderCats("start")}catch(e){}
+    try{renderRank();if(!catsMissYou())renderCats("start")}catch(e){}
   });
-}else{ setTimeout(function(){try{renderBadge();renderRank();if(!catsMissYou())renderCats("start")}catch(e){}},0) }
+}else{ setTimeout(function(){try{renderRank();if(!catsMissYou())renderCats("start")}catch(e){}},0) }
 
 /* ═══ 戳猫（老板 09:2x：点击了猫咪还是没有任何反应） ═══
    孩子拿到手第一件事就是去戳它。戳了没动静，它就是张图。
