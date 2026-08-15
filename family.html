@@ -146,6 +146,12 @@ a.who:active .nm{opacity:.6}
 .cline .sp.d{justify-self:end;border-radius:14px 14px 5px 14px;background:rgba(217,180,95,.085)}
 .cline .sp.d b{color:var(--mint)}
 .tapcat{display:block;justify-self:center;color:var(--muted);font-size:.67rem;opacity:.76}
+
+/* 醒着说话时也用气泡，并让两只有点小动作 */
+.cats.awake .cline{display:grid;gap:7px;width:min(100%,390px);margin:10px auto 0;text-align:left}
+.cats.awake .cwrap{cursor:pointer}
+.cats.awake.talking #fcatS .tail{animation:fflick 1.6s ease-in-out infinite}
+.cats.awake.talking #fcatD .earR{animation:fearR 2.9s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -261,14 +267,7 @@ function render(d){
     bindTicks();
     return;                /* 行在上面已经画好了，不用再画 */
   }
-  if(chatTimer){clearInterval(chatTimer);chatTimer=null}
-  catNext=null;
-  cb.className="cats awake";
-  if(tryers.length===ps.length){
-    cl.innerHTML="今天全家都在，<b>两只忙不过来了</b>。";
-  }else{
-    cl.innerHTML="Snowy 和哆米今天跟着 <b>"+tryers.join("、")+"</b>。";
-  }
+  catsActive(cb, cl, ps);   /* 有人来了：猫也说话——夸已经开始的，招呼还没来的 */
 
   const away=ps.filter(p=>!p.here).map(p=>p.name);
   const note=document.getElementById("note");
@@ -345,13 +344,66 @@ function catsIdle(box, cl){
   chatTimer=setInterval(tick,7000);
 }
 document.getElementById("catStage").addEventListener("click",()=>{
-  if(catNext&&document.getElementById("catsBox").classList.contains("waiting"))catNext();
+  if(catNext)catNext();
 });
 document.getElementById("catStage").addEventListener("keydown",e=>{
   if((e.key==="Enter"||e.key===" ")&&catNext&&document.getElementById("catsBox").classList.contains("waiting")){
     e.preventDefault();catNext();
   }
 });
+
+/* ── 有人来之后，两只也要说话（老板 2026-08-15：
+      「来了之后也让他们有些互动，说一些话鼓励已经开始的人，催还没有来的人」
+      他说按我自己的想法来，那我定两条规矩）：
+   一、夸人要点名、要具体，不说"你真棒"这种。
+   二、招呼没来的人**不许带责备**——老板自己给这榜定过「别催，去问一句就行」。
+      所以让猫用猫的办法：去门口等、把位置占着、说想他了。 */
+function catsActive(box, cl, ps){
+  if(chatTimer)clearInterval(chatTimer);
+  const here=ps.filter(p=>p.here), fin=ps.filter(p=>p.finished),
+        away=ps.filter(p=>!p.here), doing=here.filter(p=>!p.finished);
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  function lines(){
+    const L=[];
+    /* 夸做完的 */
+    fin.forEach(function(p){
+      L.push([["Snowy",p.name+"做完了。今天那份饭我不抢。"],["哆米",p.name+"，干得利索。"]]);
+      if(p.streak>=3)L.push([["哆米",p.name+"连着"+p.streak+"天了。"],["Snowy","这个不容易，我记着呢。"]]);
+    });
+    /* 鼓励正在做的 */
+    doing.forEach(function(p){
+      L.push([["Snowy",p.name+"在做了，还剩"+(p.total-p.done)+"关。"],["哆米","我盯着，你慢慢来。"]]);
+      L.push([["哆米",p.name+"开了头就别停。"],["Snowy","停一下也行，我等着。"]]);
+    });
+    /* 招呼还没来的 —— 用猫的办法，不带责备 */
+    away.forEach(function(p){
+      L.push([["哆米",p.name+"还没来。我去门口蹲着。"],["Snowy","位置我给留着呢。"]]);
+      L.push([["Snowy","要是"+p.name+"来了，我就去旁边趴着。"],["哆米","那我占另一边。"]]);
+    });
+    /* 全家到齐 */
+    if(!away.length){
+      L.push([["Snowy","今天全家都在。"],["哆米","这样的日子不多。我记住了。"]]);
+      L.push([["哆米","六个人。忙不过来了。"],["Snowy","那就一人陪一会儿。"]]);
+    }
+    /* 第一个来的 */
+    if(here.length===1){
+      L.push([["Snowy",here[0].name+"是今天第一个。"],["哆米","第一个来的，把灯点上了。"]]);
+    }
+    return L.length? L : [[["Snowy","今天有人来了。"],["哆米","嗯。"]]];
+  }
+  const pool=lines();
+  let n=Math.floor(Math.random()*pool.length);
+  function tick(){
+    const pair=pool[n%pool.length]; n++;
+    cl.innerHTML=pair.map(function(x){
+      return '<span class="sp'+(x[0]==="哆米"?" d":"")+'"><b>'+x[0]+'</b>　'+x[1]+'</span>';
+    }).join("")+'<small class="tapcat">点一下小猫，看它们再说一句</small>';
+  }
+  box.className="cats awake talking";
+  catNext=tick;
+  tick();
+  chatTimer=setInterval(tick,7000);
+}
 </script>
 </body>
 </html>
