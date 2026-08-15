@@ -499,10 +499,10 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <div class="tip" style="text-align:left;margin:0 0 8px" id="diaryPrompt"></div>
       <div class="dlabel" style="font-size:.8rem;color:var(--gold);margin:0 0 6px">中文日记</div><textarea id="diaryText" rows="6" placeholder="今天学了什么？发生了什么？写几句就行……" style="width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;color:var(--cream);padding:12px;font-family:inherit;font-size:1rem;resize:none"></textarea><div class="dlabel" style="font-size:.8rem;color:var(--gold);margin:14px 0 6px">English diary</div><textarea id="diaryTextEn" rows="5" placeholder="A few lines in English. Short is fine." style="width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;color:var(--cream);padding:12px;font-family:inherit;font-size:1rem;resize:none"></textarea>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="main" id="saveDiary" style="flex:2">写好了 · 交给老师</button>
+        <button class="main" id="saveDiary" style="flex:2">写好了</button>
         <button class="main ghost" id="newPrompt" style="flex:1">换题目</button>
       </div>
-      <button class="main" id="diarySend" style="display:none;margin-top:10px">📤 发给小林看，请她点评</button>
+      <button class="main" id="diarySend" style="display:none;margin-top:10px">写好了，交给小林姐姐</button>
       <div class="tip" id="diaryDone" style="margin-top:8px"></div>
     </div>
     <div class="card">
@@ -1589,7 +1589,7 @@ function diaryShareText(){
   const all=D.diaries||[];
   const t=all.filter(function(x){return x.d===todayKey()})[0];
   if(!t)return "";
-  return "小林，这是博远今天的日记（"+t.d+"），请你给他点评。\n\n"+
+  return "小林姐姐，这是博远今天的日记（"+t.d+"），请你给他点评。\n\n"+
          "【中文】\n"+(t.zh||t.t||"")+"\n\n"+
          "【English】\n"+(t.en||"")+"\n\n"+
          "（今天六门过了 "+walkDone()+" 门）";
@@ -1628,7 +1628,7 @@ document.getElementById("saveDiary").onclick=function(){
   if(D.diaries.some(x=>x.d===todayKey())){toast("今天已经写过啦");return}
   D.diaries.push({d:todayKey(),t:t});save();
   document.getElementById("diaryText").value="";
-  addStar(5);toast("日记写好了 +5 ⭐ 拿给老师看看");renderDiary();
+  addStar(5);toast("日记写好了");renderDiary();
 };
 document.getElementById("newPrompt").onclick=function(){
   D.diaryTopic=DIARY_TOPICS[Math.floor(Math.random()*DIARY_TOPICS.length)];save();renderDiary();
