@@ -360,6 +360,18 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
 .tbi{display:block;width:23px;height:23px;margin:0 auto 2px}
 .tbi svg{width:100%;height:100%;display:block}
+
+/* ── 当一回小老师（讲给家里人听，比自己默读十遍强）── */
+.teach{margin:14px 12px 4px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(126,214,178,.26);border-radius:18px;padding:15px 16px 16px}
+.tc-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.tc-head span:first-child{font-size:.9rem;color:var(--mint);font-weight:700}
+.tc-head span:last-child{font-size:.78rem;color:var(--muted)}
+.tc-topic{margin:0 0 12px;font-size:.95rem;line-height:1.75}
+.tc-tip{margin:10px 0 0;font-size:.78rem;color:var(--muted);text-align:center;min-height:1.2em}
+.teach .main{width:100%}
+#tcRec.rec{background:#c0392b !important;color:#fff !important;animation:tcpulse 1s ease-in-out infinite}
+@keyframes tcpulse{0%,100%{opacity:1}50%{opacity:.74}}
 </style>
 </head>
 <body>
@@ -484,6 +496,13 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   <div id="revStage"></div>
   <button class="main ghost" id="revGo">再玩一次</button>
 </section>
+<section class="teach" id="teachBox" style="display:none">
+  <div class="tc-head"><span>当一回小老师</span><span id="tcWho"></span></div>
+  <p class="tc-topic" id="tcTopic"></p>
+  <button class="main ghost" id="tcRec">按住讲给她听</button>
+  <p class="tc-tip" id="tcTip">按住说话，松手就好。讲三十秒。</p>
+</section>
+
 
 
       <div class="section-head">
@@ -2159,6 +2178,7 @@ function renderWalk(){
   const box=document.getElementById("walkBox"); if(!box)return;
   try{nagMirror()}catch(e){}
   try{famPing()}catch(e){}
+  try{renderTeach()}catch(e){}
   const n=walkDone(), total=(typeof DIARY_SUBS!=="undefined")?DIARY_SUBS.length:5;
   const pct=Math.round(n/total*100);
   document.getElementById("walkStep").textContent=n+" / "+total;
@@ -2410,7 +2430,7 @@ async function renderNag(){
 }
 /* 开页就把这一块画出来，并把今天的进度同步给 Service Worker */
 (function(){
-  function boot(){ try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} try{renderReview()}catch(e){} }
+  function boot(){ try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} try{renderReview()}catch(e){} try{renderTeach()}catch(e){} }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
   else boot();
 })();
@@ -2513,6 +2533,91 @@ function revRun(keys){
   }
   step();
 }
+
+/* ═══ 当一回小老师 ═══
+   讲给别人听，比自己默读十遍记得牢。对他尤其管用——
+   他在学校老是"我不会"，让他当一次讲的人，位置就换了。
+
+   听众轮着来：曼雅、霏雅、爸爸。三十秒，要真开口，静音蒙混不算。
+   录音不留、不上传，只在本地看"讲够了没有"。 */
+const TEACH_WHO=["曼雅","霏雅","爸爸"];
+function teachTopic(){
+  const done=(typeof DIARY_SUBS!=="undefined")?DIARY_SUBS.filter(x=>subDoneToday(x[0])):[];
+  if(!done.length)return null;
+  const pick=done[(new Date().getDate())%done.length];
+  return pick[1];
+}
+function renderTeach(){
+  const box=document.getElementById("teachBox"); if(!box)return;
+  const n=(typeof walkDone==="function")?walkDone():0;
+  const t=teachTopic();
+  D.teachDone=D.teachDone||{};
+  if(n<3 || !t || D.teachDone[todayKey()]){ box.style.display="none"; return }
+  box.style.display="";
+  const who=TEACH_WHO[(new Date().getDate())%TEACH_WHO.length];
+  box.dataset.who=who;
+  document.getElementById("tcWho").textContent="今天讲给 "+who;
+  document.getElementById("tcTopic").innerHTML=
+    "今天的<b style=\"color:var(--gold)\">"+t+"</b>，用你自己的话讲给"+who+"听——讲你懂了什么，不用背。";
+  document.getElementById("tcRec").textContent="按住讲给"+who+"听";
+}
+let tcCtx=null,tcStream=null,tcProc=null,tcOn=false,tcPts=0,tcLoud=0,tcT0=0;
+async function tcBegin(){
+  if(tcOn)return;
+  try{
+    if(!tcStream)tcStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+  }catch(e){ document.getElementById("tcTip").textContent="要允许用麦克风才能讲"; return }
+  if(!tcCtx)tcCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(tcCtx.state==="suspended")try{await tcCtx.resume()}catch(e){}
+  if(!tcProc){
+    const src=tcCtx.createMediaStreamSource(tcStream);
+    tcProc=tcCtx.createScriptProcessor(4096,1,1);
+    src.connect(tcProc);
+    const g=tcCtx.createGain(); g.gain.value=0;
+    tcProc.connect(g); g.connect(tcCtx.destination);
+  }
+  tcPts=0;tcLoud=0;tcT0=Date.now();tcOn=true;
+  tcProc.onaudioprocess=function(e){
+    if(!tcOn)return;
+    const d=e.inputBuffer.getChannelData(0);
+    let r=0;for(let i=0;i<d.length;i++)r+=d[i]*d[i];
+    r=Math.sqrt(r/d.length); tcPts++;
+    if(r>0.012)tcLoud++;
+  };
+  const b=document.getElementById("tcRec");
+  b.classList.add("rec"); b.textContent="正在讲…松手结束";
+  const tip=document.getElementById("tcTip");
+  const tick=setInterval(function(){
+    if(!tcOn){clearInterval(tick);return}
+    const sec=Math.floor((Date.now()-tcT0)/1000);
+    tip.textContent=sec+" 秒"+(sec>=30?"　够了，可以松手":"");
+  },400);
+}
+function tcEnd(){
+  if(!tcOn)return;
+  tcOn=false;
+  if(tcProc)tcProc.onaudioprocess=null;
+  const box=document.getElementById("teachBox"), who=box.dataset.who||"她";
+  const b=document.getElementById("tcRec");
+  b.classList.remove("rec"); b.textContent="按住讲给"+who+"听";
+  const sec=(Date.now()-tcT0)/1000, ratio=tcPts?(tcLoud/tcPts):0;
+  const tip=document.getElementById("tcTip");
+  if(sec<25){ tip.textContent="还差 "+Math.ceil(25-sec)+" 秒，讲完整一点"; return }
+  if(ratio<0.25){ tip.textContent="没听到你的声音，大声一点再讲一遍"; return }
+  D.teachDone=D.teachDone||{}; D.teachDone[todayKey()]=1; save();
+  addStar(2);
+  tip.textContent="讲得好。等下当面再讲一遍给"+who+"听。";
+  if(typeof catSay==="function")catSay("Snowy","我听见了。你讲的时候比背的时候顺。");
+  setTimeout(function(){ try{renderTeach()}catch(e){} },2600);
+}
+(function bindTeach(){
+  const b=document.getElementById("tcRec"); if(!b)return;
+  b.addEventListener("mousedown",tcBegin);
+  b.addEventListener("mouseup",tcEnd);
+  b.addEventListener("mouseleave",function(){ if(tcOn)tcEnd() });
+  b.addEventListener("touchstart",function(e){e.preventDefault();tcBegin()},{passive:false});
+  b.addEventListener("touchend",function(e){e.preventDefault();tcEnd()});
+})();
 </script>
 </body>
 </html>
