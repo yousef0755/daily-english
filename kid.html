@@ -251,6 +251,19 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 @media (prefers-reduced-motion:reduce){.kcat,.kcat *{animation:none !important}}
 .cats{flex-direction:column;align-items:stretch}
 .cats .say{text-align:center}
+
+/* 戳猫的反应 */
+.kcat.poked{animation:kbreathe 4.2s ease-in-out infinite, kshake .32s ease-in-out 2 !important}
+@keyframes kshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.kcat.poked .earL{animation:kearTwitch .3s ease-in-out 3 !important}
+.kcat.poked .earR{animation:kearTwitch .3s ease-in-out 3 reverse !important}
+@keyframes kearTwitch{0%,100%{transform:rotate(0)}50%{transform:rotate(-18deg)}}
+.kcat.purring{animation:kpurr .28s ease-in-out infinite !important}
+@keyframes kpurr{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.2px)}}
+.kcat.leaving{transition:transform .9s ease-in,opacity .9s ease-in;transform:translateX(90px);opacity:0}
+.kcat.returning{animation:kcomeback .9s ease-out}
+@keyframes kcomeback{from{transform:translateX(70px);opacity:0}to{transform:translateX(0);opacity:1}}
+@media (prefers-reduced-motion:reduce){.kcat.poked,.kcat.purring,.kcat.leaving,.kcat.returning{animation:none !important;transition:none !important;transform:none !important;opacity:1 !important}}
 </style>
 </head>
 <body>
@@ -1167,6 +1180,7 @@ function tConn(){
   };
 }
 function tLive(){
+  window.__tStartAt=Date.now();
   tOn=true;btn.disabled=false;btn.textContent="⏹ 玩完了";orb.textContent="🎓";
   glow("0 0 36px rgba(255,212,121,.6)");tsay("老师来啦！直接跟她说话就行 😊");
   tStart0=Date.now();
@@ -1204,7 +1218,13 @@ function tEnd(){
   if(tStream){tStream.getTracks().forEach(function(x){x.stop()});tStream=null}
   tClean();
   if(typeof addStar==="function"){
-    var mins=Math.round(((uGet().sec)||0)/60);
+    /* 2026-08-15 真凶：uGet().sec 是**当天累计**使用秒数，不是这次上课的时长。
+   所以只要今天用过十分钟，之后每次点开始→结束都算 10 分钟，直接 8 颗星，
+   点一次拿一次——这才是老板说的「点了开始立马点结束就有积分」。
+   改成只算这一次上课的实际时长。 */
+var _t0=window.__tStartAt||0;
+var mins=_t0?Math.floor((Date.now()-_t0)/60000):0;
+window.__tStartAt=0;
     var earn=mins>=10?8:mins>=5?5:mins>=2?3:0;/* 2026-08-15 堵漏洞：原来保底给 1 颗，连上马上断也算，反复连就能刷。 不满两分钟一颗不给。 */D.classStars=D.classStars||{};var _ck=todayKey();var _got=D.classStars[_ck]||0;if(_got>=8){earn=0}else if(_got+earn>8){earn=8-_got}D.classStars[_ck]=_got+earn;      // 跟老师上课：10分钟 8⭐
     addStar(earn);setTimeout(function(){toast("上课 "+mins+" 分钟，+"+earn+" ⭐")},600);
   }
@@ -1795,6 +1815,72 @@ if(document.readyState==="loading"){
     try{renderBadge();renderRank();if(!catsMissYou())renderCats("start")}catch(e){}
   });
 }else{ setTimeout(function(){try{renderBadge();renderRank();if(!catsMissYou())renderCats("start")}catch(e){}},0) }
+
+/* ═══ 戳猫（老板 09:2x：点击了猫咪还是没有任何反应） ═══
+   孩子拿到手第一件事就是去戳它。戳了没动静，它就是张图。
+   **不给星**——不然又成了刷分的路子。 */
+const POKE_SNOWY=["干嘛。","别戳了。","……","你再戳我就走了。","好吧，就一下。","痒。"];
+const POKE_DOMI =["嗯？","我在睡觉。","别闹。","再戳我真走了。","……你还戳。","行，你赢了。"];
+let pokeN={Snowy:0,哆米:0}, pokeTimer=null, domiGone=false;
+
+function catSay(who,txt){
+  const el=document.getElementById("catsSay");
+  if(el)el.innerHTML='<b>'+who+'</b>　'+txt;
+}
+function wake(el,cls,ms){
+  if(!el)return;
+  const keep=el.getAttribute("class")||"kcat";
+  el.setAttribute("class",cls);
+  clearTimeout(el.__t);
+  el.__t=setTimeout(function(){ el.setAttribute("class",keep) }, ms||1600);
+}
+function pokeCat(who){
+  const sn=document.getElementById("catSnowy"), dm=document.getElementById("catDomi");
+  const me = who==="Snowy" ? sn : dm;
+  if(who==="哆米" && domiGone)return;
+  pokeN[who]=(pokeN[who]||0)+1;
+  const lines = who==="Snowy" ? POKE_SNOWY : POKE_DOMI;
+  const i=Math.min(pokeN[who]-1, lines.length-1);
+  catSay(who, lines[i]);
+  wake(me,"kcat talking poked",1500);
+  try{navigator.vibrate&&navigator.vibrate(18)}catch(e){}
+  /* 戳太多次，哆米真的走掉，过一会儿自己回来 */
+  if(who==="哆米" && pokeN[who]>=6 && !domiGone){
+    domiGone=true;
+    dm.setAttribute("class","kcat leaving");
+    setTimeout(function(){
+      dm.style.display="none";
+      catSay("Snowy","它走了。你自己惹的。");
+    },900);
+    setTimeout(function(){
+      dm.style.display=""; dm.setAttribute("class","kcat returning");
+      catSay("哆米","……我回来了。别戳了。");
+      setTimeout(function(){dm.setAttribute("class","kcat");domiGone=false;pokeN["哆米"]=0},1200);
+    },9000);
+  }
+  clearTimeout(pokeTimer);
+  pokeTimer=setTimeout(function(){ pokeN={Snowy:0,哆米:0} }, 12000);
+}
+/* 长按：呼噜 */
+function purr(who){
+  const el=document.getElementById(who==="Snowy"?"catSnowy":"catDomi");
+  wake(el,"kcat talking purring",2600);
+  catSay(who, who==="Snowy"?"呼噜呼噜……再摸一会儿。":"（它眯着眼，没说话）");
+  try{navigator.vibrate&&navigator.vibrate([40,60,40,60,40])}catch(e){}
+}
+(function bindCats(){
+  [["catSnowy","Snowy"],["catDomi","哆米"]].forEach(function(x){
+    const el=document.getElementById(x[0]); if(!el)return;
+    let t=null, long=false;
+    const down=function(e){ long=false; t=setTimeout(function(){long=true;purr(x[1])},650) };
+    const up=function(e){ clearTimeout(t); if(!long)pokeCat(x[1]) };
+    el.style.cursor="pointer";
+    el.addEventListener("mousedown",down); el.addEventListener("mouseup",up);
+    el.addEventListener("touchstart",down,{passive:true});
+    el.addEventListener("touchend",function(e){e.preventDefault();up(e)});
+    el.addEventListener("mouseleave",function(){clearTimeout(t)});
+  });
+})();
 </script>
 </body>
 </html>
