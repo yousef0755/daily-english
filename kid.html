@@ -314,6 +314,14 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 #rDone.recording{background:#c0392b !important;color:#fff !important;
   animation:recpulse 1s ease-in-out infinite}
 @keyframes recpulse{0%,100%{opacity:1}50%{opacity:.72}}
+
+/* 黑猫版：换毛色 */
+.wcat.black path[fill="#f2ede4"],.wcat.black ellipse[fill="#f6f2e9"]{fill:#3a3d45}
+.wcat.black ellipse[fill="#f8f5ef"]{fill:#4a4e58}
+.wcat.black path[stroke="#e9e3d8"]{stroke:#3a3d45}
+.wcat.black path[fill="#e9e3d8"]{fill:#3a3d45}
+.wcat.black path[fill="#e6b7ae"]{fill:#8d6a68}
+.wcat.black ellipse[fill="#3a352e"]{fill:#f0e6c8}
 </style>
 </head>
 <body>
@@ -1155,7 +1163,10 @@ function ask(){
     qb.innerHTML='<span class="big">🌟</span>答对 '+got+' / '+list.length+'<br>得到 '+earn+' 颗星星！'+bonus;
     ob.innerHTML='<button class="main" onclick="location.reload()">再来一组</button>';
     document.getElementById("prog").textContent="";
+    /* 记一笔：第六门（数学）今天做完了 —— 六门全过猫才有饭吃 */
+    D.mathDone=D.mathDone||{}; D.mathDone[todayKey()]=1; save();
     addStar(earn);
+    try{renderWalk()}catch(e){}
     return;
   }
   const it=list[idx];
@@ -1550,9 +1561,11 @@ const DIARY_TOPICS=["今天最开心的一件事是什么？","今天学会了�
 /* ═══ 学完当天全部才能写日记（老板 06:59） ═══
    判定：每科当天至少有一段背对 3 遍。不要求全背完——
    八九岁的孩子五科各一段已经不轻松，门槛太高他直接放弃就白设了。 */
+/* 六门（老板：每天要打卡6个课程，那6个学完小猫才可以吃到饭） */
 const DIARY_SUBS=[["poem","语文古诗"],["idiom","成语"],["arabic","阿拉伯语"],
-                  ["quran","古兰经"],["english","英语单词"]];
+                  ["quran","古兰经"],["english","英语单词"],["math","数学"]];
 function subDoneToday(sub){
+  if(sub==="math"){ return ((D.mathDone||{})[todayKey()]===1) }
   const rd=D.reciteDone||{}, pre=todayKey()+"_"+sub+"_";
   for(const k in rd){ if(k.indexOf(pre)===0 && rd[k]>=3) return true }
   return false;
@@ -1678,7 +1691,7 @@ document.getElementById("rDone").onclick=function(){
 })();
 render();renderHanzi();renderDiary();
 
-try{renderLevel();renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}
+try{renderLevel();renderRank();setWalker(D.walker||"Snowy");if(!catsMissYou())renderCats("start")}catch(e){}
 </script>
 <div id="keyWrap"><div id="keyCard"><h3>第一次设置</h3><p class="ksub">让爸爸帮你弄一下，一分钟就好</p><div class="kwhy">钥匙只存在这台手机上，不会传给别人。</div><ol><li>用 Google 账号打开下面的链接</li><li>点「Create API key」</li><li>复制那串字符，粘到下面</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">打开 Google 页面</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="把钥匙粘在这里"><button class="ksave" id="keySave" type="button">保存，开始</button><p class="kerr" id="keyErr"></p></div></div>
 <script>
@@ -1920,9 +1933,9 @@ function renderCats(where){
 /* 页面就绪后再渲一次——render() 首次跑的时候容器可能还没解析到 */
 if(document.readyState==="loading"){
   document.addEventListener("DOMContentLoaded",function(){
-    try{renderLevel();renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}
+    try{renderLevel();renderRank();setWalker(D.walker||"Snowy");if(!catsMissYou())renderCats("start")}catch(e){}
   });
-}else{ setTimeout(function(){try{renderLevel();renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}},0) }
+}else{ setTimeout(function(){try{renderLevel();renderRank();setWalker(D.walker||"Snowy");if(!catsMissYou())renderCats("start")}catch(e){}},0) }
 
 /* ═══ 戳猫（老板 09:2x：点击了猫咪还是没有任何反应） ═══
    孩子拿到手第一件事就是去戳它。戳了没动静，它就是张图。
@@ -1947,6 +1960,7 @@ function pokeCat(who){
   const me = who==="Snowy" ? sn : dm;
   if(who==="哆米" && domiGone)return;
   pokeN[who]=(pokeN[who]||0)+1;
+  try{setWalker(who)}catch(e){}
   const lines = who==="Snowy" ? POKE_SNOWY : POKE_DOMI;
   const i=Math.min(pokeN[who]-1, lines.length-1);
   catSay(who, lines[i]);
@@ -2013,6 +2027,17 @@ function walkDone(){
   if(typeof DIARY_SUBS==="undefined")return 0;
   return DIARY_SUBS.filter(function(x){return subDoneToday(x[0])}).length;
 }
+
+/* ═══ 点哪只猫，就由哪只在下面走（老板：点黑猫就黑猫在下面，点白猫就白猫在下面准备吃东西） ═══ */
+function setWalker(who){
+  D.walker=who; save();
+  const svg=document.getElementById("walkCatSvg");
+  if(!svg)return;
+  svg.setAttribute("class", who==="哆米" ? "wcat black" : "wcat");
+  const t=document.getElementById("walkTitle");
+  if(t)t.textContent = (who==="哆米"?"哆米":"Snowy")+" today走了多远".replace("today","");
+  renderWalk();
+}
 function renderWalk(){
   const box=document.getElementById("walkBox"); if(!box)return;
   const n=walkDone(), total=(typeof DIARY_SUBS!=="undefined")?DIARY_SUBS.length:5;
@@ -2023,10 +2048,10 @@ function renderWalk(){
   document.getElementById("walkWater").classList.toggle("lit", pct>=50);
   document.getElementById("walkFood").classList.toggle("lit", pct>=100);
   const tip=document.getElementById("walkTip");
-  if(pct>=100){ tip.className="walk-tip good"; tip.textContent="走完了。饭在等你——今天的都过了。"; }
-  else if(pct>=50){ tip.className="walk-tip"; tip.textContent="到水边了，喝口水再走。还剩 "+(total-n)+" 关。"; }
-  else if(n>0){ tip.className="walk-tip"; tip.textContent="走了 "+n+" 关，前面有水。"; }
-  else { tip.className="walk-tip"; tip.textContent="今天还没动。走一关，猫就往前一点。"; }
+  if(pct>=100){ tip.className="walk-tip good"; tip.textContent="六门全过了。它可以吃饭了。"; }
+  else if(pct>=50){ tip.className="walk-tip"; tip.textContent="到水边了，喝口水。还剩 "+(total-n)+" 门。"; }
+  else if(n>0){ tip.className="walk-tip"; tip.textContent="过了 "+n+" 门，前面有水。"; }
+  else { tip.className="walk-tip"; tip.textContent="今天还没动。过一门，它就往前走一点。"; }
   /* 半路和终点各只庆祝一次 */
   D.walkMark=D.walkMark||{};
   const key=todayKey();
