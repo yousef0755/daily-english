@@ -30,6 +30,9 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body.hide-zh .nat .zh{display:none}
+/* 卡片里的中文其实在 .use 里，.nat .zh 这个结构早就不存在了 ——
+   所以「隐藏中文」这个按钮一直是点了没反应（老板 2026-08-15 报的）。 */
+body.hide-zh .use{display:none}
 body{
   min-width:320px;
   overflow-x:hidden;
