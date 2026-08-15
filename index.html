@@ -327,6 +327,16 @@ header .pill.on{
   padding:8px 13px;background:rgba(255,255,255,.06);color:#f2dfb2;
   font-size:.77rem;font-weight:650;text-decoration:none;white-space:nowrap}
 
+
+/* 今日课程那块收拾干净（老板：这里太乱了） */
+#pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.today-pill{font-weight:700;max-width:100%;text-align:left;line-height:1.5}
+.more-pill{opacity:.72;font-size:.86em}
+.pack-more{flex-basis:100%;width:100%;margin-top:6px;padding-top:10px;
+  border-top:1px solid rgba(0,0,0,.10);display:flex;flex-wrap:wrap;gap:7px}
+.pack-grp{flex-basis:100%;width:100%;font-size:.72rem;letter-spacing:.14em;
+  opacity:.6;margin:5px 0 1px}
+.pack-more .pill{font-size:.88em}
 </style>
 </head>
 <body>
@@ -338,7 +348,7 @@ header .pill.on{
         <div class="brand-mark" aria-hidden="true">AR</div>
         <div class="brand-copy">
           <h1>每天五分钟</h1>
-          <div class="sub">现代标准阿拉伯语 · العربية الفصحى الحديثة</div>
+          <div class="sub" id="brandSub">五门课，每天一件</div>
         </div>
       </div>
       <div class="streak" id="streak">🔥 0-day streak</div>
@@ -346,8 +356,8 @@ header .pill.on{
     </div>
     <div class="hero-copy">
       <p class="eyebrow">اِسْتَمِعْ · لَاحِظْ · تَكَلَّمْ</p>
-      <h2>每天一句，<br>学标准阿拉伯语。</h2>
-      <p>所有学习句子、听力测验和 Fatima 课堂统一使用现代标准阿拉伯语，不使用海湾、阿联酋、埃及等地区方言。</p>
+      <h2>每天五分钟，<br>变成更好的自己。</h2>
+      <p id="heroSub">今天就练一件。练完了，家里人在榜上看得见。</p>
     </div>
     <nav class="mode-tabs" aria-label="Learning mode">
       <button class="pill" id="modeEn">English</button>
@@ -528,10 +538,63 @@ function play(pack,i,kind,fallback,clean){
   player.play().catch(()=>{sysSpeak(key||fallback)});
 }
 function renderStreak(){try{famPing()}catch(e){}document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
+/* 老板 2026-08-15 发截图说「这里太乱了」——十一个包平铺成一堵墙，中英混排还换行。
+   改成只留今天那一个，其余收进「换个题目」。分组是按用的场合分的，不是按语言。 */
+const PACK_GROUP=[
+  ["谈生意用", ["报价","数量","付款","促成","诗与谚"]],
+  ["正式场合用", ["开场","表态","谈判","收尾"]],
+  ["平时用", ["商务","日常"]]
+];
+let packsOpen=false;
+function groupOf(n){
+  for(const g of PACK_GROUP){ if(g[1].some(k=>n.indexOf(k)>=0)) return g[0] }
+  return "其他";
+}
 function renderPills(){
-  const p=document.getElementById("pills");p.innerHTML="";
-  const activeNames=window.__packNamesActive||packNames;
-  activeNames.forEach(n=>{const b=document.createElement("button");b.className="pill"+(n===currentPack?" on":"");b.textContent=n+(n===activeNames[dayIndex%activeNames.length]?" · 今日":"");b.onclick=()=>{currentPack=n;renderPills();renderWords();};p.appendChild(b);});
+  const p=document.getElementById("pills"); p.innerHTML="";
+  const names=window.__packNamesActive||packNames;
+  const todayName=names[dayIndex%names.length];
+
+  /* 今天这一个，单独一行，看得清 */
+  const cur=document.createElement("button");
+  cur.className="pill on today-pill";
+  cur.textContent=currentPack+(currentPack===todayName?" · 今日":"");
+  cur.onclick=()=>{ packsOpen=!packsOpen; renderPills(); };
+  p.appendChild(cur);
+
+  const more=document.createElement("button");
+  more.className="pill ghost more-pill";
+  more.textContent=packsOpen?"收起":"换个题目";
+  more.onclick=()=>{ packsOpen=!packsOpen; renderPills(); };
+  p.appendChild(more);
+
+  if(!packsOpen)return;
+  const box=document.createElement("div");
+  box.className="pack-more";
+  PACK_GROUP.forEach(function(g){
+    const inG=names.filter(n=>groupOf(n)===g[0] && n!==currentPack);
+    if(!inG.length)return;
+    const h=document.createElement("div"); h.className="pack-grp"; h.textContent=g[0];
+    box.appendChild(h);
+    inG.forEach(function(n){
+      const b=document.createElement("button");
+      b.className="pill"; b.textContent=n+(n===todayName?" · 今日":"");
+      b.onclick=()=>{ currentPack=n; packsOpen=false; renderPills(); renderWords(); };
+      box.appendChild(b);
+    });
+  });
+  const rest=names.filter(n=>groupOf(n)==="其他" && n!==currentPack);
+  if(rest.length){
+    const h=document.createElement("div"); h.className="pack-grp"; h.textContent="其他";
+    box.appendChild(h);
+    rest.forEach(function(n){
+      const b=document.createElement("button");
+      b.className="pill"; b.textContent=n;
+      b.onclick=()=>{ currentPack=n; packsOpen=false; renderPills(); renderWords(); };
+      box.appendChild(b);
+    });
+  }
+  p.appendChild(box);
 }
 function renderWords(){
   const area=document.getElementById("wordArea");area.innerHTML="";
@@ -719,6 +782,7 @@ try{localStorage.setItem("langMode","ar")}catch(e){}
 var mEn=document.getElementById("modeEn"),mAr=document.getElementById("modeAr");
 var mSp=document.getElementById("modeSpeech"),mCh=document.getElementById("modeChat"),mCm=document.getElementById("modeComm");
 function applyMode(){
+  setTimeout(function(){try{applyHeroSub()}catch(e){}},0);
   var ar=LANG_MODE==="ar", sp=LANG_MODE==="speech", ch=LANG_MODE==="chat", cm=LANG_MODE==="comm";
   mEn.classList.toggle("on",LANG_MODE==="en");mAr.classList.toggle("on",ar);
   mSp.classList.toggle("on",sp);mCh.classList.toggle("on",ch);mCm.classList.toggle("on",cm);
@@ -829,6 +893,20 @@ function famPing(){
   }catch(e){}
 }
 
+
+/* 老板 2026-08-15 给了这页一句主张：「变成更好的自己」。
+   原来顶上写死"现代标准阿拉伯语"，可这页有五门，切到英语还写阿语就不对了。 */
+const HERO_SUB={
+  en:"今天就练一件。练完了，家里人在榜上看得见。",
+  ar:"标准阿语，不用地区方言。今天就练一件。",
+  speech:"讲话是练出来的。今天练一段。",
+  chat:"会聊天不是会说话。今天练一句。",
+  comm:"话说到什么份上，比说什么更要紧。"
+};
+function applyHeroSub(){
+  const el=document.getElementById("heroSub");
+  if(el && typeof LANG_MODE!=="undefined") el.textContent=HERO_SUB[LANG_MODE]||HERO_SUB.en;
+}
 </script>
 </body>
 </html>
