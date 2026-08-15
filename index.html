@@ -358,8 +358,9 @@ header .pill.on{
 
 /* 老板 2026-08-15：这句要排成一条线 */
 .hero-copy h2.oneline{
-  white-space:nowrap;
-  font-size:clamp(1.15rem, 6.4vw, 2.5rem);
+  /* 英文比中文长，原来 nowrap 被截成了 "Be someone be…"。改成允许换行。 */
+  white-space:normal;text-wrap:balance;
+  font-size:clamp(1.35rem, 7vw, 2.4rem);
   line-height:1.25;letter-spacing:-.01em;margin-bottom:10px}
 
 /* 返回键跟着滚（老板：进去之后要能回得来）。
@@ -372,28 +373,28 @@ header .pill.on{
 
 <header class="site-header">
   <div class="header-shell">
-    <a class="famlink" href="./family.html" aria-label="返回一家人今天">← 返回一家人</a>
+    <a class="famlink" href="./family.html" aria-label="Back to the family board">← Family</a>
     <div class="brand-row">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">AR</div>
         <div class="brand-copy">
-          <h1>每天五分钟</h1>
-          <div class="sub" id="brandSub">五门课，每天一件</div>
+          <h1>Five Minutes</h1>
+          <div class="sub" id="brandSub">Five tracks · one thing a day</div>
         </div>
       </div>
       <div class="streak" id="streak">🔥 0-day streak</div>
     </div>
     <div class="hero-copy">
       <p class="eyebrow">اِسْتَمِعْ · لَاحِظْ · تَكَلَّمْ</p>
-      <h2 class="oneline">每天五分钟，变成更好的自己！</h2>
-      <p id="heroSub">今天就练一件。练完了，家里人在榜上看得见。</p>
+      <h2 class="oneline">Five minutes a day. Be someone better.</h2>
+      <p id="heroSub">One thing today. When you finish, the family sees it on the board.</p>
     </div>
     <nav class="mode-tabs" aria-label="Learning mode">
       <button class="pill" id="modeEn">English</button>
       <button class="pill on" id="modeAr">Arabic</button>
-      <button class="pill" id="modeSpeech">演讲训练</button>
-      <button class="pill" id="modeChat">交谈练习</button>
-      <button class="pill" id="modeComm">说话的分寸</button>
+      <button class="pill" id="modeSpeech">Speaking</button>
+      <button class="pill" id="modeChat">Small talk</button>
+      <button class="pill" id="modeComm">Tact</button>
     </nav>
   </div>
 </header>
@@ -404,7 +405,6 @@ header .pill.on{
         <p class="eyebrow">دَرْسُ الْيَوْمِ · 今日课程</p>
         <div class="day-tag" id="dayTag"></div>
       </div>
-      <button class="pill language-toggle" id="zhToggleBtn">显示中文</button>
     </div>
     <div class="pill-row" id="pills"></div>
   </section>
@@ -413,13 +413,6 @@ header .pill.on{
     <p class="hint">先听标准阿语神经发音，再点开句子和中文意思。</p>
   </div>
   <div id="wordArea"></div>
-  <section class="practice-section" aria-labelledby="quizTitle">
-    <h2 class="section-title" id="quizTitle">
-      <span class="title-copy"><span class="eyebrow">اِخْتِبَارُ الِاسْتِمَاعِ</span><span class="title-main">标准阿语听力测验</span></span>
-      <small>听标准阿语神经发音，选出正确句子。</small>
-    </h2>
-    <div id="quizArea"><button class="btn-main" id="startQuiz">开始标准阿语听力测验 →</button></div>
-  </section>
   <section class="practice-section" aria-labelledby="teacherTitle">
     <h2 class="section-title" id="teacherTitle">
       <span class="title-copy"><span class="eyebrow">دَرْسٌ خَاصٌّ</span><span class="title-main" id="teacherTitleText">Fatima 标准阿语课</span></span>
@@ -695,20 +688,7 @@ function updateCoachLink(){
   if(oral)msg+=" || Oral exam with Aria: "+oral;
   a.href="https://wa.me/971502769188?text="+encodeURIComponent(msg);
 }
-document.getElementById("startQuiz").onclick=startQuiz;
-document.body.classList.add("hide-zh");
-try{if(localStorage.getItem("showZh")==="1")document.body.classList.remove("hide-zh")}catch(e){}
-(function(){
-  var zb=document.getElementById("zhToggleBtn");
-  function sync(){var on=!document.body.classList.contains("hide-zh");
-    zb.textContent=on?"隐藏中文":"显示中文";zb.classList.toggle("on",on)}
-  zb.onclick=function(){
-    var nowHidden=document.body.classList.toggle("hide-zh");
-    try{localStorage.setItem("showZh",nowHidden?"0":"1")}catch(e){}
-    sync();
-  };
-  sync();
-})();
+/* 听力测验按老板 2026-08-15 的话去掉了 */
 renderStreak();renderPills();renderWords();updateCoachLink();
 
 /* ===== Aria 实时口语（内嵌） ===== */
@@ -942,11 +922,11 @@ function famPing(){
 /* 老板 2026-08-15 给了这页一句主张：「变成更好的自己」。
    原来顶上写死"现代标准阿拉伯语"，可这页有五门，切到英语还写阿语就不对了。 */
 const HERO_SUB={
-  en:"今天就练一件。练完了，家里人在榜上看得见。",
-  ar:"标准阿语，不用地区方言。今天就练一件。",
-  speech:"讲话是练出来的。今天练一段。",
-  chat:"会聊天不是会说话。今天练一句。",
-  comm:"话说到什么份上，比说什么更要紧。"
+  en:"One thing today. When you finish, the family sees it on the board.",
+  ar:"Modern Standard Arabic only — no dialect. One thing today.",
+  speech:"Speaking is a skill you drill. Do one piece today.",
+  chat:"Small talk is not the same as talking. One line today.",
+  comm:"How much you say matters more than what you say."
 };
 function applyHeroSub(){
   const el=document.getElementById("heroSub");
@@ -995,16 +975,8 @@ const UI_EN={
   quizStart:"Start listening check →"
 };
 function applyUiLang(){
-  const en = (typeof LANG_MODE!=="undefined") && LANG_MODE==="en";
+  const en = true;   /* 整站英文（老板 2026-08-15 定） */
   const $=function(id){return document.getElementById(id)};
-  const zt=$("zhToggleBtn");
-  if(zt){
-    /* 英语课里没有中文可显示（内容本来就是英文解释，老板说这样可以），
-       所以把这个按钮收起来。留着它、点了不动，比没有更糟。 */
-    zt.style.display = en ? "none" : "";
-    const hidden=document.body.classList.contains("hide-zh");
-    zt.textContent = en ? (hidden?UI_EN.zhShow:UI_EN.zhHide) : (hidden?"显示中文":"隐藏中文");
-  }
   const eb=document.querySelector(".lesson-toolbar .eyebrow");
   if(eb)eb.textContent = en ? UI_EN.todayLesson : "دَرْسُ الْيَوْمِ · 今日课程";
   const hint=document.querySelector(".listen-tip .hint");
@@ -1012,14 +984,6 @@ function applyUiLang(){
   document.querySelectorAll(".speak-label").forEach(function(e){
     e.textContent = en ? UI_EN.listen : "اِسْتَمِعْ · 听";
   });
-  const qt=document.querySelector("#quizTitle .title-main");
-  if(qt)qt.textContent = en ? UI_EN.quizTitle : "标准阿语听力测验";
-  const qs=document.querySelector("#quizTitle small");
-  if(qs)qs.textContent = en ? UI_EN.quizSub : "听标准阿语神经发音，选出正确句子。";
-  const qe=document.querySelector("#quizTitle .eyebrow");
-  if(qe)qe.textContent = en ? "" : "اِخْتِبَارُ الِاسْتِمَاعِ";
-  const sq=$("startQuiz");
-  if(sq)sq.textContent = en ? UI_EN.quizStart : "开始标准阿语听力测验 →";
   document.querySelectorAll("#pills .more-pill").forEach(function(e){
     if(e.textContent.indexOf("收起")<0) e.textContent = en ? UI_EN.change : "换个题目";
   });
