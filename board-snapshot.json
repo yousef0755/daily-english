@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 19:36",
+ "at": "2026-08-15 19:40",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -24,18 +24,35 @@
     "id": "boyuan",
     "name": "博远",
     "what": "六门功课",
-    "done": 2,
+    "done": 3,
     "total": 6,
     "here": true,
     "mins": 0,
     "goal": 30,
     "finished": false,
-    "at": "19:34",
+    "at": "19:39",
     "streak": 1,
     "auto": true,
     "_ord": 0,
     "manual": false,
     "url": "./kid.html"
+   },
+   {
+    "id": "baba",
+    "name": "爸爸",
+    "what": "今天的课",
+    "done": 0,
+    "total": 1,
+    "here": true,
+    "mins": 0,
+    "goal": 5,
+    "finished": false,
+    "at": "19:39",
+    "streak": 0,
+    "auto": true,
+    "_ord": 5,
+    "manual": false,
+    "url": "./index.html"
    },
    {
     "id": "xiya",
@@ -87,23 +104,6 @@
     "_ord": 4,
     "manual": false,
     "url": "./arabic.html"
-   },
-   {
-    "id": "baba",
-    "name": "爸爸",
-    "what": "今天的课",
-    "done": 0,
-    "total": 1,
-    "here": false,
-    "mins": 0,
-    "goal": 5,
-    "finished": false,
-    "at": "",
-    "streak": 0,
-    "auto": true,
-    "_ord": 5,
-    "manual": false,
-    "url": "./index.html"
    }
   ],
   "toy": {
