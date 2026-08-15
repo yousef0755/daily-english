@@ -326,6 +326,11 @@ footer a{color:var(--indigo)}
   background:var(--card);color:var(--indigo);font-size:.86rem;font-weight:700;
   text-decoration:none;box-shadow:0 1px 0 rgba(255,255,255,.45) inset}
 
+
+/* 返回键跟着滚（老板：进去之后要能回得来）。
+   位置和样式是 Jay 那版，我只加 sticky —— 他放在正常流里不压标题，这点比我原来的 fixed 版好。 */
+.famlink{position:sticky;top:8px;z-index:60}
+@supports(padding:max(0px)){ .famlink{top:max(8px, env(safe-area-inset-top))} }
 </style>
 </head>
 <body>

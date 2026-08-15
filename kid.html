@@ -375,6 +375,11 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 #tcRec.rec{background:#c0392b !important;color:#fff !important;animation:tcpulse 1s ease-in-out infinite}
 @keyframes tcpulse{0%,100%{opacity:1}50%{opacity:.74}}
 
+
+/* 返回键跟着滚（老板：进去之后要能回得来）。
+   位置和样式是 Jay 那版，我只加 sticky —— 他放在正常流里不压标题，这点比我原来的 fixed 版好。 */
+.famtop{position:sticky;top:8px;z-index:60}
+@supports(padding:max(0px)){ .famtop{top:max(8px, env(safe-area-inset-top))} }
 </style>
 </head>
 <body>
