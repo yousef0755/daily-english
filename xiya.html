@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1116">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="apple-touch-icon" href="./kid-icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="玺雅">
+<title>把 AI 用在自己手上 · 玺雅</title>
+<style>
+:root{
+  --bg:#0e1116; --ink:#eceef2; --muted:#98a1ad; --dim:#5a636f;
+  --line:rgba(255,255,255,.09); --card:rgba(255,255,255,.035);
+  --accent:#c9a227;            /* 旧金，像铅笔盒上的铜扣 */
+  --accent-2:#7fa3c9;          /* 冷蓝，用在"要小心"那类 */
+  --warn:#d98a6a;
+  --serif:'Songti SC','Iowan Old Style',Georgia,serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,'PingFang SC','Segoe UI',system-ui,sans-serif;
+  line-height:1.78;-webkit-font-smoothing:antialiased}
+.wrap{max-width:640px;margin:0 auto;padding:14px 18px 60px}
+
+.famlink{position:sticky;top:8px;z-index:60;display:inline-flex;align-items:center;
+  gap:6px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(20,24,30,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  color:var(--ink);text-decoration:none;font-size:.8rem;font-weight:600}
+@supports(padding:max(0px)){.famlink{top:max(8px,env(safe-area-inset-top))}}
+
+header{padding:26px 0 8px}
+.eyebrow{font-size:.68rem;letter-spacing:.28em;color:var(--dim);margin:0 0 10px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,6.4vw,2.15rem);
+  margin:0 0 10px;letter-spacing:.01em;text-wrap:balance}
+.lede{margin:0;color:var(--muted);font-size:.94rem;line-height:1.85}
+
+.today{margin:22px 0 6px;padding:16px 17px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(201,162,39,.10),rgba(201,162,39,.03));
+  border:1px solid rgba(201,162,39,.26)}
+.today .lbl{font-size:.68rem;letter-spacing:.22em;color:var(--accent);margin-bottom:7px}
+.today .txt{font-size:1rem;line-height:1.8}
+
+nav.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:22px 0 16px}
+nav.tabs button{border:1px solid var(--line);background:transparent;color:var(--muted);
+  border-radius:999px;padding:7px 14px;font-size:.86rem;font-family:inherit;cursor:pointer}
+nav.tabs button.on{background:var(--ink);color:#12161c;border-color:var(--ink);font-weight:650}
+
+section.pane{display:none}
+section.pane.on{display:block}
+.item{padding:15px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:none}
+.item h3{margin:0 0 6px;font-size:.99rem;font-weight:650;letter-spacing:.01em}
+.item p{margin:0 0 10px;color:var(--muted);font-size:.9rem}
+.ask{position:relative;background:#141922;border:1px solid var(--line);
+  border-radius:12px;padding:12px 40px 12px 13px;font-size:.87rem;line-height:1.75;
+  color:#dbe2ea;white-space:pre-wrap;word-break:break-word}
+.ask:before{content:"照着问";position:absolute;top:-8px;left:11px;background:var(--bg);
+  padding:0 6px;font-size:.6rem;letter-spacing:.16em;color:var(--dim)}
+.copy{position:absolute;right:8px;top:8px;border:1px solid var(--line);background:transparent;
+  color:var(--muted);border-radius:8px;width:26px;height:26px;font-size:.7rem;cursor:pointer;
+  display:grid;place-items:center}
+.copy.done{border-color:var(--accent);color:var(--accent)}
+.flag{margin-top:10px;padding:11px 13px;border-radius:11px;font-size:.84rem;line-height:1.75;
+  background:rgba(217,138,106,.09);border:1px solid rgba(217,138,106,.28);color:#e8c0ad}
+.flag b{color:var(--warn)}
+.soft{margin-top:10px;padding:11px 13px;border-radius:11px;font-size:.84rem;line-height:1.75;
+  background:rgba(127,163,201,.08);border:1px solid rgba(127,163,201,.22);color:#c3d4e6}
+
+.done-row{margin:26px 0 0;padding:16px;border:1px solid var(--line);border-radius:16px;
+  background:var(--card);text-align:center}
+.done-row .bar{height:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin:12px 0 9px}
+.done-row .bar i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),#e0c97a);transition:width .8s cubic-bezier(.2,.8,.3,1)}
+.done-row .st{font-size:.82rem;color:var(--muted)}
+.done-row .st b{color:var(--accent)}
+footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
+  color:var(--dim);font-size:.76rem;line-height:1.9}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="famlink" href="./family.html" aria-label="回一家人">← 一家人</a>
+
+<header>
+  <p class="eyebrow">给 玺 雅</p>
+  <h1>把 AI 用在自己手上</h1>
+  <p class="lede">不是学「AI 是什么」，你早会用了。这里放的是你写论文、跑数据、查文献的时候，
+  怎么让它真的省你的时间——以及哪些地方它会把你坑了。</p>
+</header>
+
+<div class="today">
+  <div class="lbl">今 天 这 一 条</div>
+  <div class="txt" id="todayTip">…</div>
+</div>
+
+<nav class="tabs" id="tabs"></nav>
+<div id="panes"></div>
+
+<div class="done-row">
+  <div class="st" id="stTxt">今天还没开始</div>
+  <div class="bar"><i id="stBar"></i></div>
+  <div class="st" style="font-size:.74rem;opacity:.75">在这页上认真待够，家里那张榜上你就亮了</div>
+</div>
+
+<footer>
+  这页是小林做的。内容你说了算——觉得哪条没用、哪条不对，直接跟我说，我改。<br>
+  你在这页上的东西只存在你自己手机里。
+</footer>
+</div>
+
+<script>
+/* 玺雅 22 岁，大学读经济学，喜欢画画。
+   所以这页不做"AI 科普"，做她真会打开的东西：
+   拿她手上的活当例子，给能照抄的问法，并且明说哪里会被坑。
+   画画那块刻意不教"用 AI 出图"——画画的人对这件事各有各的态度，
+   要不要用是她自己定，这页只把 AI 放在帮手的位置。 */
+const DATA = [
+["读文献", [
+  {h:"先要骨架，再看原文——顺序不能反",
+   p:"让它给你一篇论文的结构和结论，你拿着这个去读原文，速度会快很多。但**不要**拿它的摘要当成你读过了。",
+   ask:"这篇论文我要在一小时内读完并能跟人讨论。请给我：\n1) 它想回答什么问题\n2) 用了什么数据和方法\n3) 主要结论是什么、边界条件是什么\n4) 我读原文时应该重点看哪三段\n先不要评价好坏。",
+   flag:"它给的页码、引文、作者年份**经常是编的**。凡是你要写进论文的引用，必须回到原文核对一遍。"},
+  {h:"让它当反方",
+   p:"读完一篇你觉得有道理的，让它站到对面去挑毛病。这比再读三篇同方向的有用。",
+   ask:"我准备引用这篇论文的结论。请你扮演审稿人，尽量挑它的毛病：样本、识别策略、内生性、外部有效性、以及它没说清楚的地方。不用照顾我的感受。"},
+  {h:"把一堆文献理成一张表",
+   p:"写文献综述最费时间的不是读，是理。",
+   ask:"下面是我要综述的几篇文献。请做成一张表：作者年份 / 研究问题 / 数据来源 / 方法 / 核心结论 / 与其他几篇的分歧点。分歧那一列最重要，请具体写出谁和谁在哪一点上不一致。"}
+]],
+["数据和图",[
+  {h:"让它教你做，别让它替你做",
+   p:"你自己跑出来的，答辩时才讲得出来。让它一步一步教，每一步你自己敲。",
+   ask:"我有一份面板数据，想做固定效应回归。请一步一步教我在 Stata（或 Python）里怎么做，每一步告诉我这一步在做什么、为什么要这么做。先不要给我完整代码，一次给一步，我做完了再给下一步。"},
+  {h:"报错了先别贴给它",
+   p:"先自己读一遍报错，说说你以为哪里错了，再让它看。这样你下次会自己修。",
+   ask:"我跑这段代码报了这个错。我猜是因为 ____。请先告诉我我的猜测对不对，再解释真正的原因，最后才给改法。"},
+  {h:"图的问题，问「读者会怎么误读」",
+   p:"图不是好看就行，是别让人看错。",
+   ask:"这是我论文里的一张图（描述：____）。请指出：一个不熟悉这个领域的读者最可能从这张图里读出什么错误结论？我该怎么改坐标轴、标注或图例来堵住它？"}
+]],
+["写作",[
+  {h:"教我写，不要代我写",
+   p:"这条是家里的规矩，霏雅那边也是一样。代写这件事，风险在你自己身上：查重、答辩、以及你真的没学会。",
+   ask:"这是我自己写的一段（贴上来）。请不要替我重写。请指出：哪句话逻辑跳了、哪个论断没有证据支撑、哪里用词不够准确。每一条给我一个修改方向，但让我自己改。",
+   flag:"**别让它替你成段成段地写。** 重复率是一回事，更要紧的是答辩时你解释不了自己写的东西。"},
+  {h:"卡住的时候，让它问你问题",
+   p:"写不下去多半不是不会写，是没想清楚。让它审你，比让它写强。",
+   ask:"我这一节写不下去了。请不要给我内容，请连着问我五个问题，帮我把这一节到底想说什么问出来。一次问一个，等我答完再问下一个。"},
+  {h:"英文表达：给我三种，我自己挑",
+   p:"直接要「改好的版本」，你学不到东西。要选项，你会慢慢有自己的语感。",
+   ask:"这句英文我想表达的意思是 ____。请给我三种写法：一种更正式、一种更简洁、一种更学术常见。分别说明差别在哪，我自己选。"}
+]],
+["核实",[
+  {h:"它会一本正经地编",
+   p:"这是最要紧的一条。它编数字、编文献、编法条的时候，语气跟说真话一模一样。经济学论文里编一个数据出处，是要出事的。",
+   ask:"你刚才给的这几个数据和引用，请逐条标出：哪些是你确定有出处的、哪些是你不确定的、哪些是你推断的。不确定的请直接说不确定，不要补一个看起来像真的来源。",
+   flag:"**凡是要写进论文的数字和引用，一律回原始出处核对。** 世界银行、IMF、国家统计局的数据自己去官网下，不要用它复述的。"},
+  {h:"让它给你可核实的东西，而不是结论",
+   p:"问「结论」你只能选择信或不信；问「去哪儿查」你自己能验证。",
+   ask:"关于这个问题，请不要直接给结论。请告诉我：应该看哪些数据库/统计口径/关键文献，以及我自己怎么判断这些来源可不可靠。"},
+  {h:"同一个问题，换个说法再问一次",
+   p:"如果两次答案对不上，说明它在猜。这是个很便宜的检验。",
+   ask:"（先问一遍，然后换完全不同的措辞再问一遍，比较两次的答案）"}
+]],
+["画画",[
+  {h:"这块我不替你决定",
+   p:"用不用 AI 出图，画画的人各有各的看法，我不劝你哪一边。下面这些是把它放在帮手位置的用法——不生成作品，只帮你想和看。",
+   soft:"你要是自己想试生成图，那是你的事，不用跟谁交代。我只是不打算替你把这个决定做了。"},
+  {h:"让它讲，不让它画",
+   p:"构图、透视、色彩关系这些，它讲得挺清楚，讲完你自己动手。",
+   ask:"这是我画的一张（描述或上传）。请只从构图和视觉引导上讲：视线第一眼落在哪、然后往哪走、哪里断了。不要评价我画得好不好，也不要给我改好的版本。"},
+  {h:"找参考，而不是找成品",
+   p:"让它帮你把「我想要的那种感觉」翻译成能搜的词。",
+   ask:"我想画的感觉是 ____（描述）。请帮我把它翻译成可以去搜索的具体词：画派、时期、光线类型、色调、构图方式。给我一份能拿去 Pinterest 或美术馆网站搜的关键词表。"},
+  {h:"版权和署名，早点搞清楚",
+   p:"这件事你迟早会遇到，早知道比晚知道好。",
+   ask:"请讲清楚：模仿一个在世画家的风格，在版权上和道德上分别是什么处境？署名和商用的时候有什么区别？请给我具体的判断标准，不要只说「要尊重原创」。"}
+]]
+];
+
+/* ── 界面 ── */
+const tabs=document.getElementById("tabs"), panes=document.getElementById("panes");
+DATA.forEach(function(g,i){
+  const b=document.createElement("button");
+  b.textContent=g[0]; b.className=i===0?"on":"";
+  b.onclick=function(){
+    [...tabs.children].forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");
+    [...panes.children].forEach((x,j)=>x.classList.toggle("on",j===i));
+  };
+  tabs.appendChild(b);
+
+  const sec=document.createElement("section");
+  sec.className="pane"+(i===0?" on":"");
+  sec.innerHTML=g[1].map(function(it){
+    return '<div class="item"><h3>'+it.h+'</h3>'+
+      (it.p?'<p>'+it.p.replace(/\*\*(.+?)\*\*/g,'<b style="color:var(--ink)">$1</b>')+'</p>':'')+
+      (it.ask?'<div class="ask">'+it.ask.replace(/</g,"&lt;")+
+        '<button class="copy" aria-label="复制">复</button></div>':'')+
+      (it.flag?'<div class="flag">'+it.flag.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')+'</div>':'')+
+      (it.soft?'<div class="soft">'+it.soft+'</div>':'')+
+      '</div>';
+  }).join("");
+  panes.appendChild(sec);
+});
+
+/* 一键复制那段问法 */
+panes.addEventListener("click",function(e){
+  const b=e.target.closest(".copy"); if(!b)return;
+  const box=b.parentNode, t=box.textContent.replace(/复$/,"").trim();
+  navigator.clipboard.writeText(t).then(function(){
+    b.textContent="✓"; b.classList.add("done");
+    setTimeout(function(){b.textContent="复";b.classList.remove("done")},1400);
+  }).catch(function(){});
+});
+
+/* 今天这一条：每天换一个，不用自己挑 */
+(function(){
+  const all=[];
+  DATA.forEach(g=>g[1].forEach(it=>all.push(g[0]+" · "+it.h)));
+  const d=new Date();
+  const n=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
+  document.getElementById("todayTip").textContent=all[n%all.length];
+})();
+
+/* ── 学习时长：跟家里那张榜同一套规矩 ──
+   只在页面看得见、且最近 90 秒有互动的时候走秒。
+   开着不动、切到后台，都不算。 */
+const API="https://yusufs-macbook-pro.tail63c9ae.ts.net", GOAL=15;
+(function(){
+  const KEY="studyMins_xiya";
+  let lastAct=Date.now(), sec=0, sentAt=0;
+  function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+  try{const o=JSON.parse(localStorage.getItem(KEY)||"{}"); if(o.d===today())sec=o.s|0}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({d:today(),s:sec}))}catch(e){}}
+  ["pointerdown","keydown","touchstart","wheel","input"].forEach(function(ev){
+    document.addEventListener(ev,function(){lastAct=Date.now()},{passive:true});
+  });
+  function paint(){
+    const m=Math.floor(sec/60);
+    document.getElementById("stBar").style.width=Math.min(100,Math.round(m/GOAL*100))+"%";
+    document.getElementById("stTxt").innerHTML = m>=GOAL
+      ? "<b>今天这一次够了。</b>" : (m>0 ? "在学着" : "今天还没开始");
+  }
+  function report(){
+    fetch(API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:"xiya",mins:Math.floor(sec/60),done:0,total:1,started:sec>20})
+    }).catch(function(){});
+  }
+  paint();
+  setInterval(function(){
+    if(document.hidden)return;
+    if(Date.now()-lastAct>90000)return;
+    sec++; save(); if(sec%10===0)paint();
+    if(sec-sentAt>=30){sentAt=sec;report()}
+  },1000);
+  window.addEventListener("pagehide",report);
+  document.addEventListener("visibilitychange",function(){if(document.hidden)report()});
+})();
+</script>
+</body>
+</html>
