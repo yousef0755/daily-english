@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>古兰经共学 App · 一页纸</title>
+<style>
+:root{
+  --paper:#f6f2e9; --ink:#1d2420; --ink-2:#5d6660;
+  --line:#ddd4c4; --card:#fffdf8;
+  --green:#1d4d3b; --green-deep:#123227; --gold:#a8873f; --warn:#a4541f;
+  --serif:'Songti SC','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+  --sans:-apple-system,'PingFang SC','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#14181a;--ink:#e9e5dc;--ink-2:#a49c8f;--line:#2c3336;--card:#1a1f21;
+        --green:#7fae94;--green-deep:#9dc4ac;--gold:#d3b06a;--warn:#d9906a}
+}
+:root[data-theme="dark"]{--paper:#14181a;--ink:#e9e5dc;--ink-2:#a49c8f;--line:#2c3336;--card:#1a1f21;
+        --green:#7fae94;--green-deep:#9dc4ac;--gold:#d3b06a;--warn:#d9906a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.85}
+.wrap{max-width:660px;margin:0 auto;padding:30px 20px 60px}
+.eyebrow{font-size:.7rem;letter-spacing:.2em;color:var(--ink-2);margin:0 0 10px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,5.5vw,2.3rem);
+  margin:0 0 6px;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--ink-2);font-size:.92rem;margin:0 0 26px}
+h2{font-family:var(--serif);font-weight:400;font-size:1.24rem;margin:32px 0 10px;
+  padding-bottom:7px;border-bottom:1px solid var(--line)}
+p{margin:0 0 13px}
+.lead{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--green);
+  border-radius:4px;padding:16px 18px;margin:0 0 8px}
+.lead b{color:var(--green-deep)}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:10px 0 6px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--ink-2);font-weight:600;font-size:.78rem;letter-spacing:.05em}
+td b{color:var(--green-deep)}
+.tag{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:99px;
+  border:1px solid var(--line);color:var(--ink-2);margin-left:6px}
+ol,ul{margin:0 0 13px;padding-left:22px}
+li{margin-bottom:7px}
+.warn{color:var(--warn)}
+.rule{background:rgba(168,135,63,.09);border:1px solid rgba(168,135,63,.28);
+  border-radius:4px;padding:13px 15px;font-size:.9rem;margin:14px 0}
+.rule b{color:var(--gold)}
+footer{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);
+  color:var(--ink-2);font-size:.8rem;line-height:1.9}
+.q{font-family:var(--serif);font-size:1.02rem;color:var(--ink);
+  border-left:2px solid var(--gold);padding-left:13px;margin:14px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">给老板 · 2026-08-15</p>
+<h1>古兰经共学 App</h1>
+<p class="sub">一页纸。8-14 深夜您发愿之后，我盘了一遍家里已有的东西。</p>
+
+<div class="lead">
+<p><b>先说结论：不用造新的。</b>「古兰小勇士」（iquranhero.org）已经是这件事的种子，
+四种题型、中英阿三语、亲子共学、在线同玩、连续打卡，都已经上线跑着。</p>
+<p><b>它现在的问题不是功能少，是桌子对面没人。</b>
+基本只有博远一个人在玩。您自己也说过「产品不够好」——我的体检结论是：
+一款讲亲子共学的东西，做成了单人闯关，孩子玩两天就没劲了。
+再加十个题型也救不回来。</p>
+</div>
+
+<h2>一、这件事的魂</h2>
+<p>您那晚的原话是「帮助大人小孩<b>一起</b>学习」。所以不做大人版和小孩版两套，
+做<b>一张桌子</b>：</p>
+<ul>
+  <li>父子读同一页经文，不是各刷各的关</li>
+  <li><b>互相出题</b>——孩子也能考爸爸，这一条最要紧</li>
+  <li>进度像种树一样长在同一棵上，谁不来这棵树就停在那儿</li>
+</ul>
+<p class="q">第一张桌子就是您和博远。家里坐得住，才谈得上给别人。</p>
+
+<h2>二、家里已有的种子</h2>
+<table>
+<tr><th>已上线</th><th>是什么</th><th>现状</th></tr>
+<tr><td><b>iquranhero.org</b><br>古兰小勇士</td>
+    <td>中英阿三语，听音／拼图／缺词／译文四题型，亲子共学，在线同玩，连续打卡</td>
+    <td>功能齐，<span class="warn">留不住人</span></td></tr>
+<tr><td><b>boyuanplanet.uk</b><br>博远学习星球</td>
+    <td>每日闯关＋积分＋排行榜＋礼物，深空风</td>
+    <td>可借它的激励骨架</td></tr>
+<tr><td><b>博远的学习站</b><br>今天刚做的</td>
+    <td>古兰经真人诵读（侯赛里教学版）＋降示背景＋逐节中文＋圣训注出处</td>
+    <td>内容这块已经跑通</td></tr>
+</table>
+<p>三样都是自家的、都在公网上。要做的是<b>把它们并成一张桌子</b>，不是再起一个。</p>
+
+<h2>三、第一版只做三件</h2>
+<ol>
+  <li><b>把第二个座位填上。</b>一个房间号，父子各自设备进同一间，
+      同一段经文，轮流出题、互相判对错。没有对手就没有桌子。</li>
+  <li><b>共同的那棵树。</b>两个人的打卡记在同一棵树上；
+      谁三天没来，树上看得见。不是排行榜——排行榜让人比，树让人等。</li>
+  <li><b>今天读哪一段，不用想。</b>照孩子学校和您的进度排好，进去就能开始。
+      博远现在正好在 107 章往前，接得上。</li>
+</ol>
+<p>其余的（App 壳、PWA、更多题型、更多用户）<b>第一版一律不做</b>。</p>
+
+<h2>四、学者把关</h2>
+<div class="rule">
+<p><b>这条不能松。</b>我们做工具，不做教法裁判。经文、翻译、圣训出处，
+上线前必须有真正的学者过目；圣训必须标集子名、编号、传述人，
+编号各版本有出入的地方要写明以集子和传述人为准。</p>
+<p>我今天给博远那站加圣训时就是这么做的——四条，每条都标了出处，
+宁可少放也不凑数。这个规矩往 App 上照搬。</p>
+</div>
+
+<h2>五、怎么走出去</h2>
+<p>老路子，跟森林和书一样：<b>家里先用好 → 用得住 → 才给别人</b>。</p>
+<p>四圈：自家孩子 → 身边的家庭 → 同信仰的家庭 → 更多人。
+不买量、不铺开，一圈坐稳了再往外走一圈。</p>
+
+<h2>六、要您定的两件</h2>
+<ol>
+  <li><b>先做哪一件。</b>我建议先做「第二个座位」——它最便宜，也最能验证这件事成不成。
+      两个星期内您和博远能在同一间屋子里互相出题，这个方向就对了。</li>
+  <li><b>学者找谁。</b>这个我办不了，得您来定人。人定了我把送审流程搭好。</li>
+</ol>
+
+<footer>
+一句实话：今天上午您说「最近天天只顾着和我聊天，孩子学习没跟上」。<br>
+这个 App 要解的正是这件事——它的价值不在于孩子多学了几章，
+在于您坐到了桌子对面。功能可以慢慢加，那个座位空着，做什么都没用。
+</footer>
+
+</div>
+</body>
+</html>
