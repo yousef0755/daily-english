@@ -90,7 +90,7 @@ a.who:active .nm{opacity:.6}
 .fcat .tail{transform-origin:152px 130px}
 .fcat .earL{transform-origin:76px 60px}
 .fcat .earR{transform-origin:124px 60px}
-/* 没人来：两只睡着，灰着 */
+/* 首次数据回来前先安静等候；确认没人来后会切到 waiting 互动。 */
 .fcat .open{opacity:0}
 .fcat .shut{opacity:1}
 .cats.asleep .fcat{opacity:.4;filter:saturate(.35)}
@@ -116,6 +116,8 @@ a.who:active .nm{opacity:.6}
 .cats.waiting .fcat{opacity:1;filter:none}
 .cats.waiting .fcat .open{opacity:1}
 .cats.waiting .fcat .shut{opacity:0}
+.cats.waiting .cwrap{cursor:pointer;touch-action:manipulation}
+.cats.waiting .cwrap:focus-visible{outline:2px solid var(--gold);outline-offset:6px;border-radius:18px}
 /* 一号玩法：哆米去拨 Snowy 的尾巴，Snowy 把尾巴收走 */
 .cats.waiting.p1 #fcatD{animation:lean 2.4s ease-in-out infinite}
 .cats.waiting.p1 #fcatS .tail{animation:tuck 2.4s ease-in-out infinite}
@@ -135,9 +137,15 @@ a.who:active .nm{opacity:.6}
 .cats.waiting.p4 #fcatD{animation:hop .7s ease-in-out infinite}
 .cats.waiting.p4 #fcatS .tail{animation:fflick 1.1s ease-in-out infinite}
 @keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-.cline .sp{display:block;margin-top:3px}
-.cline .sp b{color:var(--gold)}
-.cline .sp.d b{color:#b9c4d1}
+.cats.waiting .cline{display:grid;gap:7px;width:min(100%,390px);margin:10px auto 0;text-align:left}
+.cline .sp{display:block;width:max-content;max-width:88%;padding:7px 11px;
+  border:1px solid var(--line);border-radius:14px 14px 14px 5px;
+  background:rgba(255,255,255,.055);box-shadow:0 8px 22px rgba(0,0,0,.12);
+  color:#c8d3de;font-size:.78rem;line-height:1.55}
+.cline .sp b{display:block;color:var(--gold);font-size:.65rem;letter-spacing:.05em}
+.cline .sp.d{justify-self:end;border-radius:14px 14px 5px 14px;background:rgba(217,180,95,.085)}
+.cline .sp.d b{color:var(--mint)}
+.tapcat{display:block;justify-self:center;color:var(--muted);font-size:.67rem;opacity:.76}
 </style>
 </head>
 <body>
@@ -149,7 +157,7 @@ a.who:active .nm{opacity:.6}
   <div class="today"><span>已经来了</span><b id="hereN">—</b><span id="hereTot"></span></div>
 </header>
 
-<section class="cats" id="catsBox"><div class="cwrap"><svg class="fcat" id="fcatS" viewBox="0 0 200 170" aria-hidden="true">
+<section class="cats" id="catsBox"><div class="cwrap" id="catStage" role="button" tabindex="0" aria-label="点一下看 Snowy 和哆米继续玩"><svg class="fcat" id="fcatS" viewBox="0 0 200 170" aria-hidden="true">
  <defs><radialGradient id="fgfcatS" cx="42%" cy="34%" r="72%">
   <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e9e3d8"/></radialGradient></defs>
  <g class="tail"><path d="M150 132 C176 130 184 112 176 98 C170 88 158 89 156 98"
@@ -187,7 +195,7 @@ a.who:active .nm{opacity:.6}
   <path d="M96 85 L104 85 L100 90 Z" fill="#b07d76"/>
   <g stroke="#f0e6c8" stroke-width="1.5" stroke-linecap="round" opacity=".38">
    <path d="M70 84 L46 80"/><path d="M70 88 L47 90"/><path d="M130 84 L154 80"/><path d="M130 88 L153 90"/></g>
- </g></svg></div><p class="cline" id="catLine"></p></section>
+ </g></svg></div><p class="cline" id="catLine" aria-live="polite"></p></section>
 <div class="lamp"><i id="lamp"></i></div>
 
 <ul id="list"><li><div class="who"><div class="nm">正在看…</div></div></li></ul>
@@ -243,7 +251,7 @@ function render(d){
       '</li>';
   }).join("");
 
-  /* 猫跟着今天来了的人。没人来它们就睡着。 */
+  /* 猫跟着今天来了的人。没人来时，两只自己玩、轮流说话。 */
   const tryers=ps.filter(p=>p.here).map(p=>p.name);
   const cb=document.getElementById("catsBox"), cl=document.getElementById("catLine");
   if(!tryers.length){
@@ -254,6 +262,7 @@ function render(d){
     return;                /* 行在上面已经画好了，不用再画 */
   }
   if(chatTimer){clearInterval(chatTimer);chatTimer=null}
+  catNext=null;
   cb.className="cats awake";
   if(tryers.length===ps.length){
     cl.innerHTML="今天全家都在，<b>两只忙不过来了</b>。";
@@ -304,23 +313,23 @@ document.addEventListener("visibilitychange",()=>{ if(!document.hidden)load() })
    写的时候按各自性子：Snowy 温和会等，哆米烈、嘴硬心软。
    刻意不写成催——老板自己定过榜上「别催，去问一句就行」。 */
 const CHAT=[
- [["哆米","一个人都没来。"],["Snowy","会来的。我等着。"]],
+ [["哆米","家里今天好安静。"],["Snowy","我们先玩一会儿，等大家回来。"]],
  [["哆米","别晃你那尾巴。"],["Snowy","那你别扑它。"]],
  [["哆米","他们是不是把我们忘了。"],["Snowy","没有。昨天还有人来。"]],
- [["Snowy","今天谁会先来呢。"],["哆米","博远吧。他最近来得勤。"]],
+ [["Snowy","今天谁会先来呢。"],["哆米","谁先来，我们就陪谁学五分钟。"]],
  [["哆米","无聊。"],["Snowy","那我陪你玩一会儿。"]],
  [["Snowy","门是不是开了？"],["哆米","……风。"]],
  [["哆米","我数到一百他们还不来，我就睡了。"],["Snowy","你上次数到七就睡了。"]],
- [["Snowy","曼雅绣东西的时候，我最喜欢趴她旁边。"],["哆米","霏雅背诗吵，但我也习惯了。"]],
+ [["Snowy","爸爸、妈妈和孩子们都来就好了。"],["哆米","学什么都行，来了家里就热闹。"]],
  [["哆米","爸爸今天会来吗。"],["Snowy","他忙。忙完会来的。"]],
- [["Snowy","来一个也好。"],["哆米","来一个我就起来。"]],
- [["哆米","位置我占着了。"],["Snowy","那是给他们留的。"]],
+ [["Snowy","来一个也好。"],["哆米","第一个来的，是把大家等回来的人。"]],
+ [["哆米","位置我占着了。"],["Snowy","旁边都给家人留着，快来坐吧。"]],
  [["Snowy","你耳朵动了。"],["哆米","我听见脚步声了……没有。"]],
  [["哆米","要是今天一个都没有呢。"],["Snowy","那我们就等明天。也没什么。"]],
- [["Snowy","我今天特意把毛理了理。"],["哆米","给谁看。"],],
- [["哆米","……给他们看。"],["Snowy","嗯。"]]
+ [["Snowy","我今天特意把毛理了理。"],["哆米","给谁看。"]],
+ [["哆米","……给他们看。快来吧。"],["Snowy","嗯，我们一直在。"]]
 ];
-let chatN=0, chatTimer=null, playN=1;
+let chatN=0, chatTimer=null, playN=1, catNext=null;
 function catsIdle(box, cl){
   if(chatTimer)clearInterval(chatTimer);
   function tick(){
@@ -329,11 +338,20 @@ function catsIdle(box, cl){
     box.className="cats waiting p"+playN;
     cl.innerHTML=pair.map(function(x){
       return '<span class="sp'+(x[0]==="哆米"?" d":"")+'"><b>'+x[0]+'</b>　'+x[1]+'</span>';
-    }).join("");
+    }).join("")+'<small class="tapcat">点一下小猫，看下一幕</small>';
   }
+  catNext=tick;
   tick();
   chatTimer=setInterval(tick,7000);
 }
+document.getElementById("catStage").addEventListener("click",()=>{
+  if(catNext&&document.getElementById("catsBox").classList.contains("waiting"))catNext();
+});
+document.getElementById("catStage").addEventListener("keydown",e=>{
+  if((e.key==="Enter"||e.key===" ")&&catNext&&document.getElementById("catsBox").classList.contains("waiting")){
+    e.preventDefault();catNext();
+  }
+});
 </script>
 </body>
 </html>
