@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
+<link rel="manifest" href="./kid.webmanifest">
+<link rel="apple-touch-icon" href="./kid-icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="学习星球">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>博远的学习星球</title>
 <style>
 :root{--bg:#0e1a2e;--bg2:#16294a;--cream:#f3efe2;--gold:#ffd479;--mint:#7fe0c0;--pink:#ff9ec4;--muted:#93a4c0;--line:rgba(243,239,226,.14)}
@@ -322,6 +327,15 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 .wcat.black path[fill="#e9e3d8"]{fill:#3a3d45}
 .wcat.black path[fill="#e6b7ae"]{fill:#8d6a68}
 .wcat.black ellipse[fill="#3a352e"]{fill:#f0e6c8}
+
+/* ── 让猫咪来叫你 ── */
+.nagbox{margin:14px 12px 22px;background:rgba(255,255,255,.04);
+  border:1px solid var(--line);border-radius:18px;padding:15px 16px 16px}
+.nb-head{font-size:.9rem;color:var(--gold);font-weight:700;margin-bottom:7px}
+.nb-tip{margin:0 0 11px;font-size:.84rem;line-height:1.75;color:var(--muted)}
+.nb-tip b{color:var(--mint)}
+.nagbox .main{width:100%}
+.nagbox.on{border-color:rgba(126,214,178,.4)}
 </style>
 </head>
 <body>
@@ -536,6 +550,12 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <div class="rf-tip" id="rfTip"></div>
   </div>
 </section>
+<section class="nagbox" id="nagBox">
+  <div class="nb-head">让猫咪来叫你</div>
+  <p class="nb-tip" id="nagTip">正在看…</p>
+  <button class="main ghost" id="nagBtn" style="display:none">好，让它们叫我</button>
+</section>
+
 </main>
 
 <nav>
@@ -1861,20 +1881,26 @@ function strokeFollow(ch){
    老板 09:07 交代。两只都是家里真的猫，说话要像猫，不讲大道理。 */
 const CATLINES={
   start:[["Snowy","今天也来了。坐下吧，我在旁边。"],
-         ["哆米","我不打扰你，我就趴这儿。"]],
+         ["Snowy","位置我给你占着呢。"],
+         ["哆米","我不打扰你，我就趴这儿。"],
+         ["哆米","开始吧。我等着看。"]],
   going:[["Snowy","背错了没关系，我又听不懂。"],
          ["Snowy","慢慢来，我不着急。"],
          ["Snowy","嗓子干了就喝口水，我等你。"],
          ["Snowy","刚才那一下挺顺的。"],
          ["Snowy","你念的时候我尾巴会跟着晃，你没发现吧。"],
-         ["Snowy","我见过背得比你慢的。真的。"],
+         ["Snowy","曼雅写字的时候我也是这么趴着的。"],
+         ["Snowy","曼雅绣一只猫能坐一下午。你也坐得住。"],
          ["哆米","再来。"],
          ["哆米","这句你昨天就卡过。"],
          ["哆米","错了就重来，别愣着。"],
          ["哆米","不用背给我听，背给你自己听。"],
+         ["哆米","霏雅写论文写到半夜，没喊过一句累。"],
          ["哆米","行，这遍还行。"]],
   done:[["Snowy","今天的都过了。你可以去玩了。"],
-        ["哆米","做到了就是做到了，不用管几颗星。"]],
+        ["Snowy","这个我要告诉曼雅。"],
+        ["哆米","做到了就是做到了，不用管几颗星。"],
+        ["哆米","今天没话说。干得不错。"]],
   keep:[["Snowy","你已经坚持 __D__ 天了。"],
         ["哆米","连着来这么多天，不容易。"]]
 };
@@ -2098,6 +2124,7 @@ function setWalker(who){
 }
 function renderWalk(){
   const box=document.getElementById("walkBox"); if(!box)return;
+  try{nagMirror()}catch(e){}
   const n=walkDone(), total=(typeof DIARY_SUBS!=="undefined")?DIARY_SUBS.length:5;
   const pct=Math.round(n/total*100);
   document.getElementById("walkStep").textContent=n+" / "+total;
@@ -2217,9 +2244,10 @@ const NAG_LINES=[
    ["Snowy","我陪着你，坐下吧。"],
    ["哆米","开始。"]],
   [["Snowy","你要是累了就歇会儿，歇完记得回来。"],
+   ["Snowy","曼雅也有不想动的时候，她就先做一件最小的。"],
    ["哆米","书自己不会念。"],
-   ["哆米","我尾巴都甩累了。"]],
-  [["Snowy","再不开始，今天的就赶不完了。"],
+   ["哆米","霏雅那个论文，写不动也得坐那儿。"]],
+  [["Snowy","再不开始，今天的就赶不完了。我不想看你赶。"],
    ["哆米","我数三下。一。二。"],
    ["哆米","行，你赢了。我睡了。"]]
 ];
@@ -2262,6 +2290,95 @@ function nagTick(){
   document.addEventListener("visibilitychange",function(){ if(!document.hidden)touchActive() });
   clearInterval(nagTimer);
   nagTimer=setInterval(nagTick,15000);
+})();
+
+/* ═══ 猫咪主动来叫他（老板：「他不学，让两只猫咪催他」「每天我催肯定不行」）═══
+   页面里那两只只在他打开之后才催，他不点开就等于没人催。
+   这一段让猫咪能弹到他手机屏幕上。
+
+   要紧的一点：服务器只发一个**空包**，说哪句话由他手机本地的
+   Service Worker 读进度自己决定。学习数据不出这台手机。 */
+const NAG_API="https://yusufs-macbook-pro.tail63c9ae.ts.net";
+const NAG_KEY="BGOs2vrk1QcTHhzeRotmBtjaqz4Pac591KNs2SBGtOb36aKnr1plom2w7a9Cp5xebfdRLtJTIYwodezn1_LJ6lw";
+
+/* 把今天的进度镜像一份到 IndexedDB —— Service Worker 读不了 localStorage */
+function nagMirror(){
+  try{
+    const rq=indexedDB.open("kidnag",1);
+    rq.onupgradeneeded=function(){try{rq.result.createObjectStore("state")}catch(e){}};
+    rq.onsuccess=function(){
+      try{
+        rq.result.transaction("state","readwrite").objectStore("state")
+          .put({date:todayKey(), done:(typeof walkDone==="function"?walkDone():0)}, "today");
+      }catch(e){}
+    };
+  }catch(e){}
+}
+
+function b64key(s){
+  const pad="=".repeat((4-s.length%4)%4);
+  const raw=atob((s+pad).replace(/-/g,"+").replace(/_/g,"/"));
+  const a=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)a[i]=raw.charCodeAt(i);
+  return a;
+}
+function isStandalone(){
+  return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
+}
+async function nagReg(){
+  if(!("serviceWorker" in navigator))return null;
+  try{ return await navigator.serviceWorker.register("./kid-sw.js") }catch(e){ return null }
+}
+async function renderNag(){
+  const tip=document.getElementById("nagTip"), btn=document.getElementById("nagBtn"),
+        box=document.getElementById("nagBox");
+  if(!tip)return;
+  const iOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)||typeof Notification==="undefined"){
+    btn.style.display="none";
+    tip.innerHTML = iOS && !isStandalone()
+      ? '先把这一页<b>加到主屏幕</b>：点下面的分享按钮 → 添加到主屏幕。<br>然后从主屏幕的图标打开，再回来点这里。'
+      : '这个浏览器收不到提醒。用 Safari 或 Chrome 打开试试。';
+    return;
+  }
+  const reg=await nagReg();
+  const sub=reg? await reg.pushManager.getSubscription() : null;
+  if(sub && Notification.permission==="granted"){
+    box.classList.add("on");
+    tip.innerHTML='<b>猫咪已经能找到你了。</b>你要是一天没动，它们会在下午和晚上各叫你一次。做完六门就不叫了。';
+    btn.style.display=""; btn.textContent="不用叫我了";
+    btn.onclick=async function(){
+      try{ await sub.unsubscribe() }catch(e){}
+      try{ await fetch(NAG_API+"/kid/unsub",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({endpoint:sub.endpoint})}) }catch(e){}
+      toast("好，它们不叫了"); box.classList.remove("on"); renderNag();
+    };
+    return;
+  }
+  tip.innerHTML='你要是忘了来，Snowy 和哆米会到手机上叫你。做完六门的那天，它们不吭声。';
+  btn.style.display=""; btn.textContent="好，让它们叫我";
+  btn.onclick=async function(){
+    btn.disabled=true;
+    try{
+      const perm=await Notification.requestPermission();
+      if(perm!=="granted"){ toast("你没答应，它们就不叫了"); btn.disabled=false; return }
+      const r=await nagReg();
+      if(!r){ toast("装不上，等会儿再试"); btn.disabled=false; return }
+      await navigator.serviceWorker.ready;
+      const ns=await r.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:b64key(NAG_KEY)});
+      const res=await fetch(NAG_API+"/kid/sub",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(ns.toJSON?ns.toJSON():ns)});
+      if(!res.ok)throw new Error("sub failed");
+      nagMirror(); toast("好了。它们知道去哪找你了"); renderNag();
+    }catch(e){ toast("没成，回头我再看看"); }
+    btn.disabled=false;
+  };
+}
+/* 开页就把这一块画出来，并把今天的进度同步给 Service Worker */
+(function(){
+  function boot(){ try{nagMirror()}catch(e){} try{renderNag()}catch(e){} }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
+  else boot();
 })();
 </script>
 </body>
