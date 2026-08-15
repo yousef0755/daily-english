@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 20:37",
+ "at": "2026-08-15 20:41",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -41,14 +41,14 @@
     "id": "boyuan",
     "name": "博远",
     "what": "六门功课",
-    "done": 0,
+    "done": 2,
     "total": 6,
     "here": true,
     "mins": 5,
     "goal": 30,
     "finished": false,
-    "at": "20:37",
-    "streak": 0,
+    "at": "20:41",
+    "streak": 1,
     "auto": true,
     "_ord": 0,
     "manual": false,
@@ -107,11 +107,11 @@
    }
   ],
   "toy": {
-   "points": 2,
-   "toys": 1,
+   "points": 3,
+   "toys": 2,
    "total": 12,
-   "next": 3,
-   "need": 1
+   "next": 6,
+   "need": 3
   }
  },
  "pairs": {
