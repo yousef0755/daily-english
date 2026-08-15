@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 20:26",
+ "at": "2026-08-15 20:29",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -43,11 +43,11 @@
     "what": "AI 怎么用",
     "done": 0,
     "total": 1,
-    "here": false,
+    "here": true,
     "mins": 0,
     "goal": 15,
     "finished": false,
-    "at": "",
+    "at": "20:28",
     "streak": 0,
     "auto": true,
     "_ord": 2,
