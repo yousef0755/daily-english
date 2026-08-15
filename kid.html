@@ -2178,6 +2178,64 @@ function gradeRecite(){
   b.addEventListener("touchstart",function(e){e.preventDefault();recBegin()},{passive:false});
   b.addEventListener("touchend",function(e){e.preventDefault();recEnd()});
 })();
+
+/* ═══ 他不动的时候，两只猫轮流催（老板：用猫的开玩笑的语言） ═══
+   不是弹窗说「请开始学习」——是让猫等不及。一句比一句没耐心，
+   最后它自己去睡，比催更管用。六门全过就不催了，那时候该他歇着。 */
+const NAG_LINES=[
+  /* 第一轮：懒洋洋 */
+  [["Snowy","你就打算这么坐着？"],
+   ["哆米","我在等。"],
+   ["Snowy","书自己不会念。"]],
+  /* 第二轮：开始不耐烦 */
+  [["哆米","我尾巴都甩累了。"],
+   ["Snowy","你不学，我也没饭吃。你懂这个道理吧。"],
+   ["哆米","那条路我还一步没走呢。"]],
+  /* 第三轮：威胁 */
+  [["Snowy","再不开始我就去睡了。说到做到。"],
+   ["哆米","我数三下。……三。"],
+   ["Snowy","行，你赢了，我睡了。"]]
+];
+let nagLast=Date.now(), nagRound=0, nagTimer=null;
+
+function touchActive(){ nagLast=Date.now(); nagRound=0;
+  const sn=document.getElementById("catSnowy"), dm=document.getElementById("catDomi");
+  [sn,dm].forEach(function(e){ if(e)e.style.opacity="" });
+}
+function nagTick(){
+  if(document.hidden)return;                       /* 切走了不催 */
+  if(typeof walkDone==="function" && typeof DIARY_SUBS!=="undefined"
+     && walkDone()>=DIARY_SUBS.length)return;      /* 六门全过，该歇着了 */
+  const idle=(Date.now()-nagLast)/1000;
+  if(idle<75)return;
+  const pool=NAG_LINES[Math.min(nagRound,NAG_LINES.length-1)];
+  /* 两只轮着来，别让哆米一直没声（纯随机会撞） */
+  let pick=pool[nagRound%pool.length];
+  const wantDomi=(nagRound%2===1);
+  const alt=pool.filter(function(x){return (x[0]==="哆米")===wantDomi});
+  if(alt.length)pick=alt[nagRound%alt.length];
+  const who=pick[0];
+  const sn=document.getElementById("catSnowy"), dm=document.getElementById("catDomi");
+  if(sn)sn.setAttribute("class","kcat"+(who==="Snowy"?" talking":""));
+  if(dm)dm.setAttribute("class","kcat"+(who==="哆米"?" talking":""));
+  if(typeof catSay==="function")catSay(who,pick[1]);
+  nagRound++;
+  nagLast=Date.now();
+  /* 催到第三轮还不动，猫真的睡过去（变暗） */
+  if(nagRound>NAG_LINES.length){
+    if(sn)sn.setAttribute("class","kcat"), sn.style.opacity=".3";
+    if(dm)dm.setAttribute("class","kcat"), dm.style.opacity=".3";
+    if(typeof catSay==="function")catSay("","（两只都睡了。你一动它们就醒。）");
+  }
+}
+(function startNag(){
+  ["click","touchstart","keydown"].forEach(function(ev){
+    document.addEventListener(ev,touchActive,{passive:true});
+  });
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden)touchActive() });
+  clearInterval(nagTimer);
+  nagTimer=setInterval(nagTick,15000);
+})();
 </script>
 </body>
 </html>
