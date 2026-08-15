@@ -320,9 +320,34 @@ footer a{color:var(--indigo)}
 .gift svg line{stroke:var(--indigo);stroke-width:2.6;stroke-linecap:round}
 .gift .gname{font-size:.66rem;color:var(--ink-2);margin:5px 0 0;line-height:1.4}
 .giftempty{color:var(--ink-2);font-size:.88rem;font-style:italic;grid-column:1/-1}
+
+/* ── 进门那道锁（老板 2026-08-15：各人的页面要有自己的密码）── */
+#suGate{position:fixed;inset:0;z-index:99999;background:#0c1118;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  font-family:-apple-system,'PingFang SC','Segoe UI',system-ui,sans-serif}
+#suGate.off{display:none}
+#suGate .gcard{width:100%;max-width:320px;text-align:center;color:#e8eef5}
+#suGate .gname{font-size:1.25rem;font-weight:600;margin-bottom:6px;letter-spacing:.02em}
+#suGate .ghint{font-size:.84rem;color:#8a9cb0;line-height:1.75;margin:0 0 20px}
+#suGate .gin{width:100%;padding:14px;border-radius:14px;border:1px solid #26313d;
+  background:#111823;color:#e8eef5;font-size:1.5rem;text-align:center;
+  letter-spacing:.5em;text-indent:.5em;font-family:inherit;-webkit-appearance:none}
+#suGate .gin:focus{outline:none;border-color:#d9b45f}
+#suGate .gbtn{width:100%;margin-top:12px;padding:13px;border:none;border-radius:14px;
+  background:#d9b45f;color:#1a1408;font-size:1rem;font-weight:700;font-family:inherit}
+#suGate .gerr{min-height:1.3em;margin:11px 0 0;font-size:.83rem;color:#ff8fa3}
 </style>
 </head>
 <body>
+<div id="suGate"><div class="gcard">
+  <div class="gname" id="gName">曼雅</div>
+  <p class="ghint" id="gHint">正在看…</p>
+  <input class="gin" id="gIn" type="password" inputmode="numeric" pattern="[0-9]*"
+    maxlength="4" autocomplete="off" aria-label="四位数密码">
+  <button class="gbtn" id="gBtn">进去</button>
+  <p class="gerr" id="gErr"></p>
+</div></div>
+
 <div class="wrap">
 
 <header>
@@ -1065,6 +1090,65 @@ function famPing(){
       body:JSON.stringify({who:"manya",done:done,total:1})}).catch(()=>{});
   }catch(e){}
 }
+
+/* ═══ 进门那道锁 ═══
+   第一次自己设四位数，之后要输。存的是哈希不是明文。
+   忘了：网址后面加 ?reset=1（这是给爸爸的后门）。
+
+   说清楚：这挡的是家里人随手点开，挡不住会看源码的人——
+   这一页是公开的静态文件。要严实的得做服务器登录。 */
+(function(){
+  var K="suGate_"+"manya";
+  var g=document.getElementById("suGate"); if(!g)return;
+  var inp=document.getElementById("gIn"), btn=document.getElementById("gBtn"),
+      err=document.getElementById("gErr"), hint=document.getElementById("gHint");
+
+  if(/[?&]reset=1/.test(location.search)){ try{localStorage.removeItem(K)}catch(e){} }
+
+  async function sha(s){
+    try{
+      var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("su:"+s));
+      return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+    }catch(e){ return "plain:"+s }   /* 老浏览器兜底，总比进不去强 */
+  }
+  function open_(){
+    g.classList.add("off");
+    document.documentElement.style.overflow="";
+    document.body.style.overflow="";
+  }
+  var saved=null;
+  try{ saved=localStorage.getItem(K) }catch(e){}
+
+  /* 这台设备这次已经开过就直接放行 */
+  try{ if(sessionStorage.getItem(K+"_ok")==="1"){ open_(); return } }catch(e){}
+
+  document.documentElement.style.overflow="hidden";
+  document.body.style.overflow="hidden";
+  var setting=!saved;
+  hint.textContent = setting
+    ? "第一次进来，设一个只有你知道的四位数。忘了要找爸爸。"
+    : "输入你的四位数。";
+  btn.textContent = setting ? "就用这个" : "进去";
+
+  async function go(){
+    var v=(inp.value||"").trim();
+    if(!/^\d{4}$/.test(v)){ err.textContent="要四个数字"; return }
+    var h=await sha(v);
+    if(setting){
+      try{ localStorage.setItem(K,h) }catch(e){}
+      try{ sessionStorage.setItem(K+"_ok","1") }catch(e){}
+      open_(); return;
+    }
+    if(h===saved){
+      try{ sessionStorage.setItem(K+"_ok","1") }catch(e){}
+      open_(); return;
+    }
+    err.textContent="不对，再想想"; inp.value=""; inp.focus();
+  }
+  btn.onclick=go;
+  inp.addEventListener("keydown",function(e){ if(e.key==="Enter")go() });
+  setTimeout(function(){ try{inp.focus()}catch(e){} },260);
+})();
 </script>
 </body>
 </html>

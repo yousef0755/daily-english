@@ -89,13 +89,43 @@ header .pill.on{
   font-weight:700 !important;
   box-shadow:0 2px 10px rgba(0,0,0,.22) !important;
 }
+
+.famlink{display:inline-block;margin:12px 0 0 8px;background:rgba(255,255,255,.12);
+  border:1px solid rgba(217,194,148,.5);border-radius:20px;padding:5px 16px;
+  font-size:.9rem;color:inherit;text-decoration:none}
+
+/* ── 进门那道锁（老板 2026-08-15：各人的页面要有自己的密码）── */
+#suGate{position:fixed;inset:0;z-index:99999;background:#0c1118;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  font-family:-apple-system,'PingFang SC','Segoe UI',system-ui,sans-serif}
+#suGate.off{display:none}
+#suGate .gcard{width:100%;max-width:320px;text-align:center;color:#e8eef5}
+#suGate .gname{font-size:1.25rem;font-weight:600;margin-bottom:6px;letter-spacing:.02em}
+#suGate .ghint{font-size:.84rem;color:#8a9cb0;line-height:1.75;margin:0 0 20px}
+#suGate .gin{width:100%;padding:14px;border-radius:14px;border:1px solid #26313d;
+  background:#111823;color:#e8eef5;font-size:1.5rem;text-align:center;
+  letter-spacing:.5em;text-indent:.5em;font-family:inherit;-webkit-appearance:none}
+#suGate .gin:focus{outline:none;border-color:#d9b45f}
+#suGate .gbtn{width:100%;margin-top:12px;padding:13px;border:none;border-radius:14px;
+  background:#d9b45f;color:#1a1408;font-size:1rem;font-weight:700;font-family:inherit}
+#suGate .gerr{min-height:1.3em;margin:11px 0 0;font-size:.83rem;color:#ff8fa3}
 </style>
 </head>
 <body>
+<div id="suGate"><div class="gcard">
+  <div class="gname" id="gName">Amina</div>
+  <p class="ghint" id="gHint">正在看…</p>
+  <input class="gin" id="gIn" type="password" inputmode="numeric" pattern="[0-9]*"
+    maxlength="4" autocomplete="off" aria-label="四位数密码">
+  <button class="gbtn" id="gBtn">进去</button>
+  <p class="gerr" id="gErr"></p>
+</div></div>
+
 <header>
   <h1>语言小课堂</h1>
   <div class="sub">Fatima 全程教授现代标准阿拉伯语 · العربية الفصحى الحديثة</div>
   <div class="streak" id="streak">🔥 0-day streak</div>
+  <a class="famlink" href="./family.html">一家人今天 →</a>
   <div style="margin-top:10px;display:flex;gap:8px;justify-content:center">
     <button class="pill" id="modeEn" hidden aria-hidden="true">英语 English</button>
     <button class="pill on" id="modeAr">现代标准阿语 · العربية الفصحى الحديثة</button>
@@ -301,7 +331,7 @@ function play(pack,i,kind,fallback,clean){
   player.onerror=()=>{speakRoster(key||fallback)};
   player.play().catch(()=>{speakRoster(key||fallback)});
 }
-function renderStreak(){document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
+function renderStreak(){try{famPing()}catch(e){}document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
 function renderPills(){
   const p=document.getElementById("pills");p.innerHTML="";
   const activeNames=window.__packNamesActive||packNames;
@@ -334,7 +364,7 @@ function startQuiz(){
         state.streak=(state.last===yest)?state.streak+1:1;state.last=today;
       }
       state.log=(state.log||[]).slice(-30);state.log.push(lastResult);
-      store.set(KEY,JSON.stringify(state));renderStreak();updateCoachLink();
+      store.set(KEY,JSON.stringify(state));renderStreak();updateCoachLink();try{famPing()}catch(e){}
       document.getElementById("again").onclick=startQuiz;return;
     }
     const wi=idx[i],it=PK[pk].items[wi];
@@ -571,6 +601,78 @@ if(oi&&ob){
   }
   btn.addEventListener("click",save);
   inp.addEventListener("keydown",function(e){if(e.key==="Enter")save()});
+})();
+
+/* 上报家庭榜（老板 2026-08-15：嫂子这页也连到榜上来）
+   只报「今天亮没亮」，不报学了什么、考了几分。 */
+var FAM_API="https://yusufs-macbook-pro.tail63c9ae.ts.net", famLast="";
+function famPing(){
+  try{
+    var t=new Date().toISOString().slice(0,10);
+    var done=(state&&state.last===t)?1:0;
+    var k=t+"|"+done; if(k===famLast)return; famLast=k;
+    fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:"amina",done:done,total:1})}).catch(function(){});
+  }catch(e){}
+}
+
+/* ═══ 进门那道锁 ═══
+   第一次自己设四位数，之后要输。存的是哈希不是明文。
+   忘了：网址后面加 ?reset=1（这是给爸爸的后门）。
+
+   说清楚：这挡的是家里人随手点开，挡不住会看源码的人——
+   这一页是公开的静态文件。要严实的得做服务器登录。 */
+(function(){
+  var K="suGate_"+"amina";
+  var g=document.getElementById("suGate"); if(!g)return;
+  var inp=document.getElementById("gIn"), btn=document.getElementById("gBtn"),
+      err=document.getElementById("gErr"), hint=document.getElementById("gHint");
+
+  if(/[?&]reset=1/.test(location.search)){ try{localStorage.removeItem(K)}catch(e){} }
+
+  async function sha(s){
+    try{
+      var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("su:"+s));
+      return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+    }catch(e){ return "plain:"+s }   /* 老浏览器兜底，总比进不去强 */
+  }
+  function open_(){
+    g.classList.add("off");
+    document.documentElement.style.overflow="";
+    document.body.style.overflow="";
+  }
+  var saved=null;
+  try{ saved=localStorage.getItem(K) }catch(e){}
+
+  /* 这台设备这次已经开过就直接放行 */
+  try{ if(sessionStorage.getItem(K+"_ok")==="1"){ open_(); return } }catch(e){}
+
+  document.documentElement.style.overflow="hidden";
+  document.body.style.overflow="hidden";
+  var setting=!saved;
+  hint.textContent = setting
+    ? "第一次进来，设一个四位数。忘了的话，网址后面加 ?reset=1 就能重设。"
+    : "输入你的四位数。";
+  btn.textContent = setting ? "就用这个" : "进去";
+
+  async function go(){
+    var v=(inp.value||"").trim();
+    if(!/^\d{4}$/.test(v)){ err.textContent="要四个数字"; return }
+    var h=await sha(v);
+    if(setting){
+      try{ localStorage.setItem(K,h) }catch(e){}
+      try{ sessionStorage.setItem(K+"_ok","1") }catch(e){}
+      open_(); return;
+    }
+    if(h===saved){
+      try{ sessionStorage.setItem(K+"_ok","1") }catch(e){}
+      open_(); return;
+    }
+    err.textContent="不对，再想想"; inp.value=""; inp.focus();
+  }
+  btn.onclick=go;
+  inp.addEventListener("keydown",function(e){ if(e.key==="Enter")go() });
+  setTimeout(function(){ try{inp.focus()}catch(e){} },260);
 })();
 </script>
 </body>
