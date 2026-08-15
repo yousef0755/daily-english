@@ -459,7 +459,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
         <div id="tOrb" class="teacher-avatar" aria-hidden="true">🌙</div>
         <div class="teacher-copy"><span class="kicker">LIVE COACH</span><h2>星星老师</h2><p>不会也没关系。一起拆小步骤，把今天最难的一关拿下。</p></div>
       </div>
-      <button class="main" id="tBtn">连接星星老师</button>
+      <button class="main" id="tBtn"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px;margin-right:6px"><path d="M8 5.5v13l11-6.5z"/></svg>连接星星老师</button>
       <div id="tStatus" class="tip" style="min-height:2.2em;margin:8px 0 0">按一下开始，今天挑战哪一科由你决定。</div>
       <div id="tUsage" class="tip" style="margin:4px 0 0"></div>
     </div>
@@ -1281,7 +1281,7 @@ function tConn(){
 }
 function tLive(){
   window.__tStartAt=Date.now();
-  tOn=true;btn.disabled=false;btn.textContent="⏹ 玩完了";orb.textContent="🎓";
+  tOn=true;btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>玩完了';orb.textContent="🎓";
   glow("0 0 36px rgba(255,212,121,.6)");tsay("老师来啦！直接跟她说话就行 😊");
   tStart0=Date.now();
   tmic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
