@@ -345,6 +345,28 @@ li.here .mins b{color:var(--gold)}
   border-radius:99px;padding:1px 7px}
 .pk .undo-ask{opacity:.85;cursor:pointer}
 .pk .undo-ask:active{opacity:.55}
+
+/* 新玩具蹦出来那一下 */
+.toypop{position:absolute;left:50%;top:-118px;width:46px;margin-left:-23px;
+  animation:toypop 5.2s cubic-bezier(.2,.9,.3,1) forwards;z-index:5}
+.toypop svg{width:100%;height:auto;display:block;
+  filter:drop-shadow(0 6px 18px rgba(217,180,95,.5))}
+@keyframes toypop{
+  0%{transform:scale(.2) translateY(30px) rotate(-20deg);opacity:0}
+  14%{transform:scale(1.35) translateY(0) rotate(6deg);opacity:1}
+  24%{transform:scale(1.05) rotate(-4deg)}
+  40%{transform:scale(1.1) translateY(-10px) rotate(8deg)}
+  60%{transform:scale(1.05) translateY(4px) rotate(-6deg)}
+  82%{transform:scale(1) translateY(0) rotate(0);opacity:1}
+  100%{transform:scale(.55) translateY(96px);opacity:0}}
+/* 两只围过去 */
+.cats.newtoy #fcatS{animation:toS 2.6s ease-in-out 2}
+.cats.newtoy #fcatD{animation:toD 2.6s ease-in-out 2}
+@keyframes toS{0%,100%{transform:translateX(0)}50%{transform:translateX(26px) translateY(-6px)}}
+@keyframes toD{0%,100%{transform:translateX(0)}50%{transform:translateX(-26px) translateY(-9px)}}
+.cline .sp.newt{background:rgba(217,180,95,.16);border-color:rgba(217,180,95,.5)}
+.cline .sp.newt b{color:var(--gold)}
+@media (prefers-reduced-motion:reduce){.toypop,.cats.newtoy .fcat{animation:none!important}}
 </style>
 </head>
 <body>
@@ -426,6 +448,7 @@ function chain(n){
 function render(d){
   const ps=d.people||[];
   try{renderToys(d.toy)}catch(e){}
+  try{toyCelebrate(d.toy)}catch(e){}
   const here=ps.filter(p=>p.here).length, fin=ps.filter(p=>p.finished).length;
   /* 老板 2026-08-15：「他完成才算」——顶上这个数只数做完的，不是来过的。来过但没做完，看那一行的进度条。 */
   document.getElementById("hereN").textContent=fin;
@@ -951,6 +974,52 @@ async function qFlush(){
   return ok;
 }
 function qCount(){ return qLoad().length }
+
+/* ── 新玩具来了，猫要过来玩 ──
+   老板 2026-08-15：「当猫咪有新礼物的时候，他可以来玩这些礼物」
+   原来玩具只是攒着、静静挂在那儿，攒到新的没有任何反应。
+   现在：数量一涨，那件新的会先蹦出来，两只过去玩一阵，说几句，然后才归位。
+   记在本地，同一件只欢呼一次，不会每次刷新都来一遍。 */
+const TOYSEEN="toysSeen";
+const TOY_WORDS={
+  yarn:[["Snowy","新的毛线球。"],["哆米","我先。"]],
+  butterfly:[["哆米","那是什么！"],["Snowy","跳不到的，别跳了。"]],
+  paper:[["Snowy","一个纸团。"],["哆米","别小看纸团。"]],
+  feather:[["哆米","这根毛我认得，它挑衅过我。"],["Snowy","那是你自己掉的。"]],
+  bell:[["Snowy","会响。"],["哆米","那就一直摇。"]],
+  fish:[["哆米","小鱼干！"],["Snowy","一人一半。"],["哆米","……好吧。"]]
+};
+function toyCelebrate(toy){
+  if(!toy)return;
+  let seen=0; try{seen=parseInt(localStorage.getItem(TOYSEEN)||"0",10)||0}catch(e){}
+  const now=toy.toys||0;
+  if(now<=seen){ if(now!==seen){try{localStorage.setItem(TOYSEEN,String(now))}catch(e){}} return }
+  try{localStorage.setItem(TOYSEEN,String(now))}catch(e){}
+  const idx=now-1;
+  const t=(typeof TOYS!=="undefined" && TOYS[idx]) ? TOYS[idx] : null;
+  if(!t)return;
+  const box=document.getElementById("catsBox"), cl=document.getElementById("catLine");
+  if(!box||!cl)return;
+  if(typeof chatTimer!=="undefined" && chatTimer)clearInterval(chatTimer);
+  const keep=box.className;
+  box.className="cats awake newtoy";
+  const stage=document.getElementById("toyBox");
+  if(stage){
+    const pop=document.createElement("div");
+    pop.className="toypop"; pop.innerHTML=t[2];
+    stage.appendChild(pop);
+    setTimeout(function(){ try{pop.remove()}catch(e){} }, 5200);
+  }
+  const lines=TOY_WORDS[t[0]]||[["Snowy","来新东西了。"],["哆米","归我。"]];
+  cl.innerHTML='<span class="sp newt"><b>新玩具</b>　'+t[1]+'</span>'+
+    lines.map(function(x){
+      return '<span class="sp'+(x[0]==="哆米"?" d":"")+'"><b>'+x[0]+'</b>　'+x[1]+'</span>';
+    }).join("");
+  setTimeout(function(){
+    box.className=keep;
+    if(typeof catNext==="function"&&catNext)catNext();
+  },5600);
+}
 </script>
 </body>
 </html>

@@ -730,7 +730,13 @@ function conn(){
     ctx+="\n\nOpen the conversation yourself, right now. Your first line asks HER to keep YOU company — that is the whole framing of this page: she is not being taught, she is doing you a favour. Then one real question. Don't wait for her.";
     ws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],
-        speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Leda"}}}},
+        /* 老板 2026-08-15：中文换个女声，英语的不变。
+           Gemini 一次会话只能定一个音色，中英不能在同一段对话里各用一个，
+           所以按她选的语言模式来：中文用 Aoede（更软），
+           英语和「两个换着来」保持原来的 Leda——他说英语的声音不动。 */
+        speechConfig:{voiceConfig:{prebuiltVoiceConfig:{
+          voiceName: (S.lang==="zh" || S.lang==="cn" || S.lang==="中文") ? "Aoede" : "Leda"
+        }}}},
       systemInstruction:{parts:[{text:SNOWY_BASE+ctx}]}}}));
   };
   ws.onmessage=async function(ev){
