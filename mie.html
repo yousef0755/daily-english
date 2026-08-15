@@ -1087,7 +1087,7 @@ mood("idle");
 })();
 
 /* 上报家庭榜（老板 2026-08-15 的主意）——只报今天来没来，聊了什么不报。 */
-const FAM_API="https://yusufs-macbook-pro.tail63c9ae.ts.net";
+const FAM_API="https://su-family.yousef-abud.workers.dev";
 let famLast="";
 function famPing(){
   try{
@@ -1114,7 +1114,7 @@ function famPing(){
   });
   function report(){
     var mins=Math.floor(sec/60);
-    fetch("https://yusufs-macbook-pro.tail63c9ae.ts.net/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+    fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({who:WHO,mins:mins,done:((typeof S!=='undefined'&&S&&S.last===new Date().toISOString().slice(0,10))?1:0),total:1,started:sec>20})
     }).catch(function(){});
   }

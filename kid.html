@@ -2324,7 +2324,7 @@ function nagTick(){
 
    要紧的一点：服务器只发一个**空包**，说哪句话由他手机本地的
    Service Worker 读进度自己决定。学习数据不出这台手机。 */
-const NAG_API="https://yusufs-macbook-pro.tail63c9ae.ts.net";
+const NAG_API="https://su-family.yousef-abud.workers.dev";
 const NAG_KEY="BGOs2vrk1QcTHhzeRotmBtjaqz4Pac591KNs2SBGtOb36aKnr1plom2w7a9Cp5xebfdRLtJTIYwodezn1_LJ6lw";
 
 /* 把今天的进度镜像一份到 IndexedDB —— Service Worker 读不了 localStorage */
@@ -2610,7 +2610,7 @@ function tcEnd(){
   });
   function report(){
     var mins=Math.floor(sec/60);
-    fetch("https://yusufs-macbook-pro.tail63c9ae.ts.net/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+    fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({who:WHO,mins:mins,done:(typeof walkDone==='function'?walkDone():0),total:(typeof DIARY_SUBS!=='undefined'?DIARY_SUBS.length:6),started:sec>20})
     }).catch(function(){});
   }

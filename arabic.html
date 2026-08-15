@@ -589,7 +589,7 @@ if(oi&&ob){
 
 /* 上报家庭榜（老板 2026-08-15：嫂子这页也连到榜上来）
    只报「今天亮没亮」，不报学了什么、考了几分。 */
-var FAM_API="https://yusufs-macbook-pro.tail63c9ae.ts.net", famLast="";
+var FAM_API="https://su-family.yousef-abud.workers.dev", famLast="";
 function famPing(){
   try{
     var t=new Date().toISOString().slice(0,10);
@@ -616,7 +616,7 @@ function famPing(){
   });
   function report(){
     var mins=Math.floor(sec/60);
-    fetch("https://yusufs-macbook-pro.tail63c9ae.ts.net/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+    fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({who:WHO,mins:mins,done:((typeof state!=='undefined'&&state&&(state.came===new Date().toISOString().slice(0,10)))?1:0),total:1,started:sec>20})
     }).catch(function(){});
   }

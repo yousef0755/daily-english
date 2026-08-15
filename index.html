@@ -367,6 +367,14 @@ header .pill.on{
    位置和样式是 Jay 那版，我只加 sticky —— 他放在正常流里不压标题，这点比我原来的 fixed 版好。 */
 .famlink{position:sticky;top:8px;z-index:60}
 @supports(padding:max(0px)){ .famlink{top:max(8px, env(safe-area-inset-top))} }
+
+/* 完成键（老板 2026-08-15：学五分钟之外，读会了也算过关） */
+.donebox{margin:18px 0 6px;padding:16px;border-radius:16px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(234,216,173,.28);text-align:center}
+.db-tip{margin:0 0 12px;font-size:.86rem;line-height:1.7;opacity:.85}
+.donebox .btn-main{width:100%}
+.donebox .btn-main:disabled{opacity:.45}
+.donebox.done{border-color:rgba(126,214,178,.5)}
 </style>
 </head>
 <body>
@@ -413,6 +421,11 @@ header .pill.on{
     <p class="hint">先听标准阿语神经发音，再点开句子和中文意思。</p>
   </div>
   <div id="wordArea"></div>
+<section class="donebox" id="doneBox">
+  <p class="db-tip" id="dbTip">Open today's lines and read them aloud. When you can say them, mark it done.</p>
+  <button class="btn-main" id="dbBtn" disabled>I can say these — done for today</button>
+</section>
+
   <section class="practice-section" aria-labelledby="teacherTitle">
     <h2 class="section-title" id="teacherTitle">
       <span class="title-copy"><span class="eyebrow">دَرْسٌ خَاصٌّ</span><span class="title-main" id="teacherTitleText">Fatima 标准阿语课</span></span>
@@ -907,7 +920,7 @@ if(oi&&ob){
 
 /* 上报家庭榜（老板 2026-08-15 的主意：一家人一起学）
    只报「今天亮没亮」，不报学了什么、考了几分。 */
-var FAM_API="https://yusufs-macbook-pro.tail63c9ae.ts.net", famLast="";
+var FAM_API="https://su-family.yousef-abud.workers.dev", famLast="";
 function famPing(){
   try{
     var t=new Date().toISOString().slice(0,10);
@@ -948,7 +961,7 @@ function applyHeroSub(){
   });
   function report(){
     var mins=Math.floor(sec/60);
-    fetch("https://yusufs-macbook-pro.tail63c9ae.ts.net/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+    fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({who:WHO,mins:mins,done:((typeof state!=='undefined'&&state&&(state.came===new Date().toISOString().slice(0,10)))?1:0),total:1,started:sec>20})
     }).catch(function(){});
   }
@@ -991,6 +1004,46 @@ function applyUiLang(){
     if(en) e.textContent = e.textContent.replace(" · 今日", " · "+UI_EN.todayTag);
   });
 }
+
+/* ── 完成键 ──
+   老板 2026-08-15：「爸爸在里面学5分钟，还是有个完成键，或者背会或者读会就算过关」
+   两条路都通：待够五分钟自动完成，或者把今天这组读会了自己点完成。
+   但不能一进来就点——那就成了他最反对的"进去出来就算完成"。
+   所以要先把今天的句子点开过一半以上，按钮才亮。 */
+(function(){
+  const KEY="babaDone";
+  function td(){return new Date().toISOString().slice(0,10)}
+  function isDone(){try{return localStorage.getItem(KEY)===td()}catch(e){return false}}
+  const box=document.getElementById("doneBox"), btn=document.getElementById("dbBtn"),
+        tip=document.getElementById("dbTip");
+  function refresh(){
+    if(!box)return;
+    if(isDone()){
+      box.classList.add("done");
+      tip.textContent="Done for today. The family board has you marked.";
+      btn.textContent="Done ✓"; btn.disabled=true; return;
+    }
+    const cards=document.querySelectorAll("#wordArea .card");
+    const open=document.querySelectorAll("#wordArea .card .phrase.shown").length;
+    const need=Math.max(1, Math.ceil(cards.length/2));
+    if(open>=need){
+      btn.disabled=false;
+      tip.textContent="Read them aloud once more, then mark it done.";
+    }else{
+      btn.disabled=true;
+      tip.textContent="Open at least "+need+" lines and read them aloud. ("+open+"/"+need+")";
+    }
+  }
+  if(btn)btn.onclick=function(){
+    try{localStorage.setItem(KEY,td())}catch(e){}
+    fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:"baba",done:1,total:1,started:true})}).catch(function(){});
+    refresh();
+  };
+  document.addEventListener("click",function(){setTimeout(refresh,60)});
+  setTimeout(refresh,600);
+  window.__refreshDone=refresh;
+})();
 </script>
 </body>
 </html>
