@@ -1382,7 +1382,7 @@ function renderRecite(){
       ar.textContent=ln.ar;
       if(rHidden)ar.onclick=()=>{ar.style.filter="none";ar.style.cursor="default"};
       const b=document.createElement("button");
-      b.textContent="🔊";
+      b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
       b.style.cssText="border:1px solid var(--gold);background:rgba(255,212,121,.1);color:var(--gold);border-radius:11px;padding:8px 13px;font-size:1rem;cursor:pointer;flex-shrink:0";
       b.onclick=()=>{if(typeof speakRoster==="function")speakRoster(ln.ar)};
       row.appendChild(ar);row.appendChild(b);d.appendChild(row);
@@ -1405,7 +1405,7 @@ function renderRecite(){
     txt.textContent=ln;
     if(rHidden)txt.onclick=()=>{txt.style.filter="none";txt.style.cursor="default"};
     const b=document.createElement("button");
-    b.textContent="🔊";
+    b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
     b.style.cssText="border:1px solid var(--gold);background:rgba(255,212,121,.1);color:var(--gold);border-radius:11px;padding:8px 13px;font-size:1rem;cursor:pointer;flex-shrink:0";
     b.onclick=()=>{if(typeof speakRoster==="function")speakRoster(ln.replace(/ — .*/,""))};
     d.appendChild(txt);d.appendChild(b);box.appendChild(d);
@@ -1431,7 +1431,7 @@ function renderRecite(){
       ar.style.cssText="flex:1;font-size:1.12rem;line-height:2;direction:rtl;text-align:right";
       ar.textContent=h.ar;
       const b=document.createElement("button");
-      b.textContent="🔊";
+      b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
       b.style.cssText="border:1px solid var(--gold);background:rgba(255,212,121,.1);color:var(--gold);border-radius:11px;padding:7px 12px;font-size:.95rem;cursor:pointer;flex-shrink:0";
       b.onclick=()=>{if(typeof speakRoster==="function")speakRoster(h.ar)};
       row.appendChild(ar);row.appendChild(b);d.appendChild(row);
@@ -1475,10 +1475,16 @@ function renderHanzi(){
       '<div style="font-size:.8rem;color:var(--muted)">组词：'+h.ci.join(" · ")+'</div></div>';
     /* 老板 09:45 圈的位置：每一行加个发音键 */
     const spk=document.createElement("button");
-    spk.textContent="🔊";
+    /* 老板 09:52：那个 emoji 图标不高级，换成矢量喇叭 */
+    spk.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" '+
+      'stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+
+      '<path d="M4 9v6h4l5 4V5L8 9H4z"/>'+
+      '<path d="M16.5 8.5a5 5 0 0 1 0 7"/>'+
+      '<path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
     spk.setAttribute("aria-label","读一遍 "+h.z);
-    spk.style.cssText="border:1px solid var(--gold);background:rgba(255,212,121,.1);"+
-      "color:var(--gold);border-radius:11px;padding:9px 13px;font-size:1rem;cursor:pointer;flex-shrink:0";
+    spk.style.cssText="border:1px solid rgba(255,212,121,.45);background:rgba(255,212,121,.08);"+
+      "color:var(--gold);border-radius:12px;padding:9px 12px;cursor:pointer;flex-shrink:0;"+
+      "display:grid;place-items:center;line-height:0;transition:background .18s ease";
     spk.onclick=function(ev){ ev.stopPropagation(); if(typeof speakRoster==="function")speakRoster(h.z) };
     d.appendChild(spk);
     /* 「写一写」按钮已按老板要求去掉（A：只去掉手写格，生字留看和听） */
