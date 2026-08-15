@@ -999,6 +999,9 @@ function applyUiLang(){
   const $=function(id){return document.getElementById(id)};
   const zt=$("zhToggleBtn");
   if(zt){
+    /* 英语课里没有中文可显示（内容本来就是英文解释，老板说这样可以），
+       所以把这个按钮收起来。留着它、点了不动，比没有更糟。 */
+    zt.style.display = en ? "none" : "";
     const hidden=document.body.classList.contains("hide-zh");
     zt.textContent = en ? (hidden?UI_EN.zhShow:UI_EN.zhHide) : (hidden?"显示中文":"隐藏中文");
   }
