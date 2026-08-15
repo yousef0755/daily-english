@@ -340,6 +340,7 @@ function startQuiz(){
         const yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
         state.streak=(state.last===yest)?state.streak+1:1;state.last=today;
       }
+      state.came=today;
       state.log=(state.log||[]).slice(-30);state.log.push(lastResult);
       store.set(KEY,JSON.stringify(state));renderStreak();updateCoachLink();try{famPing()}catch(e){}
       document.getElementById("again").onclick=startQuiz;return;
@@ -586,7 +587,7 @@ var FAM_API="https://yusufs-macbook-pro.tail63c9ae.ts.net", famLast="";
 function famPing(){
   try{
     var t=new Date().toISOString().slice(0,10);
-    var done=(state&&state.last===t)?1:0;
+    var done=(state&&(state.came===t||state.last===t))?1:0;
     var k=t+"|"+done; if(k===famLast)return; famLast=k;
     fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({who:"amina",done:done,total:1})}).catch(function(){});
