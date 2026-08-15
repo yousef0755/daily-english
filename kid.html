@@ -287,20 +287,20 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 .walk-head{display:flex;justify-content:space-between;align-items:baseline;
   font-size:.8rem;color:var(--muted);margin-bottom:20px}
 .walk-head #walkStep{color:var(--gold);font-weight:700}
-.walk-track{position:relative;height:46px}
+.walk-track{position:relative;height:62px}
 .walk-road{position:absolute;left:0;right:0;bottom:8px;height:5px;
   background:rgba(255,255,255,.09);border-radius:99px}
 .walk-fill{position:absolute;left:0;bottom:8px;height:5px;width:0;
   background:linear-gradient(90deg,var(--gold),var(--mint));border-radius:99px;
   transition:width .8s cubic-bezier(.2,.8,.3,1)}
 .walk-stop{position:absolute;bottom:0;transform:translateX(-50%);
-  font-size:1.1rem;filter:grayscale(1);opacity:.4;transition:all .4s ease}
+  font-size:1.35rem;filter:grayscale(1);opacity:.4;transition:all .4s ease}
 .walk-stop.water{left:50%}
 .walk-stop.food{left:100%}
 .walk-stop.lit{filter:none;opacity:1;transform:translateX(-50%) scale(1.25)}
-.walk-cat{position:absolute;bottom:6px;left:0;width:44px;
+.walk-cat{position:absolute;bottom:6px;left:0;width:64px;
   transform:translateX(-50%);transition:left .8s cubic-bezier(.2,.8,.3,1)}
-.wcat{width:44px;height:auto;display:block}
+.wcat{width:64px;height:auto;display:block}
 .wcat .tail{transform-origin:152px 130px;animation:wtail 1.6s ease-in-out infinite}
 @keyframes wtail{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg)}}
 .walk-cat.drinking .whead{animation:wdrink 1s ease-in-out 3}
