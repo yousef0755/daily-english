@@ -380,6 +380,21 @@ nav button.on span{filter:none;transform:translateY(-1px)}
    位置和样式是 Jay 那版，我只加 sticky —— 他放在正常流里不压标题，这点比我原来的 fixed 版好。 */
 .famtop{position:sticky;top:8px;z-index:60}
 @supports(padding:max(0px)){ .famtop{top:max(8px, env(safe-area-inset-top))} }
+
+/* ── 念十遍（老板 2026-08-15）── */
+.readrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:9px;
+  padding-top:9px;border-top:1px solid var(--line)}
+.rdots{display:flex;gap:4px;flex:1;min-width:96px}
+.rdot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.13)}
+.rdot.on{background:var(--gold);box-shadow:0 0 0 2px rgba(255,200,87,.16)}
+.rcnt{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rbtn{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);
+  border-radius:999px;padding:7px 15px;font-size:.84rem;font-family:inherit;
+  font-weight:600;white-space:nowrap}
+.rbtn.reading{background:#c0392b;color:#fff;border-color:#c0392b;
+  animation:rdpulse 1s ease-in-out infinite}
+.rbtn.done{border-color:rgba(126,214,178,.5);color:var(--mint);background:rgba(126,214,178,.12)}
+@keyframes rdpulse{0%,100%{opacity:1}50%{opacity:.72}}
 </style>
 </head>
 <body>
@@ -544,7 +559,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <div class="tip" id="rTip" style="text-align:left;color:var(--muted)"></div>
       <div style="display:flex;gap:8px;margin-top:14px">
         <button class="main" id="rHide" style="flex:1">遮住背一遍</button>
-        <button class="main ghost" id="rDone" style="flex:1">🎤 按住背给爸爸听</button>
+        <div id="readBox" style="flex:1"></div>
       </div>
       <div class="tip" id="rProg" style="margin-top:8px"></div>
     </div>
@@ -1482,6 +1497,33 @@ function renderRecite(){
       b.style.cssText="border:1px solid var(--gold);background:rgba(255,212,121,.1);color:var(--gold);border-radius:11px;padding:8px 13px;font-size:1rem;cursor:pointer;flex-shrink:0";
       b.onclick=()=>{if(typeof speakRoster==="function")speakRoster(ln.ar)};
       row.appendChild(ar);row.appendChild(b);d.appendChild(row);
+      /* 老板 2026-08-15：不用背了，每句念十遍就过。这一排就是那十遍。 */
+      const rr=document.createElement("div");
+      rr.className="readrow"; rr.id="rd_"+rSub+"_"+rIdx+"_"+k;
+      rr.innerHTML='<span class="rdots"></span><span class="rcnt"></span>'+
+                   '<button class="rbtn" type="button">按住念一遍</button>';
+      const rb=rr.querySelector(".rbtn");
+      const startFn=function(ev){ if(ev&&ev.preventDefault)ev.preventDefault();
+        if(readGot(rSub,rIdx,k)>=READ_GOAL){toast("这句已经念够十遍了");return}
+        readStart(rb, ln.ar, rSub, rIdx, k) };
+      const stopFn=function(ev){ if(ev&&ev.preventDefault)ev.preventDefault();
+        readStop(rb, ln.ar, rSub, rIdx, k, function(how){
+          const n=readBump(rSub,rIdx,k);
+          toast(how+"　"+n+"/"+READ_GOAL);
+          if(n>=READ_GOAL){
+            /* 念够十遍 = 这一句过。整段每句都过，这一段就算做完 */
+            const all=item.lines.every(function(x,i){
+              return (typeof x!=="object") || readGot(rSub,rIdx,i)>=READ_GOAL });
+            if(all){ try{ finishRecite() }catch(e){} }
+          }
+        }) };
+      rb.addEventListener("mousedown",startFn);
+      rb.addEventListener("mouseup",stopFn);
+      rb.addEventListener("mouseleave",function(){ if(rdOn)stopFn() });
+      rb.addEventListener("touchstart",startFn,{passive:false});
+      rb.addEventListener("touchend",stopFn);
+      d.appendChild(rr);
+      setTimeout(function(){ renderReadRow(rSub,rIdx,k) },0);
       const zh=document.createElement("div");
       zh.style.cssText="font-size:.95rem;color:var(--cream);margin-top:8px";
       zh.textContent=(k+1)+". "+ln.zh;
@@ -2219,79 +2261,6 @@ function renderWalk(){
 let recCtx=null, recStream=null, recProc=null, recOn=false;
 let recPts=0, recLoud=0, recStart=0;
 
-function reciteNeedSec(){
-  const item=(RECITE[rSub]&&RECITE[rSub].list[rIdx])||{};
-  let len=0;
-  (item.lines||[]).forEach(function(ln){ len += (typeof ln==="object" ? (ln.ar||"") : ln).length });
-  return Math.max(6, Math.round(len*0.38));
-}
-async function recBegin(){
-  if(recOn)return;
-  try{
-    if(!recStream)recStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
-  }catch(e){ toast("要允许用麦克风才能背给爸爸听"); return }
-  if(!recCtx)recCtx=new (window.AudioContext||window.webkitAudioContext)();
-  if(recCtx.state==="suspended")try{await recCtx.resume()}catch(e){}
-  if(!recProc){
-    const src=recCtx.createMediaStreamSource(recStream);
-    recProc=recCtx.createScriptProcessor(4096,1,1);
-    src.connect(recProc);
-    const g=recCtx.createGain(); g.gain.value=0;
-    recProc.connect(g); g.connect(recCtx.destination);
-  }
-  recPts=0; recLoud=0; recStart=Date.now(); recOn=true;
-  recProc.onaudioprocess=function(e){
-    if(!recOn)return;
-    const d=e.inputBuffer.getChannelData(0);
-    let r=0; for(let i=0;i<d.length;i++)r+=d[i]*d[i];
-    r=Math.sqrt(r/d.length);
-    recPts++;
-    if(r>0.012)recLoud++;          /* 有声音的帧 */
-  };
-  const b=document.getElementById("rDone");
-  if(b){b.textContent="🔴 正在录…松手结束"; b.classList.add("recording")}
-}
-function recEnd(){
-  if(!recOn)return;
-  recOn=false;
-  if(recProc)recProc.onaudioprocess=null;
-  const b=document.getElementById("rDone");
-  if(b){b.textContent="🎤 按住背给爸爸听"; b.classList.remove("recording")}
-  const sec=(Date.now()-recStart)/1000;
-  const need=reciteNeedSec();
-  const voiceRatio = recPts? (recLoud/recPts) : 0;
-  if(sec < need){ toast("还差 "+Math.ceil(need-sec)+" 秒，整段背完再松手"); return }
-  if(voiceRatio < 0.25){ toast("没听到你的声音，大声一点再来一遍"); return }
-  gradeRecite();
-}
-/* 通过之后才走原来的记分逻辑 */
-function gradeRecite(){
-  const k=todayKey()+"_"+rSub+"_"+rIdx;
-  D.reciteDone=D.reciteDone||{};
-  const n=(D.reciteDone[k]||0)+1; D.reciteDone[k]=n; save();
-  /* 定价（老板：星星拿得太容易）：三遍背满才给一次，不是每遍都给 */
-  if(n===3){ addStar(rSub==="quran"?2:1); toast("整段背下来了！+"+(rSub==="quran"?2:1)+" ⭐") }
-  else if(n<3){ toast("背完 "+n+"/3 遍，再背 "+(3-n)+" 遍就拿星") }
-  else{ toast("今天这段已经拿满啦") }
-  if(n>=3){
-    const pack=RECITE[rSub];
-    if(rIdx<pack.list.length-1){
-      setTimeout(function(){ rIdx++; rHidden=false;
-        D.recitePos=D.recitePos||{}; D.recitePos[rSub]=rIdx; save(); renderRecite();
-        toast("下一段：" + pack.list[rIdx].name.split(" ")[0]) },900);
-    }
-  }
-  renderRecite();
-}
-(function bindRecite(){
-  const b=document.getElementById("rDone"); if(!b)return;
-  b.onclick=null;                         /* 拆掉原来的点一下就算 */
-  b.addEventListener("mousedown",recBegin);
-  b.addEventListener("mouseup",recEnd);
-  b.addEventListener("mouseleave",function(){ if(recOn)recEnd() });
-  b.addEventListener("touchstart",function(e){e.preventDefault();recBegin()},{passive:false});
-  b.addEventListener("touchend",function(e){e.preventDefault();recEnd()});
-})();
 
 /* ═══ 他不动的时候，两只猫轮流催（老板：用猫的开玩笑的语言） ═══
    不是弹窗说「请开始学习」——是让猫等不及。一句比一句没耐心，
@@ -2655,6 +2624,157 @@ function tcEnd(){
   document.addEventListener("visibilitychange",function(){ if(document.hidden)report() });
   window.__studySec=function(){return sec};
 })();
+
+/* ═══ 念十遍就算过（老板 2026-08-15：不用背，念十遍；识别他的音，50% 匹配就过）═══
+
+   两层判定，缺一不可地写清楚：
+   第一层：浏览器语音识别（ar-SA）。识别出文字，就跟这一句去掉音符之后比，
+           字符重合率 ≥50% 算这一遍过。
+   第二层：识别不出来（浏览器不支持 / 没网 / 没结果）就退回听声音：
+           真出过声、时长跟句子长度对得上，也算这一遍过。
+
+   为什么要有第二层：古兰经阿语 + 一个十岁孩子的发音，浏览器识别准不准我没把握，
+   而且我在开发环境里没有麦克风、验不了。不能因为识别不灵，就把孩子卡在那儿念不过去。
+   每一遍界面上都会说清是"听清了"还是"听见你在念"，不糊弄他。 */
+
+const READ_GOAL = 10;
+
+/* 去掉阿语音符和标点，只留骨架，好比对 */
+function arBare(t){
+  return String(t||"")
+    .replace(/[ً-ْٰـ]/g,"")   /* 音符、静符、延长符 */
+    .replace(/[^ء-ي]/g,"");             /* 只留阿语字母 */
+}
+/* 比对用二元组（相邻两个字母）算 Dice 系数，不用字符袋。
+   为什么换：我用字符袋测出来，「مرحبا كيف حالك」跟「بسم الله الرحمن」这两句
+   毫不相干的话居然有 54%，超过 50% 就能蒙过去——阿语常用字母就那几个，
+   按字符袋比，孩子随便说句阿语都能过。那个门槛是假的。
+   二元组看的是"字母的先后搭配"，蒙不过去。 */
+function bigrams(t){
+  t=arBare(t); const out=[];
+  for(let i=0;i<t.length-1;i++) out.push(t.slice(i,i+2));
+  return out;
+}
+function similar(a,b){
+  const A=bigrams(a), B=bigrams(b);
+  if(!A.length||!B.length)return 0;
+  const bag={};
+  for(const g of B) bag[g]=(bag[g]||0)+1;
+  let hit=0;
+  for(const g of A){ if(bag[g]>0){ bag[g]--; hit++ } }
+  return 2*hit/(A.length+B.length);
+}
+function readKey(sub,idx,li){ return todayKey()+"_r_"+sub+"_"+idx+"_"+li }
+function readGot(sub,idx,li){ D.readN=D.readN||{}; return D.readN[readKey(sub,idx,li)]||0 }
+function readBump(sub,idx,li){
+  D.readN=D.readN||{};
+  const k=readKey(sub,idx,li);
+  D.readN[k]=(D.readN[k]||0)+1; save();
+  return D.readN[k];
+}
+
+let rdOn=false, rdCtx=null, rdStream=null, rdProc=null,
+    rdPts=0, rdLoud=0, rdT0=0, rdRec=null, rdHeard="";
+
+async function readStart(btn, text, sub, idx, li){
+  if(rdOn)return;
+  try{
+    if(!rdStream)rdStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+  }catch(e){ toast("要允许用麦克风才能念"); return }
+  if(!rdCtx)rdCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(rdCtx.state==="suspended")try{await rdCtx.resume()}catch(e){}
+  if(!rdProc){
+    const src=rdCtx.createMediaStreamSource(rdStream);
+    rdProc=rdCtx.createScriptProcessor(4096,1,1);
+    src.connect(rdProc);
+    const g=rdCtx.createGain(); g.gain.value=0;
+    rdProc.connect(g); g.connect(rdCtx.destination);
+  }
+  rdPts=0; rdLoud=0; rdT0=Date.now(); rdOn=true; rdHeard="";
+  rdProc.onaudioprocess=function(e){
+    if(!rdOn)return;
+    const d=e.inputBuffer.getChannelData(0);
+    let r=0; for(let i=0;i<d.length;i++)r+=d[i]*d[i];
+    r=Math.sqrt(r/d.length); rdPts++;
+    if(r>0.012)rdLoud++;
+  };
+  /* 能识别就顺手识别，识别不了也不影响念 */
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){
+    try{
+      rdRec=new SR();
+      rdRec.lang="ar-SA"; rdRec.interimResults=false; rdRec.maxAlternatives=3;
+      rdRec.onresult=function(ev){
+        for(let i=0;i<ev.results.length;i++)
+          for(let j=0;j<ev.results[i].length;j++)
+            rdHeard+=" "+ev.results[i][j].transcript;
+      };
+      rdRec.onerror=function(){};
+      rdRec.start();
+    }catch(e){ rdRec=null }
+  }
+  btn.classList.add("reading");
+  btn.textContent="正在听…松手";
+}
+
+function readStop(btn, text, sub, idx, li, onOk){
+  if(!rdOn)return;
+  rdOn=false;
+  if(rdProc)rdProc.onaudioprocess=null;
+  if(rdRec){ try{rdRec.stop()}catch(e){} }
+  btn.classList.remove("reading");
+  const sec=(Date.now()-rdT0)/1000;
+  const ratio=rdPts?(rdLoud/rdPts):0;
+  const need=Math.max(2, Math.round(arBare(text).length*0.16));   /* 这句大概要念多久 */
+
+  setTimeout(function(){          /* 等识别结果回来一下 */
+    let pass=false, how="";
+    if(rdHeard.trim()){
+      const sc=similar(rdHeard, text);
+      if(sc>=0.5){ pass=true; how="听清了（"+Math.round(sc*100)+"%）" }
+      else if(ratio>=0.25 && sec>=need){ pass=true; how="听见你在念" }
+      else { how="没太听清，再念一遍" }
+    }else{
+      if(ratio>=0.25 && sec>=need){ pass=true; how="听见你在念" }
+      else if(ratio<0.25){ how="没听到声音，大声一点" }
+      else { how="太快了，慢一点念完整" }
+    }
+    if(pass){ onOk(how) } else { toast(how) }
+    renderReadRow(sub, idx, li);
+  }, 700);
+}
+
+/* 每一句后面那一排：念了几遍、还差几遍 */
+function renderReadRow(sub, idx, li){
+  const row=document.getElementById("rd_"+sub+"_"+idx+"_"+li);
+  if(!row)return;
+  const n=readGot(sub,idx,li);
+  const dots=Array.from({length:READ_GOAL},function(_,i){
+    return '<i class="rdot'+(i<n?" on":"")+'"></i>';
+  }).join("");
+  row.querySelector(".rdots").innerHTML=dots;
+  const b=row.querySelector(".rbtn");
+  b.textContent = n>=READ_GOAL ? "这句念够了" : "按住念一遍";
+  b.classList.toggle("done", n>=READ_GOAL);
+  row.querySelector(".rcnt").textContent = n+" / "+READ_GOAL;
+}
+
+/* 这一段每句都念够十遍 → 这一段过。星星和进下一段沿用原来的规矩。 */
+function finishRecite(){
+  const k=todayKey()+"_"+rSub+"_"+rIdx;
+  D.reciteDone=D.reciteDone||{};
+  if((D.reciteDone[k]||0)>=3)return;      /* 今天这段已经拿满 */
+  D.reciteDone[k]=3; save();
+  addStar(rSub==="quran"?3:2);
+  toast("这一段每句都念够十遍了 +"+(rSub==="quran"?3:2)+" ⭐");
+  const pack=RECITE[rSub];
+  if(rIdx<pack.list.length-1){
+    setTimeout(function(){ rIdx++; rHidden=false;
+      D.recitePos=D.recitePos||{}; D.recitePos[rSub]=rIdx; save(); renderRecite();
+      toast("下一段：" + pack.list[rIdx].name.split(" ")[0]) },1200);
+  }
+  try{renderWalk()}catch(e){}
+}
 </script>
 </body>
 </html>
