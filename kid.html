@@ -323,7 +323,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <div class="brandmark" aria-hidden="true"></div>
       <div><small>BOYUAN SPACE LAB</small><h1>博远的学习星球</h1></div>
     </div>
-    <div class="level-badge">LV.10</div>
+    <div class="level-badge" id="lvText">LV.1</div>
   </div>
   <div class="mission-panel">
     <div class="mission-copy">
@@ -1038,9 +1038,16 @@ function renderRank(){
     tip.textContent="已经是最高一档了，别掉下来";
   }
 }
+/* 等级按**累计拿到的星**算，第一天就是 LV.1，只升不降——那是他挣的。
+   每 30 颗升一级；按日上限 15 算，认真学两天升一级。
+   （原来页面上那个 LV.10 是写死的字，不是算出来的，孩子第一天就看到 10 级。） */
 function levelOf(){
   const t=D.total||0;
-  return 1+Math.floor(t/60);          /* 每 60 颗星升一级 */
+  return 1+Math.floor(t/30);
+}
+function renderLevel(){
+  const el=document.getElementById("lvText");
+  if(el)el.textContent="LV."+levelOf();
 }
 function keepDays(){
   const set=new Set(Object.keys(D.reciteDone||{}).map(function(k){return k.split("_")[0]}));
@@ -1071,7 +1078,7 @@ function addStar(n){
   }
   save();render();
 }
-function render(){try{renderRank();renderWalk();celebrateIfDue()}catch(e){}
+function render(){try{renderLevel();renderRank();renderWalk();celebrateIfDue()}catch(e){}
   document.getElementById("starCount").textContent=D.stars;
   document.getElementById("todayStars").textContent=D.todayStars;
   document.getElementById("streak").textContent=D.streak;
@@ -1671,7 +1678,7 @@ document.getElementById("rDone").onclick=function(){
 })();
 render();renderHanzi();renderDiary();
 
-try{renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}
+try{renderLevel();renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}
 </script>
 <div id="keyWrap"><div id="keyCard"><h3>第一次设置</h3><p class="ksub">让爸爸帮你弄一下，一分钟就好</p><div class="kwhy">钥匙只存在这台手机上，不会传给别人。</div><ol><li>用 Google 账号打开下面的链接</li><li>点「Create API key」</li><li>复制那串字符，粘到下面</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">打开 Google 页面</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="把钥匙粘在这里"><button class="ksave" id="keySave" type="button">保存，开始</button><p class="kerr" id="keyErr"></p></div></div>
 <script>
@@ -1913,9 +1920,9 @@ function renderCats(where){
 /* 页面就绪后再渲一次——render() 首次跑的时候容器可能还没解析到 */
 if(document.readyState==="loading"){
   document.addEventListener("DOMContentLoaded",function(){
-    try{renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}
+    try{renderLevel();renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}
   });
-}else{ setTimeout(function(){try{renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}},0) }
+}else{ setTimeout(function(){try{renderLevel();renderRank();renderWalk();if(!catsMissYou())renderCats("start")}catch(e){}},0) }
 
 /* ═══ 戳猫（老板 09:2x：点击了猫咪还是没有任何反应） ═══
    孩子拿到手第一件事就是去戳它。戳了没动静，它就是张图。
