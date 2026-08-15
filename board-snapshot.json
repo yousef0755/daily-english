@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 20:41",
+ "at": "2026-08-15 20:42",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -55,6 +55,23 @@
     "url": "./kid.html"
    },
    {
+    "id": "baba",
+    "name": "爸爸",
+    "what": "今天的课",
+    "done": 0,
+    "total": 1,
+    "here": true,
+    "mins": 0,
+    "goal": 5,
+    "finished": false,
+    "at": "20:42",
+    "streak": 0,
+    "auto": true,
+    "_ord": 5,
+    "manual": false,
+    "url": "./index.html"
+   },
+   {
     "id": "feiya",
     "name": "霏雅",
     "what": "背诗",
@@ -87,23 +104,6 @@
     "_ord": 4,
     "manual": false,
     "url": "./arabic.html"
-   },
-   {
-    "id": "baba",
-    "name": "爸爸",
-    "what": "今天的课",
-    "done": 0,
-    "total": 1,
-    "here": false,
-    "mins": 0,
-    "goal": 5,
-    "finished": false,
-    "at": "",
-    "streak": 0,
-    "auto": true,
-    "_ord": 5,
-    "manual": false,
-    "url": "./index.html"
    }
   ],
   "toy": {
