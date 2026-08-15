@@ -337,6 +337,20 @@ header .pill.on{
 .pack-grp{flex-basis:100%;width:100%;font-size:.72rem;letter-spacing:.14em;
   opacity:.6;margin:5px 0 1px}
 .pack-more .pill{font-size:.88em}
+
+/* 老板 2026-08-15 截图批注：Arabic 标签名太长；下面三个排成一排 */
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:stretch}
+.mode-tabs #modeEn{grid-column:1}
+.mode-tabs #modeAr{grid-column:2}
+.mode-tabs #modeSpeech,.mode-tabs #modeChat,.mode-tabs #modeComm{grid-column:span 2}
+@supports (grid-template-columns: repeat(6,1fr)){
+  .mode-tabs{grid-template-columns:repeat(6,1fr)}
+  .mode-tabs #modeEn{grid-column:span 3}
+  .mode-tabs #modeAr{grid-column:span 3}
+  .mode-tabs #modeSpeech,.mode-tabs #modeChat,.mode-tabs #modeComm{grid-column:span 2}
+}
+.mode-tabs .pill{width:100%;text-align:center;white-space:nowrap;
+  padding-left:8px;padding-right:8px;font-size:.94rem}
 </style>
 </head>
 <body>
@@ -361,7 +375,7 @@ header .pill.on{
     </div>
     <nav class="mode-tabs" aria-label="Learning mode">
       <button class="pill" id="modeEn">English</button>
-      <button class="pill on" id="modeAr">العربية الفصحى الحديثة · 现代标准阿语</button>
+      <button class="pill on" id="modeAr">Arabic</button>
       <button class="pill" id="modeSpeech">演讲训练</button>
       <button class="pill" id="modeChat">交谈练习</button>
       <button class="pill" id="modeComm">说话的分寸</button>
@@ -503,7 +517,7 @@ window.__packNamesActive=packNames;
 let lastResult=null;
 let player=new Audio();
 var VOICE_IDX=null,_vplayer=new Audio(),_actx=null,_asrc=null,_abuf={};
-fetch("kidaudio/msa-index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+fetch("kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
 function sysSpeak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang=/[\u0600-\u06ff]/.test(t)?"ar-SA":/[\u4e00-\u9fff]/.test(t)?"zh-CN":"en-US";u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
 /* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio */
 function playThroughSilent(url,fb){

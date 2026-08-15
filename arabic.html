@@ -139,7 +139,7 @@ header .pill.on{
 
 /* ===== 真人语音（花名册声线，预生成 MP3；缺文件才退回系统音） ===== */
 var VOICE_IDX=null, _vplayer=new Audio();
-fetch("kidaudio/msa-index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+fetch("kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
 function speakRoster(text){
   if(!text)return;
   var key=String(text).trim();
