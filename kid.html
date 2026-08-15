@@ -514,6 +514,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
         <button class="main" id="saveDiary" style="flex:2">写好了 · 交给老师</button>
         <button class="main ghost" id="newPrompt" style="flex:1">换题目</button>
       </div>
+      <button class="main" id="diarySend" style="display:none;margin-top:10px">📤 发给小林看，请她点评</button>
       <div class="tip" id="diaryDone" style="margin-top:8px"></div>
     </div>
     <div class="card">
@@ -1593,8 +1594,30 @@ function renderGate(){
   const btn=document.getElementById("diarySave")||document.querySelector("#p-diary .main");
   if(btn){btn.disabled=!open;btn.style.opacity=open?1:.4}
 }
+
+/* ═══ 日记写完发给小林点评（老板：写好了之后直接可以转发给你，你来给他评语） ═══ */
+function diaryShareText(){
+  const all=D.diaries||[];
+  const t=all.filter(function(x){return x.d===todayKey()})[0];
+  if(!t)return "";
+  return "小林，这是博远今天的日记（"+t.d+"），请你给他点评。\n\n"+
+         "【中文】\n"+(t.zh||t.t||"")+"\n\n"+
+         "【English】\n"+(t.en||"")+"\n\n"+
+         "（今天六门过了 "+walkDone()+" 门）";
+}
+function updateDiarySend(){
+  const b=document.getElementById("diarySend"); if(!b)return;
+  const has=(D.diaries||[]).some(function(x){return x.d===todayKey()});
+  b.style.display=has?"":"none";
+  b.onclick=function(){
+    const txt=diaryShareText();
+    if(!txt){toast("今天还没写日记");return}
+    window.open("https://wa.me/971502769188?text="+encodeURIComponent(txt),"_blank");
+  };
+}
 function renderDiary(){
   renderGate();
+  try{updateDiarySend()}catch(e){}
   const pr=document.getElementById("diaryPrompt");if(!pr)return;
   const day=Math.floor(Date.now()/86400000);
   const t=(D.diaryTopic!=null)?D.diaryTopic:DIARY_TOPICS[day%DIARY_TOPICS.length];
