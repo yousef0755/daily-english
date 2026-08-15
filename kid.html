@@ -986,12 +986,15 @@ function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
    等级 V 是攒出来的，只升不降——那是他的功劳，不该收回。
    排名不一样：只看最近七天。停一天就少一天的分，名次自己往下滑。
    这样「不学就掉」是真的掉，不是吓唬他。 */
+/* 段位按**最近七天拿到的星**定，不看总数——所以停学会掉。
+   日上限 15，七天理论最多 105。门槛按「要几天满勤」来定，
+   最高档 100 几乎要天天满勤，拿到了才算数（老板：也不能获得的太容易了）。 */
 const RANKS=[
-  {min:0,  name:"小树苗"},
-  {min:12, name:"小树"},
-  {min:30, name:"大树"},
-  {min:55, name:"森林小卫士"},
-  {min:85, name:"森林之星"}
+  {min:0,   name:"小树苗"},
+  {min:20,  name:"小树"},        /* ≈ 满勤 1.5 天 */
+  {min:45,  name:"大树"},        /* ≈ 满勤 3 天 */
+  {min:75,  name:"森林小卫士"},  /* ≈ 满勤 5 天 */
+  {min:100, name:"森林之星"}     /* ≈ 七天几乎全满勤 */
 ];
 function dayKey(t){return new Date(t).toISOString().slice(0,10)}
 function recentScore(){
