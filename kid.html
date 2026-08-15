@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0e1a2e">
+<meta name="theme-color" content="#07111f">
 <title>博远的学习星球</title>
 <style>
 :root{--bg:#0e1a2e;--bg2:#16294a;--cream:#f3efe2;--gold:#ffd479;--mint:#7fe0c0;--pink:#ff9ec4;--muted:#93a4c0;--line:rgba(243,239,226,.14)}
@@ -70,33 +70,167 @@ nav button.on{color:var(--gold)}
 #keyRtl{direction:rtl;text-align:right}
 #keyRtl ol{padding-inline-start:0;padding-inline-end:22px}
 @media (max-width:420px){#keyCard{padding:22px 18px}}
+
+/* ===== 2026 太空任务基地视觉系统 ===== */
+:root{
+  --bg:#07111f;--bg2:#0e1d35;--panel:rgba(15,31,55,.82);--panel-strong:#102440;
+  --cream:#f7fbff;--gold:#ffc857;--mint:#53e6c4;--pink:#ff7895;--cyan:#55c7ff;
+  --purple:#9e8cff;--orange:#ff9d55;--muted:#9db0ca;--line:rgba(164,202,239,.16);
+  --shadow:0 22px 60px rgba(0,0,0,.32)
+}
+html{background:var(--bg);scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 12% 4%,rgba(85,199,255,.16),transparent 27%),
+    radial-gradient(circle at 88% 18%,rgba(158,140,255,.14),transparent 25%),
+    linear-gradient(180deg,#081423 0%,#07111f 56%,#091522 100%);
+  color:var(--cream);min-height:100vh;padding:0 0 112px;line-height:1.55;overflow-x:hidden;position:relative;isolation:isolate
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.52;z-index:-1;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.85) 0 1px,transparent 1.5px),
+    radial-gradient(circle,rgba(85,199,255,.7) 0 1px,transparent 1.5px);
+  background-size:43px 43px,79px 79px;background-position:4px 11px,22px 37px;
+  mask-image:linear-gradient(to bottom,#000,transparent 66%);-webkit-mask-image:linear-gradient(to bottom,#000,transparent 66%)
+}
+button,input,textarea{font:inherit}
+button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid rgba(85,199,255,.55);outline-offset:3px}
+button:active{transform:scale(.985)}
+
+header{max-width:760px;margin:0 auto;padding:22px 16px 12px;text-align:left}
+.appbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.brand{display:flex;align-items:center;gap:11px}
+.brandmark{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#15325a,#0c1d36);border:1px solid rgba(85,199,255,.3);box-shadow:0 10px 24px rgba(0,0,0,.22)}
+.brandmark:before{content:"";width:21px;height:21px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));box-shadow:0 0 18px rgba(85,199,255,.6)}
+.brandmark:after{content:"";position:absolute;width:33px;height:10px;border:2px solid var(--gold);border-radius:50%;transform:rotate(-16deg)}
+.brand small,.kicker{display:block;color:var(--cyan);font-size:.64rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+.brand h1{font-size:1.08rem;letter-spacing:.03em;line-height:1.25;margin-top:2px}
+.level-badge{border:1px solid rgba(83,230,196,.3);border-radius:999px;padding:7px 11px;color:var(--mint);background:rgba(83,230,196,.08);font-size:.7rem;font-weight:900;letter-spacing:.08em}
+.mission-panel{min-height:150px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;overflow:hidden;padding:22px 22px 20px;border:1px solid rgba(85,199,255,.2);border-radius:26px;background:linear-gradient(135deg,rgba(19,49,84,.94),rgba(21,31,65,.9));box-shadow:var(--shadow)}
+.mission-panel:before{content:"";position:absolute;right:-44px;bottom:-78px;width:220px;height:220px;border:1px solid rgba(255,255,255,.07);border-radius:50%;box-shadow:0 0 0 25px rgba(255,255,255,.018),0 0 0 55px rgba(255,255,255,.014)}
+.mission-copy{position:relative;z-index:1;min-width:0}
+.mission-copy>small{display:block;margin-top:5px;color:var(--muted);font-size:.74rem;letter-spacing:.02em}
+.stars{margin:3px 0 0;font-size:2.5rem;line-height:1.1;font-weight:900;color:#fff;letter-spacing:-.04em;text-shadow:0 5px 24px rgba(0,0,0,.35)}
+.star-icon{font-size:1.35rem;vertical-align:.18em;margin-left:3px}
+.orbit-scene{width:126px;height:112px;flex:0 0 auto;position:relative;display:grid;place-items:center}
+.planet{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;font-size:1.55rem;position:relative;background:radial-gradient(circle at 32% 25%,#72d8ff 0,#396ed2 43%,#172d73 100%);box-shadow:inset -12px -10px 22px rgba(6,13,46,.36),0 0 30px rgba(85,199,255,.3);animation:float 4s ease-in-out infinite}
+.planet:after{content:"";position:absolute;width:98px;height:27px;border:5px solid rgba(255,200,87,.9);border-top-color:rgba(255,200,87,.28);border-radius:50%;transform:rotate(-12deg)}
+.orbit-scene i{position:absolute;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 9px #fff}
+.orbit-scene i:nth-child(2){left:7px;top:12px}.orbit-scene i:nth-child(3){right:6px;top:26px;width:3px;height:3px}.orbit-scene i:nth-child(4){right:19px;bottom:7px;background:var(--mint)}
+.streak-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 5px 0;color:var(--muted);font-size:.72rem;font-weight:700}
+.streakbar{display:flex;gap:6px;justify-content:flex-end;margin:0}
+.streakbar i{width:24px;height:5px;border-radius:999px;background:rgba(255,255,255,.11)}
+.streakbar i.on{background:linear-gradient(90deg,var(--gold),#ff9d55);box-shadow:0 0 10px rgba(255,200,87,.28)}
+
+main{max-width:760px;margin:0 auto;padding:7px 16px}
+.page{display:none}.page.on{display:block;animation:pageIn .32s ease both}
+.card{position:relative;background:linear-gradient(145deg,rgba(17,37,64,.9),rgba(10,24,43,.93));border:1px solid var(--line);border-radius:24px;padding:19px;margin-bottom:14px;box-shadow:0 14px 38px rgba(0,0,0,.2);overflow:hidden}
+.card:before{content:"";position:absolute;left:18px;right:18px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent)}
+h2{font-size:1rem;color:var(--cream);margin-bottom:11px;letter-spacing:.02em}
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:15px}
+.section-head h2{font-size:1.25rem;margin:3px 0 0;letter-spacing:-.015em}
+.mini-chip{flex:0 0 auto;background:rgba(85,199,255,.09);border:1px solid rgba(85,199,255,.18);border-radius:999px;color:var(--cyan);padding:6px 10px;font-size:.66rem;font-weight:800}
+.subject-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.subject-card{min-height:100px;display:grid;grid-template-columns:42px minmax(0,1fr) 14px;align-items:center;gap:10px;width:100%;padding:13px;text-align:left;color:var(--cream);border:1px solid rgba(255,255,255,.09);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);transition:transform .18s,border-color .18s,background .18s}
+.subject-card:hover{transform:translateY(-2px);border-color:rgba(85,199,255,.32);background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.04))}
+.subject-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:1.12rem;font-weight:900;background:rgba(85,199,255,.12);color:var(--cyan);box-shadow:inset 0 0 0 1px rgba(85,199,255,.16)}
+.subject-copy{min-width:0}.subject-copy strong{display:block;font-size:.95rem;line-height:1.25}.subject-copy small{display:block;color:var(--muted);font-size:.68rem;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subject-arrow{color:rgba(255,255,255,.28);font-size:1rem}
+.subject-card.idiom .subject-icon{color:var(--purple);background:rgba(158,140,255,.12);box-shadow:inset 0 0 0 1px rgba(158,140,255,.18)}
+.subject-card.arabic .subject-icon{color:var(--gold);background:rgba(255,200,87,.1);box-shadow:inset 0 0 0 1px rgba(255,200,87,.17)}
+.subject-card.quran .subject-icon{color:var(--mint);background:rgba(83,230,196,.1);box-shadow:inset 0 0 0 1px rgba(83,230,196,.17)}
+.subject-card.english .subject-icon{color:#ff91b4;background:rgba(255,120,149,.1);box-shadow:inset 0 0 0 1px rgba(255,120,149,.17)}
+.subject-card.math .subject-icon{color:var(--orange);background:rgba(255,157,85,.11);box-shadow:inset 0 0 0 1px rgba(255,157,85,.18)}
+.teacher-card{background:linear-gradient(145deg,rgba(24,46,78,.94),rgba(20,27,56,.94))}
+.teacher-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.teacher-avatar{width:76px;height:76px;flex:0 0 auto;border-radius:24px;display:grid;place-items:center;font-size:1.7rem;position:relative;background:radial-gradient(circle at 34% 28%,#55c7ff,#315cbf 48%,#172b6a);border:1px solid rgba(85,199,255,.46);box-shadow:0 12px 28px rgba(5,14,35,.32);transition:box-shadow .25s}
+.teacher-avatar:after{content:"在线";position:absolute;right:-5px;bottom:-5px;background:#143e38;color:var(--mint);border:3px solid #11223f;border-radius:999px;padding:3px 7px;font-size:.53rem;font-weight:900;letter-spacing:.06em}
+.teacher-copy{min-width:0}.teacher-copy h2{font-size:1.2rem;margin:2px 0 4px}.teacher-copy p{font-size:.76rem;line-height:1.65;color:var(--muted)}
+.q{font-size:1.25rem;line-height:1.8;margin:8px 0 14px;text-align:center}
+.q .big{font-size:2.4rem;display:block;margin-bottom:6px}
+.opt{display:block;width:100%;text-align:left;background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:15px;padding:14px 16px;margin-bottom:9px;font-size:.98rem;color:var(--cream);cursor:pointer;transition:.18s}
+.opt:hover{border-color:rgba(85,199,255,.35);background:rgba(85,199,255,.07)}
+.opt.right{background:rgba(83,230,196,.15);border-color:var(--mint);color:var(--mint);font-weight:800}
+.opt.wrong{background:rgba(255,120,149,.13);border-color:var(--pink);color:#ff9cb2}
+button.main{display:block;width:100%;min-height:50px;border:1px solid rgba(85,199,255,.45);border-radius:16px;padding:13px 16px;font-size:.95rem;cursor:pointer;background:linear-gradient(135deg,#58d0ff,#5978ef);color:#061425;font-weight:900;letter-spacing:.02em;box-shadow:0 10px 24px rgba(56,117,216,.22);transition:filter .18s,transform .18s}
+button.main:hover{filter:brightness(1.08)}
+button.ghost{background:rgba(255,255,255,.06);color:var(--cream);border:1px solid var(--line);box-shadow:none}
+.tip{font-size:.74rem;color:var(--muted);text-align:center;margin:10px 0}
+.reward{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-bottom:1px dashed var(--line)}
+.reward:last-child{border:none}.reward .n{font-size:.98rem}.reward .c{font-size:.75rem;color:var(--muted)}
+.reward button{border:none;border-radius:12px;padding:9px 15px;font-size:.85rem;cursor:pointer;background:var(--mint);color:#05241d;font-weight:800;white-space:nowrap}
+.reward button:disabled{background:rgba(255,255,255,.1);color:var(--muted)}
+.wish{text-align:center;padding:22px 0}.wishbox{font-size:2.6rem;margin:10px 0}.wishtext{font-size:1.05rem;color:var(--gold);min-height:2.6em;font-weight:800}
+#diaryText{background:rgba(3,12,24,.36)!important;border:1px solid var(--line)!important;border-radius:16px!important;color:var(--cream)!important;padding:14px!important;line-height:1.7!important}
+#diaryText::placeholder{color:#7386a0}
+#pad{max-width:100%;height:auto;box-shadow:0 12px 28px rgba(0,0,0,.22)}
+
+nav{position:fixed;z-index:50;left:50%;right:auto;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100% - 24px),720px);display:flex;gap:3px;padding:7px;background:rgba(8,20,36,.88);border:1px solid rgba(157,190,226,.18);border-radius:23px;box-shadow:0 18px 45px rgba(0,0,0,.46);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+nav button{min-height:58px;flex:1;background:none;border:none;border-radius:17px;color:#7e91aa;font-size:.64rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-weight:750;transition:.18s}
+nav button span{font-size:1.22rem;line-height:1;filter:grayscale(.35);transition:.18s}
+nav button.on{color:#fff;background:linear-gradient(145deg,rgba(85,199,255,.19),rgba(158,140,255,.1));box-shadow:inset 0 0 0 1px rgba(85,199,255,.16)}
+nav button.on span{filter:none;transform:translateY(-1px)}
+.toast{position:fixed;left:50%;top:15%;transform:translateX(-50%) translateY(-8px);background:linear-gradient(135deg,#fce18d,var(--gold));color:#19160e;padding:13px 22px;border-radius:15px;font-weight:900;opacity:0;pointer-events:none;transition:.25s;z-index:90;box-shadow:0 16px 40px rgba(0,0,0,.3);white-space:nowrap;max-width:calc(100% - 28px)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes float{0%,100%{transform:translateY(-2px) rotate(-2deg)}50%{transform:translateY(5px) rotate(2deg)}}
+@keyframes pageIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@media (max-width:500px){
+  header{padding:18px 13px 10px}.appbar{margin-bottom:12px}.brand h1{font-size:1rem}.brandmark{width:39px;height:39px;border-radius:13px}.level-badge{padding:6px 9px}
+  .mission-panel{min-height:138px;padding:19px 17px;border-radius:23px}.stars{font-size:2.25rem}.orbit-scene{width:99px;height:100px}.planet{width:59px;height:59px}.planet:after{width:82px;height:23px;border-width:4px}
+  .streakbar i{width:19px}main{padding:7px 12px}.card{padding:16px;border-radius:21px}.section-head h2{font-size:1.13rem}.subject-grid{gap:9px}.subject-card{grid-template-columns:38px minmax(0,1fr) 10px;gap:8px;min-height:91px;padding:11px;border-radius:16px}.subject-icon{width:38px;height:38px;border-radius:12px}.subject-copy strong{font-size:.89rem}.subject-copy small{font-size:.62rem}
+  .teacher-avatar{width:68px;height:68px;border-radius:21px}.teacher-copy h2{font-size:1.1rem}.teacher-copy p{font-size:.7rem}
+}
+@media (max-width:350px){.orbit-scene{display:none}.mission-panel{min-height:124px}.subject-grid{grid-template-columns:1fr}.subject-card{min-height:76px}.streakbar i{width:15px}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <header>
-  <h1>🪐 博远的学习星球</h1>
-  <div class="stars"><span id="starCount">0</span> ⭐<small>今天已得 <b id="todayStars">0</b> 颗 · 连续 <b id="streak">0</b> 天</small></div>
-  <div class="streakbar" id="sbar"></div>
+  <div class="appbar">
+    <div class="brand">
+      <div class="brandmark" aria-hidden="true"></div>
+      <div><small>BOYUAN SPACE LAB</small><h1>博远的学习星球</h1></div>
+    </div>
+    <div class="level-badge">LV.10</div>
+  </div>
+  <div class="mission-panel">
+    <div class="mission-copy">
+      <span class="kicker">TODAY'S ENERGY</span>
+      <div class="stars"><span id="starCount">0</span><span class="star-icon">⭐</span></div>
+      <small>今日 +<b id="todayStars">0</b> · 已连续探索 <b id="streak">0</b> 天</small>
+    </div>
+    <div class="orbit-scene" aria-hidden="true"><span class="planet">🚀</span><i></i><i></i><i></i></div>
+  </div>
+  <div class="streak-row"><span>7 日探索进度</span><div class="streakbar" id="sbar"></div></div>
 </header>
 <main>
   <section class="page on" id="p-learn">
     <div class="card">
-      <h2>今天学什么</h2>
-      <button class="main" data-sub="chinese" style="margin-bottom:9px">📖 语文 · 读背古诗</button>
-      <button class="main ghost" data-sub="idiom" style="margin-bottom:9px">🧩 成语 · 读背成语</button>
-      <button class="main ghost" data-sub="arabic" style="margin-bottom:9px">🌙 阿拉伯语 · 日常会话</button>
-      <button class="main ghost" data-sub="quran" style="margin-bottom:9px">🕌 古兰经 · 读背经文</button>
-      <button class="main ghost" data-sub="english" style="margin-bottom:9px">🔤 英语 · 读背单词</button>
-      <button class="main ghost" data-sub="math">➗ 数学 · 做题练习</button>
-    </div>
-    <div class="card">
-      <h2>🌟 星星老师</h2>
-      <div style="text-align:center">
-        <div id="tOrb" style="width:86px;height:86px;border-radius:50%;margin:2px auto 10px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:radial-gradient(circle at 34% 30%,#2b5db0,#16294a);border:2px solid rgba(255,212,121,.5);transition:box-shadow .25s">🌙</div>
-        <button class="main" id="tBtn">🌟 找老师玩一会儿</button>
-        <div id="tStatus" class="tip" style="min-height:2.2em;margin:8px 0 0">按一下，老师就来啦 —— 想玩哪一科你说了算。</div>
-        <div id="tUsage" class="tip" style="margin:4px 0 0"></div>
+      <div class="section-head">
+        <div><span class="kicker">MISSION MAP</span><h2>今天想先挑战哪一关？</h2></div>
+        <span class="mini-chip">6 个任务</span>
       </div>
+      <div class="subject-grid">
+        <button class="subject-card chinese" data-sub="chinese"><span class="subject-icon">文</span><span class="subject-copy"><strong>语文</strong><small>古诗背诵</small></span><span class="subject-arrow">›</span></button>
+        <button class="subject-card idiom" data-sub="idiom"><span class="subject-icon">成</span><span class="subject-copy"><strong>成语</strong><small>积累表达</small></span><span class="subject-arrow">›</span></button>
+        <button class="subject-card arabic" data-sub="arabic"><span class="subject-icon">ع</span><span class="subject-copy"><strong>阿拉伯语</strong><small>标准语会话</small></span><span class="subject-arrow">›</span></button>
+        <button class="subject-card quran" data-sub="quran"><span class="subject-icon">☾</span><span class="subject-copy"><strong>古兰经</strong><small>经文读背</small></span><span class="subject-arrow">›</span></button>
+        <button class="subject-card english" data-sub="english"><span class="subject-icon">Aa</span><span class="subject-copy"><strong>英语</strong><small>单词与口语</small></span><span class="subject-arrow">›</span></button>
+        <button class="subject-card math" data-sub="math"><span class="subject-icon">÷</span><span class="subject-copy"><strong>数学</strong><small>解题训练</small></span><span class="subject-arrow">›</span></button>
+      </div>
+    </div>
+    <div class="card teacher-card">
+      <div class="teacher-top">
+        <div id="tOrb" class="teacher-avatar" aria-hidden="true">🌙</div>
+        <div class="teacher-copy"><span class="kicker">LIVE COACH</span><h2>星星老师</h2><p>不会也没关系。一起拆小步骤，把今天最难的一关拿下。</p></div>
+      </div>
+      <button class="main" id="tBtn">连接星星老师</button>
+      <div id="tStatus" class="tip" style="min-height:2.2em;margin:8px 0 0">按一下开始，今天挑战哪一科由你决定。</div>
+      <div id="tUsage" class="tip" style="margin:4px 0 0"></div>
     </div>
     <div class="card" id="reciteCard" style="display:none">
       <h2 id="rTitle">读背</h2>
@@ -174,10 +308,10 @@ nav button.on{color:var(--gold)}
 </main>
 
 <nav>
-  <button class="on" data-p="learn"><span>📚</span>学习</button>
-  <button data-p="write"><span>✍️</span>写字</button>
-  <button data-p="diary"><span>📔</span>日记</button>
-  <button data-p="reward"><span>🎁</span>神秘盒</button>
+  <button class="on" data-p="learn"><span>🧭</span>任务</button>
+  <button data-p="write"><span>✍️</span>练字</button>
+  <button data-p="diary"><span>📝</span>记录</button>
+  <button data-p="reward"><span>🎁</span>奖励</button>
 </nav>
 <div class="toast" id="toast"></div>
 
