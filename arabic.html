@@ -117,13 +117,37 @@ fetch("kidaudio/index.json").then(function(r){return r.json()}).then(function(j)
 function speakRoster(text){
   if(!text)return;
   var key=String(text).trim();
-  if(VOICE_IDX&&VOICE_IDX[key]){
-    try{_vplayer.pause()}catch(e){}
-    _vplayer=new Audio("kidaudio/"+VOICE_IDX[key]);
-    _vplayer.play().catch(function(){sysSpeak(key)});
-    return;
-  }
+  if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("kidaudio/"+VOICE_IDX[key],key); return; }
   sysSpeak(key);
+}
+/* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio。
+   所以优先用 AudioContext 播；解码不了再退回老办法。 */
+var _actx=null,_asrc=null,_abuf={};
+function playThroughSilent(url,fallbackText){
+  try{
+    if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==="suspended")_actx.resume();
+  }catch(e){ return playTag(url,fallbackText); }
+  try{ if(_asrc)_asrc.stop() }catch(e){}
+  function go(buf){
+    try{
+      var s=_actx.createBufferSource();
+      s.buffer=buf;s.connect(_actx.destination);s.start(0);_asrc=s;
+    }catch(e){ playTag(url,fallbackText) }
+  }
+  if(_abuf[url]){ go(_abuf[url]); return; }
+  fetch(url).then(function(r){return r.arrayBuffer()}).then(function(ab){
+    return new Promise(function(res,rej){
+      var q=_actx.decodeAudioData(ab,res,rej);
+      if(q&&q.then)q.then(res,rej);
+    });
+  }).then(function(buf){ _abuf[url]=buf;go(buf) })
+   .catch(function(){ playTag(url,fallbackText) });
+}
+function playTag(url,fallbackText){
+  try{_vplayer.pause()}catch(e){}
+  _vplayer=new Audio(url);
+  _vplayer.play().catch(function(){ if(fallbackText)sysSpeak(fallbackText) });
 }
 function sysSpeak(text){
   try{
@@ -234,11 +258,19 @@ const dayIndex=Math.floor(Date.now()/86400000)%packNames.length;
 let currentPack=packNames[dayIndex];
 let lastResult=null;
 let player=new Audio();
-function play(pack,i,kind,fallback){
+function play(pack,i,kind,fallback,clean){
+  /* 2026-08-15 修：原来只认 audio/<pack>_<i>_s.mp3 这套旧文件名，
+     而 audio/ 里只有 dad/deal/heart/local 四个老词包，新加的词根本没有文件；
+     退回时又把「Hello. 你好」这种拼串拿去查索引，当然查不到，最后落到机器音。
+     而且 play().catch 是空的，失败了一点声音都没有——嫂子说的「没有声音」就是这里。
+     现在：先按纯文本查花名册音频（覆盖率 100%），查不到再走旧文件，最后才机器音。 */
+  const key=(clean||"").trim();
+  if(key&&VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("kidaudio/"+VOICE_IDX[key],key); return; }
   const PKa=(window.__PACKS_ACTIVE||PACKS);const src="audio/"+PKa[pack].key+"_"+i+"_"+kind+".mp3";
-  player.pause();player=new Audio(src);
-  player.onerror=()=>{speakRoster(fallback)};
-  player.play().catch(()=>{});
+  try{player.pause()}catch(e){}
+  player=new Audio(src);
+  player.onerror=()=>{speakRoster(key||fallback)};
+  player.play().catch(()=>{speakRoster(key||fallback)});
 }
 function renderStreak(){document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
 function renderPills(){
@@ -252,7 +284,7 @@ function renderWords(){
     const c=document.createElement("div");c.className="card";
     c.innerHTML='<div class="word-row"><div class="phrase">'+it[0]+'</div><button class="speak">🎧 Listen</button></div><div class="use">'+it[1]+'</div>';
     const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
-    c.querySelector(".speak").onclick=()=>play(currentPack,i,"s",it[0]+". "+it[1]);
+    c.querySelector(".speak").onclick=()=>play(currentPack,i,"s",it[0]+". "+it[1],it[0]);
     ph.onclick=()=>{const on=ph.classList.toggle("shown");use.classList.toggle("shown",on);};
     area.appendChild(c);
   });

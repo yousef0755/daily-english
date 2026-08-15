@@ -189,13 +189,37 @@ fetch("kidaudio/index.json").then(function(r){return r.json()}).then(function(j)
 function speakRoster(text){
   if(!text)return;
   var key=String(text).trim();
-  if(VOICE_IDX&&VOICE_IDX[key]){
-    try{_vplayer.pause()}catch(e){}
-    _vplayer=new Audio("kidaudio/"+VOICE_IDX[key]);
-    _vplayer.play().catch(function(){sysSpeak(key)});
-    return;
-  }
+  if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("kidaudio/"+VOICE_IDX[key],key); return; }
   sysSpeak(key);
+}
+/* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio。
+   所以优先用 AudioContext 播；解码不了再退回老办法。 */
+var _actx=null,_asrc=null,_abuf={};
+function playThroughSilent(url,fallbackText){
+  try{
+    if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==="suspended")_actx.resume();
+  }catch(e){ return playTag(url,fallbackText); }
+  try{ if(_asrc)_asrc.stop() }catch(e){}
+  function go(buf){
+    try{
+      var s=_actx.createBufferSource();
+      s.buffer=buf;s.connect(_actx.destination);s.start(0);_asrc=s;
+    }catch(e){ playTag(url,fallbackText) }
+  }
+  if(_abuf[url]){ go(_abuf[url]); return; }
+  fetch(url).then(function(r){return r.arrayBuffer()}).then(function(ab){
+    return new Promise(function(res,rej){
+      var q=_actx.decodeAudioData(ab,res,rej);
+      if(q&&q.then)q.then(res,rej);
+    });
+  }).then(function(buf){ _abuf[url]=buf;go(buf) })
+   .catch(function(){ playTag(url,fallbackText) });
+}
+function playTag(url,fallbackText){
+  try{_vplayer.pause()}catch(e){}
+  _vplayer=new Audio(url);
+  _vplayer.play().catch(function(){ if(fallbackText)sysSpeak(fallbackText) });
 }
 function sysSpeak(text){
   try{

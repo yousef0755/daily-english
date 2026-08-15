@@ -188,11 +188,33 @@ const dayIndex=Math.floor(Date.now()/86400000)%packNames.length;
 let currentPack=packNames[dayIndex];
 let lastResult=null;
 let player=new Audio();
-function play(pack,i,kind,fallback){
+var VOICE_IDX=null,_vplayer=new Audio(),_actx=null,_asrc=null,_abuf={};
+fetch("kidaudio/index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+function sysSpeak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
+/* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio */
+function playThroughSilent(url,fb){
+  try{
+    if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==="suspended")_actx.resume();
+  }catch(e){return playTag(url,fb)}
+  try{if(_asrc)_asrc.stop()}catch(e){}
+  function go(buf){try{var s=_actx.createBufferSource();s.buffer=buf;s.connect(_actx.destination);s.start(0);_asrc=s}catch(e){playTag(url,fb)}}
+  if(_abuf[url]){go(_abuf[url]);return}
+  fetch(url).then(function(r){return r.arrayBuffer()}).then(function(ab){
+    return new Promise(function(res,rej){var q=_actx.decodeAudioData(ab,res,rej);if(q&&q.then)q.then(res,rej)});
+  }).then(function(b){_abuf[url]=b;go(b)}).catch(function(){playTag(url,fb)});
+}
+function playTag(url,fb){try{_vplayer.pause()}catch(e){}_vplayer=new Audio(url);_vplayer.play().catch(function(){if(fb)sysSpeak(fb)})}
+function play(pack,i,kind,fallback,clean){
+  /* 2026-08-15 修：原来只认 audio/<pack>_<i>_s.mp3，新词包没有文件就退到机器音，
+     而 play().catch 是空的——失败时一点声音都没有。现在先按纯文本查花名册。 */
+  const key=(clean||"").trim();
+  if(key&&VOICE_IDX&&VOICE_IDX[key]){playThroughSilent("kidaudio/"+VOICE_IDX[key],key);return}
   const PKa=(window.__PACKS_ACTIVE||PACKS);const src="audio/"+PKa[pack].key+"_"+i+"_"+kind+".mp3";
-  player.pause();player=new Audio(src);
-  player.onerror=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(fallback);u.lang="en-US";u.rate=.92;speechSynthesis.speak(u);}catch(e){}};
-  player.play().catch(()=>{});
+  try{player.pause()}catch(e){}
+  player=new Audio(src);
+  player.onerror=()=>{sysSpeak(key||fallback)};
+  player.play().catch(()=>{sysSpeak(key||fallback)});
 }
 function renderStreak(){document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
 function renderPills(){
@@ -206,7 +228,7 @@ function renderWords(){
     const c=document.createElement("div");c.className="card";
     c.innerHTML='<div class="word-row"><div class="phrase">'+it[0]+'</div><button class="speak">🎧 Listen</button></div><div class="use">'+it[1]+'</div>';
     const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
-    c.querySelector(".speak").onclick=()=>play(currentPack,i,"s",it[0]+". "+it[1]);
+    c.querySelector(".speak").onclick=()=>play(currentPack,i,"s",it[0]+". "+it[1],it[0]);
     ph.onclick=()=>{const on=ph.classList.toggle("shown");use.classList.toggle("shown",on);};
     area.appendChild(c);
   });
