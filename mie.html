@@ -666,9 +666,9 @@ function conn(){
                    :"She hasn't done it yet. Bring it up once, near the end, without nagging.");
     const mk=MOTIFS[motifOfDay()],rd=getProgress();
     ctx+="\n\nWHAT YOU ARE STITCHING TODAY: "+mk.en+" ("+mk.zh+"). "
-        +"**Do not tell her what it is.** She finds out when it is finished, not before — if she asks, be smug and refuse. You start the moment Mie starts talking, and you finish it after "
+        +"**WHAT YOU ARE MAKING IS A SECRET UNTIL IT IS NEARLY DONE.** Do not name it, do not describe it, do not hint at its shape or its colour. If she asks, refuse — smugly, briefly — and change the subject. ONLY when you are two exchanges from finishing may you begin to let it slip, and even then tease it out rather than blurting the answer. You start the moment Mie starts talking, and you finish it after "
         +TARGET+" exchanges — then it's a gift for her. She is "+rd+"/"+TARGET+" of the way there. "
-        +(rd>=TARGET?"It's finished today — tell her it's hers, once, drily, then move on. "
+        +((rd>=TARGET-2&&rd<TARGET)?"You are TWO exchanges from done — from here you may finally start hinting. ":"")+(rd>=TARGET?"It's finished today — tell her it's hers, once, drily, then move on. "
                                 +"You are a cat; do not get sentimental about it."
                     :"Don't narrate this constantly. Mention it once if the talk lulls, or near the end: "
                      +"if she keeps talking, you finish the piece.");
