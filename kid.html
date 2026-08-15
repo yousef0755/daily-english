@@ -493,6 +493,12 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 @media (prefers-reduced-motion:reduce){
   .navcat .open,.navcat .shut,.navcat .ntail{animation:none}
 }
+
+/* 录音时按钮底下走一条金线：还差多少他自己看得见（老板 2026-08-15 那句
+   「念一半就停」，一半原因就是他根本不知道系统认为他念够没有） */
+.rbtn.inline.reading{position:relative;overflow:hidden}
+.rbtn.inline.reading::after{content:"";position:absolute;left:0;bottom:0;height:3px;
+  width:var(--p,0%);background:#ffd479;transition:width .2s linear}
 </style>
 </head>
 <body>
@@ -2919,6 +2925,24 @@ let rdBtn=null, rdArgs=null;
 let rdOn=false, rdCtx=null, rdStream=null, rdProc=null,
     rdPts=0, rdLoud=0, rdT0=0, rdRec=null, rdHeard="";
 
+/* 这句大概该念多久（秒）。按语言分开算——
+   原来一律用 arBare()，中文和英文进去出来是空串，need 恒等于下限 2，
+   等于这道闸门对古诗和英语根本不存在。 */
+function readExpect(text, sub){
+  const t=String(text||"");
+  if(isAr(t)){
+    /* 阿语按去掉音符之后的字母数。0.30 是一个十岁中国孩子照着念的速度，
+       不是成年人快读的 0.16——105:1 共 25 字母，实际要念 7-9 秒。 */
+    return Math.max(2.0, arBare(t).length*0.30);
+  }
+  if(/[一-鿿]/.test(t)) return Math.max(1.5, zhBare(t).length*0.42);
+  return Math.max(1.2, enBare(t).length*0.15);
+}
+/* 停顿给多少宽限：经文最长（要凭记忆想），单词最短 */
+function readGap(sub){
+  return (sub==="quran") ? 1900 : (sub==="arabic") ? 1700 : 1300;
+}
+
 async function readStart(btn, text, sub, idx, li, onOk){
   if(rdOn)return;
   try{
@@ -2935,41 +2959,71 @@ async function readStart(btn, text, sub, idx, li, onOk){
   }
   rdPts=0; rdLoud=0; rdT0=Date.now(); rdOn=true; rdHeard="";
   rdBtn=btn; rdArgs={text:text,sub:sub,idx:idx,li:li,onOk:onOk};
-  let spoke=0, lastLoud=0;
+
+  const expect=readExpect(text,sub), gap=readGap(sub);
+  rdArgs.expect=expect;
+  let spoke=0, lastLoud=0, firstLoud=0;
+  /* 环境底噪自己量，别写死 0.012——安静房间里孩子小声念会低于它，
+     吵的房间里空调声会一直高于它。前 300 毫秒当本底。 */
+  let floorSum=0, floorN=0, gate=0.012;
+
   rdProc.onaudioprocess=function(e){
     if(!rdOn)return;
     const d=e.inputBuffer.getChannelData(0);
     let r=0; for(let i=0;i<d.length;i++)r+=d[i]*d[i];
     r=Math.sqrt(r/d.length); rdPts++;
     const now=Date.now();
-    if(r>0.012){ rdLoud++; spoke=1; lastLoud=now }
-    /* 自动收尾（老板：「不说话自动跳起来」）：
-       开口过 + 静了 1.1 秒 → 停；一直没出声 4 秒 → 也停，顺便提醒他大点声。
-       从头到尾最多 20 秒，别让它一直开着。 */
-    if(spoke && lastLoud && now-lastLoud>1100) readFinish();
-    else if(!spoke && now-rdT0>4000) readFinish();
-    else if(now-rdT0>20000) readFinish();
+
+    if(now-rdT0<300){ floorSum+=r; floorN++; return }      /* 先听房间 */
+    if(floorN && gate===0.012){ gate=Math.max(0.008,(floorSum/floorN)*2.5) }
+
+    if(r>gate){ rdLoud++; spoke=1; lastLoud=now; if(!firstLoud)firstLoud=now }
+    rdArgs.voiced = firstLoud ? (Math.max(lastLoud,firstLoud)-firstLoud)/1000 : 0;
+
+    /* ── 什么时候算念完 ──
+       关键一条：**没念够之前，静音不作数**。
+       孩子念到一半停下来想词，那是在想，不是念完了。
+       念够了（出声时长过了七成）才用短宽限；没念够就给他很长的耐心。 */
+    const enough = rdArgs.voiced >= expect*0.7;
+    const patience = enough ? gap : Math.max(gap, 3600);
+
+    if(spoke && now-lastLoud>patience) readFinish();
+    else if(!spoke && now-rdT0>5000) readFinish();
+    else if(now-rdT0>Math.max(25000, expect*3000)) readFinish();
+
+    /* 按钮上走一条细金线，让他知道还差多少。原来只有"在听…"三个字，
+       他不知道自己念够没有，只能瞎猜。 */
+    if(btn&&btn.classList.contains("reading")){
+      const pct=Math.min(100, Math.round(rdArgs.voiced/expect*100));
+      btn.style.setProperty("--p", pct+"%");
+    }
   };
+
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(SR){
     try{
       rdRec=new SR();
       rdRec.lang = (sub==="quran"||sub==="arabic") ? "ar-SA"
                  : (sub==="english") ? "en-US" : "zh-CN";
-      rdRec.interimResults=false; rdRec.maxAlternatives=3;
+      /* continuous：长经文中间一停，识别自己就 end 了，后半句收不到。
+         maxAlternatives 只留 1：原来把 3 个互斥的候选拼成一串去比对，
+         分母被撑到三倍，今天这几节的分数上限只有 0.48，
+         永远够不着 0.5 那道门——等于识别这条路从来没通过。 */
+      rdRec.continuous=true; rdRec.interimResults=true; rdRec.maxAlternatives=1;
       rdRec.onresult=function(ev){
-        for(let i=0;i<ev.results.length;i++)
-          for(let j=0;j<ev.results[i].length;j++)
-            rdHeard+=" "+ev.results[i][j].transcript;
+        for(let i=ev.resultIndex;i<ev.results.length;i++)
+          if(ev.results[i].isFinal) rdHeard+=" "+ev.results[i][0].transcript;
       };
       rdRec.onerror=function(){};
+      rdRec.onend=function(){ if(rdOn){ try{rdRec.start()}catch(e){} } };  /* 还在录就接着听 */
       rdRec.start();
     }catch(e){ rdRec=null }
   }
   btn.classList.add("reading");
+  btn.style.setProperty("--p","0%");
   btn.innerHTML=MIC_SVG+'<b>在听…</b>';
 }
-/* 收尾只走这一条路：自动停、再点一下、切换课文，都从这儿走 */
+/* 收尾只走这一条路/* 收尾只走这一条路：自动停、再点一下、切换课文，都从这儿走 */
 function readFinish(){
   if(!rdOn||!rdBtn||!rdArgs)return;
   const a=rdArgs, btn=rdBtn;
@@ -2978,31 +3032,39 @@ function readFinish(){
 
 function readStop(btn, text, sub, idx, li, onOk){
   if(!rdOn)return;
+  const expect=(rdArgs&&rdArgs.expect)||readExpect(text,sub);
+  /* 只算**真正出声**那一段，不算「点了按钮还没开口」和结尾那段静音。
+     原来用挂钟时间，两头的空档都被算成念的时间，于是念半句也够数。 */
+  const voiced=(rdArgs&&rdArgs.voiced)||0;
   rdOn=false;
   if(rdProc)rdProc.onaudioprocess=null;
-  if(rdRec){ try{rdRec.stop()}catch(e){} }
+  if(rdRec){ try{rdRec.onend=null; rdRec.stop()}catch(e){} }
   btn.classList.remove("reading");
+  btn.style.removeProperty("--p");
   rdBtn=null; rdArgs=null;
   readBtnFace(btn, readGot(sub,idx,li));
-  const sec=(Date.now()-rdT0)/1000;
   const ratio=rdPts?(rdLoud/rdPts):0;
-  const need=Math.max(2, Math.round(arBare(text).length*0.16));   /* 这句大概要念多久 */
 
   setTimeout(function(){          /* 等识别结果回来一下 */
     let pass=false, how="";
-    if(rdHeard.trim()){
+    const full = voiced >= expect*0.7;      /* 出声时长够不够这一句 */
+    if(!full && voiced>0.3){
+      /* 念了，但没念完整句。这种一律不算数——
+         原来这里会判过，等于把半句经文练熟十遍，比停一半更坏。 */
+      how="这句还没念完，从头再念一遍";
+    }else if(rdHeard.trim()){
       const sc=similar(rdHeard, text);
-      if(sc>=0.5){ pass=true; how="听清了（"+Math.round(sc*100)+"%）" }
-      else if(ratio>=0.25 && sec>=need){ pass=true; how="听见你在念" }
+      if(sc>=0.5 && full){ pass=true; how="听清了（"+Math.round(sc*100)+"%）" }
+      else if(full && ratio>=0.2){ pass=true; how="听见你在念" }
       else { how="没太听清，再念一遍" }
     }else{
-      if(ratio>=0.25 && sec>=need){ pass=true; how="听见你在念" }
-      else if(ratio<0.25){ how="没听到声音，大声一点" }
-      else { how="太快了，慢一点念完整" }
+      if(full && ratio>=0.2){ pass=true; how="听见你在念" }
+      else if(ratio<0.2){ how="没听到声音，大声一点" }
+      else { how="这句还没念完，从头再念一遍" }
     }
     if(pass){ onOk(how) } else { toast(how) }
     renderReadRow(sub, idx, li);
-  }, 700);
+  }, 1200);
 }
 
 /* 每一句后面那一排：念了几遍、还差几遍 */
@@ -3014,19 +3076,13 @@ function renderReadRow(sub, idx, li){
     return '<i class="rdot'+(i<n?" on":"")+'"></i>';
   }).join("");
   row.querySelector(".rdots").innerHTML=dots;
-  const b=row.querySelector(".rbtn");
-  if(b){
-    b.textContent = n>=READ_GOAL ? "这句念够了" : "按住念一遍";
-    b.classList.toggle("done", n>=READ_GOAL);
-  }
-  /* 阿语那种按钮在上一行里，单独找 */
-  const inline=row.previousElementSibling &&
-               row.previousElementSibling.querySelector &&
-               row.previousElementSibling.querySelector(".rbtn.inline");
-  if(inline){
-    inline.textContent = n>=READ_GOAL ? "念够了" : ("念 "+n+"/"+READ_GOAL);
-    inline.classList.toggle("done", n>=READ_GOAL);
-  }
+  /* 录音键在上一行里。**必须排除听键**——两个键都是 .rbtn.inline，
+     querySelector 只返第一个；成语/古诗/英语的排法是「文字、听、录」，
+     不排除就会把喇叭图标冲成文字，播放键当场消失。 */
+  const prev=row.previousElementSibling;
+  const inline=prev && prev.querySelector &&
+               prev.querySelector(".rbtn.inline:not(.listen)");
+  if(inline) readBtnFace(inline, n);        /* 用统一那一份重画，图标不会掉 */
   const c=row.querySelector(".rcnt"); if(c)c.textContent = n+" / "+READ_GOAL;
 }
 
