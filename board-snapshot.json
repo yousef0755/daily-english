@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 20:23",
+ "at": "2026-08-15 20:26",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -49,10 +49,10 @@
     "finished": false,
     "at": "",
     "streak": 0,
-    "auto": false,
+    "auto": true,
     "_ord": 2,
     "manual": false,
-    "url": ""
+    "url": "./xiya.html"
    },
    {
     "id": "feiya",
