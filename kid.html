@@ -341,6 +341,25 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;
   color:var(--gold);text-decoration:none;font-size:.88rem;font-weight:600}
 .famlink:active{background:rgba(255,255,255,.07)}
+
+/* ── 回头看看（错过的过两天自己回来，不提"错"字）── */
+.review{margin:14px 12px 4px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(217,180,95,.28);border-radius:18px;padding:15px 16px 16px}
+.rv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.rv-head span:first-child{font-size:.9rem;color:var(--gold);font-weight:700}
+.rv-head span:last-child{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rv-tip{margin:0 0 11px;font-size:.84rem;line-height:1.75;color:var(--muted)}
+.review .main{width:100%}
+.rv-q{font-size:1.05rem;line-height:1.7;margin:2px 0 11px}
+.rv-q .big{display:block;font-size:1.7rem;margin-bottom:5px}
+.rv-opt{display:block;width:100%;text-align:left;margin-bottom:8px;padding:12px 14px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:13px;
+  color:var(--ink);font-size:.96rem;font-family:inherit}
+.rv-opt.right{background:rgba(126,214,178,.16);border-color:var(--mint);color:var(--mint)}
+.rv-opt.wrong{background:rgba(255,120,149,.13);border-color:var(--pink);color:#ff9cb2}
+
+.tbi{display:block;width:23px;height:23px;margin:0 auto 2px}
+.tbi svg{width:100%;height:100%;display:block}
 </style>
 </head>
 <body>
@@ -459,6 +478,13 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   </div>
   <p class="walk-tip" id="walkTip"></p>
 </section>
+<section class="review" id="revBox" style="display:none">
+  <div class="rv-head"><span id="revTitle">回头看看</span><span id="revN"></span></div>
+  <p class="rv-tip" id="revTip"></p>
+  <div id="revStage"></div>
+  <button class="main ghost" id="revGo">再玩一次</button>
+</section>
+
 
       <div class="section-head">
         <div><span class="kicker">MISSION MAP</span><h2>今天想先挑战哪一关？</h2></div>
@@ -565,10 +591,10 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 </main>
 
 <nav>
-  <button class="on" data-p="learn"><span>🧭</span>任务</button>
-  <button data-p="write"><span>✍️</span>练字</button>
-  <button data-p="diary"><span>📝</span>记录</button>
-  <button data-p="reward"><span>🎁</span>奖励</button>
+  <button class="on" data-p="learn"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></span>任务</button>
+  <button data-p="write"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 4.6l4.2 4.2M4 20l1-4.2L16.1 4.7a1.6 1.6 0 0 1 2.3 0l.9.9a1.6 1.6 0 0 1 0 2.3L8.2 19z"/></svg></span>练字</button>
+  <button data-p="diary"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h11a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg></span>记录</button>
+  <button data-p="reward"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.8 8.6h16.4v3.1H3.8zM5.2 11.7h13.6v8.1H5.2zM12 8.6v11.2"/><path d="M12 8.6C10.6 6.4 8.9 4 7.4 4.8 5.8 5.6 7.9 8 12 8.6zM12 8.6c1.4-2.2 3.1-4.6 4.6-3.8 1.6.8-.5 3.2-4.6 3.8z"/></svg></span>奖励</button>
 </nav>
 <div class="toast" id="toast"></div>
 
@@ -1186,6 +1212,7 @@ function ask(){
       if(i===it.a){b.classList.add("right");score++;toast("答对了 +1 ⭐");if(cur==="english")speakRoster(it.q)}
       else{b.classList.add("wrong");
         [...ob.children].forEach((c,j)=>{if(order[j][1]===it.a)c.classList.add("right")});
+        try{wrongAdd(cur,it)}catch(e){}       /* 记一笔，过两天自己回来找他 */
         if(cur==="math"){list.splice(idx+2,0,it);toast("等下我们再做一道一样的")}
         else toast("再看一眼正确答案")}
       [...ob.children].forEach(c=>c.onclick=null);
@@ -2383,7 +2410,7 @@ async function renderNag(){
 }
 /* 开页就把这一块画出来，并把今天的进度同步给 Service Worker */
 (function(){
-  function boot(){ try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} }
+  function boot(){ try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} try{renderReview()}catch(e){} }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
   else boot();
 })();
@@ -2401,6 +2428,90 @@ function famPing(){
     fetch(NAG_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({who:"boyuan",done:done,total:total})}).catch(function(){});
   }catch(e){}
+}
+
+/* ═══ 回头看看 ═══
+   老板问「对他帮助大吗」的时候我说过：软件真正能帮上忙的是这件——
+   他答错的东西，过两天自己回来找他，而不是错过就算了。
+
+   措辞上刻意不提"错题"两个字。他在学校已经听够了。
+   隔的天数按记忆规律来：答对一次隔 1 天，再对隔 3 天，再对隔 7 天，三次都对就毕业。 */
+const REV_GAP=[1,3,7];
+function revKey(sub,it){ return sub+"|"+it.q }
+function dayAdd(n){
+  const d=new Date(); d.setDate(d.getDate()+n);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function wrongAdd(sub,it){
+  D.wrong=D.wrong||{};
+  const k=revKey(sub,it);
+  D.wrong[k]={sub:sub,q:it.q,o:it.o,a:it.a,stage:0,due:dayAdd(1)};
+  save();
+}
+function revDue(){
+  const t=todayKey(); const out=[];
+  const W=D.wrong||{};
+  for(const k in W){ if((W[k].due||"")<=t) out.push([k,W[k]]) }
+  return out;
+}
+function renderReview(){
+  const box=document.getElementById("revBox"); if(!box)return;
+  const due=revDue();
+  if(!due.length){ box.style.display="none"; return }
+  box.style.display="";
+  document.getElementById("revN").textContent=due.length+" 个";
+  document.getElementById("revTip").textContent=
+    "前几天有几个没答上来的，今天再玩一次。答对就过去了。";
+  document.getElementById("revStage").innerHTML="";
+  const btn=document.getElementById("revGo");
+  btn.style.display=""; btn.textContent="再玩一次";
+  btn.onclick=function(){ revRun(due.map(x=>x[0])) };
+}
+function revRun(keys){
+  const stage=document.getElementById("revStage"), btn=document.getElementById("revGo");
+  btn.style.display="none";
+  let n=0;
+  function step(){
+    if(n>=keys.length){
+      stage.innerHTML='<p class="rv-tip" style="color:var(--mint);margin:0">这几个都过了。</p>';
+      setTimeout(function(){ renderReview(); try{renderWalk()}catch(e){} },1400);
+      return;
+    }
+    const k=keys[n], it=(D.wrong||{})[k];
+    if(!it){ n++; return step() }
+    document.getElementById("revTitle").textContent="回头看看";
+    document.getElementById("revN").textContent=(n+1)+" / "+keys.length;
+    const isEn=it.sub==="english";
+    stage.innerHTML='<div class="rv-q">'+(isEn?'<span class="big">'+it.q+'</span>这个词是什么意思？':it.q)+'</div>';
+    const order=it.o.map((t,i)=>[t,i]).sort(()=>Math.random()-.5);
+    order.forEach(function(pair){
+      const b=document.createElement("button");
+      b.className="rv-opt"; b.textContent=pair[0];
+      b.onclick=function(){
+        [...stage.querySelectorAll(".rv-opt")].forEach(c=>c.onclick=null);
+        if(pair[1]===it.a){
+          b.classList.add("right");
+          const st=(it.stage||0)+1;
+          if(st>=REV_GAP.length){ delete D.wrong[k]; toast("这个你记住了") }
+          else{ it.stage=st; it.due=dayAdd(REV_GAP[st]); toast("对了，过几天再看一眼") }
+          save();
+          /* 回头看看也给星星，但一天最多 3 颗，不能靠它刷 */
+          D.revStars=D.revStars||{}; const dk=todayKey();
+          if((D.revStars[dk]||0)<3){ D.revStars[dk]=(D.revStars[dk]||0)+1; addStar(1) }
+        }else{
+          b.classList.add("wrong");
+          [...stage.querySelectorAll(".rv-opt")].forEach(function(c,j){
+            if(order[j][1]===it.a)c.classList.add("right") });
+          it.stage=0; it.due=dayAdd(1); save();
+          toast("没关系，明天再玩一次");
+        }
+        n++; setTimeout(step,1200);
+      };
+      stage.appendChild(b);
+    });
+    if(isEn && typeof speakRoster==="function")speakRoster(it.q);
+  }
+  step();
 }
 </script>
 </body>
