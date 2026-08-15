@@ -961,7 +961,7 @@ const today=new Date().toISOString().slice(0,10);
 if(D.today!==today){D.today=today;D.todayStars=0}
 function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
 function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1500)}
-const DAY_CAP = 20;                                   // 每天最多 60 ⭐，防止刷题攒星
+const DAY_CAP = 15;                                   // 每天最多 60 ⭐，防止刷题攒星
 function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
 
 /* ═══ 等级从 V1 起 + 坚持了几天（老板 09:07） ═══
@@ -1172,7 +1172,12 @@ function ask(){
 /* ================= 手机时间 & 愿望 ================= */
 document.getElementById("buyTime").onclick=()=>{
   if(D.stars<15){toast("还差 "+(15-D.stars)+" 颗星星");return}
-  D.stars-=15;D.phone+=10;save();render();toast("换到 10 分钟手机时间 📱");
+  /* 老板：这个时间也不能一下换的太多 —— 每天最多换 30 分钟 */
+      D.phoneDay=D.phoneDay||{};
+      var _pk=todayKey(), _today=D.phoneDay[_pk]||0;
+      if(_today>=30){ toast("今天换够 30 分钟了，明天再来"); return; }
+      D.stars-=15;D.phone+=10;D.phoneDay[_pk]=_today+10;save();render();
+      toast("换到 10 分钟手机时间 📱（今天还能换 "+(30-_today-10)+" 分钟）");
 };
 
 (function(){
