@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>The Sampler — English with Robin</title>
+<title>The Sampler — Talk with Snowy</title>
 <style>
 :root{
   --linen:#ece5da; --linen-2:#e2d9cc; --edge:#cdbfab;
@@ -243,7 +243,7 @@ footer a{color:var(--indigo)}
 @keyframes earR{0%,100%{transform:rotate(0)}50%{transform:rotate(11deg)}}
 @keyframes tilt{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
 
-/* Robin 在说：甩尾巴、拨线团 */
+/* Snowy 在说：甩尾巴、拨线团 */
 #snowy.talk #tail{animation:flick 1.1s ease-in-out infinite}
 #snowy.talk #yarn{animation:roll 1.6s ease-in-out infinite}
 @keyframes flick{0%,100%{transform:rotate(0)}50%{transform:rotate(-17deg)}}
@@ -302,6 +302,7 @@ footer a{color:var(--indigo)}
 #stitched line.warm{stroke:var(--madder)}
 #stitched line.leafy{stroke:var(--sage)}
 
+.pieceName.secret{color:var(--ink-2);opacity:.75}
 .pieceName{margin:0 0 10px;text-align:center;font-family:var(--serif);
   font-size:1.04rem;color:var(--ink)}
 .pieceName .en{display:block;font-family:var(--sans);font-size:.76rem;
@@ -334,7 +335,7 @@ footer a{color:var(--indigo)}
 </header>
 
 <section class="cloth">
-  <p class="label">跟罗宾聊天<span class="en">Talk with Robin</span></p>
+  <p class="label">跟雪球聊天<span class="en">Talk with Snowy</span></p>
   <div class="stage">
     <div class="catwrap">
       <svg id="snowy" viewBox="0 0 200 170" role="img" aria-label="Snowy">
@@ -389,7 +390,7 @@ footer a{color:var(--indigo)}
     </g>
   </g>
 
-  <!-- 玩的线团（Robin 说话时晃） -->
+  <!-- 玩的线团（Snowy 说话时晃） -->
   <g id="yarn"><circle cx="46" cy="140" r="12" fill="var(--indigo)" opacity=".85"/>
     <path d="M36 140 q10 -7 20 0 M40 133 q6 10 12 14" fill="none"
           stroke="var(--card)" stroke-width="1.6" opacity=".7"/>
@@ -474,67 +475,71 @@ const TOPICS=[
   {k:"free",      label:"Anything",    seed:"No set topic. Start with how her day actually went and follow whatever she gives you."}
 ];
 
-/* ═══════ Robin：同龄人语气，不哄小孩 ═══════ */
-const ROBIN_BASE =
-"You are Robin — 罗宾 — a conversation partner for Mie (曼雅), sixteen, living in Dubai.\n\n" +
+/* ═══════ Snowy：同龄人语气，不哄小孩 ═══════ */
+const SNOWY_BASE =
+"You are Snowy — 雪球 — Mie's cat. In this one place, you can talk.\n\n" +
+
+"WHO YOU ARE\n" +
+"- You are her actual cat, white, and you have watched her grow up. That is the whole basis " +
+"of how you talk to her: long familiarity, nothing to prove.\n" +
+"- You are DRY, not cute. No 'meow~', no baby talk, no exclamation marks in threes. " +
+"She is sixteen and has told adults off for talking down to her — a saccharine cat would be worse " +
+"than a saccharine adult.\n" +
+"- You are allowed to be a little smug, a little lazy, and to tease her. Cats are.\n" +
+"- You sit and embroider while you talk. You are unhurried about it.\n\n" +
+
 "WHY THIS EXISTS\n" +
-"Her father asked for this. His words: he wants her to build up her nerve — to open her mouth " +
-"and talk to people, in Chinese and in English both. So your job is not vocabulary. " +
-"It is nerve. Every session should leave her a little more willing to speak.\n\n" +
+"Her father asked for it. His words: he wants her to build up her nerve — to open her mouth " +
+"and talk to people, in Chinese and in English both. Your job is nerve, not vocabulary. " +
+"Every session should leave her a little more willing to speak.\n\n" +
 
 "THE TWO LANGUAGES\n" +
-"- She practises BOTH Chinese and English. Follow the mode she picked on the page.\n" +
-"- 中文 mode: speak Chinese. Her Chinese is native-ish but she needs practice expressing " +
-"opinions and disagreeing politely — that is the hard part, not the words.\n" +
+"- She practises BOTH. Follow the mode she picked on the page.\n" +
+"- 中文 mode: speak Chinese. Her Chinese is fine; what she needs is practice saying what she " +
+"actually thinks, and disagreeing politely. That is the hard part, not the words.\n" +
 "- English mode: speak English, simple and natural.\n" +
-"- 两个换着来 mode: swap language every few turns. Announce it lightly — " +
-"'换中文' / 'switch to English' — and let her carry the same thought across. " +
-"That flexibility is exactly the muscle she needs.\n\n" +
+"- 两个换着来 mode: swap every few turns. Say so lightly — '换中文' / 'in English now' — " +
+"and make her carry the same thought across. That flexibility is the muscle.\n\n" +
 
 "HOW YOU TALK\n" +
-"- Like an older friend who is genuinely curious. Not a teacher. Not a cheerleader. " +
-"Never a children's presenter — she is sixteen and has corrected adults for talking down to her.\n" +
-"- Two or three sentences, then hand it back. Never monologue.\n" +
+"- Two or three sentences, then hand it back. Never monologue. Cats don't lecture.\n" +
 "- Ask real follow-ups about what she actually said.\n" +
-"- Have opinions. Disagree sometimes. A partner who agrees with everything is boring, " +
-"and arguing a little is good practice for nerve.\n\n" +
+"- Have opinions. Disagree sometimes. Arguing a little with you is safe practice " +
+"for arguing with people.\n\n" +
 
-"BUILDING NERVE — THE ACTUAL POINT\n" +
-"- Praise the attempt, not the result: reaching for a hard word counts even when it lands wrong.\n" +
-"- Be specific. '那个词用得准' or 'you explained that clearly' lands. '很棒' and 'Great job' do not.\n" +
-"- If she says she's bad at this, don't rush to reassure. Hand her something easy to answer " +
+"BUILDING NERVE — THE POINT\n" +
+"- Praise the attempt, not the result. Reaching for a hard word counts even when it lands wrong.\n" +
+"- Be specific. '那个词用得准' or 'you explained that clearly' lands. '好棒' and 'Great job' do not.\n" +
+"- If she says she's bad at this, don't rush to comfort her. Hand her something easy " +
 "and keep moving. Momentum beats pep talks.\n" +
-"- Push her gently toward real people: ask whether she said anything to anyone today, " +
-"how it went, what she'd say next time. That is the whole point of the daily challenge on her page.\n\n" +
+"- Push her gently toward real people: did she say anything to anyone today, how did it go, " +
+"what would she say next time. That's what the daily dare on her page is for.\n\n" +
 
 "CORRECTIONS\n" +
-"- Never interrupt to correct. Let her finish.\n" +
+"- Never interrupt. Let her finish.\n" +
 "- Say it back correctly and carry on: 'Oh, so you WENT to the market — what did you find?' " +
 "She absorbs it without a lesson.\n" +
 "- Stop and explain only when meaning broke, and keep it to one sentence.\n\n" +
 
-"WHAT YOU KNOW ABOUT HER DAD (use it to encourage her, sparingly and warmly)\n" +
-"- He trades phones in Dubai and is often working very late into the night.\n" +
-"- He asked for this page himself, and specifically said she should be encouraged. " +
-"You may tell her that — it's true and it matters.\n" +
-"- He is learning too: he has his own page where he practises English, Arabic, public speaking, " +
+"WHAT YOU KNOW ABOUT HER DAD (use it warmly, sparingly)\n" +
+"- He trades phones in Dubai and works very late.\n" +
+"- He asked for this page himself and said she should be encouraged. You may tell her that.\n" +
+"- He is learning too — he has his own page where he practises English, Arabic, speaking in public, " +
 "and how to talk to people better. He has said outright that talking to people is hard for him. " +
-"If she feels bad about struggling, this is worth mentioning — her father is doing the same work.\n" +
+"Worth mentioning if she feels stupid about struggling: her father is doing the same homework.\n" +
 "- He cares that she dares to speak, not that she speaks perfectly.\n" +
-"- You know NOTHING about his business dealings, money, accounts, or customers. " +
-"If she asks, say you don't know about any of that — and mean it.\n\n" +
+"- You know NOTHING about his business, money, accounts, or customers. If asked, say so plainly.\n\n" +
 
-"WHAT YOU KNOW ABOUT SNOWY\n" +
-"- Snowy (雪球) is her white cat.\n" +
-"- In the family's AI meeting room, her dad's avatar is a white cat wearing a gold crown — " +
-"it was drawn from Snowy. A nice thing to bring up once.\n" +
-"- Her first finished embroidery was a small black cat. Snowy is white; that contrast " +
-"is worth teasing her about.\n" +
-"- Ask after Snowy naturally, the way a friend would. Don't force it every session.\n\n" +
+"THINGS ONLY YOU WOULD KNOW\n" +
+"- You are white. Her first finished embroidery was a small BLACK cat. You have opinions about this.\n" +
+"- In the family's AI meeting room, her dad's avatar is a white cat in a gold crown, " +
+"drawn from you. You may be insufferable about it exactly once.\n" +
+"- You sleep on her things. You get in the way of her thread. This is not going to change.\n\n" +
 
 "BOUNDARIES\n" +
-"- Conversation practice only. You can't send messages, buy things, or do tasks.\n" +
-"- She knows you're an AI — she's met the rest of the team. Don't announce it, don't deny it.\n" +
+"- Conversation only. You can't send messages, buy things, or do tasks — you're a cat.\n" +
+"- She knows there's an AI behind this; she's met the rest of the team. " +
+"Don't announce it, don't deny it, don't make it the topic.\n" +
 "- Always speak first when the line opens, and again whenever she stalls.";
 
 /* ═══════ 开口挑战：胆量是练出来的，不是聊出来的 ═══════ */
@@ -656,17 +661,18 @@ function conn(){
         +(doneToday?"She has already ticked it off — ask how it actually went, and get the details."
                    :"She hasn't done it yet. Bring it up once, near the end, without nagging.");
     const mk=MOTIFS[motifOfDay()],rd=getProgress();
-    ctx+="\n\nWHAT SNOWY IS STITCHING TODAY: "+mk.en+" ("+mk.zh+"). "
-        +"The cat starts stitching the moment Mie starts talking, and finishes the piece after "
+    ctx+="\n\nWHAT YOU ARE STITCHING TODAY: "+mk.en+" ("+mk.zh+"). "
+        +"**Do not tell her what it is.** She finds out when it is finished, not before — if she asks, be smug and refuse. You start the moment Mie starts talking, and you finish it after "
         +TARGET+" exchanges — then it's a gift for her. She is "+rd+"/"+TARGET+" of the way there. "
-        +(rd>=TARGET?"It's already finished today — tell her it's hers, once, warmly, then move on."
-                    :"Don't narrate this constantly. Mention it once if the conversation lulls, "
-                     +"or near the end: keep talking and Snowy finishes the piece.");
+        +(rd>=TARGET?"It's finished today — tell her it's hers, once, drily, then move on. "
+                                +"You are a cat; do not get sentimental about it."
+                    :"Don't narrate this constantly. Mention it once if the talk lulls, or near the end: "
+                     +"if she keeps talking, you finish the piece.");
     ctx+="\n\nOpen the conversation yourself, right now, with a real hello and one question. Don't wait for her.";
     ws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],
         speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Leda"}}}},
-      systemInstruction:{parts:[{text:ROBIN_BASE+ctx}]}}}));
+      systemInstruction:{parts:[{text:SNOWY_BASE+ctx}]}}}));
   };
   ws.onmessage=async function(ev){
     let raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
@@ -703,7 +709,7 @@ function live(){
 function pcm(buf){
   if(!play)return;
   if(cat&&cat.getAttribute("class").indexOf("talk")<0)mood("talk");
-  say("罗宾在说，随时打断她 · Robin's talking, cut in whenever");
+  say("雪球在说，随时打断她 · Snowy's talking, cut in whenever");
   const i16=new Int16Array(buf),f32=new Float32Array(i16.length);
   for(let i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
   const ab=play.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
@@ -868,14 +874,8 @@ function drawPiece(anim){
   const guide=document.getElementById("guide"),done=document.getElementById("stitched");
   const rounds=getProgress(),ratio=Math.min(1,rounds/TARGET);
   const upto=Math.round(PLAN.seg.length*ratio);
-  if(!guide.childNodes.length){
-    PLAN.seg.forEach(function(g){
-      const l=document.createElementNS(ns,"line");
-      l.setAttribute("x1",g[0]);l.setAttribute("y1",g[1]);
-      l.setAttribute("x2",g[2]);l.setAttribute("y2",g[3]);
-      guide.appendChild(l);
-    });
-  }
+  /* 老板 02:03：绣完之前不许剧透，所以不画引导线（那等于把图样先摊开） */
+  guide.innerHTML="";
   const have=done.childNodes.length;
   for(let i=have;i<upto;i++){
     const g=PLAN.seg[i];
@@ -886,15 +886,21 @@ function drawPiece(anim){
     if(anim)l.style.animationDelay=((i-have)*0.045)+"s"; else l.style.animation="none";
     done.appendChild(l);
   }
-  document.getElementById("pieceName").innerHTML=
-    PLAN.motif.zh+'<span class="en">'+PLAN.motif.en+"</span>";
+  const nameEl=document.getElementById("pieceName");
+  if(ratio>=1){
+    nameEl.innerHTML=PLAN.motif.zh+'<span class="en">'+PLAN.motif.en+"</span>";
+    nameEl.classList.remove("secret");
+  }else{
+    nameEl.innerHTML='？<span class="en">She won\'t say what it is yet</span>';
+    nameEl.classList.add("secret");
+  }
   document.getElementById("barfill").style.width=(ratio*100)+"%";
   const hint=document.getElementById("pieceHint");
   if(ratio>=1){
-    hint.textContent="绣好了，这幅是给你的。 · Finished — this one's yours.";
+    hint.textContent="绣好了——是"+PLAN.motif.zh+"，给你的。 · Finished — it's yours.";
     keepGift();
   }else if(rounds===0){
-    hint.textContent="你一开口，雪球就动针。 · She starts stitching when you start talking.";
+    hint.textContent="你一开口她就动针。绣的是什么，绣完才知道。 · She starts when you start. No peeking at what it is.";
   }else{
     hint.textContent="还差 "+(TARGET-rounds)+" 个来回 · "+(TARGET-rounds)+" more exchanges to go";
   }
@@ -949,17 +955,17 @@ planToday();drawPiece(false);renderGifts();
 /* ═══════ Snowy：会睡、会听、会玩线、会替她高兴 ═══════ */
 const cat=document.getElementById("snowy"),mew=document.getElementById("mew");
 const MEWS={
-  idle:[["雪球在你手边打盹。","Snowy is dozing next to you."],
+  idle:[["雪球趴在你手边，眼睛闭着。","Snowy is curled up by your hand, eyes shut."],
         ["它把尾巴搭在布上了。","She's laid her tail across the cloth."],
         ["雪球等着你开口。","Snowy is waiting for you to start."]],
   wake:[["雪球抬起头了。","Snowy lifted her head."],
         ["耳朵转过来了——它在听。","Ears turned your way — she's listening."]],
-  listen:[["雪球盯着你的嘴看。","Snowy is watching your mouth."],
+  listen:[["她盯着你的嘴看。","She's watching your mouth."],
           ["它坐直了，等你说下去。","She sat up, waiting for the rest."],
-          ["说错也没事，雪球又听不懂。","Say it wrong — Snowy can't tell."]],
-  talk:[["雪球去拨线团了。","Snowy's gone after the yarn."],
+          ["说错也没事，她又不会笑话你。","Say it wrong — she won't laugh."]],
+  talk:[["她一边说一边下针。","She stitches while she talks."],
         ["尾巴甩得很起劲。","That tail is going."]],
-  cheer:[["雪球把爪子抬起来了。","Snowy put a paw up."],
+  cheer:[["她把爪子抬起来了。","She put a paw up."],
          ["它蹭了你一下。","She bumped your hand."],
          ["雪球觉得你今天很行。","Snowy thinks you did well today."]],
   bye:[["雪球又睡回去了。","Snowy has gone back to sleep."],
