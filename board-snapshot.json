@@ -1,0 +1,199 @@
+{
+ "at": "2026-08-15 19:36",
+ "board": {
+  "date": "2026-08-15",
+  "people": [
+   {
+    "id": "manya",
+    "name": "曼雅",
+    "what": "英文对话",
+    "done": 1,
+    "total": 1,
+    "here": true,
+    "mins": 0,
+    "goal": 15,
+    "finished": true,
+    "at": "19:24",
+    "streak": 1,
+    "auto": true,
+    "_ord": 1,
+    "manual": true,
+    "url": "./mie.html"
+   },
+   {
+    "id": "boyuan",
+    "name": "博远",
+    "what": "六门功课",
+    "done": 2,
+    "total": 6,
+    "here": true,
+    "mins": 0,
+    "goal": 30,
+    "finished": false,
+    "at": "19:34",
+    "streak": 1,
+    "auto": true,
+    "_ord": 0,
+    "manual": false,
+    "url": "./kid.html"
+   },
+   {
+    "id": "xiya",
+    "name": "玺雅",
+    "what": "AI 怎么用",
+    "done": 0,
+    "total": 1,
+    "here": false,
+    "mins": 0,
+    "goal": 15,
+    "finished": false,
+    "at": "19:19",
+    "streak": 0,
+    "auto": false,
+    "_ord": 2,
+    "manual": false,
+    "url": ""
+   },
+   {
+    "id": "feiya",
+    "name": "霏雅",
+    "what": "背诗",
+    "done": 0,
+    "total": 1,
+    "here": false,
+    "mins": 0,
+    "goal": 15,
+    "finished": false,
+    "at": "19:18",
+    "streak": 0,
+    "auto": true,
+    "_ord": 3,
+    "manual": false,
+    "url": "https://yousef0755.github.io/feiya-garden/"
+   },
+   {
+    "id": "amina",
+    "name": "Amina",
+    "what": "阿拉伯语",
+    "done": 0,
+    "total": 1,
+    "here": false,
+    "mins": 0,
+    "goal": 15,
+    "finished": false,
+    "at": "",
+    "streak": 0,
+    "auto": true,
+    "_ord": 4,
+    "manual": false,
+    "url": "./arabic.html"
+   },
+   {
+    "id": "baba",
+    "name": "爸爸",
+    "what": "今天的课",
+    "done": 0,
+    "total": 1,
+    "here": false,
+    "mins": 0,
+    "goal": 5,
+    "finished": false,
+    "at": "",
+    "streak": 0,
+    "auto": true,
+    "_ord": 5,
+    "manual": false,
+    "url": "./index.html"
+   }
+  ],
+  "toy": {
+   "points": 2,
+   "toys": 1,
+   "total": 12,
+   "next": 3,
+   "need": 1
+  }
+ },
+ "pairs": {
+  "week": "2026-W33",
+  "pairs": [],
+  "asked": [],
+  "free": [
+   {
+    "id": "boyuan",
+    "name": "博远"
+   },
+   {
+    "id": "manya",
+    "name": "曼雅"
+   },
+   {
+    "id": "xiya",
+    "name": "玺雅"
+   },
+   {
+    "id": "feiya",
+    "name": "霏雅"
+   },
+   {
+    "id": "amina",
+    "name": "Amina"
+   },
+   {
+    "id": "baba",
+    "name": "爸爸"
+   }
+  ],
+  "solo": [
+   {
+    "id": "boyuan",
+    "name": "博远",
+    "days": 1,
+    "total": 6,
+    "here": true,
+    "asGoodAsPair": false
+   },
+   {
+    "id": "manya",
+    "name": "曼雅",
+    "days": 1,
+    "total": 6,
+    "here": true,
+    "asGoodAsPair": false
+   },
+   {
+    "id": "amina",
+    "name": "Amina",
+    "days": 0,
+    "total": 6,
+    "here": false,
+    "asGoodAsPair": false
+   },
+   {
+    "id": "baba",
+    "name": "爸爸",
+    "days": 0,
+    "total": 6,
+    "here": false,
+    "asGoodAsPair": false
+   },
+   {
+    "id": "xiya",
+    "name": "玺雅",
+    "days": 0,
+    "total": 6,
+    "here": false,
+    "asGoodAsPair": false
+   },
+   {
+    "id": "feiya",
+    "name": "霏雅",
+    "days": 0,
+    "total": 6,
+    "here": false,
+    "asGoodAsPair": false
+   }
+  ],
+  "broken": []
+ }
+}
