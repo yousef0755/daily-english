@@ -337,7 +337,7 @@ footer a{color:var(--indigo)}
 </header>
 
 <section class="cloth">
-  <p class="label">跟雪球聊天<span class="en">Talk with Snowy</span></p>
+  <p class="label">跟 Snowy 聊天<span class="en">Talk with Snowy</span></p>
   <div class="stage">
     <div class="catwrap">
       <svg id="snowy" viewBox="0 0 200 170" role="img" aria-label="Snowy">
@@ -408,7 +408,7 @@ footer a{color:var(--indigo)}
 
 <section class="cloth" id="dadNote"><div class="dadbox" style="border:none;padding:0;background:none"><p class="dadlabel">爸爸的话<span class="en">A word from Dad</span></p><p class="dadtext" id="dadLine"></p><button class="dadedit" type="button" onclick="__dadEdit()">爸爸：写一句</button></div></section>
 <section class="cloth" id="piece">
-  <p class="label">雪球在绣<span class="en">Snowy is stitching</span></p>
+  <p class="label">Snowy 在绣<span class="en">Snowy is stitching</span></p>
   <div class="hoopwrap">
     <svg id="canvas" viewBox="0 0 100 100" aria-label="embroidery in progress">
       <g id="guide"></g>
@@ -479,7 +479,7 @@ const TOPICS=[
 
 /* ═══════ Snowy：同龄人语气，不哄小孩 ═══════ */
 const SNOWY_BASE =
-"You are Snowy — 雪球 — Mie's cat. In this one place, you can talk.\n\n" +
+"You are Snowy — Mie's cat. In this one place, you can talk.\n\n" +
 
 "WHO YOU ARE\n" +
 "- You are her actual cat, white, and you have watched her grow up. That is the whole basis " +
@@ -713,7 +713,7 @@ function live(){
 function pcm(buf){
   if(!play)return;
   if(cat&&cat.getAttribute("class").indexOf("talk")<0)mood("talk");
-  say("雪球在说，随时打断她 · Snowy's talking, cut in whenever");
+  say("Snowy 在说，随时打断她 · Snowy's talking, cut in whenever");
   const i16=new Int16Array(buf),f32=new Float32Array(i16.length);
   for(let i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
   const ab=play.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
@@ -931,7 +931,7 @@ function renderGifts(){
   box.innerHTML="";
   if(!g.length){
     const e=document.createElement("p");e.className="giftempty";
-    e.textContent="还没有。聊满一次，雪球就绣好一幅给你。 · Nothing yet — finish one session and she'll hand you the first.";
+    e.textContent="还没有。聊满一次，Snowy 就绣好一幅给你。 · Nothing yet — finish one session and she'll hand you the first.";
     box.appendChild(e);return;
   }
   g.slice(-12).reverse().forEach(function(item){
@@ -959,10 +959,10 @@ planToday();drawPiece(false);renderGifts();
 /* ═══════ Snowy：会睡、会听、会玩线、会替她高兴 ═══════ */
 const cat=document.getElementById("snowy"),mew=document.getElementById("mew");
 const MEWS={
-  idle:[["雪球趴在你手边，眼睛闭着。","Snowy is curled up by your hand, eyes shut."],
+  idle:[["Snowy 趴在你手边，眼睛闭着。","Snowy is curled up by your hand, eyes shut."],
         ["它把尾巴搭在布上了。","She's laid her tail across the cloth."],
-        ["雪球等着你开口。","Snowy is waiting for you to start."]],
-  wake:[["雪球抬起头了。","Snowy lifted her head."],
+        ["Snowy 等着你开口。","Snowy is waiting for you to start."]],
+  wake:[["Snowy 抬起头了。","Snowy lifted her head."],
         ["耳朵转过来了——它在听。","Ears turned your way — she's listening."]],
   listen:[["她盯着你的嘴看。","She's watching your mouth."],
           ["它坐直了，等你说下去。","She sat up, waiting for the rest."],
@@ -971,8 +971,8 @@ const MEWS={
         ["尾巴甩得很起劲。","That tail is going."]],
   cheer:[["她把爪子抬起来了。","She put a paw up."],
          ["它蹭了你一下。","She bumped your hand."],
-         ["雪球觉得你今天很行。","Snowy thinks you did well today."]],
-  bye:[["雪球又睡回去了。","Snowy has gone back to sleep."],
+         ["Snowy 觉得你今天很行。","Snowy thinks you did well today."]],
+  bye:[["Snowy 又睡回去了。","Snowy has gone back to sleep."],
        ["明天见——它会在这儿。","See you tomorrow — she'll be here."]]
 };
 function mood(state,say){
