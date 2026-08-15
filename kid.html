@@ -525,6 +525,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 </header>
 <main>
   <section class="page on" id="p-learn">
+    <div class="card" id="myInbox" style="display:none"></div>
     <div class="card">
       <div class="cats" id="catsBox"><div class="catsWrap" id="catsWrap"><svg class="kcat" id="catSnowy" viewBox="0 0 200 170" aria-hidden="true">
   <defs><radialGradient id="gcatSnowy" cx="42%" cy="34%" r="72%">
@@ -630,6 +631,17 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   <p class="tc-topic" id="tcTopic"></p>
   <button class="main ghost" id="tcRec">按住讲给她听</button>
   <p class="tc-tip" id="tcTip">按住说话，松手就好。讲三十秒。</p>
+  <!-- 讲完了，再给 TA 写一句，对方在自己那页看得见（老板 2026-08-15）。
+       录音不上传，送出去的只有这一行字。 -->
+  <div id="tcSay" style="display:none;margin-top:12px;padding:12px;
+    border:1px solid rgba(255,212,121,.3);border-radius:13px;
+    background:rgba(255,212,121,.06)">
+    <div style="font-size:.88rem;color:var(--gold);font-weight:700;margin-bottom:6px"
+         id="tcSayTitle">再跟 TA 说一句</div>
+    <textarea id="tcSayText" rows="2" placeholder="写一句，TA 打开自己的网页就能看见"></textarea>
+    <button class="main" id="tcSaySend" style="margin-top:8px">送过去</button>
+    <div class="tip" id="tcSayTip" style="margin-top:6px"></div>
+  </div>
 </section>
 
 
@@ -2863,6 +2875,8 @@ function tcEnd(){
   D.teachDone=D.teachDone||{}; D.teachDone[todayKey()]=1; save();
   addStar(2);
   tip.textContent="讲得好。等下当面再讲一遍给"+who+"听。";
+  /* 讲完再给 TA 留一句话——录音不上传，只有他自己打的这行字会送出去 */
+  try{ openTcSay(who) }catch(e){}
   if(typeof catSay==="function")catSay("Snowy","我听见了。你讲的时候比背的时候顺。");
   setTimeout(function(){ try{renderTeach()}catch(e){} },2600);
 }
@@ -3297,6 +3311,63 @@ function renderCatSay(){
     renderCatSay();
   };
 })();
+
+/* ═══ 给家里人留一句话（老板 2026-08-15：「家庭成员可以给其他成员有话说」）═══
+   录音从来不上传。上传的只有他自己打的那一行字。
+   孩子讲了什么是他和家人之间的事，不该过服务器——这条不能因为方便就破。 */
+const SAY_API="https://su-family.yousef-abud.workers.dev";
+const SAY_ID={"曼雅":"manya","霏雅":"feiya","爸爸":"baba","妈妈":"amina","玺雅":"xiya"};
+function openTcSay(who){
+  const box=document.getElementById("tcSay"); if(!box)return;
+  if(!SAY_ID[who])return;
+  box.dataset.to=SAY_ID[who];
+  document.getElementById("tcSayTitle").textContent="再跟"+who+"说一句";
+  document.getElementById("tcSayText").placeholder="写一句，"+who+"打开自己的网页就看得见";
+  document.getElementById("tcSayTip").textContent="";
+  box.style.display="";
+}
+(function(){
+  const b=document.getElementById("tcSaySend"); if(!b)return;
+  b.onclick=async function(){
+    const box=document.getElementById("tcSay");
+    const el=document.getElementById("tcSayText");
+    const tip=document.getElementById("tcSayTip");
+    const t=(el.value||"").trim();
+    if(t.length<2){ tip.textContent="写一句吧"; return }
+    b.disabled=true; tip.textContent="送过去…";
+    try{
+      const r=await fetch(SAY_API+"/fam/say",{method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({from:"boyuan",to:box.dataset.to,text:t})});
+      const j=await r.json();
+      if(j.ok){ el.value=""; tip.textContent="送到了。TA 打开自己那页就能看见。";
+                setTimeout(function(){ box.style.display="none" },2200); }
+      else { tip.textContent=j.err||"没送出去，等会儿再试" }
+    }catch(e){ tip.textContent="现在没网，等会儿再送" }
+    b.disabled=false;
+  };
+})();
+
+/* 别人给博远说的话 */
+async function loadMySays(){
+  const host=document.getElementById("myInbox"); if(!host)return;
+  try{
+    const r=await fetch(SAY_API+"/fam/says?who=boyuan");
+    const j=await r.json();
+    if(!j.ok||!j.inbox||!j.inbox.length){ host.style.display="none"; return }
+    host.style.display="";
+    host.innerHTML='<div style="font-size:.88rem;color:var(--gold);font-weight:700;margin-bottom:8px">'
+      +'家里人跟你说的话</div>'+
+      j.inbox.slice(0,4).map(function(x){
+        return '<div style="border-left:2px solid var(--gold);padding:3px 0 3px 10px;margin-bottom:9px">'+
+          '<div style="font-size:.72rem;color:var(--muted)">'+x.fromName+'　'+x.d+'</div>'+
+          String(x.text).replace(/</g,"&lt;")+'</div>';
+      }).join("");
+    if(j.unread) fetch(SAY_API+"/fam/seen",{method:"POST",
+      headers:{"Content-Type":"application/json"},body:JSON.stringify({who:"boyuan"})}).catch(function(){});
+  }catch(e){ host.style.display="none" }
+}
+setTimeout(loadMySays, 1200);
 </script>
 </body>
 </html>

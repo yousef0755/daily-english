@@ -350,6 +350,30 @@ footer a{color:var(--indigo)}
      and getting it wrong is fine, I'm a cat.</span></p>
 </header>
 
+
+<!-- 家里人给曼雅说的话（老板 2026-08-15）。博远在他那页写，这里就出现。 -->
+<section class="cloth" id="famSay" style="display:none">
+  <p class="label">家里人跟你说的话<span class="en">From your family</span></p>
+  <div id="famSayList"></div>
+  <div style="margin-top:14px">
+    <select id="famSayTo" style="width:100%;padding:11px 12px;border-radius:11px;
+      border:1px solid rgba(0,0,0,.14);font-family:inherit;font-size:.95rem;background:#fff">
+      <option value="boyuan">回给 博远</option>
+      <option value="feiya">说给 霏雅</option>
+      <option value="xiya">说给 玺雅</option>
+      <option value="amina">说给 妈妈</option>
+      <option value="baba">说给 爸爸</option>
+    </select>
+    <textarea id="famSayText" rows="2" placeholder="写一句，TA 打开自己的网页就看得见"
+      style="width:100%;margin-top:8px;padding:11px 12px;border-radius:11px;
+      border:1px solid rgba(0,0,0,.14);font-family:inherit;font-size:.95rem"></textarea>
+    <button id="famSaySend" style="margin-top:8px;width:100%;padding:12px;border-radius:11px;
+      border:none;background:var(--indigo,#3b4a8c);color:#fff;font-family:inherit;
+      font-size:.95rem;font-weight:700;cursor:pointer">送过去</button>
+    <p class="tip" id="famSayTip" style="margin-top:7px;font-size:.85rem;color:#6b6b6b"></p>
+  </div>
+</section>
+
 <section class="cloth">
   <p class="label">跟 Snowy 聊天<span class="en">Talk with Snowy</span></p>
   <div class="stage">
@@ -1168,6 +1192,55 @@ function famPing(){
   window.addEventListener("pagehide",report);
   document.addEventListener("visibilitychange",function(){ if(document.hidden)report() });
   window.__studySec=function(){return sec};
+})();
+</script>
+
+<script>
+/* 家里人互相留话（老板 2026-08-15）。存在 Cloudflare 上，所以跨手机。 */
+(function(){
+  var API="https://su-family.yousef-abud.workers.dev", ME="manya";
+  function esc(t){ return String(t).replace(/</g,"&lt;") }
+  async function load(){
+    var host=document.getElementById("famSay"),
+        list=document.getElementById("famSayList");
+    if(!host)return;
+    try{
+      var r=await fetch(API+"/fam/says?who="+ME), j=await r.json();
+      if(!j.ok){ return }
+      host.style.display="";
+      list.innerHTML = (j.inbox&&j.inbox.length)
+        ? j.inbox.slice(0,6).map(function(x){
+            return '<div style="border-left:3px solid var(--gold,#c9a227);padding:4px 0 4px 12px;'+
+              'margin-bottom:12px"><div style="font-size:.78rem;color:#8a8a8a">'+
+              esc(x.fromName)+'　'+x.d+'</div><div style="font-size:1rem;line-height:1.8">'+
+              esc(x.text)+'</div></div>';
+          }).join("")
+        : '<p style="color:#8a8a8a;font-size:.92rem">还没有人给你留话。你可以先说一句给别人。</p>';
+      if(j.unread) fetch(API+"/fam/seen",{method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({who:ME})}).catch(function(){});
+    }catch(e){ host.style.display="" ;
+      list.innerHTML='<p style="color:#8a8a8a;font-size:.92rem">现在没网，等会儿再看。</p>' }
+  }
+  var b=document.getElementById("famSaySend");
+  if(b) b.onclick=async function(){
+    var to=document.getElementById("famSayTo").value,
+        el=document.getElementById("famSayText"),
+        tip=document.getElementById("famSayTip"),
+        t=(el.value||"").trim();
+    if(t.length<2){ tip.textContent="写一句吧"; return }
+    b.disabled=true; tip.textContent="送过去…";
+    try{
+      var r=await fetch(API+"/fam/say",{method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({from:ME,to:to,text:t})});
+      var j=await r.json();
+      tip.textContent = j.ok ? "送到了。" : (j.err||"没送出去，等会儿再试");
+      if(j.ok){ el.value=""; load() }
+    }catch(e){ tip.textContent="现在没网，等会儿再送" }
+    b.disabled=false;
+  };
+  load();
 })();
 </script>
 </body>
