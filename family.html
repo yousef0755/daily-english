@@ -448,9 +448,11 @@ function render(d){
               '<div class="pbar'+(p.finished?" done":p.here?" going":"")+'">'+
                 '<i style="width:'+Math.min(100,Math.round(((p.mins||0)/(p.goal||15))*100))+'%"></i>'+
               '</div>'+
+              /* 没开始的时候只说一次「还没开始」（右边那栏已经写了），
+                 这儿改成告诉他目标是多少，才有用。 */
               '<div class="mins">'+((p.mins||0)>0
                  ? ('学了 <b>'+p.mins+'</b> 分钟'+(p.finished?'':' · 目标 '+p.goal+' 分'))
-                 : '还没开始')+'</div>';
+                 : ('今天的目标 '+p.goal+' 分钟'))+'</div>';
     const whoBlk = p.url
       ? '<a class="who" href="'+p.url+'">'+who+'</a>'
       : '<div class="who">'+who+'</div>';
