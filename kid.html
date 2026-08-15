@@ -1863,8 +1863,16 @@ const CATLINES={
   start:[["Snowy","今天也来了。坐下吧，我在旁边。"],
          ["哆米","我不打扰你，我就趴这儿。"]],
   going:[["Snowy","背错了没关系，我又听不懂。"],
-         ["哆米","慢一点念，我在听。"],
-         ["Snowy","再来一遍，这次肯定顺。"]],
+         ["Snowy","慢慢来，我不着急。"],
+         ["Snowy","嗓子干了就喝口水，我等你。"],
+         ["Snowy","刚才那一下挺顺的。"],
+         ["Snowy","你念的时候我尾巴会跟着晃，你没发现吧。"],
+         ["Snowy","我见过背得比你慢的。真的。"],
+         ["哆米","再来。"],
+         ["哆米","这句你昨天就卡过。"],
+         ["哆米","错了就重来，别愣着。"],
+         ["哆米","不用背给我听，背给你自己听。"],
+         ["哆米","行，这遍还行。"]],
   done:[["Snowy","今天的都过了。你可以去玩了。"],
         ["哆米","做到了就是做到了，不用管几颗星。"]],
   keep:[["Snowy","你已经坚持 __D__ 天了。"],
@@ -1973,9 +1981,12 @@ if(document.readyState==="loading"){
 /* ═══ 戳猫（老板 09:2x：点击了猫咪还是没有任何反应） ═══
    孩子拿到手第一件事就是去戳它。戳了没动静，它就是张图。
    **不给星**——不然又成了刷分的路子。 */
-const POKE_SNOWY=["干嘛。","别戳了。","……","你再戳我就走了。","好吧，就一下。","痒。"];
-const POKE_DOMI =["嗯？","我在睡觉。","别闹。","再戳我真走了。","……你还戳。","行，你赢了。"];
-let pokeN={Snowy:0,哆米:0}, pokeTimer=null, domiGone=false;
+const POKE_SNOWY=["嗯？","怎么了。","我在呢。","……有点痒。",
+  "轻一点就好。","你今天心情不错？","好啦好啦。",
+  "我去那边趴一会儿，你忙你的。"];
+const POKE_DOMI =["干嘛。","别碰我。","我说了别碰。","再碰一下试试。",
+  "你当我不会走？","最后一次警告。","行。我走。"];
+let pokeN={Snowy:0,哆米:0}, pokeTimer=null, domiGone=false, snowyGone=false;
 
 function catSay(who,txt){
   const el=document.getElementById("catsSay");
@@ -1992,6 +2003,7 @@ function pokeCat(who){
   const sn=document.getElementById("catSnowy"), dm=document.getElementById("catDomi");
   const me = who==="Snowy" ? sn : dm;
   if(who==="哆米" && domiGone)return;
+  if(who==="Snowy" && snowyGone)return;
   pokeN[who]=(pokeN[who]||0)+1;
   try{setWalker(who)}catch(e){}
   const lines = who==="Snowy" ? POKE_SNOWY : POKE_DOMI;
@@ -1999,19 +2011,32 @@ function pokeCat(who){
   catSay(who, lines[i]);
   wake(me,"kcat talking poked",1500);
   try{navigator.vibrate&&navigator.vibrate(18)}catch(e){}
-  /* 戳太多次，哆米真的走掉，过一会儿自己回来 */
-  if(who==="哆米" && pokeN[who]>=6 && !domiGone){
-    domiGone=true;
-    dm.setAttribute("class","kcat leaving");
+  /* 戳太多次，猫真的走掉，过一会儿自己回来。两只都会走，走法不一样 */
+  const gone = (who==="哆米") ? domiGone : snowyGone;
+  if(pokeN[who] >= (who==="哆米"?5:8) && !gone){
+    const me2 = (who==="哆米") ? dm : sn;
+    const other = (who==="哆米") ? sn : dm;
+    const otherName = (who==="哆米") ? "Snowy" : "哆米";
+    if(who==="哆米"){ domiGone=true } else { snowyGone=true }
+    me2.setAttribute("class","kcat leaving");
     setTimeout(function(){
-      dm.style.display="none";
-      catSay("Snowy","它走了。你自己惹的。");
+      me2.style.display="none";
+      /* 另一只在场就吐槽一句；都走了就空着 */
+      if(otherName==="Snowy" ? !snowyGone : !domiGone){
+        catSay(otherName, otherName==="Snowy" ? "它脾气就那样，一会儿就回来了。" : "你把它弄走了。厉害。");
+      }else{
+        catSay("", "（两只都被你戳走了。屋里静了。）");
+      }
     },900);
     setTimeout(function(){
-      dm.style.display=""; dm.setAttribute("class","kcat returning");
-      catSay("哆米","……我回来了。别戳了。");
-      setTimeout(function(){dm.setAttribute("class","kcat");domiGone=false;pokeN["哆米"]=0},1200);
-    },9000);
+      me2.style.display=""; me2.setAttribute("class","kcat returning");
+      catSay(who, who==="哆米" ? "……哼。这次算了。" : "我回来了。没生气，就是想换个地方趴。");
+      setTimeout(function(){
+        me2.setAttribute("class","kcat");
+        if(who==="哆米"){domiGone=false}else{snowyGone=false}
+        pokeN[who]=0;
+      },1200);
+    }, who==="哆米" ? 14000 : 6000);   /* 哆米烈，走得久；Snowy 温和，很快就回来 */
   }
   clearTimeout(pokeTimer);
   pokeTimer=setTimeout(function(){ pokeN={Snowy:0,哆米:0} }, 12000);
@@ -2188,18 +2213,15 @@ function gradeRecite(){
    不是弹窗说「请开始学习」——是让猫等不及。一句比一句没耐心，
    最后它自己去睡，比催更管用。六门全过就不催了，那时候该他歇着。 */
 const NAG_LINES=[
-  /* 第一轮：懒洋洋 */
-  [["Snowy","你就打算这么坐着？"],
-   ["哆米","我在等。"],
-   ["Snowy","书自己不会念。"]],
-  /* 第二轮：开始不耐烦 */
-  [["哆米","我尾巴都甩累了。"],
-   ["Snowy","你不学，我也没饭吃。你懂这个道理吧。"],
-   ["哆米","那条路我还一步没走呢。"]],
-  /* 第三轮：威胁 */
-  [["Snowy","再不开始我就去睡了。说到做到。"],
-   ["哆米","我数三下。……三。"],
-   ["Snowy","行，你赢了，我睡了。"]]
+  [["Snowy","不急，但也该开始了。"],
+   ["Snowy","我陪着你，坐下吧。"],
+   ["哆米","开始。"]],
+  [["Snowy","你要是累了就歇会儿，歇完记得回来。"],
+   ["哆米","书自己不会念。"],
+   ["哆米","我尾巴都甩累了。"]],
+  [["Snowy","再不开始，今天的就赶不完了。"],
+   ["哆米","我数三下。一。二。"],
+   ["哆米","行，你赢了。我睡了。"]]
 ];
 let nagLast=Date.now(), nagRound=0, nagTimer=null;
 
