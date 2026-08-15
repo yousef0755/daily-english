@@ -842,7 +842,8 @@ function paintPairs(d, offline){
     [...P.querySelectorAll("button[data-cancel]")].forEach(b=>b.onclick=()=>{picking=null;paint()});
     [...P.querySelectorAll("button[data-undo-ask]")].forEach(function(b){
       b.onclick=async function(){
-        if(!confirm("撤回这个邀请？"))return;
+        /* 老板说不用弹确认框，直接撤。撤错了再点一次名字选回来就是，代价很小。 */
+        b.disabled=true;
         await fetch(API+"/fam/pair",{method:"POST",headers:{"Content-Type":"application/json"},
           body:JSON.stringify({who:b.dataset.undoAsk,partner:""})});
         renderPairs();
