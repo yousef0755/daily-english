@@ -278,6 +278,26 @@ const dayIndex=Math.floor(Date.now()/86400000)%packNames.length;
 let currentPack=packNames[dayIndex];
 let lastResult=null;
 let player=new Audio();
+
+/* 老板 06:49：阿语要「播音的时候也是普通话」。
+   一段声线念不了两种语言（阿语嗓子念中文会走调），
+   所以分两段：先 Fatima 念阿语，隔 350ms，再晓晓念中文意思。 */
+function playPair(arText, zhText){
+  var a=VOICE_IDX&&VOICE_IDX[arText], z=VOICE_IDX&&VOICE_IDX[zhText];
+  if(!a){ if(z){playThroughSilent("kidaudio/"+z,zhText)} else {sysSpeak(arText)} return }
+  playThroughSilent("kidaudio/"+a,arText);
+  if(!z)return;
+  var wait=1200;
+  fetch("kidaudio/"+a).then(function(r){return r.arrayBuffer()}).then(function(ab){
+    try{
+      if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
+      return new Promise(function(res,rej){var q=_actx.decodeAudioData(ab,res,rej);if(q&&q.then)q.then(res,rej)});
+    }catch(e){return null}
+  }).then(function(buf){
+    if(buf)wait=buf.duration*1000+350;
+    setTimeout(function(){playThroughSilent("kidaudio/"+z,zhText)},wait);
+  }).catch(function(){ setTimeout(function(){playThroughSilent("kidaudio/"+z,zhText)},wait) });
+}
 function play(pack,i,kind,fallback,clean){
   /* 2026-08-15 修：原来只认 audio/<pack>_<i>_s.mp3 这套旧文件名，
      而 audio/ 里只有 dad/deal/heart/local 四个老词包，新加的词根本没有文件；
@@ -304,7 +324,7 @@ function renderWords(){
     const c=document.createElement("div");c.className="card";
     c.innerHTML='<div class="word-row"><div class="phrase">'+it[0]+'</div><button class="speak">🎧 Listen</button></div><div class="use">'+it[1]+'</div>';
     const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
-    c.querySelector(".speak").onclick=()=>play(currentPack,i,"s",it[0]+". "+it[1],it[0]);
+    c.querySelector(".speak").onclick=()=>(/[\u0600-\u06ff]/.test(it[0])?playPair(it[0],it[1]):play(currentPack,i,"s",it[0]+". "+it[1],it[0]));
     ph.onclick=()=>{const on=ph.classList.toggle("shown");use.classList.toggle("shown",on);};
     area.appendChild(c);
   });
