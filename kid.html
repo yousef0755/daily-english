@@ -1382,7 +1382,7 @@ function tLive(){
      原因是麦克风把环境噪音也一路送上去，服务端当成孩子在插话就停口。
      修法：上行加一道音量闸——够响才送，静音和环境噪音一律不送。
      松开后再多送 0.6 秒（hangover），免得把句尾吃掉。 */
-  var GATE=0.045, HANG=0.6, tLoudAt=0;
+  var GATE=0.060, HANG=1.0, tLoudAt=0;
   tProc.onaudioprocess=function(e){
     if(!tws||tws.readyState!==1)return;
     var f=e.inputBuffer.getChannelData(0);
@@ -1391,7 +1391,7 @@ function tLive(){
     var now=e.playbackTime||(Date.now()/1000);
     if(r>GATE) tLoudAt=now;
     /* 老师正在说话时门槛更高，避免外放的声音自己打断自己 */
-    var need = (tPlaying? GATE*2.2 : GATE);
+    var need = (tPlaying? GATE*3 : GATE);   /* 老板说还是太敏感，从 2.2 抬到 3 */
     var quiet = (r<=need && (now-tLoudAt)>HANG);
     /* 2026-08-15 修正：上一版低于阈值就**不发**，结果流断了，
        服务端判断不出「孩子说完了」，老师就一直不回话。

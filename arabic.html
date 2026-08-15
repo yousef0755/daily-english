@@ -438,10 +438,22 @@ function aLive(){
   amic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
   aSrcNode=amic.createMediaStreamSource(aStream);aProc=amic.createScriptProcessor(4096,1,1);
   aSrcNode.connect(aProc);aProc.connect(amic.destination);
+  var aLoudAt=0;
   aProc.onaudioprocess=function(e){
     if(!aws||aws.readyState!==1)return;
     var f=e.inputBuffer.getChannelData(0),i16=new Int16Array(f.length);
-    for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
+    
+    /* ── 噪音闸门（老板 2026-08-15：太敏感，稍微一说就被打断）──
+       低于门槛的帧照发，但清成静音——不能不发，
+       不发会把音频流弄断，服务端就判断不出人说完了没有。
+       老师正在说话时门槛抬三倍：要真开口才打断得了，碰一下桌子不算。 */
+    var _r=0; for(var _i=0;_i<f.length;_i++)_r+=f[_i]*f[_i];
+    _r=Math.sqrt(_r/f.length);
+    var _now=Date.now();
+    if(_r>0.060) aLoudAt=_now;
+    var _need = (typeof aPlay!=='undefined' && aPlay && aAt>aPlay.currentTime) ? 0.060*3 : 0.060;
+    var _quiet = (_r<=_need) && (_now-aLoudAt)>1000;
+    if(!_quiet){for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}}
     aws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   aPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});aAt=aPlay.currentTime;
