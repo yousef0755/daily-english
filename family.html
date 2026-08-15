@@ -208,6 +208,10 @@ a.who:active .nm{opacity:.6}
 .pk button{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);
   border-radius:999px;padding:6px 12px;font-size:.8rem;font-family:inherit;cursor:pointer}
 .pk button:active{background:rgba(255,255,255,.12)}
+
+.pk .go2{border-color:rgba(217,180,95,.5);background:rgba(217,180,95,.14);color:var(--gold);font-weight:600}
+.pk .cancel{opacity:.6}
+.pk .wait{opacity:.55;font-size:.76rem}
 </style>
 </head>
 <body>
@@ -540,22 +544,40 @@ async function renderPairs(){
       d.free.map(f=>'<button data-me="'+f.id+'" data-nm="'+f.name+'">'+f.name+'</button>').join("")+'</div>';
   }
   P.innerHTML=html;
-  [...P.querySelectorAll("button[data-me]")].forEach(function(b){
-    b.onclick=async function(){
-      const me=b.dataset.me, myName=b.dataset.nm;
-      const others=(d.free||[]).filter(f=>f.id!==me)
-        .concat((d.asked||[]).map(a=>({id:a.a,name:a.aName})).filter(x=>x.id!==me));
-      const uniq=[...new Map(others.map(o=>[o.id,o])).values()];
-      if(!uniq.length){ alert("现在没有人可选。"); return }
-      const pickName=prompt(myName+"，你想跟谁做这周的搭子？\n输入名字：\n"+uniq.map(o=>o.name).join("、"));
-      if(!pickName)return;
-      const t=uniq.find(o=>o.name===pickName.trim());
-      if(!t){ alert("没有这个人，名字要写全。"); return }
-      await fetch(API+"/fam/pair",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({who:me,partner:t.id})});
-      renderPairs();
-    };
-  });
+  /* 老板 2026-08-15 看了截图说「这个界面好丑」——原来用浏览器原生 prompt 弹窗，
+     还得手打名字。手机上难用，博远十岁更打不来。改成点两下：
+     先点自己，下面就出来能选的人，再点一个，成。 */
+  let picking=null;
+  function paint(){
+    let h="";
+    if((d.asked||[]).length){
+      h+='<div class="pk"><span class="who2">还在等对方点头：</span>'+
+        d.asked.map(a=>'<button class="wait" disabled>'+a.aName+' 想约 '+a.bName+'</button>').join("")+'</div>';
+    }
+    if(picking){
+      const me=(d.free||[]).find(f=>f.id===picking)||{name:""};
+      const others=(d.free||[]).filter(f=>f.id!==picking);
+      h+='<div class="pk"><span class="who2">'+me.name+'，想跟谁做这周的搭子？</span>'+
+        others.map(o=>'<button class="go2" data-pick="'+o.id+'">'+o.name+'</button>').join("")+
+        '<button class="cancel" data-cancel="1">算了</button></div>';
+    }else if((d.free||[]).length){
+      h+='<div class="pk"><span class="who2">还没选搭子的，点自己的名字：</span>'+
+        d.free.map(f=>'<button data-me="'+f.id+'">'+f.name+'</button>').join("")+'</div>';
+    }
+    P.innerHTML=h;
+    [...P.querySelectorAll("button[data-me]")].forEach(b=>b.onclick=()=>{picking=b.dataset.me;paint()});
+    [...P.querySelectorAll("button[data-cancel]")].forEach(b=>b.onclick=()=>{picking=null;paint()});
+    [...P.querySelectorAll("button[data-pick]")].forEach(function(b){
+      b.onclick=async function(){
+        const me=picking; picking=null;
+        b.disabled=true; b.textContent="…";
+        await fetch(API+"/fam/pair",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({who:me,partner:b.dataset.pick})});
+        renderPairs();
+      };
+    });
+  }
+  paint();
 }
 </script>
 </body>
