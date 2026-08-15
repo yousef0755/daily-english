@@ -1,5 +1,5 @@
 {
- "at": "2026-08-15 19:48",
+ "at": "2026-08-15 19:50",
  "board": {
   "date": "2026-08-15",
   "people": [
@@ -117,15 +117,18 @@
  "pairs": {
   "week": "2026-W33",
   "pairs": [],
-  "asked": [],
+  "asked": [
+   {
+    "a": "manya",
+    "b": "boyuan",
+    "aName": "曼雅",
+    "bName": "博远"
+   }
+  ],
   "free": [
    {
     "id": "boyuan",
     "name": "博远"
-   },
-   {
-    "id": "manya",
-    "name": "曼雅"
    },
    {
     "id": "xiya",
