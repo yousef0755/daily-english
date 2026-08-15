@@ -648,8 +648,8 @@ let cur=null,idx=0,score=0,list=[];
 document.querySelectorAll("[data-sub]").forEach(b=>{
   b.onclick=()=>{
     const sub=b.dataset.sub;
-    if(sub==="idiom"){openRecite("idiom")}
-  else if(sub==="arabic"){openRecite("arabic")}
+    if(sub==="idiom"){openRecite("idiom");return}
+  else if(sub==="arabic"){openRecite("arabic");return}
   else if(sub==="chinese"){openRecite("poem");return}
     if(sub==="quran"){openRecite("quran");return}
     if(sub==="english"){openRecite("english");return}
