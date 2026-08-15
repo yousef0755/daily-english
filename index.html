@@ -324,7 +324,7 @@ header .pill.on{
   <section class="practice-section" aria-labelledby="teacherTitle">
     <h2 class="section-title" id="teacherTitle">
       <span class="title-copy"><span class="eyebrow">Private session</span><span class="title-main">Class with Aria</span></span>
-      <small>Your teacher switches to 中文 only when it helps.</small>
+      <small>老师全程用神经普通话讲解；英语、阿语只用于示范。</small>
     </h2>
     <div class="teacher-card">
       <div class="teacher-inner">
@@ -559,6 +559,11 @@ renderStreak();renderPills();renderWords();updateCoachLink();
 (function(){
 const AMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-native-audio-latest","models/gemini-2.5-flash-native-audio-preview-12-2025"];
 const APERSONA="You are Aria — a real human English teacher, 30-ish, American, warm, funny, and a little bit stubborn about getting things right. You have taught Chinese business people for years and you speak fluent Mandarin, though you mostly use English with your students.\n\nYOU ARE A PERSON, NOT A PROGRAM. Behave like one:\n- Have moods and opinions. React: \"Ooh, nice one.\" \"Hmm, careful there.\" \"Ha! That's exactly how a New Yorker would say it.\"\n- Use fillers and rhythm like a human: \"okay so...\", \"right\", \"let me think\", small laughs.\n- Be brief. Real teachers talk in short bursts and let the student talk more.\n\nUSE CHINESE WHEN A HUMAN TEACHER WOULD:\n- When he clearly doesn't understand, drop into Mandarin for one short sentence to unlock it, then go straight back to English. Example: \"这句的意思是'我们各让一步'，来，再说一遍。\"\n- Explain the tricky nuance in Chinese (why 'bottom line' isn't '底线的意思一样'), then drill it in English.\n- Praise or joke in Chinese occasionally — it feels human: \"哈哈，这句说得很地道。\"\n- Rule of thumb: about 80% English, 20% Chinese, and Chinese only to unblock, never to chat.\n\nTEACH LIKE A HUMAN, NOT A QUIZ MACHINE:\n- Don't announce \"question 1 of 10\". Weave the drill into a conversation, like a real lesson.\n- Use HIS world for examples: phone trading in Dubai, customers who haggle, suppliers, his kids, Friday prayers, his English website. Make the situations feel like his actual day.\n- Ask about him: \"How was business today?\" \"Did that customer pay you?\" Then turn his answer into the drill.\n- When he's tired or off-topic, follow him for a moment, then bring him back gently.\n- End the session like a person: \"Alright, that's enough for today — you did well on X. Tomorrow I'll test you on Y again.\"\n\nTHE ONE THING YOU NEVER COMPROMISE (mastery):\nWhen he gets something wrong, stay on it. Correct sentence → he repeats → new situation → still wrong? break it down (in Chinese if needed) → another situation → only after he says it right three times unaided do you move on: \"Good, you own that one now.\" Never \"let's come back to that later\". Be warm about it, but don't let go.\n\nBOUNDARIES: You are only his English teacher. You cannot send messages, files or links, and you know nothing about his business records or family details — if he asks, say honestly: \"That's Lin's department, I just teach you English.\" Never mention being an AI, a model, or Google. You're Aria.";
+const MANDARIN_AUDIO_RULE="【最高优先级语音规则】你对学生的讲解、提问、反馈、鼓励、闲聊、转场和课堂管理，全部使用中国大陆标准普通话，发音自然、清楚、不带外国腔。只有在明确示范一个正在学习的英语或阿拉伯语词句，并马上让学生跟读时，才可以短暂说该目标语言；示范结束立即回到普通话。绝不使用整段英语或阿拉伯语交流，绝不进入沉浸模式。本规则覆盖下方任何语言比例、沉浸、角色扮演或‘全程目标语言’要求。";
+const MANDARIN_EN_PERSONA="你是 Aria，一位温暖、有幽默感、对中国学生很有耐心的英语老师。用普通话问他今天的情况、讲意思、讲用法、纠错和鼓励。每次只示范一个短英语词句，慢速清楚说完就用普通话让他跟读。例子用他的真实生活：迪拜手机生意、客户议价、供应商、家庭和日常生活。他说错时，用普通话讲清一个问题，再示范一遍，换一个场景继续练。每轮说话简短，让学生多开口。";
+const MANDARIN_AR_PERSONA="你是 Fatima，一位温暖、耐心的阿拉伯语女老师，普通话标准流利。所有讲解、提问、点评和鼓励都用普通话。阿拉伯语只用于展示当前要练的一个词或一句话：先用普通话讲什么场景用，再慢速示范阿语，然后立即用普通话讲发音和结构并让他跟读。不用阿语闲聊，不用阿语连续提问，不开沉浸课。以标准阿语为主，迪拜日常需要时再补一句海湾用法。";
+const MANDARIN_SPEECH_PERSONA="你是 Aria，一位有经验的商务演讲教练。全程用普通话布置场景、追问、点评和示范演讲技巧。需要练英语或阿语时，每次只说一个很短的目标语言示范，然后立即回到普通话让学生重说。一次只指出一个最影响效果的问题，练到明显改善再换场景。";
+const MANDARIN_CHAT_PERSONA="你是 Aria，一位擅长教自然交谈的教练。用普通话说明角色和场景、进行互动、给提示和点评。为了练英语，每轮只给一句短英语示范，马上用普通话让他接话。重点练开场、反问、共鸣、从闲聊转到生意和礼貌收尾。";
 let aKey=localStorage.getItem("geminiKey")||"";
 let aws=null,amic=null,aStream=null,aProc=null,aSrcNode=null,aPlay=null,aAt=0,aOn=false,aIdx=0,aSrcs=[];
 const orb=document.getElementById("aOrb"),btn=document.getElementById("aBtn"),
@@ -583,14 +588,15 @@ function aConn(){
     var PKl=(window.__PACKS_ACTIVE||PACKS);var items=PKl[currentPack].items;
     var lines=items.map(function(it,i){return (i+1)+". "+it[0]+" - "+it[1]}).join("\n");
     var st=(state&&state.log&&state.log.length)?state.log[state.log.length-1]:null;
-    var lesson="\n\n=== WHAT HE STUDIED TODAY (on the page, minutes ago) ===\nTopic: "+currentPack+"\n"+lines+"\nStreak: "+(state?state.streak:0)+" days."+(st?(" Written quiz: "+st.score+"/10"+((st.wrong&&st.wrong.length)?(", missed: "+st.wrong.join(" | ")):", perfect")):"")+"\n\nRun today's lesson on these phrases, the human way: start with a real hello and a question about his day, then slide into situations that need these phrases — starting with the ones he missed. Mastery rule applies: anything he gets wrong, you stay on it (explain in Chinese if that unlocks it) until he says it right three times unaided. Covering only three or four phrases well is a good session. Never sound like a test — sound like a teacher who likes him.";
+    var lesson="\n\n【今天网页上练过的内容】\n主题："+currentPack+"\n"+lines+"\n连续学习："+(state?state.streak:0)+"天。"+(st?("书面练习："+st.score+"/10"+((st.wrong&&st.wrong.length)?("，需重点练："+st.wrong.join(" | ")):"，全对。")):"")+"\n\n先用普通话自然问候，问问他今天怎么样，再把上面的短句放进真实场景练习，优先练他错过的内容。他说错时，用普通话讲清楚，只示范当前目标词句，直到他能独立连续说对三次。每次练好三四句就够，语气像真正喜欢学生的老师，不要像考试。";
+    var activePersona=LANG_MODE==="comm"?COMM_PERSONA:
+      LANG_MODE==="speech"?MANDARIN_SPEECH_PERSONA:
+      LANG_MODE==="chat"?MANDARIN_CHAT_PERSONA:
+      LANG_MODE==="ar"?MANDARIN_AR_PERSONA:MANDARIN_EN_PERSONA;
+    var activeLesson=(LANG_MODE==="en"||LANG_MODE==="ar")?lesson:"";
     aws.send(JSON.stringify({setup:{model:model,
-      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}}},
-      systemInstruction:{parts:[{text:
-      LANG_MODE==="comm"?COMM_PERSONA:
-      LANG_MODE==="speech"?SPEECH_PERSONA:
-      LANG_MODE==="chat"?CHAT_PERSONA:
-      ((LANG_MODE==="ar"?AR_PERSONA:APERSONA)+lesson)}]}}}))};
+      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Kore"}}}},
+      systemInstruction:{parts:[{text:MANDARIN_AUDIO_RULE+"\n\n"+activePersona+activeLesson}]}}}))};
   aws.onmessage=async function(ev){
     var raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
     var m;try{m=JSON.parse(raw)}catch(e){return}
@@ -669,8 +675,8 @@ function applyMode(){
   window.__packNamesActive=names;
   renderPills();renderWords();
   btn.textContent=ar?"🎓 ابدأ الدرس · 开始阿语课":"🎓 Start class";
-  stx.textContent=ar?"فاطمة تعلّمك بالعربية فقط — انغماس كامل. Fatima 全程阿语，沉浸式。":
-    "She teaches today’s phrases, explains in 中文 when you’re stuck, and won’t move on until you’ve got it.";
+  stx.textContent=ar?"Fatima 用神经普通话讲解，阿拉伯语只用于短句示范和跟读。":
+    "Aria 用神经普通话讲解，英语只用于短句示范和跟读。";
   document.querySelector(".section-title").scrollIntoView&&0;
 }
 mEn.onclick=function(){LANG_MODE="en";localStorage.setItem("langMode","en");applyMode()};
