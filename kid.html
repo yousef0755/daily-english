@@ -186,6 +186,21 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 }
 @media (max-width:350px){.orbit-scene{display:none}.mission-panel{min-height:124px}.subject-grid{grid-template-columns:1fr}.subject-card{min-height:76px}.streakbar i{width:15px}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* ── 笔顺 ── */
+#strokeBox{margin:10px 0 4px;display:flex;flex-direction:column;align-items:center;gap:8px}
+#strokeSvg{width:190px;height:190px;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);border-radius:14px;touch-action:none}
+#strokeSvg .grid{stroke:var(--line);stroke-width:2;stroke-dasharray:8 8}
+#strokeSvg .done{fill:var(--cream)}
+#strokeSvg .now{fill:var(--gold)}
+#strokeSvg .todo{fill:rgba(243,239,226,.13)}
+.strokeBar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.strokeBar button{border:1px solid var(--gold);background:rgba(255,212,121,.1);
+  color:var(--gold);border-radius:11px;padding:8px 14px;font-size:.9rem;cursor:pointer;
+  font-family:inherit}
+.strokeBar button.on{background:var(--gold);color:#231a05;font-weight:700}
+#strokeTip{font-size:.85rem;color:var(--muted);min-height:1.3em;text-align:center}
 </style>
 </head>
 <body>
@@ -261,7 +276,16 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <div class="card" id="padCard" style="display:none">
       <h2 id="padTitle">写一写</h2>
       <div class="tip" style="text-align:left;margin:0 0 10px">用手指照着淡色的字描一遍 · 写满三遍这个字就算会了</div>
-      <div style="display:flex;justify-content:center">
+      <div style="display:flex;justify-content:center"><div id="strokeBox">
+  <svg id="strokeSvg" viewBox="0 0 1024 1024"></svg>
+  <div class="strokeBar">
+    <button type="button" id="strokeDemoBtn">看笔顺</button>
+    <button type="button" id="strokeFollowBtn">跟着写</button>
+    <button type="button" id="strokeNext" style="display:none">下一笔</button>
+  </div>
+  <div id="strokeTip"></div>
+</div>
+
         <canvas id="pad" width="300" height="300" style="border-radius:16px;background:#fdfbf4;touch-action:none"></canvas>
       </div>
       <div style="display:flex;gap:8px;margin-top:12px">
@@ -1343,6 +1367,90 @@ render();renderHanzi();renderDiary();
     const done=document.getElementById("diaryDone");
     if(done)done.textContent="两篇都写好了，加 5 颗星 ✓";
   };
+})();
+
+/* ═══ 笔顺：先看怎么写，再一笔一笔跟着写 ═══ */
+var STROKES=null, sChar=null, sIdx=0, sTimer=null;
+fetch("hanzi/strokes.json").then(function(r){return r.json()})
+  .then(function(j){STROKES=j;}).catch(function(){});
+
+function strokeSvgFor(ch){
+  var d=STROKES&&STROKES[ch];
+  if(!d)return null;
+  return d;
+}
+/* hanzi-writer 的坐标是 1024 见方、Y 轴朝上，要翻过来 */
+var TRANS='translate(0,900) scale(1,-1)';
+
+function renderStrokes(ch, upto, highlight){
+  var box=document.getElementById("strokeSvg"); if(!box)return;
+  var d=strokeSvgFor(ch);
+  if(!d){box.innerHTML='<text x="512" y="560" text-anchor="middle" font-size="120" fill="#888">没有笔顺数据</text>';return}
+  var ns="http://www.w3.org/2000/svg";
+  var parts=[];
+  /* 田字格 */
+  parts.push('<line class="grid" x1="512" y1="0" x2="512" y2="1024"/>');
+  parts.push('<line class="grid" x1="0" y1="512" x2="1024" y2="512"/>');
+  parts.push('<g transform="'+TRANS+'">');
+  d.strokes.forEach(function(pathD,k){
+    var cls = k<upto ? "done" : (k===highlight ? "now" : "todo");
+    parts.push('<path class="'+cls+'" d="'+pathD+'"/>');
+  });
+  parts.push('</g>');
+  box.innerHTML=parts.join("");
+}
+
+function strokeDemo(ch){
+  clearTimeout(sTimer);
+  var d=strokeSvgFor(ch); if(!d)return;
+  sChar=ch; var n=d.strokes.length, k=0;
+  var tip=document.getElementById("strokeTip");
+  (function step(){
+    renderStrokes(ch,k,k);
+    if(tip)tip.textContent="第 "+(k+1)+" 笔 · 共 "+n+" 笔";
+    k++;
+    if(k<=n){ sTimer=setTimeout(step,620) }
+    else { renderStrokes(ch,n,-1); if(tip)tip.textContent="一共 "+n+" 笔，看清楚了再自己写"; }
+  })();
+}
+
+function strokeFollow(ch){
+  clearTimeout(sTimer);
+  var d=strokeSvgFor(ch); if(!d)return;
+  sChar=ch; sIdx=0;
+  var n=d.strokes.length;
+  renderStrokes(ch,0,0);
+  var tip=document.getElementById("strokeTip");
+  if(tip)tip.textContent="照着黄色那一笔写 · 第 1 笔 / 共 "+n+" 笔";
+  var nb=document.getElementById("strokeNext");
+  if(nb){nb.style.display="";nb.onclick=function(){
+    sIdx++;
+    if(sIdx>=n){
+      renderStrokes(ch,n,-1);
+      if(tip)tip.textContent="全部 "+n+" 笔写完了 ✓";
+      nb.style.display="none";
+      if(typeof markHanziDone==="function")markHanziDone(ch);
+      return;
+    }
+    renderStrokes(ch,sIdx,sIdx);
+    if(tip)tip.textContent="第 "+(sIdx+1)+" 笔 / 共 "+n+" 笔";
+  }}
+}
+
+/* 点开一个生字 → 笔顺跟着换 */
+(function(){
+  var db=document.getElementById("strokeDemoBtn"), fb=document.getElementById("strokeFollowBtn");
+  function cur(){ return (typeof padChar!=="undefined"&&padChar) ? padChar
+                 : (window.__curHanzi||null); }
+  if(db)db.onclick=function(){var c=cur(); if(c)strokeDemo(c)};
+  if(fb)fb.onclick=function(){var c=cur(); if(c)strokeFollow(c)};
+  /* 包住原来的开笔函数，记住当前是哪个字并预渲染 */
+  if(typeof window.openPad==="function"){
+    var _o=window.openPad;
+    window.openPad=function(ch){ window.__curHanzi=ch; var r=_o.apply(this,arguments);
+      setTimeout(function(){ if(STROKES&&STROKES[ch]) renderStrokes(ch,0,-1); },60);
+      return r; };
+  }
 })();
 </script>
 </body>
