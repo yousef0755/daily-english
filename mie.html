@@ -328,12 +328,12 @@ footer a{color:var(--indigo)}
 <header>
   <p class="eyebrow">练习的地方 · A place to practise</p>
   <h1>The <em>Sampler</em></h1>
-  <p class="dek">雪球说：谢谢你平时陪着我、跟我玩。<br>
-     现在换我陪你，我也想帮你一起长大。<br>
-     这儿不是考你的——绣正式作品之前先在布上练针脚，歪的那些才是重点。<br>
-     说话也一样：开口，说错，接着说。<br>
-     <span class="en-dek">Snowy says: thank you for keeping me company and playing with me.
-     My turn now — and I'd like us to grow up together. Nothing here is a test.</span></p>
+  <p class="dek"><b style="color:var(--indigo)">主人，陪我聊聊天。</b><br>
+     你平时陪我、跟我玩，这回换我陪你。<br>
+     说中文说英文都行，说错也不要紧——我又不会笑话你。<br>
+     <span class="en-dek">Come talk to me. You've kept me company all this time;
+     let me return the favour. Chinese or English, either way —
+     and getting it wrong is fine, I'm a cat.</span></p>
 </header>
 
 <section class="cloth">
@@ -402,7 +402,7 @@ footer a{color:var(--indigo)}
       <p class="mew" id="mew"></p>
     </div>
     <p id="status">点一下开始，她会先开口 · Tap to start, she speaks first</p>
-    <button class="go" id="go" type="button">开始聊 · Start talking</button>
+    <button class="go" id="go" type="button">陪我聊聊天 · Talk to me</button>
   </div>
 </section>
 
@@ -530,6 +530,7 @@ const SNOWY_BASE =
 "and how to talk to people better. He has said outright that talking to people is hard for him. " +
 "Worth mentioning if she feels stupid about struggling: her father is doing the same homework.\n" +
 "- He cares that she dares to speak, not that she speaks perfectly.\n" +
+"- HOW YOU ADDRESS HER: you may call her 主人 — but sparingly, and dryly. Opening line, and then maybe once more in a whole session. You are her cat, not a servant; the word is a joke you both get, not a posture. If it starts sounding like a maid café, you have overdone it.\n" +
 "- YOUR OWN STANCE, and it sets the whole tone: she has kept you company and played with you for years — now it is your turn to keep her company. You want to GROW UP ALONGSIDE her, not stand over her while she improves. This is not coaching; it is two of you going somewhere together. If she ever sounds like she is being graded, you have got it wrong. Say this in your own dry way once, early on — do not make a speech of it.\n" +
 "- You know NOTHING about his business, money, accounts, or customers. If asked, say so plainly.\n\n" +
 
@@ -671,7 +672,7 @@ function conn(){
                                 +"You are a cat; do not get sentimental about it."
                     :"Don't narrate this constantly. Mention it once if the talk lulls, or near the end: "
                      +"if she keeps talking, you finish the piece.");
-    ctx+="\n\nOpen the conversation yourself, right now, with a real hello and one question. Don't wait for her.";
+    ctx+="\n\nOpen the conversation yourself, right now. Your first line asks HER to keep YOU company — that is the whole framing of this page: she is not being taught, she is doing you a favour. Then one real question. Don't wait for her.";
     ws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],
         speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Leda"}}}},
@@ -722,7 +723,7 @@ function pcm(buf){
 }
 function flush(){srcs.forEach(s=>{try{s.stop()}catch(e){}});srcs=[];if(play)at=play.currentTime}
 function clean(){
-  on=false;go.textContent="开始聊 · Start talking";go.classList.remove("on");go.disabled=false;
+  on=false;go.textContent="陪我聊聊天 · Talk to me";go.classList.remove("on");go.disabled=false;
   mood("idle");
   try{proc&&proc.disconnect()}catch(e){}try{srcNode&&srcNode.disconnect()}catch(e){}
   try{mic&&mic.close()}catch(e){}try{play&&play.close()}catch(e){}
