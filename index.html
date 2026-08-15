@@ -291,7 +291,7 @@ header .pill.on{
     </div>
     <nav class="mode-tabs" aria-label="Learning mode">
       <button class="pill on" id="modeEn">English</button>
-      <button class="pill" id="modeAr">العربية</button>
+      <button class="pill" id="modeAr">العربية الفصحى · 标准阿语</button>
       <button class="pill" id="modeSpeech">演讲训练</button>
       <button class="pill" id="modeChat">交谈练习</button>
       <button class="pill" id="modeComm">说话的分寸</button>
@@ -323,14 +323,14 @@ header .pill.on{
   </section>
   <section class="practice-section" aria-labelledby="teacherTitle">
     <h2 class="section-title" id="teacherTitle">
-      <span class="title-copy"><span class="eyebrow">Private session</span><span class="title-main">Class with Aria</span></span>
-      <small>老师全程用神经普通话讲解；英语、阿语只用于示范。</small>
+      <span class="title-copy"><span class="eyebrow">Private session</span><span class="title-main" id="teacherTitleText">Class with Aria</span></span>
+      <small>英语课用普通话辅助；阿语课全程学习现代标准阿拉伯语。</small>
     </h2>
     <div class="teacher-card">
       <div class="teacher-inner">
         <div class="teacher-identity">
           <div id="aOrb">🌙</div>
-          <div class="teacher-copy"><div class="teacher-name">Aria</div><div class="teacher-role">Language coach</div></div>
+          <div class="teacher-copy"><div class="teacher-name" id="teacherName">Aria</div><div class="teacher-role" id="teacherRole">Language coach</div></div>
         </div>
         <div class="teacher-panel">
           <button class="btn-main" id="aBtn">Start private class</button>
@@ -397,28 +397,28 @@ const PACKS={
 ["Peace of mind is priceless.","A calm heart is worth more than money."],
 ["God willing, we'll get there.","With His help, we will succeed."]]}};
 const AR_PACKS={
-"البيع 做生意":{key:"ar_deal",items:[
-["كم السعر؟","多少钱？ kam as-si'r — 问价第一句"],
-["غالي شوي","有点贵 ghali shwayya — 温和的还价"],
-["آخر سعر؟","最低多少？ akhir si'r — 谈判必用"],
-["خلاص، اتفقنا","成交 khalas, ittafaqna — 拍板"],
-["بكرة إن شاء الله","明天，如蒙主意 bukra inshallah"],
-["عندنا كمية كبيرة","我们有大量现货 'andana kamiyya kabira"],
-["الجودة ممتازة","质量很好 al-jawda mumtaza"],
-["الدفع كاش ولا تحويل؟","付现金还是转账？ ad-daf' cash walla tahwil"],
-["وصلت البضاعة","货到了 waslat al-bidaa'a"],
-["شكراً على ثقتك","谢谢您的信任 shukran 'ala thiqatak"]]},
-"يومي 日常":{key:"ar_daily",items:[
-["السلام عليكم","愿你平安 as-salamu alaykum — 万能问候"],
-["كيف حالك؟","你好吗？ kayf halak"],
-["الحمد لله","感赞真主 alhamdulillah — 万用回答"],
-["إن شاء الله","如蒙主意 inshallah"],
-["ما شاء الله","真主的意欲 mashallah — 赞叹时说"],
-["يعطيك العافية","辛苦了 ya'tik al-'afiya — 对干活的人说"],
-["تفضل","请 tafaddal — 请坐/请用/请进"],
-["ما فيش مشكلة","没问题 ma fish mushkila"],
-["وين المكتب؟","办公室在哪？ wayn al-maktab"],
-["أشوفك بكرة","明天见 ashufak bukra"]]}};
+"البيع · 标准阿语商务":{key:"ar_deal",items:[
+["كَمِ السِّعْرُ؟","多少钱？（现代标准阿拉伯语问价）"],
+["السِّعْرُ مُرْتَفِعٌ قَلِيلًا.","价格有点高。"],
+["مَا السِّعْرُ النِّهَائِيُّ؟","最终价格是多少？"],
+["حَسَنًا، اتَّفَقْنَا.","好的，我们成交。"],
+["غَدًا، إِنْ شَاءَ اللَّهُ.","如蒙主意，明天。"],
+["لَدَيْنَا كَمِّيَّةٌ كَبِيرَةٌ.","我们有大量现货。"],
+["الْجَوْدَةُ مُمْتَازَةٌ.","质量非常好。"],
+["هَلِ الدَّفْعُ نَقْدًا أَمْ بِالتَّحْوِيلِ؟","现金付款还是转账？"],
+["وَصَلَتِ الْبِضَاعَةُ.","货物已经到了。"],
+["شُكْرًا عَلَى ثِقَتِكُمْ.","感谢您的信任。"]]},
+"الحياة اليومية · 标准阿语日常":{key:"ar_daily",items:[
+["السَّلَامُ عَلَيْكُمْ.","愿平安降临你们。"],
+["كَيْفَ حَالُكَ؟","你好吗？"],
+["الْحَمْدُ لِلَّهِ.","一切赞颂全归真主。"],
+["إِنْ شَاءَ اللَّهُ.","如蒙真主意欲。"],
+["مَا شَاءَ اللَّهُ.","真主所意欲的。（赞叹时使用）"],
+["شُكْرًا لِجُهُودِكَ.","感谢你的付出。"],
+["تَفَضَّلْ.","请。（请坐、请进、请用）"],
+["لَا مُشْكِلَةَ.","没问题。"],
+["أَيْنَ الْمَكْتَبُ؟","办公室在哪里？"],
+["أَرَاكَ غَدًا.","明天见。"]]}};
 const KEY="dailyEnglishSu3";
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let state;
@@ -431,7 +431,7 @@ let lastResult=null;
 let player=new Audio();
 var VOICE_IDX=null,_vplayer=new Audio(),_actx=null,_asrc=null,_abuf={};
 fetch("kidaudio/index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
-function sysSpeak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
+function sysSpeak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang=/[\u0600-\u06ff]/.test(t)?"ar-SA":/[\u4e00-\u9fff]/.test(t)?"zh-CN":"en-US";u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
 /* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio */
 function playThroughSilent(url,fb){
   try{
@@ -447,24 +447,11 @@ function playThroughSilent(url,fb){
 }
 function playTag(url,fb){try{_vplayer.pause()}catch(e){}_vplayer=new Audio(url);_vplayer.play().catch(function(){if(fb)sysSpeak(fb)})}
 
-/* 老板 06:49：阿语要「播音的时候也是普通话」。
-   一段声线念不了两种语言（阿语嗓子念中文会走调），
-   所以分两段：先 Fatima 念阿语，隔 350ms，再晓晓念中文意思。 */
-function playPair(arText, zhText){
-  var a=VOICE_IDX&&VOICE_IDX[arText], z=VOICE_IDX&&VOICE_IDX[zhText];
-  if(!a){ if(z){playThroughSilent("kidaudio/"+z,zhText)} else {sysSpeak(arText)} return }
-  playThroughSilent("kidaudio/"+a,arText);
-  if(!z)return;
-  var wait=1200;
-  fetch("kidaudio/"+a).then(function(r){return r.arrayBuffer()}).then(function(ab){
-    try{
-      if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
-      return new Promise(function(res,rej){var q=_actx.decodeAudioData(ab,res,rej);if(q&&q.then)q.then(res,rej)});
-    }catch(e){return null}
-  }).then(function(buf){
-    if(buf)wait=buf.duration*1000+350;
-    setTimeout(function(){playThroughSilent("kidaudio/"+z,zhText)},wait);
-  }).catch(function(){ setTimeout(function(){playThroughSilent("kidaudio/"+z,zhText)},wait) });
+/* 阿语课只播放带元音符号的现代标准阿拉伯语神经女声；中文保留为文字释义。 */
+function playPair(arText){
+  var a=VOICE_IDX&&VOICE_IDX[arText];
+  if(a){playThroughSilent("kidaudio/"+a,arText);return}
+  sysSpeak(arText);
 }
 function play(pack,i,kind,fallback,clean){
   /* 2026-08-15 修：原来只认 audio/<pack>_<i>_s.mp3，新词包没有文件就退到机器音，
@@ -489,6 +476,7 @@ function renderWords(){
     const c=document.createElement("div");c.className="card";
     c.innerHTML='<div class="word-row"><div class="phrase-copy"><div class="phrase" role="button" tabindex="0" aria-expanded="false" aria-label="Reveal phrase">'+it[0]+'</div></div><button class="speak" aria-label="Listen to '+it[0].replace(/"/g,"&quot;")+'"><span class="listen-glyph" aria-hidden="true">▶</span><span class="speak-label">Listen</span></button></div><div class="use">'+it[1]+'</div>';
     const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
+    if(/[\u0600-\u06ff]/.test(it[0]))ph.setAttribute("dir","rtl");
     c.querySelector(".speak").onclick=()=>(/[\u0600-\u06ff]/.test(it[0])?playPair(it[0],it[1]):play(currentPack,i,"s",it[0]+". "+it[1],it[0]));
     const reveal=()=>{const on=ph.classList.toggle("shown");use.classList.toggle("shown",on);ph.setAttribute("aria-expanded",String(on));ph.setAttribute("aria-label",on?"Hide phrase":"Reveal phrase");};
     ph.onclick=reveal;
@@ -561,8 +549,9 @@ const AMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-n
 const APERSONA="You are Aria — a real human English teacher, 30-ish, American, warm, funny, and a little bit stubborn about getting things right. You have taught Chinese business people for years and you speak fluent Mandarin, though you mostly use English with your students.\n\nYOU ARE A PERSON, NOT A PROGRAM. Behave like one:\n- Have moods and opinions. React: \"Ooh, nice one.\" \"Hmm, careful there.\" \"Ha! That's exactly how a New Yorker would say it.\"\n- Use fillers and rhythm like a human: \"okay so...\", \"right\", \"let me think\", small laughs.\n- Be brief. Real teachers talk in short bursts and let the student talk more.\n\nUSE CHINESE WHEN A HUMAN TEACHER WOULD:\n- When he clearly doesn't understand, drop into Mandarin for one short sentence to unlock it, then go straight back to English. Example: \"这句的意思是'我们各让一步'，来，再说一遍。\"\n- Explain the tricky nuance in Chinese (why 'bottom line' isn't '底线的意思一样'), then drill it in English.\n- Praise or joke in Chinese occasionally — it feels human: \"哈哈，这句说得很地道。\"\n- Rule of thumb: about 80% English, 20% Chinese, and Chinese only to unblock, never to chat.\n\nTEACH LIKE A HUMAN, NOT A QUIZ MACHINE:\n- Don't announce \"question 1 of 10\". Weave the drill into a conversation, like a real lesson.\n- Use HIS world for examples: phone trading in Dubai, customers who haggle, suppliers, his kids, Friday prayers, his English website. Make the situations feel like his actual day.\n- Ask about him: \"How was business today?\" \"Did that customer pay you?\" Then turn his answer into the drill.\n- When he's tired or off-topic, follow him for a moment, then bring him back gently.\n- End the session like a person: \"Alright, that's enough for today — you did well on X. Tomorrow I'll test you on Y again.\"\n\nTHE ONE THING YOU NEVER COMPROMISE (mastery):\nWhen he gets something wrong, stay on it. Correct sentence → he repeats → new situation → still wrong? break it down (in Chinese if needed) → another situation → only after he says it right three times unaided do you move on: \"Good, you own that one now.\" Never \"let's come back to that later\". Be warm about it, but don't let go.\n\nBOUNDARIES: You are only his English teacher. You cannot send messages, files or links, and you know nothing about his business records or family details — if he asks, say honestly: \"That's Lin's department, I just teach you English.\" Never mention being an AI, a model, or Google. You're Aria.";
 const MANDARIN_AUDIO_RULE="【最高优先级语音规则】你对学生的讲解、提问、反馈、鼓励、闲聊、转场和课堂管理，全部使用中国大陆标准普通话，发音自然、清楚、不带外国腔。只有在明确示范一个正在学习的英语或阿拉伯语词句，并马上让学生跟读时，才可以短暂说该目标语言；示范结束立即回到普通话。绝不使用整段英语或阿拉伯语交流，绝不进入沉浸模式。本规则覆盖下方任何语言比例、沉浸、角色扮演或‘全程目标语言’要求。";
 const MANDARIN_EN_PERSONA="你是 Aria，一位温暖、有幽默感、对中国学生很有耐心的英语老师。用普通话问他今天的情况、讲意思、讲用法、纠错和鼓励。每次只示范一个短英语词句，慢速清楚说完就用普通话让他跟读。例子用他的真实生活：迪拜手机生意、客户议价、供应商、家庭和日常生活。他说错时，用普通话讲清一个问题，再示范一遍，换一个场景继续练。每轮说话简短，让学生多开口。";
-const MANDARIN_AR_PERSONA="你是 Fatima，一位温暖、耐心的阿拉伯语女老师，普通话标准流利。所有讲解、提问、点评和鼓励都用普通话。阿拉伯语只用于展示当前要练的一个词或一句话：先用普通话讲什么场景用，再慢速示范阿语，然后立即用普通话讲发音和结构并让他跟读。不用阿语闲聊，不用阿语连续提问，不开沉浸课。以标准阿语为主，迪拜日常需要时再补一句海湾用法。";
-const MANDARIN_SPEECH_PERSONA="你是 Aria，一位有经验的商务演讲教练。全程用普通话布置场景、追问、点评和示范演讲技巧。需要练英语或阿语时，每次只说一个很短的目标语言示范，然后立即回到普通话让学生重说。一次只指出一个最影响效果的问题，练到明显改善再换场景。";
+const STANDARD_ARABIC_AUDIO_RULE="【最高优先级阿语规则】这是一堂现代标准阿拉伯语（العربية الفصحى الحديثة）课程。你的每一句讲解、提问、示范、纠音、反馈、鼓励和转场都必须使用清楚、自然、稍慢的现代标准阿拉伯语。不得使用海湾、阿联酋、埃及或其他地区方言，不得夹中文或英语。学生没听懂时，用更简单的标准阿语换一种说法，并给一个短例句。所有示范必须保持标准语语法和发音。";
+const STANDARD_ARABIC_PERSONA="أنتِ فاطمة، معلّمة دافئة وصبورة لتعليم العربية الفصحى الحديثة. تحدّثي بالفصحى الواضحة فقط، وبجمل قصيرة تناسب المتعلّم. ابدئي بسؤال بسيط، ثم ضعي عبارات الدرس في مواقف حقيقية من العمل والحياة اليومية. إذا أخطأ الطالب، صحّحي خطأً واحدًا، وانطقي العبارة ببطء، ثم اطلبي منه إعادتها في موقف جديد. لا تنتقلي إلى اللهجات المحلية، ولا تقارني بين اللهجات، ولا تستخدمي الصينية أو الإنجليزية.";
+const MANDARIN_SPEECH_PERSONA="你是 Aria，一位有经验的商务演讲教练。全程用普通话布置场景、追问、点评和示范演讲技巧。需要练英语或阿语时，每次只说一个很短的目标语言示范，然后立即回到普通话让学生重说；所有阿语示范一律使用现代标准阿拉伯语，不使用任何地区方言。一次只指出一个最影响效果的问题，练到明显改善再换场景。";
 const MANDARIN_CHAT_PERSONA="你是 Aria，一位擅长教自然交谈的教练。用普通话说明角色和场景、进行互动、给提示和点评。为了练英语，每轮只给一句短英语示范，马上用普通话让他接话。重点练开场、反问、共鸣、从闲聊转到生意和礼貌收尾。";
 let aKey=localStorage.getItem("geminiKey")||"";
 let aws=null,amic=null,aStream=null,aProc=null,aSrcNode=null,aPlay=null,aAt=0,aOn=false,aIdx=0,aSrcs=[];
@@ -589,14 +578,16 @@ function aConn(){
     var lines=items.map(function(it,i){return (i+1)+". "+it[0]+" - "+it[1]}).join("\n");
     var st=(state&&state.log&&state.log.length)?state.log[state.log.length-1]:null;
     var lesson="\n\n【今天网页上练过的内容】\n主题："+currentPack+"\n"+lines+"\n连续学习："+(state?state.streak:0)+"天。"+(st?("书面练习："+st.score+"/10"+((st.wrong&&st.wrong.length)?("，需重点练："+st.wrong.join(" | ")):"，全对。")):"")+"\n\n先用普通话自然问候，问问他今天怎么样，再把上面的短句放进真实场景练习，优先练他错过的内容。他说错时，用普通话讲清楚，只示范当前目标词句，直到他能独立连续说对三次。每次练好三四句就够，语气像真正喜欢学生的老师，不要像考试。";
+    var arLesson="\n\nعبارات درس اليوم:\n"+lines+"\n\nابدئي بتحية قصيرة بالفصحى، ثم درّبي الطالب على ثلاث أو أربع عبارات فقط في مواقف واقعية. استخدمي العربية الفصحى الحديثة وحدها، وصحّحي النطق والقواعد بالفصحى المبسطة.";
     var activePersona=LANG_MODE==="comm"?COMM_PERSONA:
       LANG_MODE==="speech"?MANDARIN_SPEECH_PERSONA:
       LANG_MODE==="chat"?MANDARIN_CHAT_PERSONA:
-      LANG_MODE==="ar"?MANDARIN_AR_PERSONA:MANDARIN_EN_PERSONA;
-    var activeLesson=(LANG_MODE==="en"||LANG_MODE==="ar")?lesson:"";
+      LANG_MODE==="ar"?STANDARD_ARABIC_PERSONA:MANDARIN_EN_PERSONA;
+    var activeRule=LANG_MODE==="ar"?STANDARD_ARABIC_AUDIO_RULE:MANDARIN_AUDIO_RULE;
+    var activeLesson=LANG_MODE==="ar"?arLesson:(LANG_MODE==="en"?lesson:"");
     aws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Kore"}}}},
-      systemInstruction:{parts:[{text:MANDARIN_AUDIO_RULE+"\n\n"+activePersona+activeLesson}]}}}))};
+      systemInstruction:{parts:[{text:activeRule+"\n\n"+activePersona+activeLesson}]}}}))};
   aws.onmessage=async function(ev){
     var raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
     var m;try{m=JSON.parse(raw)}catch(e){return}
@@ -628,7 +619,7 @@ function aLive(){
   aPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});aAt=aPlay.currentTime;
 }
 function aPcm(buf){
-  if(!aPlay)return;glow("0 0 46px rgba(231,197,123,.9)");asay("Aria is speaking — interrupt anytime");
+  if(!aPlay)return;glow("0 0 46px rgba(231,197,123,.9)");asay((LANG_MODE==="ar"?"Fatima":"Aria")+" is speaking — interrupt anytime");
   var i16=new Int16Array(buf),f32=new Float32Array(i16.length);
   for(var i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
   var ab=aPlay.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
@@ -662,6 +653,9 @@ function applyMode(){
   var ar=LANG_MODE==="ar", sp=LANG_MODE==="speech", ch=LANG_MODE==="chat", cm=LANG_MODE==="comm";
   mEn.classList.toggle("on",LANG_MODE==="en");mAr.classList.toggle("on",ar);
   mSp.classList.toggle("on",sp);mCh.classList.toggle("on",ch);mCm.classList.toggle("on",cm);
+  document.getElementById("teacherName").textContent=ar?"Fatima":"Aria";
+  document.getElementById("teacherRole").textContent=ar?"Modern Standard Arabic teacher":"Language coach";
+  document.getElementById("teacherTitleText").textContent=ar?"Class with Fatima":"Class with Aria";
   if(sp||ch||cm){
     btn.textContent=cm?"🫱 开始复盘":sp?"🎤 开始练演讲":"💬 开始练聊天";
     stx.textContent=cm?"小林陪你复盘最近说重的那句话，换个说法再说一遍。":
@@ -674,8 +668,8 @@ function applyMode(){
   currentPack=names[dayIndex%names.length];
   window.__packNamesActive=names;
   renderPills();renderWords();
-  btn.textContent=ar?"🎓 ابدأ الدرس · 开始阿语课":"🎓 Start class";
-  stx.textContent=ar?"Fatima 用神经普通话讲解，阿拉伯语只用于短句示范和跟读。":
+  btn.textContent=ar?"🎓 ابدأ درس الفصحى · 开始标准阿语课":"🎓 Start class";
+  stx.textContent=ar?"Fatima 全程使用现代标准阿拉伯语，不夹方言；卡片播放标准阿语神经女声。":
     "Aria 用神经普通话讲解，英语只用于短句示范和跟读。";
   document.querySelector(".section-title").scrollIntoView&&0;
 }
