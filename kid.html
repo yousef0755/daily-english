@@ -1694,6 +1694,12 @@ function openRecite(sub){
   const day=Math.floor(Date.now()/86400000);
   rIdx=(D.recitePos&&D.recitePos[sub]!=null)?D.recitePos[sub]:0;
   if(rIdx>=pack.list.length)rIdx=0;
+  /* 古兰经：直接跳到今天那两句所在的章（老板 2026-08-16「每天背会两句」）。
+     让孩子自己看提示找章，等于把实现难度转嫁给他。 */
+  if(sub==="quran" && typeof quranToday==="function"){
+    const t=quranToday();
+    if(t.length) rIdx=t[0].idx;
+  }
   /* 成语：直接落到今天这三个里还没念够的那一个，省得他自己找（老板 2026-08-15） */
   if(sub==="idiom"){
     const today=idiomToday(), left=idiomLeft();
@@ -1778,7 +1784,25 @@ function renderRecite(){
     bg.innerHTML=item.bg.replace(/\*\*(.*?)\*\*/g,'<b style="color:var(--gold)">$1</b>');
     box.appendChild(bg);
   }
+  /* 古兰经每天只摆两句（老板 2026-08-16）。别的门照旧全摆。 */
+  let __show = item.lines.map(function(_,i){ return i });
+  if(rSub==="quran" && typeof quranToday==="function"){
+    const t=quranToday().filter(function(x){ return x.idx===rIdx });
+    __show = t.map(function(x){ return x.li });
+    if(!__show.length){
+      const tip=document.createElement("div");
+      tip.className="tip";
+      tip.style.cssText="padding:18px 0;text-align:center;line-height:2";
+      const t2=quranToday();
+      tip.innerHTML = t2.length
+        ? "今天要背的两句不在这一章。<br>去 <b>"+
+          ((RECITE.quran.list[t2[0].idx]||{}).name||"").split(" ")[0]+"</b> 那一章。"
+        : "今天的两句都背完了。";
+      box.appendChild(tip);
+    }
+  }
   item.lines.forEach((ln,k)=>{
+    if(__show.indexOf(k)<0) return;
     if(typeof ln==="object"){
       const d=document.createElement("div");
       d.style.cssText="padding:14px 0;border-bottom:1px dashed var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap";
@@ -1807,9 +1831,24 @@ function renderRecite(){
         toast(how+"　"+n+"/"+READ_GOAL);
         if(typeof renderReadFoot==="function")renderReadFoot();
         if(n>=READ_GOAL){
-          const all=item.lines.every(function(x,i){
-            return (typeof x!=="object") || readGot(rSub,rIdx,i)>=READ_GOAL });
-          if(all){ try{ finishRecite() }catch(e){} }
+          /* 古兰经改成每天两句（老板 2026-08-16）：
+             今天这两句都念够就算今天过了，不用整章念完。 */
+          if(rSub==="quran" && typeof quranToday==="function"){
+            const t=quranToday();
+            const ok=t.length && t.every(function(x){ return readGot("quran",x.idx,x.li)>=READ_GOAL });
+            if(ok){
+              try{ finishRecite() }catch(e){}
+              try{ quranAdvance(); }catch(e){}
+              setTimeout(function(){
+                toast("今天这两句背完了。明天接着往下。");
+                try{ renderRecite() }catch(e){}
+              }, 1400);
+            }
+          }else{
+            const all=item.lines.every(function(x,i){
+              return (typeof x!=="object") || readGot(rSub,rIdx,i)>=READ_GOAL });
+            if(all){ try{ finishRecite() }catch(e){} }
+          }
         }
       });
       d.appendChild(rr);
@@ -2124,36 +2163,9 @@ document.getElementById("newPrompt").onclick=function(){
   D.diaryTopic=DIARY_TOPICS[Math.floor(Math.random()*DIARY_TOPICS.length)];save();renderDiary();
 };
 document.getElementById("rHide").onclick=function(){rHidden=!rHidden;renderRecite()};
-document.getElementById("rDone").onclick=function(){
-  const k=todayKey()+"_"+rSub+"_"+rIdx;
-  D.reciteDone=D.reciteDone||{};
-  /* 2026-08-15 堵漏洞：原来一秒点三下就算背了三遍。
-     背一段要多久，按这段的字数算——不到时间不算数。 */
-  const item=(RECITE[rSub]&&RECITE[rSub].list[rIdx])||{};
-  let len=0;
-  (item.lines||[]).forEach(function(ln){ len += (typeof ln==="object" ? (ln.ar||"") : ln).length });
-  len += (item.name||"").length;
-  const need=Math.max(8, Math.round(len*0.42));      /* 秒 */
-  D.reciteAt=D.reciteAt||{};
-  const now=Math.floor(Date.now()/1000), last=D.reciteAt[k]||0;
-  if(now-last < need){
-    const wait=need-(now-last);
-    toast("太快了 —— 认真背一遍再点，还差 "+wait+" 秒");
-    return;
-  }
-  D.reciteAt[k]=now;
-  const n=(D.reciteDone[k]||0)+1;D.reciteDone[k]=n;save();
-  if(n<=3){addStar(rSub==="quran"?3:2);toast("背对 "+n+"/3 遍，+"+(rSub==="quran"?3:2)+" ⭐")}
-  else{toast("今天这段已经拿满啦")}
-  if(n>=3){
-    const pack=RECITE[rSub];
-    if(rIdx<pack.list.length-1){
-      setTimeout(function(){rIdx++;rHidden=false;D.recitePos=D.recitePos||{};D.recitePos[rSub]=rIdx;save();renderRecite();
-        toast("下一段：" + pack.list[rIdx].name.split(" ")[0])},900);
-    }
-  }
-  renderRecite();
-};
+/* rDone（当初那个「按住背给爸爸听」）在改成念十遍时就删掉了，
+   这段挂在它身上的代码是死的，而且每次加载都抛 TypeError、
+   把后面的初始化整个中断。2026-08-16 摘除。 */
 (function(){
   const c=document.getElementById("pad");
   if(c){
@@ -2194,6 +2206,50 @@ document.getElementById("rDone").onclick=function(){
 render();renderHanzi();renderDiary();
 
 try{renderLevel();renderRank();setWalker(D.walker||"Snowy");if(!catsMissYou())renderCats("start")}catch(e){}
+
+/* ═══ 古兰经每天两句（老板 2026-08-16 跟博远商量后定的）═══
+   原来一次摆一整章（107 章就有 7 节），孩子看着就发怵。改成每天只给两句。
+
+   **用指针不用日期**：按日期算「第几天×2」的话，哪天没学那两句就永远跳过去了。
+   指针停在哪，明天从哪接着来，一句不漏。
+   指针是跨章连续的——107 章念完接 106 章，因为他本来就是从后往前一路背。 */
+function quranPerDay(){ return 2 }
+function quranFlat(){
+  /* 把所有章的句子拉成一条直线：[{idx:章序号, li:第几句}, ...] */
+  const pack = (typeof RECITE!=="undefined") && RECITE.quran;
+  if(!pack) return [];
+  const out=[];
+  pack.list.forEach(function(item, idx){
+    (item.lines||[]).forEach(function(ln, li){
+      if(typeof ln==="object") out.push({idx:idx, li:li});
+    });
+  });
+  return out;
+}
+function quranPos(){
+  D.quranPos = D.quranPos||0;
+  const flat=quranFlat();
+  if(D.quranPos >= flat.length) D.quranPos = 0;   /* 背完一轮从头再来 */
+  return D.quranPos;
+}
+/* 今天该背的那两句 */
+function quranToday(){
+  const flat=quranFlat(), p=quranPos();
+  return flat.slice(p, p+quranPerDay());
+}
+/* 这两句都念够了就往前挪。挪的时候存下来，明天接着走 */
+function quranAdvance(){
+  const today=quranToday();
+  if(!today.length) return false;
+  const done = today.every(function(x){ return readGot("quran", x.idx, x.li) >= READ_GOAL });
+  if(done){
+    D.quranPos = quranPos() + quranPerDay();
+    save();
+    return true;
+  }
+  return false;
+}
+
 </script>
 <div id="keyWrap"><div id="keyCard"><h3>第一次设置</h3><p class="ksub">让爸爸帮你弄一下，一分钟就好</p><div class="kwhy">钥匙只存在这台手机上，不会传给别人。</div><ol><li>用 Google 账号打开下面的链接</li><li>点「Create API key」</li><li>复制那串字符，粘到下面</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">打开 Google 页面</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="把钥匙粘在这里"><button class="ksave" id="keySave" type="button">保存，开始</button><p class="kerr" id="keyErr"></p></div></div>
 <script>
