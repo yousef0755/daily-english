@@ -944,7 +944,7 @@ const HANZI=[
 
 
 /* ===== 读背素材：一句一句念、一句一句背 ===== */
-const RECITE={
+let RECITE={
 idiom:{title:"成语",unit:"语文 · 常用成语",list:[
  {name:"五光十色  wǔ guāng shí sè",
   lines:["意思：颜色又多又亮，好看极了。","例句：过节的时候，街上的灯五光十色，可好看了。"],
@@ -1151,6 +1151,32 @@ english:{title:"English words",unit:"Grade 4",list:[
  {name:"Day 3 · 每天",lines:["tomorrow — 明天","remember — 记得","practice — 练习","beautiful — 美丽的","delicious — 好吃的"],
   tip:"这几个词有点长，一个音节一个音节念。"}
 ]}};
+
+/* ── 课文从 Cloudflare 取（老板 2026-08-16 批：以后补课文不用改代码）──
+   页面自带的那份留着当最后一层保底：网断了、Cloudflare 挂了，
+   孩子照样有东西念，不会开天窗。 */
+(function(){
+  var CK="reciteCache";
+  try{
+    var c=JSON.parse(localStorage.getItem(CK)||"null");
+    if(c && c.recite && c.ver) RECITE=c.recite;      /* 先用缓存顶上，别等网络 */
+  }catch(e){}
+  fetch("https://su-family.yousef-abud.workers.dev/content/recite")
+    .then(function(r){return r.json()})
+    .then(function(j){
+      if(!j || !j.ok || !j.recite) return;
+      var cur=0; try{ cur=(JSON.parse(localStorage.getItem(CK)||"{}").ver)|0 }catch(e){}
+      if((j.ver|0) <= cur) return;                    /* 没更新就别动 */
+      try{ localStorage.setItem(CK, JSON.stringify({ver:j.ver, recite:j.recite})) }catch(e){}
+      RECITE=j.recite;
+      /* 已经渲染过就重画一次，让他当场看到新课文 */
+      try{ if(typeof renderRecite==="function" && document.getElementById("reciteCard")
+            && document.getElementById("reciteCard").style.display!=="none") renderRecite() }catch(e){}
+      try{ if(typeof renderWalk==="function") renderWalk() }catch(e){}
+    })
+    .catch(function(){});
+})();
+
 
 const BANK={
 chinese:{title:"语文 · 第4课 古诗三首（背诵中）",items:[
