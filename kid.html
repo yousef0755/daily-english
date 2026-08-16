@@ -789,8 +789,8 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
   <section class="page" id="p-write">
     <div class="card">
-      <h2>第4课 生字（会写 13 个）</h2>
-      <div class="tip" style="text-align:left;margin:0 0 10px">点右边的喇叭听读音 · 跟着念，念熟了自己在本子上写</div>
+      <h2 id="hanziTitle">第4课 生字（会写 13 个）</h2>
+      <div class="tip" style="text-align:left;margin:0 0 10px">点右边的喇叭听读音 · 跟着念，念熟了自己在本子上写<br>写会一个，就点它后面的「已写会」</div>
       <div id="hanziBox"></div>
     </div>
     <!-- 手写格已按老板要求去掉（A） -->
@@ -2524,7 +2524,8 @@ function renderRecite(){
 
 /* ===== 今天要会写的字（每天 4 个，轮着来） ===== */
 function todayHanzi(){
-  const day=Math.floor(Date.now()/86400000);
+  /* 跟着本地日界线走，别再用 UTC——今天已经统一过一次了 */
+  const day=Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/86400000);
   const start=(day*4)%HANZI.length;
   return [0,1,2,3].map(k=>HANZI[(start+k)%HANZI.length]);
 }
@@ -2553,10 +2554,46 @@ function renderHanzi(){
       "display:grid;place-items:center;line-height:0;transition:background .18s ease";
     spk.onclick=function(ev){ ev.stopPropagation(); if(typeof speakRoster==="function")speakRoster(h.z) };
     d.appendChild(spk);
+    /* 老板 2026-08-16：「这个如果会了，后面显示已写会」。
+       跟背诵那边的「已背会」同一套：点了打勾，再点能取消（手滑很正常）。 */
+    const wb=document.createElement("button");
+    wb.type="button"; wb.className="rbtn inline";
+    wb.style.cssText="flex-shrink:0;white-space:nowrap";
+    const face=function(){
+      const on=!!(D.hanziDone||{})[k];
+      wb.innerHTML = on
+        ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" '+
+          'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+
+          '<path d="M4 12.5l5 5L20 6.5"/></svg><b>已写会</b>'
+        : '<b>已写会</b>';
+      wb.classList.toggle("done", on);
+      wb.style.opacity = on ? "1" : ".62";
+    };
+    face();
+    wb.onclick=function(ev){
+      ev.stopPropagation();
+      D.hanziDone=D.hanziDone||{};
+      if(D.hanziDone[k]){ delete D.hanziDone[k]; toast("取消了") }
+      else { D.hanziDone[k]=1; toast("「"+h.z+"」写会了") }
+      save(); face(); renderHanziTitle();
+    };
+    d.appendChild(wb);
     /* 「写一写」按钮已按老板要求去掉（A：只去掉手写格，生字留看和听） */
     d.querySelector("div").onclick=()=>{if(typeof speakRoster==="function")speakRoster(h.z)};
     box.appendChild(d);
   });
+  renderHanziTitle();
+}
+/* 标题上报个数——十三个字排下去，没个总数他不知道自己走到哪了 */
+function renderHanziTitle(){
+  const t=document.getElementById("hanziTitle"); if(!t)return;
+  const all=todayHanzi(), done=D.hanziDone||{};
+  const n=all.filter(function(h){ return done[todayKey()+"_"+h.z] }).length;
+  const total=(typeof HANZI!=="undefined")?HANZI.length:all.length;
+  t.innerHTML='第4课 生字 · 今天 '+all.length+' 个'+
+    '<span style="font-size:.68rem;color:var(--muted);font-weight:500">（全课 '+total+' 个）</span>'+
+    (n? '　<span style="font-size:.72rem;color:var(--mint);font-weight:600">写会 '+
+        n+' / '+all.length+'</span>' : '');
 }
 
 
@@ -4518,6 +4555,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=fcd721ed" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=96b57342" data-me="boyuan"></script>
 </body>
 </html>
