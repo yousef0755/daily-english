@@ -1,0 +1,95 @@
+<!doctype html><html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>曼雅的生词本</title>
+<style>
+:root{--bg:#0f1620;--card:#18212e;--ink:#e9eef5;--sub:#8fa0b5;--acc:#7fd4c1;--line:#263242}
+@media(prefers-color-scheme:light){:root{--bg:#f5f2ea;--card:#fff;--ink:#22262b;--sub:#79838f;--acc:#0f9b83;--line:#e6e0d4}}
+*{margin:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font:16px/1.7 -apple-system,"PingFang SC",sans-serif;padding:18px 14px 60px}
+.wrap{max-width:620px;margin:0 auto}
+h1{font-size:22px;letter-spacing:1px}
+.sub{color:var(--sub);font-size:13px;margin:4px 0 16px}
+.bar{display:flex;gap:8px;margin-bottom:12px;position:sticky;top:0;
+  background:var(--bg);padding:8px 0;z-index:5}
+input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:11px;
+  color:var(--ink);padding:11px 13px;font-size:15px;font-family:inherit}
+input:focus{outline:none;border-color:var(--acc)}
+.t{background:var(--card);border:1px solid var(--line);color:var(--sub);
+  border-radius:11px;padding:0 14px;font-size:13.5px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.t.on{color:var(--acc);border-color:var(--acc)}
+ul{list-style:none}
+li{display:flex;align-items:center;gap:10px;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px}
+li.hide{display:none}
+.w{font-weight:650;font-size:16.5px;min-width:0;word-break:break-word}
+.z{color:var(--sub);font-size:14.5px;margin-left:auto;text-align:right;
+  max-width:52%;word-break:break-word}
+body.mask .z{filter:blur(6px)}
+body.mask li:active .z,body.mask .z.show{filter:none}
+.say{background:none;border:1px solid var(--line);color:var(--acc);border-radius:9px;
+  width:30px;height:30px;flex:0 0 auto;cursor:pointer;font-size:14px}
+.del{background:none;border:none;color:var(--line);font-size:19px;cursor:pointer;
+  flex:0 0 auto;padding:0 2px;line-height:1}
+.del:hover{color:#e07a6a}
+.n{color:var(--sub);font-size:13px;margin:14px 0 6px}
+.tip{color:var(--sub);font-size:12.5px;line-height:1.9;margin-top:22px;
+  border-top:1px dashed var(--line);padding-top:12px}
+</style></head><body><div class="wrap">
+<h1>曼雅的生词本</h1>
+<div class="sub">65 个词 · 你自己查过的 · 2026-08-16</div>
+<div class="bar">
+  <input id="q" placeholder="搜英文或中文">
+  <button class="t" id="mask">遮中文</button>
+</div>
+<div class="n" id="cnt"></div>
+<ul id="list"><li data-w="attic" data-z="阁楼"><button class="say" title="听发音">♪</button><span class="w">Attic</span><span class="z">阁楼</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="binder" data-z="名词）束胸衣、"><button class="say" title="听发音">♪</button><span class="w">binder</span><span class="z">名词）束胸衣、</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="blackmail" data-z="敲诈"><button class="say" title="听发音">♪</button><span class="w">Blackmail</span><span class="z">敲诈</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="body spray inventor" data-z="身体喷雾的发明者"><button class="say" title="听发音">♪</button><span class="w">Body spray inventor</span><span class="z">身体喷雾的发明者</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="broaden my horizons" data-z="拓宽我的视野"><button class="say" title="听发音">♪</button><span class="w">Broaden my horizons</span><span class="z">拓宽我的视野</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="busted" data-z="被抓的"><button class="say" title="听发音">♪</button><span class="w">Busted</span><span class="z">被抓的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="con" data-z="反对论"><button class="say" title="听发音">♪</button><span class="w">Con</span><span class="z">反对论</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="constrict" data-z="压迫/收紧"><button class="say" title="听发音">♪</button><span class="w">constrict</span><span class="z">压迫/收紧</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="constrictor" data-z="收缩器"><button class="say" title="听发音">♪</button><span class="w">Constrictor</span><span class="z">收缩器</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="crayon" data-z="蜡笔"><button class="say" title="听发音">♪</button><span class="w">Crayon</span><span class="z">蜡笔</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="curator" data-z="馆长"><button class="say" title="听发音">♪</button><span class="w">Curator</span><span class="z">馆长</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="cursed with ample" data-z="被充足的胸怀诅咒"><button class="say" title="听发音">♪</button><span class="w">Cursed with ample</span><span class="z">被充足的胸怀诅咒</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="curves" data-z="曲线"><button class="say" title="听发音">♪</button><span class="w">Curves</span><span class="z">曲线</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="dabbled" data-z="涉足的"><button class="say" title="听发音">♪</button><span class="w">Dabbled</span><span class="z">涉足的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="dicey" data-z="冒险的"><button class="say" title="听发音">♪</button><span class="w">Dicey</span><span class="z">冒险的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="doomed" data-z="在劫难逃的"><button class="say" title="听发音">♪</button><span class="w">Doomed</span><span class="z">在劫难逃的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="driving under the" data-z="详细解析"><button class="say" title="听发音">♪</button><span class="w">Driving Under the</span><span class="z">详细解析</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="enlighten" data-z="启迪"><button class="say" title="听发音">♪</button><span class="w">Enlighten</span><span class="z">启迪</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="fireball" data-z="扑灭伏特加火"><button class="say" title="听发音">♪</button><span class="w">fireball</span><span class="z">扑灭伏特加火</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="fraud" data-z="欺诈"><button class="say" title="听发音">♪</button><span class="w">Fraud</span><span class="z">欺诈</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="gala" data-z="盛会"><button class="say" title="听发音">♪</button><span class="w">Gala</span><span class="z">盛会</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="ge" data-z="当下你可以做的微小尝试"><button class="say" title="听发音">♪</button><span class="w">Ge</span><span class="z">当下你可以做的微小尝试</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="gestures" data-z="手势"><button class="say" title="听发音">♪</button><span class="w">Gestures</span><span class="z">手势</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="glamorous" data-z="富有魅力的"><button class="say" title="听发音">♪</button><span class="w">Glamorous</span><span class="z">富有魅力的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="goofball" data-z="傻瓜"><button class="say" title="听发音">♪</button><span class="w">Goofball</span><span class="z">傻瓜</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="gracious" data-z="是形容词，核心感觉是：亲"><button class="say" title="听发音">♪</button><span class="w">gracious</span><span class="z">是形容词，核心感觉是：亲</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="groping" data-z="摸索"><button class="say" title="听发音">♪</button><span class="w">Groping</span><span class="z">摸索</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="hciu" data-z="保险费用"><button class="say" title="听发音">♪</button><span class="w">HCiu</span><span class="z">保险费用</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="iphone" data-z="这一侧的问题。"><button class="say" title="听发音">♪</button><span class="w">iPhone</span><span class="z">这一侧的问题。</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="jalapeno poppers" data-z="墨西哥辣椒爆米花"><button class="say" title="听发音">♪</button><span class="w">Jalapeno poppers</span><span class="z">墨西哥辣椒爆米花</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="kaplow" data-z="这是一个拟声词，表示突然的爆炸、撞击或"><button class="say" title="听发音">♪</button><span class="w">kaplow</span><span class="z">这是一个拟声词，表示突然的爆炸、撞击或</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="lit" data-z="文学"><button class="say" title="听发音">♪</button><span class="w">Lit</span><span class="z">文学</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="manifesting" data-z="表现"><button class="say" title="听发音">♪</button><span class="w">Manifesting</span><span class="z">表现</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="manuscript" data-z="原稿"><button class="say" title="听发音">♪</button><span class="w">Manuscript</span><span class="z">原稿</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="mayhem" data-z="浩劫"><button class="say" title="听发音">♪</button><span class="w">Mayhem</span><span class="z">浩劫</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="merrier" data-z="更快乐"><button class="say" title="听发音">♪</button><span class="w">Merrier</span><span class="z">更快乐</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="minor" data-z="轻微/部分违约）："><button class="say" title="听发音">♪</button><span class="w">Minor</span><span class="z">轻微/部分违约）：</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="netflix" data-z="告诫"><button class="say" title="听发音">♪</button><span class="w">Netflix</span><span class="z">告诫</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="phoney bench" data-z="如果你听到的是"phoney bench""><button class="say" title="听发音">♪</button><span class="w">phoney bench</span><span class="z">如果你听到的是"phoney bench"</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="phony" data-z="的发明書"><button class="say" title="听发音">♪</button><span class="w">Phony</span><span class="z">的发明書</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="pitaya" data-z="火龙果"><button class="say" title="听发音">♪</button><span class="w">Pitaya</span><span class="z">火龙果</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="postpone" data-z="推迟"><button class="say" title="听发音">♪</button><span class="w">Postpone</span><span class="z">推迟</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="pranks on vine" data-z="什么意思"><button class="say" title="听发音">♪</button><span class="w">Pranks on vine</span><span class="z">什么意思</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="put those supplies in" data-z="把那些用品放在马车里"><button class="say" title="听发音">♪</button><span class="w">Put those supplies in</span><span class="z">把那些用品放在马车里</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="resciend" data-z="常见变形"><button class="say" title="听发音">♪</button><span class="w">Resciend</span><span class="z">常见变形</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="saloon" data-z="轿车"><button class="say" title="听发音">♪</button><span class="w">Saloon</span><span class="z">轿车</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="screwed" data-z="处境糟糕的"><button class="say" title="听发音">♪</button><span class="w">Screwed</span><span class="z">处境糟糕的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="sex trafficking" data-z="翻译"><button class="say" title="听发音">♪</button><span class="w">sex trafficking</span><span class="z">翻译</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="she fules" data-z="是英文中非常地道且高频的赞美口"><button class="say" title="听发音">♪</button><span class="w">She fules</span><span class="z">是英文中非常地道且高频的赞美口</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="slipped" data-z="滑倒的"><button class="say" title="听发音">♪</button><span class="w">Slipped</span><span class="z">滑倒的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="soaring" data-z="高耸的"><button class="say" title="听发音">♪</button><span class="w">Soaring</span><span class="z">高耸的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="soldier on" data-z="坚持下去"><button class="say" title="听发音">♪</button><span class="w">Soldier on</span><span class="z">坚持下去</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="stiff" data-z="普通人"><button class="say" title="听发音">♪</button><span class="w">Stiff</span><span class="z">普通人</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="sued" data-z="被起诉"><button class="say" title="听发音">♪</button><span class="w">Sued</span><span class="z">被起诉</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="thighs" data-z="大腿"><button class="say" title="听发音">♪</button><span class="w">Thighs</span><span class="z">大腿</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="tiktok" data-z="描綸地下城的画"><button class="say" title="听发音">♪</button><span class="w">TikTok</span><span class="z">描綸地下城的画</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="tournament" data-z="锦标赛"><button class="say" title="听发音">♪</button><span class="w">Tournament</span><span class="z">锦标赛</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="translat" data-z="这句字幕”"><button class="say" title="听发音">♪</button><span class="w">Translat</span><span class="z">这句字幕”</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="vaguely" data-z="啧寡的发明者"><button class="say" title="听发音">♪</button><span class="w">Vaguely</span><span class="z">啧寡的发明者</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="voluntary" data-z="志愿军"><button class="say" title="听发音">♪</button><span class="w">Voluntary</span><span class="z">志愿军</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="vow of silence" data-z="沉默的誓言"><button class="say" title="听发音">♪</button><span class="w">Vow of silence</span><span class="z">沉默的誓言</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="we" data-z="你可能完全懵了。"><button class="say" title="听发音">♪</button><span class="w">we</span><span class="z">你可能完全懵了。</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="wilted" data-z="枯萎的"><button class="say" title="听发音">♪</button><span class="w">Wilted</span><span class="z">枯萎的</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="work" data-z="我你好然后但不这<"><button class="say" title="听发音">♪</button><span class="w">Work</span><span class="z">我你好然后但不这<</span><button class="del" title="这条不对，删掉">×</button></li><li data-w="you big flirt" data-z="意思是："你这个撩人精！"/"你可真会调情啊！""><button class="say" title="听发音">♪</button><span class="w">you big flirt</span><span class="z">意思是："你这个撩人精！"/"你可真会调情啊！"</span><button class="del" title="这条不对，删掉">×</button></li></ul>
+<div class="tip">
+点 ♪ 听发音。点「遮中文」把意思盖住，按住某一条能偷看一眼——这样才是自测。<br>
+认出错的直接点右边的 × 删掉，删了会记住，下次打开还是删掉的。<br>
+这些是从你发来的 114 张截图里认出来的，机器认字总有认错的，别客气，错的就删。
+</div>
+</div>
+<script>
+var K="mieVocabDeleted";
+var gone=JSON.parse(localStorage.getItem(K)||"[]");
+var list=document.getElementById("list"), q=document.getElementById("q"), cnt=document.getElementById("cnt");
+
+function apply(){
+  var s=q.value.trim().toLowerCase(), n=0;
+  [].forEach.call(list.children,function(li){
+    if(gone.indexOf(li.dataset.w)>=0){ li.classList.add("hide"); return }
+    var hit=!s || li.dataset.w.indexOf(s)>=0 || li.dataset.z.indexOf(s)>=0;
+    li.classList.toggle("hide",!hit);
+    if(hit) n++;
+  });
+  cnt.textContent = s ? ("找到 "+n+" 个") : (n+" 个词");
+}
+q.addEventListener("input",apply);
+
+document.getElementById("mask").onclick=function(){
+  document.body.classList.toggle("mask");
+  this.classList.toggle("on");
+  this.textContent = document.body.classList.contains("mask") ? "显示中文" : "遮中文";
+};
+
+list.addEventListener("click",function(e){
+  var li=e.target.closest("li"); if(!li)return;
+  if(e.target.classList.contains("del")){
+    gone.push(li.dataset.w);
+    localStorage.setItem(K,JSON.stringify(gone));
+    apply(); return;
+  }
+  if(e.target.classList.contains("say")){
+    try{
+      var u=new SpeechSynthesisUtterance(li.querySelector(".w").textContent);
+      u.lang="en-US"; u.rate=.9;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    }catch(err){}
+    return;
+  }
+  // 点整条＝偷看一眼中文（遮住模式下用）
+  var z=li.querySelector(".z");
+  z.classList.add("show"); setTimeout(function(){z.classList.remove("show")},1400);
+});
+apply();
+</script></body></html>
