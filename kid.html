@@ -329,6 +329,9 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   38%{opacity:.9}
   90%{opacity:0;transform:translateY(34px)}
   100%{opacity:0;transform:translateY(34px)}}
+.wcat{cursor:pointer}
+.wcat:active{opacity:.82}
+.rf-water b{color:var(--gold)}
 .wtail{transform-origin:79px 90px;animation:wtail 3.8s ease-in-out infinite}
 @keyframes wtail{0%,100%{transform:rotate(0)}50%{transform:rotate(9deg)}}
 .whead{transform-origin:55px 60px;animation:wnod 4.6s ease-in-out infinite}
@@ -927,7 +930,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
         <g id="waterG"><circle class="wdrop" cx="186" cy="192" r="3.0" fill="#a8e4f7" style="animation-delay:0s"/><circle class="wdrop" cx="190" cy="192" r="2.3" fill="#a8e4f7" style="animation-delay:0.5s"/><circle class="wdrop" cx="183" cy="192" r="2.0" fill="#a8e4f7" style="animation-delay:1.0s"/><circle class="wdrop" cx="214" cy="192" r="3.0" fill="#a8e4f7" style="animation-delay:0.28s"/><circle class="wdrop" cx="210" cy="192" r="2.3" fill="#a8e4f7" style="animation-delay:0.78s"/><circle class="wdrop" cx="217" cy="192" r="2.0" fill="#a8e4f7" style="animation-delay:1.28s"/></g>
         
-  <g class="wcat" transform="translate(70,128)">
+  <g class="wcat" id="wcatS" transform="translate(70,128)">
     <defs><radialGradient id="gwcS" cx="42%" cy="32%" r="72%">
       <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e4ddd0"/>
     </radialGradient></defs>
@@ -965,7 +968,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
         transform="rotate(-25 115.5 60)"/>
     </g>
   </g>
-  <g class="wcat" transform="translate(330,128) scale(-1,1)">
+  <g class="wcat" id="wcatD" transform="translate(330,128) scale(-1,1)">
     <defs><radialGradient id="gwcD" cx="42%" cy="32%" r="72%">
       <stop offset="0%" stop-color="#5a5e6c"/><stop offset="100%" stop-color="#41444f"/>
     </radialGradient></defs>
@@ -1631,6 +1634,74 @@ function rankOf(){
   RANKS.forEach(function(x){ if(kp>=x.keep) r=x });
   return {rank:r, score:sc, keep:kp, idx:RANKS.indexOf(r)};
 }
+
+/* ── 浇水的两只猫说话（老板 8-16：「类似『博远加油』这样的话，
+      和主页那两只一样，有些互动会比较有意思」）──
+
+   性子照搬主页：Snowy 暖，哆米嘴硬。两只不一样，他才愿意反复点。
+   话跟着状态走，不随机撒——光说「加油」是假的，说到点上他才当回事。 */
+function treeTalk(){
+  const r=rankOf();
+  const came=((D.starLog||{})[dayKey(Date.now())]||0)>0;
+  const next=RANKS[r.idx+1], left=next?(next.keep-r.keep):0;
+  const done=(typeof diaryUnlocked==="function") && diaryUnlocked();
+  if(!came){
+    return r.keep>0
+      ? [["哆米","昨天你来了，今天还没。树在等。"],
+         ["Snowy","博远来一下吧，浇一点点也行。"]]
+      : [["Snowy","博远，今天来浇一次水好不好。"],
+         ["哆米","壶我提着呢。你不来我提着也是白提。"]];
+  }
+  if(done){
+    return [["Snowy","博远今天全做完了。这一壶浇得值。"],
+            ["哆米","……行吧。今天算你厉害。"],
+            ["Snowy","你看它，今天又稳了一点。"]];
+  }
+  if(next && left<=3){
+    return [["Snowy","再 "+left+" 天就长成「"+next.name+"」了。博远加油。"],
+            ["哆米",left+" 天。数得清吧。"]];
+  }
+  if(r.idx>=RANKS.length-1){
+    return [["Snowy","这棵树是博远自己种出来的。"],
+            ["哆米","顶上那颗星，我看着他挣的。"]];
+  }
+  return [["Snowy","博远来了，我们接着浇。"],
+          ["哆米","浇就浇。别停。"],
+          ["Snowy","你多来一天，它就多长一点。"]];
+}
+/* 点猫换话。跟主页一样：戳了必须有反应，不然它就是张图。
+   **不给星**——不然又成了刷分的路子。 */
+const TREE_POKE_S=["博远加油。","我给它浇了好多水。",
+  "你多来一天，它就多长一点。","累了就歇会儿，明天再来。",
+  "这树认得你。","水是你的星变的。"];
+const TREE_POKE_D=["干嘛。","水快没了。","别指望我夸你。",
+  "浇水是我在浇。","……行吧，你今天来了。","再来一天。就一天。"];
+let treePoke={S:0,D:0}, treeTalkI=0, treeTalkTimer=null;
+function treeSay(who,txt){
+  const el=document.getElementById("rfWater");
+  if(el) el.innerHTML='<b>'+who+'</b>　'+txt;
+}
+function treeSayAuto(){
+  const list=treeTalk();
+  if(!list.length)return;
+  const p=list[treeTalkI%list.length];
+  treeTalkI++;
+  treeSay(p[0],p[1]);
+}
+function treeBindCats(){
+  [["wcatS","S",TREE_POKE_S,"Snowy"],["wcatD","D",TREE_POKE_D,"哆米"]]
+  .forEach(function(a){
+    const g=document.getElementById(a[0]); if(!g||g._bound)return;
+    g._bound=true;
+    g.style.cursor="pointer";
+    g.addEventListener("click",function(){
+      const i=treePoke[a[1]]++;
+      treeSay(a[3], a[2][i%a[2].length]);
+      clearTimeout(treeTalkTimer);
+      treeTalkTimer=setTimeout(treeSayAuto,7000);   /* 过一会儿自己说回正题 */
+    });
+  });
+}
 function renderRank(){
   const box=document.getElementById("rankFoot"); if(!box)return;
   const r=rankOf(), next=RANKS[r.idx+1];
@@ -1671,10 +1742,8 @@ function renderRank(){
      让他看得出来水是自己给的，不是画上去的。 */
   const todayStars=(D.starLog||{})[dayKey(Date.now())]||0;
   box.classList.toggle("dry", todayStars===0);
-  const w=document.getElementById("rfWater");
-  if(w) w.textContent = todayStars>0
-      ? ("今天你浇了 "+todayStars+" 颗星的水")
-      : "今天还没浇水，猫咪把水壶放下了";
+  treeBindCats();
+  treeSayAuto();
 
   document.getElementById("rfScore").textContent="最近七天 "+r.score+" 颗";
   document.getElementById("rfKeep").textContent =
@@ -1697,12 +1766,10 @@ function renderRank(){
   }else if(!cameToday && r.keep>0){
     tip.className="rf-tip warn";
     tip.textContent="今天还没来。旷一天，坚持的天数要倒扣两天。";
-  }else if(next){
-    tip.className="rf-tip";
-    tip.textContent="再坚持 "+(next.keep-r.keep)+" 天升「"+next.name+"」";
   }else{
-    tip.className="rf-tip";
-    tip.textContent="已经是最高一档了，别掉下来";
+    /* 梯子那一行已经写着「再 N 天」，猫也会说一遍——
+       这里再写第三遍就是废话。只在要掉档时说话。 */
+    tip.className="rf-tip"; tip.textContent="";
   }
 }
 /* 等级按**累计拿到的星**算，第一天就是 LV.1，只升不降——那是他挣的。
@@ -4249,6 +4316,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=bb4eabe2" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=b55ce41a" data-me="boyuan"></script>
 </body>
 </html>
