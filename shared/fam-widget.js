@@ -22,6 +22,20 @@
   var API = "https://su-family.yousef-abud.workers.dev";
   var QKEY = "famSayQueue_" + ME;
   var NAMES = { boyuan: "博远", manya: "曼雅", xiya: "玺雅", feiya: "霏雅", amina: "妈妈", baba: "爸爸" };
+  /* 一人一个颜色，跑道和留言共用一套——看到蓝圆就知道是博远。
+     六个色相拉开，深色页和米色页上都还认得出。 */
+  var HUE = { boyuan: "#5b8dd9", manya: "#4bbf9a", xiya: "#a97bd6",
+              feiya: "#e08aa8", amina: "#e0a94b", baba: "#5aa86f" };
+  function hueOf(id) { return HUE[id] || "#8a8a8a" }
+  function avatar(id, name, size, ring) {
+    var c = hueOf(id);
+    return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;' +
+      'display:flex;align-items:center;justify-content:center;flex-shrink:0;' +
+      'font-size:' + (size * .42).toFixed(1) + 'px;font-weight:800;letter-spacing:0;' +
+      'background:' + c + ';color:#fff;' +
+      (ring ? 'box-shadow:0 0 0 2px rgba(255,255,255,.55),0 0 0 4px ' + c + ';' : '') +
+      '">' + esc(String(name || "?").slice(0, 1)) + '</div>';
+  }
 
   function esc(t) { return String(t == null ? "" : t).replace(/</g, "&lt;").replace(/>/g, "&gt;") }
   function el(id) { return document.getElementById(id) }
@@ -51,8 +65,9 @@
   }
 
   var HTML =
-    '<div id="fwBox" style="border:1px solid rgba(128,128,128,.28);border-radius:14px;' +
-    'padding:14px 16px;margin:0 0 16px;font-size:.95rem;line-height:1.75">' +
+    '<div id="fwBox" style="border:1px solid rgba(128,128,128,.22);border-radius:18px;' +
+    'padding:16px 16px 14px;margin:0 0 16px;font-size:.95rem;line-height:1.7;' +
+    'background:linear-gradient(180deg,rgba(128,128,128,.06),rgba(128,128,128,.02))">' +
       '<div id="fwInvite" style="margin-bottom:12px"></div>' +
       '<div id="fwSays" style="display:none;margin-bottom:12px"></div>' +
       '<div id="fwRank" style="display:none;margin-bottom:12px"></div>' +
@@ -150,19 +165,23 @@
       var box = el("fwSays");
       if (!j.inbox || !j.inbox.length) { box.style.display = "none"; return }
       box.style.display = "";
-      box.innerHTML = j.inbox.slice(0, 5).map(function (x) {
-        return '<div style="display:grid;grid-template-columns:26px 1fr auto;gap:8px;' +
-          'align-items:start;padding:7px 0;border-top:1px solid rgba(128,128,128,.16)">' +
-          '<div style="width:24px;height:24px;border-radius:50%;display:flex;' +
-            'align-items:center;justify-content:center;font-size:.72rem;font-weight:700;' +
-            'background:rgba(128,128,128,.2)">' + esc(String(x.fromName).slice(0, 1)) + '</div>' +
-          '<div style="min-width:0">' +
-            '<div style="font-size:.74rem;opacity:.55">' + esc(x.fromName) + ' · ' +
-              niceDay(x.d) + ' ' + esc(x.at || "") + '</div>' +
-            '<div style="line-height:1.6">' + esc(x.text) + '</div></div>' +
-          '<button data-reply="' + esc(x.from) + '" style="align-self:center;padding:5px 12px;' +
-            'border-radius:999px;border:1px solid rgba(128,128,128,.45);background:transparent;' +
-            'color:inherit;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer">回</button>' +
+      box.innerHTML =
+        '<div style="font-size:.76rem;opacity:.5;margin:2px 0 6px">家里人跟你说的话</div>' +
+        j.inbox.slice(0, 5).map(function (x) {
+        var c = hueOf(x.from);
+        return '<div style="display:flex;gap:9px;align-items:flex-start;margin-bottom:9px">' +
+          avatar(x.from, x.fromName, 28, false) +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:.72rem;opacity:.5;margin-bottom:2px">' +
+              esc(x.fromName) + ' · ' + niceDay(x.d) + ' ' + esc(x.at || "") + '</div>' +
+            '<div style="display:inline-block;max-width:100%;padding:7px 12px;' +
+              'border-radius:4px 14px 14px 14px;line-height:1.6;word-break:break-word;' +
+              'background:' + c + '1f;border:1px solid ' + c + '33">' + esc(x.text) + '</div>' +
+          '</div>' +
+          '<button data-reply="' + esc(x.from) + '" style="flex-shrink:0;margin-top:16px;' +
+            'padding:5px 13px;border-radius:999px;border:1px solid ' + c + '88;' +
+            'background:' + c + '14;color:inherit;font-family:inherit;font-size:.8rem;' +
+            'font-weight:700;cursor:pointer">回</button>' +
           '</div>';
       }).join("");
       [].forEach.call(box.querySelectorAll("[data-reply]"), function (b) {
@@ -287,14 +306,14 @@
         prevX = x;
         var mine = o.x.id === ME;
         var ch = String(o.x.name || "?").slice(0, 1);
-        var bg = o.x.finished ? '#7ed6b2' : (o.x.here ? 'rgba(128,128,128,.55)' : 'rgba(128,128,128,.22)');
-        var fg = o.x.finished ? '#123' : 'inherit';
         return '<div title="' + esc(o.x.name) + '" style="position:absolute;' +
-          'left:calc(' + x + '% * .84 + 14px);bottom:12px;transform:translateX(-50%);' +
-          'width:22px;height:22px;border-radius:50%;display:flex;align-items:center;' +
-          'justify-content:center;font-size:.7rem;font-weight:700;background:' + bg + ';color:' + fg + ';' +
-          (mine ? 'outline:2px solid currentColor;outline-offset:1px;' : '') +
-          'transition:left .6s cubic-bezier(.4,0,.2,1)">' + esc(ch) + '</div>';
+          'left:calc(' + x + '% * .84 + 14px);bottom:11px;transform:translateX(-50%);' +
+          'opacity:' + (o.x.here ? '1' : '.42') + ';' +
+          'transition:left .6s cubic-bezier(.4,0,.2,1)">' +
+          avatar(o.x.id, ch, 24, mine) +
+          (o.x.finished ? '<div style="position:absolute;right:-2px;top:-2px;width:9px;height:9px;' +
+            'border-radius:50%;background:#7ed6b2;border:1.5px solid rgba(255,255,255,.8)"></div>' : '') +
+          '</div>';
       }).join("");
 
       var track = '<div style="position:relative;height:42px;margin:4px 0 2px">' +
