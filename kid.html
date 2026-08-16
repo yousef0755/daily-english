@@ -1850,7 +1850,26 @@ function renderRecite(){
     if(item.mean&&item.mean[k]){
       const mn=document.createElement("div");
       mn.className="meanbox";
-      mn.textContent=item.mean[k];
+      /* 老板 2026-08-16：解释也要能读出来。喇叭跟句子那个长一样，
+         孩子已经认得那个键了，不用再学一个新的。 */
+      const mtx=document.createElement("span");
+      mtx.style.cssText="flex:1";
+      mtx.textContent=item.mean[k];
+      const msp=document.createElement("button");
+      msp.className="rbtn inline listen"; msp.type="button";
+      msp.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" '+
+        'stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+
+        '<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>'+
+        '<path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+      msp.onclick=function(){
+        /* 解释是中文，sysSpeak 会按文字自动判成 zh-CN，不用额外指定。
+           （句子那个喇叭读的是原文，阿语课里就是阿语——两者本来就该不同。） */
+        if(typeof speakRoster==="function") speakRoster(item.mean[k]);
+      };
+      mn.style.display="flex";
+      mn.style.alignItems="center";
+      mn.style.gap="10px";
+      mn.appendChild(mtx); mn.appendChild(msp);
       d.appendChild(mn);
     }
     /* 老板 2026-08-15：「博远的古诗，让他每句念10遍」——
