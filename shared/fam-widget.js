@@ -120,6 +120,29 @@
     return true;
   }
 
+  /* 日期写成人话：今天 / 昨天 / 8-14 */
+  function niceDay(d) {
+    try {
+      var now = new Date(Date.now() + 4 * 3600 * 1000);   /* 迪拜 */
+      var t = now.toISOString().slice(0, 10);
+      var y = new Date(now - 86400000).toISOString().slice(0, 10);
+      if (d === t) return "今天";
+      if (d === y) return "昨天";
+      var p = d.split("-");
+      return p[1].replace(/^0/, "") + "-" + p[2];
+    } catch (e) { return d }
+  }
+
+  /* 点「回」：展开写字那块、收信人选好、光标放进去 */
+  function replyTo(id) {
+    var w = el("fwWrite"), sel = el("fwTo"), t = el("fwText");
+    if (!w || !sel || !t) return;
+    w.open = true;
+    sel.value = id;
+    t.focus();
+    t.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+
   async function loadSays() {
     try {
       var r = await fetch(API + "/fam/says?who=" + ME), j = await r.json();
@@ -127,12 +150,24 @@
       var box = el("fwSays");
       if (!j.inbox || !j.inbox.length) { box.style.display = "none"; return }
       box.style.display = "";
-      box.innerHTML = '<div style="font-weight:700;margin-bottom:7px;opacity:.85">家里人跟你说的话</div>' +
-        j.inbox.slice(0, 5).map(function (x) {
-          return '<div style="border-left:2px solid currentColor;opacity:.95;padding:2px 0 2px 10px;' +
-            'margin-bottom:8px"><div style="font-size:.76rem;opacity:.6">' + esc(x.fromName) + '　' +
-            esc(x.d) + '</div>' + esc(x.text) + '</div>';
-        }).join("");
+      box.innerHTML = j.inbox.slice(0, 5).map(function (x) {
+        return '<div style="display:grid;grid-template-columns:26px 1fr auto;gap:8px;' +
+          'align-items:start;padding:7px 0;border-top:1px solid rgba(128,128,128,.16)">' +
+          '<div style="width:24px;height:24px;border-radius:50%;display:flex;' +
+            'align-items:center;justify-content:center;font-size:.72rem;font-weight:700;' +
+            'background:rgba(128,128,128,.2)">' + esc(String(x.fromName).slice(0, 1)) + '</div>' +
+          '<div style="min-width:0">' +
+            '<div style="font-size:.74rem;opacity:.55">' + esc(x.fromName) + ' · ' +
+              niceDay(x.d) + ' ' + esc(x.at || "") + '</div>' +
+            '<div style="line-height:1.6">' + esc(x.text) + '</div></div>' +
+          '<button data-reply="' + esc(x.from) + '" style="align-self:center;padding:5px 12px;' +
+            'border-radius:999px;border:1px solid rgba(128,128,128,.45);background:transparent;' +
+            'color:inherit;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer">回</button>' +
+          '</div>';
+      }).join("");
+      [].forEach.call(box.querySelectorAll("[data-reply]"), function (b) {
+        b.onclick = function () { replyTo(b.dataset.reply) };
+      });
       if (j.unread) {
         fetch(API + "/fam/seen", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ who: ME }) }).catch(function () {});
@@ -170,7 +205,9 @@
       });
     } else if (s.mutual && s.mineName) {
       box.style.display = "";
-      box.innerHTML = '<div style="opacity:.85">这周的搭子是 <b>' + esc(s.mineName) + '</b>。</div>';
+      box.innerHTML = '<div style="display:inline-flex;align-items:center;gap:6px;' +
+        'padding:3px 10px;border-radius:999px;border:1px solid rgba(128,128,128,.35);' +
+        'font-size:.82rem;opacity:.85">本周搭子 <b>' + esc(s.mineName) + '</b></div>';
     } else if (s.waiting && s.mineName) {
       box.style.display = "";
       box.innerHTML = '<div style="opacity:.85">你约了 <b>' + esc(s.mineName) +
