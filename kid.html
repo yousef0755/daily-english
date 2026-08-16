@@ -752,6 +752,29 @@ nav button.on span{filter:none;transform:translateY(-1px)}
         <button class="main" id="catSaySave" style="margin-top:9px">交给猫咪</button>
         <div class="tip" id="catSayDone" style="margin-top:7px"></div>
       </div>
+      <!-- 心愿榜（老板 2026-08-16）：日记写完之后，跟猫说点什么 -->
+      <div id="wishBox" style="display:none;margin-top:18px;padding:15px;
+        border:1px solid rgba(255,212,121,.3);border-radius:15px;
+        background:rgba(255,212,121,.05)">
+        <div style="font-size:.95rem;color:var(--gold);font-weight:700;margin-bottom:3px">
+          想跟猫咪说点什么</div>
+        <div class="tip" style="text-align:left;margin:0 0 11px">
+          点一个，Snowy 和哆米会照着回你。</div>
+        <div id="wishBtns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+        <div id="wishForm" style="display:none;margin-top:11px">
+          <textarea id="wishText" rows="2" placeholder=""></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="main" id="wishSend" style="flex:2">说给猫咪听</button>
+            <button class="main ghost" id="wishCancel" style="flex:1">算了</button>
+          </div>
+        </div>
+        <div class="tip" id="wishSaid" style="margin-top:9px"></div>
+        <div class="tip" style="margin-top:10px;padding-top:9px;
+          border-top:1px dashed var(--line);font-size:.76rem;line-height:1.8;text-align:left">
+          说明一下：你在这儿写的话，<b>爸爸看得到</b>。他想知道你过得怎么样。
+          不想让他看的，就先别写在这儿——你可以直接去找他说。
+        </div>
+      </div>
     </div>
     <div class="card">
       <h2>写过的日记</h2>
@@ -2174,6 +2197,7 @@ function renderDiary(){
   const doneToday=(D.diaries||[]).some(x=>x.d===todayKey());
   document.getElementById("diaryDone").textContent=doneToday?"今天的日记已经写好啦 ✓":"";
   try{ renderCatSay() }catch(e){}
+  try{ renderWish() }catch(e){}
 }
 
 document.getElementById("saveDiary").onclick=function(){
@@ -3624,6 +3648,107 @@ function poemAdvance(){
 function idKey(idx){ return todayKey()+"_id_"+idx }
 function idGot(idx){ D.idiomSent=D.idiomSent||{}; return D.idiomSent[idKey(idx)]||"" }
 function idSet(idx,t){ D.idiomSent=D.idiomSent||{}; D.idiomSent[idKey(idx)]=t; save() }
+
+/* ═══ 心愿榜（老板 2026-08-16）═══
+   四个按键、四种路子。他点哪个，猫就按哪个路子回。
+
+   **页面上明写着爸爸看得到。** 老板要看，我照办；
+   但瞒着孩子不行——他知道了顶多少说两句，
+   被瞒着哪天发现了，他就再也不信这个网站了。 */
+const WISHES=[
+ {k:"praise", t:"夸夸我",         ph:"今天你做成了什么？",
+  cat:[["Snowy","这个我看见了。你比昨天强。"],["哆米","行啊你。"]]},
+ {k:"talk",   t:"陪我说说话",     ph:"想说什么都行",
+  cat:[["Snowy","我在呢，你说。"],["哆米","我不打岔，你讲。"]]},
+ {k:"sad",    t:"有件不开心的事", ph:"是什么事让你不高兴了？",
+  cat:[["Snowy","这事儿难受，我懂。"],["哆米","谁惹的？我记住了。"],
+       ["Snowy","不用急着好起来，慢慢来。"]]},
+ {k:"wish",   t:"许个愿",         ph:"你想要什么？",
+  cat:[["哆米","记下了。"],["Snowy","这个我帮你转告。"]]},
+];
+let wishPick=null;
+function renderWish(){
+  const box=document.getElementById("wishBox"); if(!box)return;
+  /* 跟猫咪留言那块同一个条件：全学完 + 日记写完 */
+  const allDone=(typeof diaryUnlocked==="function") && diaryUnlocked();
+  const diaryDone=(D.diaries||[]).some(function(x){return x.d===todayKey()});
+  box.style.display=(allDone&&diaryDone)?"block":"none";
+  const host=document.getElementById("wishBtns");
+  if(host && !host.children.length){
+    WISHES.forEach(function(w){
+      const b=document.createElement("button");
+      b.className="main ghost"; b.type="button";
+      b.style.cssText="padding:12px 8px;font-size:.92rem";
+      b.textContent=w.t;
+      b.onclick=function(){
+        wishPick=w;
+        document.getElementById("wishForm").style.display="block";
+        const ta=document.getElementById("wishText");
+        ta.placeholder=w.ph; ta.value=""; ta.focus();
+        [...host.children].forEach(function(x){ x.classList.remove("on") });
+        b.classList.add("on");
+      };
+      host.appendChild(b);
+    });
+  }
+  const said=(D.wishSaid||{})[todayKey()]||0;
+  const tip=document.getElementById("wishSaid");
+  if(tip) tip.textContent = said ? ("今天说了 "+said+" 次。猫咪都记着呢。") : "";
+}
+(function(){
+  const send=document.getElementById("wishSend");
+  if(!send)return;
+  document.getElementById("wishCancel").onclick=function(){
+    document.getElementById("wishForm").style.display="none";
+    wishPick=null;
+    [...document.getElementById("wishBtns").children].forEach(function(x){x.classList.remove("on")});
+  };
+  send.onclick=async function(){
+    if(!wishPick){ toast("先点上面一个"); return }
+    const t=(document.getElementById("wishText").value||"").trim();
+    this.disabled=true;
+    try{
+      await fetch("https://su-family.yousef-abud.workers.dev/wish/put",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({who:"boyuan", kind:wishPick.k, text:t})});
+    }catch(e){
+      /* 没网也别让他白说一场——存本机，下次打开补送 */
+      try{
+        const q=JSON.parse(localStorage.getItem("wishQueue")||"[]");
+        q.push({kind:wishPick.k,text:t}); localStorage.setItem("wishQueue",JSON.stringify(q));
+      }catch(e2){}
+    }
+    D.wishSaid=D.wishSaid||{};
+    D.wishSaid[todayKey()]=(D.wishSaid[todayKey()]||0)+1;
+    save();
+    /* 猫当场回一句，别让他说完没人应 */
+    const lines=wishPick.cat;
+    if(typeof catSay==="function"){
+      lines.forEach(function(l,i){ setTimeout(function(){ catSay(l[0], l[1]) }, i*1900) });
+    }
+    document.getElementById("wishForm").style.display="none";
+    [...document.getElementById("wishBtns").children].forEach(function(x){x.classList.remove("on")});
+    wishPick=null;
+    renderWish();
+    toast("猫咪听见了");
+    this.disabled=false;
+  };
+  /* 上次没网存下的，打开就补送 */
+  (async function(){
+    let q=[];
+    try{ q=JSON.parse(localStorage.getItem("wishQueue")||"[]") }catch(e){}
+    if(!q.length)return;
+    const left=[];
+    for(const it of q){
+      try{
+        await fetch("https://su-family.yousef-abud.workers.dev/wish/put",{
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({who:"boyuan",kind:it.kind,text:it.text})});
+      }catch(e){ left.push(it) }
+    }
+    try{ localStorage.setItem("wishQueue",JSON.stringify(left)) }catch(e){}
+  })();
+})();
 </script>
 <script src="./shared/fam-widget.js?v=9bd196e0" data-me="boyuan"></script>
 </body>
