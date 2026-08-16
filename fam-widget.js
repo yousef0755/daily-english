@@ -51,10 +51,11 @@
   }
 
   var HTML =
-    '<div id="fwBox" style="display:none;border:1px solid rgba(128,128,128,.28);border-radius:14px;' +
+    '<div id="fwBox" style="border:1px solid rgba(128,128,128,.28);border-radius:14px;' +
     'padding:14px 16px;margin:0 0 16px;font-size:.95rem;line-height:1.75">' +
-      '<div id="fwInvite" style="display:none;margin-bottom:12px"></div>' +
+      '<div id="fwInvite" style="margin-bottom:12px"></div>' +
       '<div id="fwSays" style="display:none;margin-bottom:12px"></div>' +
+      '<div id="fwRank" style="display:none;margin-bottom:12px"></div>' +
       '<details id="fwWrite">' +
         '<summary style="cursor:pointer;font-weight:700;opacity:.85">跟家里人说句话</summary>' +
         '<div style="margin-top:9px">' +
@@ -126,7 +127,6 @@
             'margin-bottom:8px"><div style="font-size:.76rem;opacity:.6">' + esc(x.fromName) + '　' +
             esc(x.d) + '</div>' + esc(x.text) + '</div>';
         }).join("");
-      el("fwBox").style.display = "";
       if (j.unread) {
         fetch(API + "/fam/seen", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ who: ME }) }).catch(function () {});
@@ -139,7 +139,6 @@
     if (!s || !s.ok) { box.style.display = "none"; return }
     if (s.incoming && s.incoming.length) {
       box.style.display = "";
-      el("fwBox").style.display = "";
       box.innerHTML = s.incoming.map(function (x) {
         return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;' +
           'padding:9px 11px;border:1px solid rgba(128,128,128,.35);border-radius:11px;margin-bottom:7px">' +
@@ -165,15 +164,42 @@
       });
     } else if (s.mutual && s.mineName) {
       box.style.display = "";
-      el("fwBox").style.display = "";
       box.innerHTML = '<div style="opacity:.85">这周的搭子是 <b>' + esc(s.mineName) + '</b>。</div>';
     } else if (s.waiting && s.mineName) {
       box.style.display = "";
-      el("fwBox").style.display = "";
       box.innerHTML = '<div style="opacity:.85">你约了 <b>' + esc(s.mineName) +
         '</b>，还在等 TA 答应。</div>';
     } else {
-      box.style.display = "none";
+      /* 谁也没约谁的时候，给一个主动约人的入口。
+         老板 2026-08-16：「在主页也可以直接邀请某人做自己的搭子」——
+         原来只能被动等，想约人还得跑去一家人那页。 */
+      box.style.display = "";
+      box.innerHTML = '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+        '<span style="opacity:.85">这周还没有搭子。约一个：</span>' +
+        '<select id="fwAsk" style="flex:1;min-width:120px;padding:7px 9px;border-radius:10px;' +
+        'border:1px solid rgba(128,128,128,.35);background:transparent;color:inherit;' +
+        'font-family:inherit;font-size:.9rem"></select>' +
+        '<button id="fwAskGo" style="padding:7px 15px;border-radius:999px;' +
+        'border:1px solid currentColor;background:transparent;color:inherit;' +
+        'font-family:inherit;font-weight:700;cursor:pointer">约 TA</button></div>';
+      var sel2 = el("fwAsk");
+      Object.keys(NAMES).forEach(function (id) {
+        if (id === ME) return;
+        var o = document.createElement("option");
+        o.value = id; o.textContent = NAMES[id];
+        sel2.appendChild(o);
+      });
+      el("fwAskGo").onclick = async function () {
+        var b2 = this; b2.disabled = true; b2.textContent = "…";
+        try {
+          var r = await fetch(API + "/fam/pair", { method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ who: ME, partner: sel2.value }) });
+          var j = await r.json();
+          if (j.ok && j.state) paintInvite(j.state);
+          else { b2.disabled = false; b2.textContent = "约 TA" }
+        } catch (e) { b2.disabled = false; b2.textContent = "没网，等会儿再点" }
+      };
     }
   }
 
@@ -184,6 +210,72 @@
     } catch (e) {}
   }
 
+
+  /* ── 两张榜（老板 2026-08-16：「让大家都有危机感」）──
+     只按「来没来 + 连着几天」排，**不按学了多少**。
+     这是老板早就定下的规矩：按数量比，博远看一眼就不干了。 */
+  function medal(i) { return ["①", "②", "③", "④", "⑤", "⑥"][i] || (i + 1) }
+  async function loadRank() {
+    try {
+      var r = await fetch(API + "/fam/board"), b = await r.json();
+      var p = await fetch(API + "/fam/pairs"), pr = await p.json();
+      var box = el("fwRank");
+      if (!b || !b.people) return;
+
+      var solo = b.people.slice().sort(function (a, c) {
+        return (c.streak || 0) - (a.streak || 0) ||
+               ((c.here ? 1 : 0) - (a.here ? 1 : 0));
+      });
+      var me = solo.findIndex(function (x) { return x.id === ME });
+      var rows = solo.map(function (x, i) {
+        var mine = x.id === ME;
+        return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;' +
+          (mine ? 'font-weight:800' : 'opacity:.8') + '">' +
+          '<span style="width:1.4em">' + medal(i) + '</span>' +
+          '<span style="flex:1">' + esc(x.name) + (mine ? '（你）' : '') + '</span>' +
+          '<span>连着 ' + (x.streak || 0) + ' 天</span>' +
+          '<span style="width:2.6em;text-align:right;opacity:.75">' +
+          (x.here ? (x.finished ? '已完成' : '在学') : '还没来') + '</span></div>';
+      }).join("");
+
+      /* 危机感：差一天就被谁追上/能超过谁 */
+      var warn = "";
+      if (me >= 0) {
+        var mineRow = solo[me], up = solo[me - 1], down = solo[me + 1];
+        if (up) {
+          var gap = (up.streak || 0) - (mineRow.streak || 0);
+          warn += '再连 ' + (gap + 1) + ' 天就能超过 ' + esc(up.name) + '。';
+        }
+        if (down && (mineRow.streak || 0) - (down.streak || 0) <= 1) {
+          warn += (warn ? ' ' : '') + esc(down.name) + ' 就在你后面，今天不来就被超过了。';
+        }
+        if (!mineRow.here) warn += (warn ? ' ' : '') + '你今天还没来。';
+      }
+
+      var pairRows = "";
+      if (pr && pr.pairs && pr.pairs.length) {
+        /* weekDays = 两个人都来了的天数。days 是七天的明细，不是数字。 */
+        var ps = pr.pairs.slice().sort(function (a, c) {
+          return (c.weekDays || 0) - (a.weekDays || 0) });
+        pairRows = '<div style="margin-top:10px;font-weight:700;opacity:.85">搭子榜</div>' +
+          ps.map(function (x, i) {
+            var mine = x.a === ME || x.b === ME;
+            return '<div style="display:flex;gap:8px;padding:3px 0;' +
+              (mine ? 'font-weight:800' : 'opacity:.8') + '">' +
+              '<span style="width:1.4em">' + medal(i) + '</span>' +
+              '<span style="flex:1">' + esc(x.aName) + ' + ' + esc(x.bName) + '</span>' +
+              '<span>一起 ' + (x.weekDays || 0) + ' 天</span></div>';
+          }).join("");
+      }
+
+      box.style.display = "";
+      box.innerHTML = '<div style="font-weight:700;margin-bottom:6px;opacity:.85">一家人排行</div>' +
+        rows + pairRows +
+        (warn ? '<div style="margin-top:8px;padding:7px 10px;border-radius:9px;' +
+          'border:1px dashed rgba(128,128,128,.45);font-size:.88rem">' + warn + '</div>' : "");
+    } catch (e) {}
+  }
+
   function start() {
     if (!mount()) return;
     qFlush().then(function (n) {
@@ -191,6 +283,7 @@
       loadSays();
     });
     loadInvites();
+    loadRank();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
