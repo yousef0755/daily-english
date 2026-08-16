@@ -1822,8 +1822,11 @@ function renderRecite(){
   }
   /* 古兰经每天只摆两句（老板 2026-08-16）。别的门照旧全摆。 */
   let __show = item.lines.map(function(_,i){ return i });
-  if((rSub==="quran"||rSub==="poem") && typeof quranToday==="function"){
-    const today = rSub==="quran" ? quranToday() : poemToday();
+  /* 老板 2026-08-16：「古诗把所有的内容都给他打开，这样如果他想多背也可以」
+     ——所以古诗整首摆出来，只有古兰经还是每天两句。
+     每天两句那条规矩没变，只是变成了**底线不是上限**。 */
+  if(rSub==="quran" && typeof quranToday==="function"){
+    const today = quranToday();
     const t=today.filter(function(x){ return x.idx===rIdx });
     __show = t.map(function(x){ return x.li });
     if(!__show.length){
@@ -3544,9 +3547,10 @@ function bhCheckDay(sub){
     const t=quranToday();
     return t.length && t.every(function(x){ return bhGot("quran",x.idx,x.li) });
   }
-  if(sub==="poem" && typeof poemToday==="function"){
-    const t=poemToday();
-    return t.length && t.every(function(x){ return bhGot("poem",x.idx,x.li) });
+  if(sub==="poem"){
+    /* 古诗整首都开着，他爱背哪句背哪句——今天标够两句就算过。
+       不再要求"必须是指定的那两句"。 */
+    return poemMarkedToday() >= 2;
   }
   return false;
 }
@@ -3568,11 +3572,21 @@ function poemPos(){
   return D.poemPos;
 }
 function poemToday(){ return poemFlat().slice(poemPos(), poemPos()+2) }
+/* 今天一共标了几句「已背会」 */
+function poemMarkedToday(){
+  D.beihui=D.beihui||{};
+  const pre=todayKey()+"_bh_poem_";
+  let n=0;
+  for(const k in D.beihui){ if(k.indexOf(pre)===0) n++ }
+  return n;
+}
 function poemAdvance(){
-  const t=poemToday();
-  if(t.length && t.every(function(x){ return bhGot("poem",x.idx,x.li) })){
-    D.poemPos=poemPos()+2; save(); return true;
-  }
+  /* 他今天标了几句，指针就往前走几句——多背了明天就不再让他背已经会的。
+     从当前位置往后数，连着标了的都算数。 */
+  const f=poemFlat();
+  let p=poemPos(), moved=0;
+  while(p<f.length && bhGot("poem", f[p].idx, f[p].li)){ p++; moved++ }
+  if(moved){ D.poemPos=p; save(); return true }
   return false;
 }
 
