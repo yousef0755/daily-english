@@ -537,6 +537,18 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 /* ── 两只猫趴在底栏上（老板 2026-08-15）──
    跟底栏同宽同位，层级 49 < 底栏的 50，所以下半身被栏杆挡住，
    看着就是扒着栏杆。眨眼 = 睁眼那组和闭眼那组交替闪一下，两只错开节奏。 */
+/* 底框那两只也要能说话（老板 2026-08-16：「让不同的猫来参与到和他的对话中」）。
+   它们不抢戏：他埋头做题的时候底下冒一句，说完自己淡出去。 */
+.navsay{position:fixed;z-index:50;left:50%;transform:translateX(-50%);
+  bottom:calc(env(safe-area-inset-bottom,0px) + 74px);
+  max-width:min(320px,86vw);padding:8px 13px;border-radius:14px;
+  background:rgba(16,36,64,.94);border:1px solid rgba(255,212,121,.34);
+  color:var(--cream);font-size:.84rem;line-height:1.6;text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s ease}
+.navsay.on{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.navsay b{color:var(--gold)}
+@media (prefers-reduced-motion:reduce){.navsay{transition:none}}
 .navcats{position:fixed;z-index:49;left:50%;transform:translateX(-50%);
   width:min(calc(100% - 24px),720px);bottom:max(10px,env(safe-area-inset-bottom));
   height:var(--navh,56px);pointer-events:none}
@@ -1043,6 +1055,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
 </main>
 
+<div class="navsay" id="navSay" aria-live="polite"></div>
 <div class="navcats" aria-hidden="true"><svg class="navcat left" viewBox="0 0 200 150" aria-hidden="true">
   <defs><radialGradient id="gnavS" cx="42%" cy="34%" r="72%">
     <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e9e3d8"/>
@@ -1721,9 +1734,16 @@ function treeTalk(){
     return [["Snowy","这棵树是博远自己种出来的。"],
             ["哆米","顶上那颗星，我看着他挣的。"]];
   }
-  return [["Snowy","博远来了，我们接着浇。"],
-          ["哆米","浇就浇。别停。"],
-          ["Snowy","你多来一天，它就多长一点。"]];
+  /* 浇水这两只也要夸他（老板 2026-08-16：「让四只猫咪都夸夸他」）。
+     夸的是真事，praiseLine 从他今天做成的事里取。 */
+  const p1=(typeof praiseLine==="function")?praiseLine("Snowy",2):null;
+  const p2=(typeof praiseLine==="function")?praiseLine("哆米",2):null;
+  const base=[["Snowy","博远来了，我们接着浇。"],
+              ["哆米","浇就浇。别停。"],
+              ["Snowy","你多来一天，它就多长一点。"]];
+  if(p1) base.push(["Snowy",p1]);
+  if(p2) base.push(["哆米",p2]);
+  return base;
 }
 /* 点猫换话。跟主页一样：戳了必须有反应，不然它就是张图。
    **不给星**——不然又成了刷分的路子。 */
@@ -3058,6 +3078,86 @@ function strokeFollow(ch){
 
 /* ═══ Snowy（白猫）和哆米（黑猫）来鼓励他 ═══
    老板 09:07 交代。两只都是家里真的猫，说话要像猫，不讲大道理。 */
+
+/* ── 夸他（老板 2026-08-16 转达：「他想让猫多夸夸他」）──
+   夸的必须是真事。孩子分得出真夸假夸——满屏「你真棒」只会让他觉得敷衍。
+   这里把他今天真做成的事捞出来，猫照着夸。 */
+function praiseFacts(){
+  const f=[], tk=todayKey();
+  try{
+    /* 今天过了哪几门 */
+    const done=DIARY_SUBS.filter(function(x){ return subDoneToday(x[0]) });
+    if(done.length) f.push({k:"subs", n:done.length, last:done[done.length-1][1]});
+    /* 背会几句 */
+    let n=0; const pre=tk+"_bh_";
+    for(const k in (D.beihui||{})) if(k.indexOf(pre)===0) n++;
+    if(n) f.push({k:"lines", n:n});
+    /* 成语造的句子——这是他自己写出来的话，最值得夸 */
+    if(typeof idiomToday==="function" && typeof idGot==="function"){
+      const st=idiomToday().map(function(i){ return (idGot(i)||"").trim() }).filter(function(x){return x.length>=4});
+      if(st.length) f.push({k:"idiom", n:st.length, t:st[st.length-1]});
+    }
+    /* 生字写会几个 */
+    if(typeof todayHanzi==="function"){
+      const hz=todayHanzi().filter(function(h){ return (D.hanziDone||{})[tk+"_"+h.z] });
+      if(hz.length) f.push({k:"hanzi", n:hz.length, t:hz[hz.length-1].z});
+    }
+    /* 坚持了几天 */
+    const kp=(typeof keepScore==="function")?keepScore():0;
+    if(kp>=2) f.push({k:"keep", n:kp});
+  }catch(e){}
+  return f;
+}
+/* 一句具体的夸奖。没有真事可夸就返回空——宁可不说，也别说假话。 */
+function praiseLine(who, seat){
+  const f=praiseFacts();
+  if(!f.length) return null;
+  /* 按"哪个位置的猫在说"错开，否则六只同一时刻夸同一件事，
+     像六个喇叭放同一段录音。 */
+  const off=(seat|0) + (who==="Snowy" ? 0 : 1);
+  const pick=f[(Math.floor(Date.now()/17000)+off)%f.length];
+  const warm=(who==="Snowy");
+  if(pick.k==="idiom") return warm
+    ? "你那句「"+pick.t+"」，是你自己想出来的。这个厉害。"
+    : "「"+pick.t+"」——这句是你自己编的，不赖。";
+  if(pick.k==="hanzi") return warm
+    ? "「"+pick.t+"」这个字你写会了，笔画不少呢。"
+    : "「"+pick.t+"」写会了。记住了就是你的。";
+  if(pick.k==="lines") return warm
+    ? "今天你背会了 "+pick.n+" 句。昨天可没有这么多。"
+    : "背会 "+pick.n+" 句。行。";
+  if(pick.k==="subs") return warm
+    ? "「"+pick.last+"」你过了。一门一门啃下来的。"
+    : "「"+pick.last+"」过了。下一门。";
+  if(pick.k==="keep") return warm
+    ? "你连着来了 "+pick.n+" 天。这个比背几句难多了。"
+    : "连着 "+pick.n+" 天。坚持这事儿，比聪明值钱。";
+  return null;
+}
+/* 他在心愿墙上写的话，猫要认领——老板 2026-08-16：
+   「让猫咪说看到他的留言了」。他 18:05 写了「我是苏博远」，
+   一个十岁孩子跟猫做自我介绍，这句不能没人接。 */
+var MY_WISH=null;
+function loadMyWish(){
+  try{
+    fetch("https://su-family.yousef-abud.workers.dev/wish/list?who=boyuan")
+      .then(function(r){return r.json()})
+      .then(function(j){
+        const it=(j.items||[]).filter(function(x){ return (x.text||"").trim() });
+        if(it.length) MY_WISH=it[it.length-1];
+      }).catch(function(){});
+  }catch(e){}
+}
+function wishEcho(who){
+  if(!MY_WISH) return null;
+  const t=String(MY_WISH.text||"").trim().slice(0,40);
+  if(!t) return null;
+  return (who==="Snowy")
+    ? "你跟我说的那句「"+t+"」，我听见了。我记住了。"
+    : "「"+t+"」——收到了。我记性好着呢。";
+}
+
+
 const CATLINES={
   start:[["Snowy","今天也来了。坐下吧，我在旁边。"],
          ["Snowy","位置我给你占着呢。"],
@@ -3115,6 +3215,41 @@ function catsBoth(key){
   sayEl.innerHTML=pair.map(function(x){return '<b>'+x[0]+'</b>　'+x[1]}).join('<br>');
 }
 /* 隔了几天回来 */
+
+/* ── 底框那两只开口（老板 2026-08-16：「让不同的猫来参与到和他的对话中」）──
+   六个猫位轮着说话：主页两只、浇水两只、底框两只。
+   底框这两只挑他正在做题、滑到下半截的时候说一句，说完自己淡出去。
+   **不打断他**——只让他知道有猫在旁边看着。 */
+let navSayT=null, navSayLast=0;
+function navCatSay(){
+  const el=document.getElementById("navSay"); if(!el)return;
+  if(Date.now()-navSayLast < 95000) return;        /* 别唠叨，一分半以上才说一次 */
+  const who=(Math.floor(Date.now()/60000)%2) ? "哆米" : "Snowy";
+  let txt=(typeof praiseLine==="function") ? praiseLine(who,4) : null;
+  if(!txt){
+    txt = (who==="Snowy")
+      ? ["我在下面看着呢。","慢慢来，不着急。","这一段有点难，正常的。"][Math.floor(Date.now()/60000)%3]
+      : ["我趴这儿。","接着做。","不用管我。"][Math.floor(Date.now()/60000)%3];
+  }
+  navSayLast=Date.now();
+  el.innerHTML='<b>'+who+'</b>　'+txt;
+  el.classList.add("on");
+  clearTimeout(navSayT);
+  navSayT=setTimeout(function(){ el.classList.remove("on") }, 6500);
+}
+/* 他在页面下半截待着的时候才说 —— 那会儿他多半在做题 */
+(function(){
+  let t=null;
+  window.addEventListener("scroll", function(){
+    clearTimeout(t);
+    t=setTimeout(function(){
+      const de=document.documentElement;
+      const deep=(window.scrollY+innerHeight) > (de.scrollHeight*0.45);
+      if(deep) try{ navCatSay() }catch(e){}
+    }, 900);
+  }, {passive:true});
+})();
+
 function catsMissYou(){
   const last=D.lastVisit||"";
   const t=todayKey();
@@ -3170,6 +3305,14 @@ function renderCats(where){
   const mine=(typeof catSayPending==="function")?catSayPending():null;
   if(mine && where!=="done" && Math.floor(Date.now()/20000)%3===0){
     pick=[(D.walker||"Snowy"), "你昨天让我说的——" + mine.t];
+  }
+  /* 老板 2026-08-16：「让猫咪说看到他的留言了。让四只猫咪都夸夸他」
+     顺序：先认领他写的话（那是他主动开的口），再夸他做成的事。 */
+  const rot=Math.floor(Date.now()/20000)%4;
+  if(rot===1){
+    const w=wishEcho(pick[0]); if(w) pick=[pick[0], w];
+  }else if(rot===2 || rot===3){
+    const pr=praiseLine(pick[0], 0); if(pr) pick=[pick[0], pr];
   }
   const who=pick[0], say=pick[1].replace("__D__", d);
   const wrap=document.getElementById("catsWrap");
@@ -3497,7 +3640,7 @@ async function renderNag(){
 }
 /* 开页就把这一块画出来，并把今天的进度同步给 Service Worker */
 (function(){
-  function boot(){ try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} try{renderReview()}catch(e){} try{renderTeach()}catch(e){} }
+  function boot(){ try{loadMyWish()}catch(e){} try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} try{renderReview()}catch(e){} try{renderTeach()}catch(e){} }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
   else boot();
 })();
@@ -4588,6 +4731,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=102a4a2f" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=2a27da48" data-me="boyuan"></script>
 </body>
 </html>
