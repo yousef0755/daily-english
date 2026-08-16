@@ -101,6 +101,26 @@ header .pill.on{
 .famlink{position:sticky;top:8px;z-index:60}
 @supports(padding:max(0px)){ .famlink{top:max(8px, env(safe-area-inset-top))} }
 </style>
+<script>
+/* 本机预览一律不往共用的榜上报打卡。
+   我在这台机器上开着页面调试，就等于替家里人打了卡——
+   老板 2026-08-16 就是这么看到「博远今天都没做却显示完成」的。
+   包一层 fetch 最稳：各页的上报代码写法不一样，逐个去改我一定会漏。 */
+(function(){
+  if(!/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)
+     && location.protocol!=="file:") return;
+  var real=window.fetch;
+  window.fetch=function(u,o){
+    var s=String((u&&u.url)||u||"");
+    if(/\/fam\/(ping|import)/.test(s)){
+      console.info("[本机预览] 拦下一次打卡上报：",s);
+      return Promise.resolve(new Response('{"ok":true,"local":true}',
+        {status:200,headers:{"Content-Type":"application/json"}}));
+    }
+    return real.apply(this,arguments);
+  };
+})();
+</script>
 </head>
 <body>
 
