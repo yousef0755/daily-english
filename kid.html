@@ -2896,6 +2896,9 @@ function tcEnd(){
 (function(){
   var WHO="boyuan", KEY="studyMins_"+WHO;
   var lastAct=Date.now(), sec=0, sentAt=0;
+  /* 本机预览不往共用的榜上报——我调试的时候页面一直开着，
+     53 分钟全记到孩子头上去了，老板一眼看出「他今天没做怎么显示完成」。 */
+  var LOCAL=/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)||location.protocol==="file:";
   function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
   function load(){try{var o=JSON.parse(localStorage.getItem(KEY)||"{}");return (o.d===today())?(o.s|0):0}catch(e){return 0}}
   function save(){try{localStorage.setItem(KEY,JSON.stringify({d:today(),s:sec}))}catch(e){}}
@@ -2904,12 +2907,19 @@ function tcEnd(){
     document.addEventListener(ev,function(){lastAct=Date.now()},{passive:true});
   });
   function report(){
+    if(LOCAL)return;                                  /* 本机调试不上报 */
     var mins=Math.floor(sec/60);
     fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({who:WHO,mins:mins,done:(typeof walkDone==='function'?walkDone():0),total:(typeof DIARY_SUBS!=='undefined'?DIARY_SUBS.length:6),started:sec>20})
     }).catch(function(){});
   }
+  var curDay=today();
   setInterval(function(){
+    /* 过了午夜要归零。原来只在开页面那一下对日期，
+       页面开着过夜的话，昨天攒的秒数会被盖上今天的日期照样报出去——
+       孩子第二天一睁眼就"已完成"，这道门等于没有。 */
+    var d=today();
+    if(d!==curDay){ curDay=d; sec=0; sentAt=0; save(); }
     if(document.hidden)return;                       /* 切到后台不算 */
     if(Date.now()-lastAct>90000)return;              /* 九十秒没动静，停表 */
     sec++; save();
