@@ -605,7 +605,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   };
 })();
 </script>
-<script>window.__BUILD__="505d292f09"</script>
+<script>window.__BUILD__="498317e655"</script>
 </head>
 <body>
 
@@ -2265,7 +2265,7 @@ function tClean(){
   tws=null;tmic=null;tPlay=null;tProc=null;
 }
 function tEnd(){
-  tsay("今天够了。明天再来找我。");
+  tsay("今天够了。明天"+((typeof todayCat==="function")?(TCATS[(TCATS.indexOf(todayCat())+1)%2].name):"我")+"来陪你。");
   try{tws&&tws.close()}catch(e){}
   if(tStream){tStream.getTracks().forEach(function(x){x.stop()});tStream=null}
   tClean();
@@ -4597,6 +4597,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=505d292f" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=498317e6" data-me="boyuan"></script>
 </body>
 </html>
