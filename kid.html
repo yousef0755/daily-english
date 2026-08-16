@@ -281,6 +281,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 .rf-head{font-size:.72rem;letter-spacing:.18em;color:var(--muted);margin-bottom:8px}
 .rf-grid{display:grid;grid-template-columns:minmax(0,.96fr) minmax(0,1.04fr);
   gap:6px;align-items:center}
+.rf-tree{align-self:end}
 .rf-tree svg{width:100%;height:auto;display:block;overflow:visible}
 .rf-water{margin-top:8px;text-align:center;font-size:.74rem;color:var(--muted)}
 
@@ -318,6 +319,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   transition:opacity .55s ease,transform .7s cubic-bezier(.2,.9,.3,1)}
 .tpart.on{opacity:1;transform:scale(1)}
 .tfruit,.tstar{animation:tpop 3.4s ease-in-out infinite}
+.tseedwet{animation:tpop 2.8s ease-in-out infinite}
 @keyframes tpop{0%,100%{opacity:.85}50%{opacity:1}}
 
 /* 浇水：壶往树那边一倾，水滴落下去 */
@@ -880,21 +882,36 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
         <g id="treeG">
           <path d="M158 227 q42 -15 84 0 z" fill="#3d3227"/>
-          <!-- 五段一起在，靠 JS 决定露到第几段 -->
+          <!-- 六段一起在，靠 JS 决定露到第几段 -->
+          <!-- 第 1 档「种子」：埋在土里还没发芽。
+               不能画成一片空土——他要看六天，得看得出来底下有东西在憋着。 -->
           <g class="tpart" data-min="1" data-max="1">
+            <path d="M186 227 q14 -9 28 0 z" fill="#4a3c2d"/>
+            <ellipse cx="200" cy="217" rx="11" ry="13.5" fill="#c9a56f"/>
+            <ellipse cx="200" cy="217" rx="11" ry="13.5" fill="none"
+              stroke="#a8854f" stroke-width="1.5"/>
+            <path d="M200 206 q-3.5 6 0 11 q3.5 6 0 11" fill="none" stroke="#8a6b3d"
+              stroke-width="1.6" stroke-linecap="round"/>
+            <g class="tseedwet">
+              <circle cx="188" cy="224" r="1.8" fill="#a8e4f7" opacity=".55"/>
+              <circle cx="213" cy="223" r="1.5" fill="#a8e4f7" opacity=".45"/>
+              <circle cx="200" cy="232" r="1.4" fill="#a8e4f7" opacity=".4"/>
+            </g>
+          </g>
+          <g class="tpart" data-min="2" data-max="2">
             <path d="M200 227 L200 197" stroke="#6d5b45" stroke-width="5"
               stroke-linecap="round" fill="none"/>
             <path d="M200 201 q-19 -9 -22 -25 q19 -2 24 20 z" fill="#6cc99f"/>
             <path d="M200 201 q19 -9 22 -25 q-19 -2 -24 20 z" fill="#7fe0c0"/>
           </g>
-          <g class="tpart" data-min="2">
+          <g class="tpart" data-min="3">
             <path d="M200 227 L200 156" stroke="#6d5b45" stroke-width="9"
               stroke-linecap="round" fill="none"/>
             <circle cx="200" cy="140" r="30" fill="#5fbc93"/>
             <circle cx="184" cy="150" r="20" fill="#6cc99f"/>
             <circle cx="216" cy="150" r="20" fill="#7fe0c0"/>
           </g>
-          <g class="tpart" data-min="3">
+          <g class="tpart" data-min="4">
             <path d="M200 227 L200 138" stroke="#6d5b45" stroke-width="13"
               stroke-linecap="round" fill="none"/>
             <path d="M200 176 L172 154 M200 168 L230 148" stroke="#6d5b45"
@@ -904,7 +921,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
             <circle cx="232" cy="138" r="27" fill="#6cc99f"/>
             <circle cx="200" cy="146" r="26" fill="#7fe0c0"/>
           </g>
-          <g class="tpart" data-min="4">
+          <g class="tpart" data-min="5">
             <circle cx="154" cy="120" r="21" fill="#5fbc93"/>
             <circle cx="246" cy="118" r="22" fill="#6cc99f"/>
             <circle cx="200" cy="88" r="27" fill="#7fe0c0"/>
@@ -915,7 +932,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
               <circle cx="156" cy="104" r="4.5" fill="#ffd479"/>
             </g>
           </g>
-          <g class="tpart" data-min="5">
+          <g class="tpart" data-min="6">
             <circle cx="140" cy="98" r="17" fill="#54ad86"/>
             <circle cx="260" cy="96" r="18" fill="#5fbc93"/>
             <circle cx="200" cy="62" r="22" fill="#7fe0c0"/>
@@ -1592,13 +1609,16 @@ function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
    不看攒了多少星，这跟他给一家人排行榜定的是同一条规矩：
    只看来没来、连着几天，不比谁做得多——比数量的话，落后那个直接不玩了。
    而且星可以突击（周末闷头刷一天），天数突击不了，只能一天一天过。
-   老板 8-16 还说了「不要涨的太快」：50 天才到顶，够他走很久。 */
+   门槛是老板 8-16 亲口定的：7 / 14 / 28，翻倍往上，所以 56 / 112。
+   「种子」这一档是我补的：小树苗挪到 7 天以后，0 天那格空了，
+   总得有个东西在土里等着发芽。 */
 const RANKS=[
-  {keep:0,  name:"小树苗"},
-  {keep:6,  name:"小树"},
-  {keep:14, name:"大树"},
-  {keep:28, name:"森林小卫士"},
-  {keep:50, name:"森林之星"}
+  {keep:0,   name:"种子"},        /* 埋在土里，还没发芽 */
+  {keep:7,   name:"小树苗"},
+  {keep:14,  name:"小树"},
+  {keep:28,  name:"大树"},
+  {keep:56,  name:"森林小卫士"},
+  {keep:112, name:"森林之星"}     /* ≈ 四个月几乎天天不断 */
 ];
 function dayKey(t){return new Date(t).toISOString().slice(0,10)}
 function recentScore(){
@@ -1656,6 +1676,17 @@ function treeTalk(){
     return [["Snowy","博远今天全做完了。这一壶浇得值。"],
             ["哆米","……行吧。今天算你厉害。"],
             ["Snowy","你看它，今天又稳了一点。"]];
+  }
+  /* 种子这一档单说：他要盯着一堆土看六天，
+     不反复告诉他"底下有东西"，他会以为坏了。 */
+  if(r.idx===0){
+    if(next && left<=2){
+      return [["Snowy","再 "+left+" 天它就顶出来了。博远，别停。"],
+              ["哆米","土动了。我看见了。"]];
+    }
+    return [["Snowy","种子还在土里。我们天天浇，它会出来的。"],
+            ["哆米","急什么。埋着呢。"],
+            ["Snowy","第 7 天发芽。博远，还有 "+left+" 天。"]];
   }
   if(next && left<=3){
     return [["Snowy","再 "+left+" 天就长成「"+next.name+"」了。博远加油。"],
@@ -1736,7 +1767,7 @@ function renderRank(){
     g.classList.toggle("on", stage >= +g.dataset.min && stage <= mx);
   });
   const tg=document.getElementById("treeG");
-  if(tg) tg.style.transform="scale("+(0.72+stage*0.056).toFixed(3)+")";
+  if(tg) tg.style.transform="scale("+(0.70+stage*0.05).toFixed(3)+")";
 
   /* 猫浇的是「最近七天的星」。今天一颗没拿就把壶放下——
      让他看得出来水是自己给的，不是画上去的。 */
@@ -4316,6 +4347,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=b55ce41a" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=e7225cf9" data-me="boyuan"></script>
 </body>
 </html>
