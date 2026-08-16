@@ -499,6 +499,16 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 .rbtn.inline.reading{position:relative;overflow:hidden}
 .rbtn.inline.reading::after{content:"";position:absolute;left:0;bottom:0;height:3px;
   width:var(--p,0%);background:#ffd479;transition:width .2s linear}
+
+/* 已背会那个开关（老板 2026-08-16 去掉念十遍之后） */
+.rbtn.inline.bh{border-color:rgba(128,128,128,.45);opacity:.75}
+.rbtn.inline.bh.bh-on{border-color:rgba(126,214,178,.7);color:var(--mint,#7ed6b2);
+  background:rgba(126,214,178,.14);opacity:1}
+.idsent{flex-basis:100%;margin-top:10px}
+.idsent textarea{width:100%;padding:10px 12px;border-radius:11px;
+  border:1px solid var(--line);background:transparent;color:inherit;
+  font-family:inherit;font-size:.95rem;line-height:1.8}
+.idsent .row{display:flex;gap:8px;align-items:center;margin-top:8px}
 </style>
 <script>
 /* 本机预览一律不往共用的榜上报打卡。
@@ -1700,6 +1710,10 @@ function openRecite(sub){
     const t=quranToday();
     if(t.length) rIdx=t[0].idx;
   }
+  if(sub==="poem" && typeof poemToday==="function"){
+    const t=poemToday();
+    if(t.length) rIdx=t[0].idx;
+  }
   /* 成语：直接落到今天这三个里还没念够的那一个，省得他自己找（老板 2026-08-15） */
   if(sub==="idiom"){
     const today=idiomToday(), left=idiomLeft();
@@ -1753,26 +1767,48 @@ function renderRecite(){
     w.textContent=word;
     if(rHidden){ w.classList.add("veil");
       w.onclick=function(){w.classList.add("off")} }
-    /* 成语这一行也做成「一个听、一个录」，跟别的门统一（老板 2026-08-15） */
+    /* 成语：老板 2026-08-16「让他每个成语造一句话就算过」。
+       不再念十遍，写一句用上它的话就行——用出来才是真会了。 */
     const hd3=document.createElement("div");
     hd3.style.cssText="display:flex;align-items:center;gap:10px;flex-wrap:wrap";
     const sp3=document.createElement("button");
     sp3.className="rbtn inline listen"; sp3.type="button";
     sp3.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
     sp3.onclick=function(){ if(typeof speakRoster==="function")speakRoster(word) };
-    const rb3=makeReadBtn(rSub,rIdx,0);
-    hd3.appendChild(w); hd3.appendChild(sp3); hd3.appendChild(rb3);
+    hd3.appendChild(w); hd3.appendChild(sp3);
     wrap.appendChild(hd3);
-    const rr3=document.createElement("div");
-    rr3.className="readrow"; rr3.id="rd_"+rSub+"_"+rIdx+"_0";
-    rr3.innerHTML='<span class="rdots"></span><span class="rcnt"></span>';
-    wireRead(rb3, function(){return word}, rSub, rIdx, 0, function(how){
-      const n=readBump(rSub,rIdx,0);
-      toast(how+"　"+n+"/"+READ_GOAL);
-      renderReadFoot();
-      if(n>=READ_GOAL){ try{ finishRecite() }catch(e){} }
-    });
-    wrap.appendChild(rr3); box.appendChild(wrap);
+
+    const box3=document.createElement("div");
+    box3.className="idsent";
+    const ta=document.createElement("textarea");
+    ta.rows=2;
+    ta.placeholder="用「"+word+"」说一句话";
+    ta.value=idGot(rIdx);
+    const row3=document.createElement("div");
+    row3.className="row";
+    const ok3=document.createElement("button");
+    ok3.className="rbtn inline bh"; ok3.type="button";
+    const tip3=document.createElement("span");
+    tip3.className="tip"; tip3.style.cssText="margin:0;flex:1";
+    function paint3(){
+      const has=(idGot(rIdx)||"").trim().length>=4;
+      bhFace(ok3, has);
+      tip3.textContent = has ? "这个成语过了" : "写一句话，四个字以上就行";
+    }
+    ok3.onclick=function(){
+      const t=(ta.value||"").trim();
+      if(t.length<4){ toast("再写长一点，让人看得懂"); return }
+      idSet(rIdx, t);
+      paint3();
+      toast("写得好，这个成语过了");
+      afterMark("idiom");
+    };
+    paint3();
+    row3.appendChild(ok3); row3.appendChild(tip3);
+    box3.appendChild(ta); box3.appendChild(row3);
+    wrap.appendChild(box3);
+    box.appendChild(wrap);
+
     setTimeout(function(){ renderReadRow(rSub,rIdx,0) },0);
   }
   if(item.hadith&&item.hadith.length){
@@ -1786,17 +1822,18 @@ function renderRecite(){
   }
   /* 古兰经每天只摆两句（老板 2026-08-16）。别的门照旧全摆。 */
   let __show = item.lines.map(function(_,i){ return i });
-  if(rSub==="quran" && typeof quranToday==="function"){
-    const t=quranToday().filter(function(x){ return x.idx===rIdx });
+  if((rSub==="quran"||rSub==="poem") && typeof quranToday==="function"){
+    const today = rSub==="quran" ? quranToday() : poemToday();
+    const t=today.filter(function(x){ return x.idx===rIdx });
     __show = t.map(function(x){ return x.li });
     if(!__show.length){
       const tip=document.createElement("div");
       tip.className="tip";
       tip.style.cssText="padding:18px 0;text-align:center;line-height:2";
-      const t2=quranToday();
+      const t2 = rSub==="quran" ? quranToday() : poemToday();
       tip.innerHTML = t2.length
-        ? "今天要背的两句不在这一章。<br>去 <b>"+
-          ((RECITE.quran.list[t2[0].idx]||{}).name||"").split(" ")[0]+"</b> 那一章。"
+        ? "今天要背的两句不在这一篇。<br>去 <b>"+
+          ((RECITE[rSub].list[t2[0].idx]||{}).name||"").split(" ")[0]+"</b>。"
         : "今天的两句都背完了。";
       box.appendChild(tip);
     }
@@ -1819,40 +1856,10 @@ function renderRecite(){
       b.onclick=()=>{if(typeof speakRoster==="function")speakRoster(ln.ar)};
       /* 老板 2026-08-15：「阿拉伯语在他的播放音量前面设置一个按键朗读10遍」
          —— 所以这个按钮放进同一行，排在喇叭前面，不再单独占一行。 */
-      const inb=makeReadBtn(rSub,rIdx,k);
+      const inb=makeBhBtn(rSub,rIdx,k, function(){ afterMark(rSub) });
       row.appendChild(ar); row.appendChild(inb); row.appendChild(b);
       d.appendChild(row);
       /* 老板 2026-08-15：不用背了，每句念十遍就过。这一排就是那十遍。 */
-      const rr=document.createElement("div");
-      rr.className="readrow"; rr.id="rd_"+rSub+"_"+rIdx+"_"+k;
-      rr.innerHTML='<span class="rdots"></span><span class="rcnt"></span>';
-      wireRead(inb, function(){return ln.ar}, rSub, rIdx, k, function(how){
-        const n=readBump(rSub,rIdx,k);
-        toast(how+"　"+n+"/"+READ_GOAL);
-        if(typeof renderReadFoot==="function")renderReadFoot();
-        if(n>=READ_GOAL){
-          /* 古兰经改成每天两句（老板 2026-08-16）：
-             今天这两句都念够就算今天过了，不用整章念完。 */
-          if(rSub==="quran" && typeof quranToday==="function"){
-            const t=quranToday();
-            const ok=t.length && t.every(function(x){ return readGot("quran",x.idx,x.li)>=READ_GOAL });
-            if(ok){
-              try{ finishRecite() }catch(e){}
-              try{ quranAdvance(); }catch(e){}
-              setTimeout(function(){
-                toast("今天这两句背完了。明天接着往下。");
-                try{ renderRecite() }catch(e){}
-              }, 1400);
-            }
-          }else{
-            const all=item.lines.every(function(x,i){
-              return (typeof x!=="object") || readGot(rSub,rIdx,i)>=READ_GOAL });
-            if(all){ try{ finishRecite() }catch(e){} }
-          }
-        }
-      });
-      d.appendChild(rr);
-      setTimeout(function(){ renderReadRow(rSub,rIdx,k) },0);
       const zh=document.createElement("div");
       zh.style.cssText="font-size:.95rem;color:var(--cream);margin-top:8px";
       zh.textContent=(k+1)+". "+ln.zh;
@@ -1881,7 +1888,7 @@ function renderRecite(){
     b.onclick=()=>{if(typeof speakRoster==="function")speakRoster(ln.replace(/ — .*/,""))};
     /* 老板 2026-08-15：「语文也是在音量后面设置一个读10遍」——
        跟阿语一样，按钮放进同一行，挨着喇叭。 */
-    const inb2=makeReadBtn(rSub,rIdx,k);
+    const inb2=makeBhBtn(rSub,rIdx,k, function(){ afterMark(rSub) });
     hd.appendChild(txt);hd.appendChild(b);hd.appendChild(inb2);
     d.appendChild(hd);
     /* 老板 2026-08-15：「古诗带上现代文的解释」——跟在这句下面，
@@ -1916,19 +1923,6 @@ function renderRecite(){
        但成语这门例外：它的 lines 是「意思」和「例句」，成语本身在标题里。
        老板说把这两条去掉——该练的是成语，不是解释。所以成语只在标题下放一排。 */
     if(rSub==="idiom"){ box.appendChild(d); return }
-    const rr2=document.createElement("div");
-    rr2.className="readrow"; rr2.id="rd_"+rSub+"_"+rIdx+"_"+k;
-    rr2.innerHTML='<span class="rdots"></span><span class="rcnt"></span>';
-    wireRead(inb2, function(){return readTarget(ln)}, rSub, rIdx, k, function(how){
-      const n=readBump(rSub,rIdx,k);
-      toast(how+"　"+n+"/"+READ_GOAL);
-      renderReadFoot();
-      if(n>=READ_GOAL){
-        const all=item.lines.every(function(x,i){ return readGot(rSub,rIdx,i)>=READ_GOAL });
-        if(all){ try{ finishRecite() }catch(e){} }
-      }
-    });
-    d.appendChild(rr2);
     setTimeout(function(){ renderReadRow(rSub,rIdx,k) },0);
     box.appendChild(d);
   });
@@ -1936,7 +1930,6 @@ function renderRecite(){
   const done=(D.reciteDone||{})[todayKey()+"_"+rSub+"_"+rIdx]||0;
   document.getElementById("rProg").textContent=done>=3?"这一段今天背对 3 遍了 ✓ 很棒！":("今天背对了 "+done+" / 3 遍");
   document.getElementById("rHide").textContent=rHidden?"显示出来":"遮住";
-  renderReadFoot();
   /* 相关圣训：每条标出处，编号只作索引，集子名为准 */
   if(window.__pendingHadith){
     const hw=document.createElement("div");
@@ -3305,6 +3298,8 @@ function finishRecite(){
    老板 2026-08-15：「最下面显示一个是显示，遮住。旁边的在弄一个按键显示朗读10遍」
    点它会跳到下一句还没念够的，省得他自己找。 */
 function renderReadFoot(){
+  /* 老板 2026-08-16 去掉念十遍之后，这条横杠改成显示"今天背会几句"。
+     函数留着是因为它还管着「遮住/显示」那半边。 */
   const host=document.getElementById("rHide");
   if(!host||!host.parentNode)return;
   let btn=document.getElementById("readFoot");
@@ -3316,7 +3311,7 @@ function renderReadFoot(){
     btn=document.createElement("button");
     btn.id="readFoot"; btn.className="readfoot";
     btn.type="button";
-    btn.innerHTML='<span class="rf-t">朗读 10 遍</span>'+
+    btn.innerHTML='<span class="rf-t">今天进度</span>'+
                   '<span class="rf-bar"><i></i></span>'+
                   '<span class="rf-n"></span>';
     host.parentNode.insertBefore(btn, host.nextSibling);
@@ -3479,6 +3474,112 @@ function openTcSay(who){
   };
 })();
 
+
+
+/* 标完之后看今天这门过没过（老板 2026-08-16 的新规矩） */
+function afterMark(sub){
+  try{
+    if(sub==="quran"){
+      if(bhCheckDay("quran")){
+        finishRecite(); quranAdvance();
+        setTimeout(function(){ toast("今天这两句背会了。明天接着往下。"); renderRecite() },1200);
+      }
+      return;
+    }
+    if(sub==="poem"||sub==="chinese"){
+      if(bhCheckDay("poem")){
+        finishRecite(); poemAdvance();
+        setTimeout(function(){ toast("今天这两句背会了。明天接着往下。"); renderRecite() },1200);
+      }
+      return;
+    }
+    if(sub==="idiom"){
+      /* 三个成语都造了句就算今天的成语过了 */
+      const t=(typeof idiomToday==="function")?idiomToday():[];
+      const ok=t.length && t.every(function(k){ return ((idGot(k)||"").trim().length>=4) });
+      if(ok){ finishRecite(); setTimeout(function(){ toast("今天三个成语都用上了") },1000) }
+      return;
+    }
+    /* 阿语、英语：这一段每句都标了就算过 */
+    const item=(RECITE[sub]&&RECITE[sub].list[rIdx])||{};
+    const all=(item.lines||[]).every(function(_,i){ return bhGot(sub,rIdx,i) });
+    if(all) finishRecite();
+  }catch(e){}
+}
+
+/* ═══ 已背会 / 还没背会（老板 2026-08-16：去掉念十遍）═══
+   他跟博远聊完改的规矩：不数遍数了，孩子自己说会了没有。
+   语文和古兰经每天两句，两句都点了「已背会」就算今天过。 */
+function bhKey(sub,idx,li){ return todayKey()+"_bh_"+sub+"_"+idx+"_"+li }
+function bhGot(sub,idx,li){ D.beihui=D.beihui||{}; return !!D.beihui[bhKey(sub,idx,li)] }
+function bhSet(sub,idx,li,v){
+  D.beihui=D.beihui||{};
+  if(v) D.beihui[bhKey(sub,idx,li)]=1; else delete D.beihui[bhKey(sub,idx,li)];
+  save();
+}
+function bhFace(btn, on){
+  btn.innerHTML = on
+    ? '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '+
+      'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>'+
+      '<b>已背会</b>'
+    : '<b>还没背会</b>';
+  btn.classList.toggle("bh-on", !!on);
+}
+function makeBhBtn(sub,idx,li,after){
+  const b=document.createElement("button");
+  b.className="rbtn inline bh"; b.type="button";
+  bhFace(b, bhGot(sub,idx,li));
+  b.onclick=function(){
+    const now=!bhGot(sub,idx,li);
+    bhSet(sub,idx,li,now);
+    bhFace(b, now);
+    if(now) toast("记下了");
+    if(typeof after==="function") after();
+  };
+  return b;
+}
+/* 语文和古兰经：今天这两句都点了「已背会」就算过 */
+function bhCheckDay(sub){
+  if(sub==="quran" && typeof quranToday==="function"){
+    const t=quranToday();
+    return t.length && t.every(function(x){ return bhGot("quran",x.idx,x.li) });
+  }
+  if(sub==="poem" && typeof poemToday==="function"){
+    const t=poemToday();
+    return t.length && t.every(function(x){ return bhGot("poem",x.idx,x.li) });
+  }
+  return false;
+}
+
+/* ═══ 语文古诗也改成每天两句（跟古兰经同一套指针）═══ */
+function poemFlat(){
+  const pack=(typeof RECITE!=="undefined") && RECITE.poem;
+  if(!pack) return [];
+  const out=[];
+  pack.list.forEach(function(item, idx){
+    (item.lines||[]).forEach(function(ln, li){ out.push({idx:idx, li:li}) });
+  });
+  return out;
+}
+function poemPos(){
+  D.poemPos=D.poemPos||0;
+  const f=poemFlat();
+  if(D.poemPos>=f.length) D.poemPos=0;
+  return D.poemPos;
+}
+function poemToday(){ return poemFlat().slice(poemPos(), poemPos()+2) }
+function poemAdvance(){
+  const t=poemToday();
+  if(t.length && t.every(function(x){ return bhGot("poem",x.idx,x.li) })){
+    D.poemPos=poemPos()+2; save(); return true;
+  }
+  return false;
+}
+
+/* ═══ 成语：用它造一句话就算过（老板 2026-08-16）═══ */
+function idKey(idx){ return todayKey()+"_id_"+idx }
+function idGot(idx){ D.idiomSent=D.idiomSent||{}; return D.idiomSent[idKey(idx)]||"" }
+function idSet(idx,t){ D.idiomSent=D.idiomSent||{}; D.idiomSent[idKey(idx)]=t; save() }
 </script>
 <script src="./shared/fam-widget.js?v=9bd196e0" data-me="boyuan"></script>
 </body>
