@@ -306,7 +306,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 /* 下一档：写清楚还差几颗，别让他猜 */
 .rf-row.next{color:var(--cream);border-color:var(--line);border-style:dashed}
 .rf-row.next .rf-rnum{color:var(--gold)}
-.rf-tip{margin-top:8px;font-size:.72rem;color:var(--muted);line-height:1.6}
+.rf-tip{margin-top:8px;font-size:.72rem;color:var(--muted);line-height:1.6;text-wrap:balance}
 .rf-tip.warn{color:#ff9b7a}
 .rf-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;
   padding-top:9px;border-top:1px solid var(--line);
@@ -1584,32 +1584,52 @@ function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
    等级 V 是攒出来的，只升不降——那是他的功劳，不该收回。
    排名不一样：只看最近七天。停一天就少一天的分，名次自己往下滑。
    这样「不学就掉」是真的掉，不是吓唬他。 */
-/* 段位按**最近七天拿到的星**定，不看总数——所以停学会掉。
-   日上限 15，七天理论最多 105。门槛按「要几天满勤」来定，
-   最高档 100 几乎要天天满勤，拿到了才算数（老板：也不能获得的太容易了）。 */
+/* 段位只按**坚持天数**算（老板 8-16：「小树按照他坚持的天数来算」）。
+
+   不看攒了多少星，这跟他给一家人排行榜定的是同一条规矩：
+   只看来没来、连着几天，不比谁做得多——比数量的话，落后那个直接不玩了。
+   而且星可以突击（周末闷头刷一天），天数突击不了，只能一天一天过。
+   老板 8-16 还说了「不要涨的太快」：50 天才到顶，够他走很久。 */
 const RANKS=[
-  {min:0,   name:"小树苗"},
-  {min:20,  name:"小树"},        /* ≈ 满勤 1.5 天 */
-  {min:45,  name:"大树"},        /* ≈ 满勤 3 天 */
-  {min:75,  name:"森林小卫士"},  /* ≈ 满勤 5 天 */
-  {min:100, name:"森林之星"}     /* ≈ 七天几乎全满勤 */
+  {keep:0,  name:"小树苗"},
+  {keep:6,  name:"小树"},
+  {keep:14, name:"大树"},
+  {keep:28, name:"森林小卫士"},
+  {keep:50, name:"森林之星"}
 ];
 function dayKey(t){return new Date(t).toISOString().slice(0,10)}
 function recentScore(){
   D.starLog=D.starLog||{};
   let sum=0;
   const now=Date.now();
-  for(let i=0;i<7;i++){
-    const k=dayKey(now-i*86400000);
-    sum += (D.starLog[k]||0);
-  }
+  for(let i=0;i<7;i++){ sum += (D.starLog[dayKey(now-i*86400000)]||0) }
   return sum;
 }
+/* 坚持分：来一天 +1，旷一天 -2，最低 0。
+   老板要的「不坚持会掉星」就是这条——但不是断一天清零：
+   十四天进度一次抹光，孩子会直接不玩。往回滑，滑不到从头。
+   今天不算旷，今天还没过完。 */
+function keepScore(){
+  const log=D.starLog||{};
+  const been=Object.keys(log).filter(function(k){return log[k]>0}).sort();
+  if(!been.length) return 0;
+  const today=dayKey(Date.now());
+  let sc=0, t=new Date(been[0]+"T00:00:00Z").getTime();
+  for(let n=0;n<800;n++){
+    const k=dayKey(t);
+    if(k>today) break;
+    if((log[k]||0)>0) sc+=1;
+    else if(k<today) sc-=2;
+    if(sc<0) sc=0;
+    t+=86400000;
+  }
+  return sc;
+}
 function rankOf(){
-  const sc=recentScore();
+  const sc=recentScore(), kp=keepScore();
   let r=RANKS[0];
-  RANKS.forEach(function(x){ if(sc>=x.min) r=x });
-  return {rank:r, score:sc, idx:RANKS.indexOf(r)};
+  RANKS.forEach(function(x){ if(kp>=x.keep) r=x });
+  return {rank:r, score:sc, keep:kp, idx:RANKS.indexOf(r)};
 }
 function renderRank(){
   const box=document.getElementById("rankFoot"); if(!box)return;
@@ -1629,9 +1649,9 @@ function renderRank(){
       const nm=document.createElement("span"); nm.className="rf-rname"; nm.textContent=x.name;
       const nu=document.createElement("span"); nu.className="rf-rnum";
       if(n===r.idx)      nu.textContent="现在";
-      else if(n===r.idx+1) nu.textContent="还差 "+(x.min-r.score)+" 颗";
+      else if(n===r.idx+1) nu.textContent="再 "+(x.keep-r.keep)+" 天";
       else if(n<r.idx)   nu.textContent="走过了";
-      else               nu.textContent=x.min+" 颗";
+      else               nu.textContent=x.keep+" 天";
       li.appendChild(dot); li.appendChild(nm); li.appendChild(nu);
       ol.appendChild(li);
     });
@@ -1657,25 +1677,29 @@ function renderRank(){
       : "今天还没浇水，猫咪把水壶放下了";
 
   document.getElementById("rfScore").textContent="最近七天 "+r.score+" 颗";
-  const d=keepDays();
-  document.getElementById("rfKeep").textContent=d>0?("坚持了 "+d+" 天"):"今天开始";
+  document.getElementById("rfKeep").textContent =
+    r.keep>0 ? ("坚持分 "+r.keep+"（来一天 +1，旷一天 −2）") : "今天开始";
   const nmEl=document.getElementById("rfName"); if(nmEl) nmEl.textContent=r.rank.name;
   const fill=document.getElementById("rfFill");
   if(fill){
-    const base=RANKS[r.idx].min, top=next?next.min:base+30;
-    fill.style.width=Math.max(0,Math.min(100,Math.round((r.score-base)/(top-base)*100)))+"%";
+    const base=RANKS[r.idx].keep, top=next?next.keep:base+10;
+    fill.style.width=Math.max(0,Math.min(100,Math.round((r.keep-base)/(top-base)*100)))+"%";
   }
 
-  /* 明天会不会掉档 */
-  const drop=(D.starLog||{})[dayKey(Date.now()-6*86400000)]||0;
+  /* 掉档不是因为星滚出窗口了，是**今天没来**——旷一天扣 2 分。
+     所以这句要说的是"今天还没来"，不是"星不够"。 */
+  const cameToday=((D.starLog||{})[dayKey(Date.now())]||0)>0;
   const tip=document.getElementById("rfTip");
   if(!tip)return;
-  if(drop>0 && r.idx>0 && r.score-drop < RANKS[r.idx].min){
+  if(!cameToday && r.idx>0 && r.keep-2 < RANKS[r.idx].keep){
     tip.className="rf-tip warn";
-    tip.textContent="今天不学，明天会掉回「"+RANKS[r.idx-1].name+"」";
+    tip.textContent="今天要是不来，明天就掉回「"+RANKS[r.idx-1].name+"」";
+  }else if(!cameToday && r.keep>0){
+    tip.className="rf-tip warn";
+    tip.textContent="今天还没来。旷一天，坚持的天数要倒扣两天。";
   }else if(next){
     tip.className="rf-tip";
-    tip.textContent="再攒 "+(next.min-r.score)+" 颗升「"+next.name+"」";
+    tip.textContent="再坚持 "+(next.keep-r.keep)+" 天升「"+next.name+"」";
   }else{
     tip.className="rf-tip";
     tip.textContent="已经是最高一档了，别掉下来";
@@ -4225,6 +4249,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=2ccc0646" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=bb4eabe2" data-me="boyuan"></script>
 </body>
 </html>
