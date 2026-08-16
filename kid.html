@@ -1571,16 +1571,36 @@ const DEFAULT_WISHES=["和爸爸单独出去吃一顿饭","今晚全家看什么
 function getWishes(){try{const w=JSON.parse(localStorage.getItem("wishPool")||"null");return (w&&w.length)?w:DEFAULT_WISHES}catch(e){return DEFAULT_WISHES}}
 
 /* ================= 数据 ================= */
-function todayKey(){return new Date().toISOString().slice(0,10)}
+/* 一天从**本地午夜**算起，不是 UTC 午夜。
+   原来用 toISOString()，日界线落在迪拜早上四点：孩子午夜到四点做的功课
+   算进前一天，他自己那天成了空的，第二天被当旷扣分。
+   同一个文件里成语轮换早就按迪拜时算了，两套"一天"打架。统一成本地日。 */
+function ymd(d){ return d.getFullYear()+"-"+
+  String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0") }
+function todayKey(){ return ymd(new Date()) }
+/* 日期串加减一天。用 UTC 正午做锚点，夏令时和时区都影响不到它。 */
+function keyAdd(k,n){
+  const d=new Date(k+"T12:00:00Z");
+  d.setUTCDate(d.getUTCDate()+n);
+  return d.toISOString().slice(0,10);
+}
 const K="boyuanStar";
 let D={stars:0,total:0,today:"",todayStars:0,streak:0,last:"",phone:0,wishes:[],done:{}};
 try{Object.assign(D,JSON.parse(localStorage.getItem(K)||"{}"))}catch(e){}
-const today=new Date().toISOString().slice(0,10);
-if(D.today!==today){D.today=today;D.todayStars=0}
+/* 别再用加载时算死的日期了（见 rollDay 那段注释）。 */
+if(D.today!==todayKey()){D.today=todayKey();D.todayStars=0}
 function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
 function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1500)}
 const DAY_CAP = 15;                                   // 每天最多 60 ⭐，防止刷题攒星
-function capLeft(){return Math.max(0,DAY_CAP-(D.todayStars||0))}
+/* 跨天当场翻篇。原来只在开页面那一下对日期，iPad 不关页面过夜的话，
+   第二天还按昨天的额度算——昨天吃满 15 颗，今天就一颗也加不进去，
+   starLog 里没有这一天的记录，被当成旷了。修法：每次要用额度之前先对一次日期。 */
+function rollDay(){
+  const k=todayKey();
+  if(D.today!==k){ D.today=k; D.todayStars=0; save() }
+  return k;
+}
+function capLeft(){ rollDay(); return Math.max(0,DAY_CAP-(D.todayStars||0)) }
 
 /* ═══ 等级从 V1 起 + 坚持了几天（老板 09:07） ═══
    不做排行榜跟别人比——只跟昨天的自己比。 */
@@ -1633,20 +1653,32 @@ function recentScore(){
    十四天进度一次抹光，孩子会直接不玩。往回滑，滑不到从头。
    今天不算旷，今天还没过完。 */
 function keepScore(){
-  const log=D.starLog||{};
-  const been=Object.keys(log).filter(function(k){return log[k]>0}).sort();
+  const log=D.starLog||{}, today=todayKey();
+  /* 太古老的记录不算数。设备时钟出过错的话会留下 1970、2016 这种 key，
+     一条就能把整个窗口拖到走不到今天，坚持分永久钉在 0、树永远不发芽。 */
+  const floor=keyAdd(today,-1100);
+  const been=Object.keys(log).filter(function(k){
+    return log[k]>0 && k>=floor && k<=today }).sort();
   if(!been.length) return 0;
-  const today=dayKey(Date.now());
-  let sc=0, t=new Date(been[0]+"T00:00:00Z").getTime();
-  for(let n=0;n<800;n++){
-    const k=dayKey(t);
-    if(k>today) break;
-    if((log[k]||0)>0) sc+=1;
-    else if(k<today) sc-=2;
+  let sc=0, miss=0, n=0;
+  for(let k=been[0]; k<=today && n<4200; k=keyAdd(k,1), n++){
+    if((log[k]||0)>0){ sc+=1; miss=0 }
+    else if(k<today){
+      /* 旷一天扣 2，但**一段连续的缺席最多扣到第 10 天为止**。
+         老板的规矩是「不坚持会掉星」，不是「回国过个暑假从头再来」——
+         回中国、开斋节、放假对这家人是常事，二十天回来掉成一颗种子，
+         跟从没学过的孩子一模一样，那就等于把他的四十天抹光了，
+         正好撞上他定的「不能清零」。滑，但滑得到底。 */
+      if(miss<10){ sc-=2; miss++ }
+    }
     if(sc<0) sc=0;
-    t+=86400000;
   }
   return sc;
+}
+/* 他一共来过多少天——keep 掉到 0 的时候，不能对一个来过四十天的孩子说「今天开始」 */
+function beenDays(){
+  const log=D.starLog||{};
+  return Object.keys(log).filter(function(k){ return log[k]>0 }).length;
 }
 function rankOf(){
   const sc=recentScore(), kp=keepScore();
@@ -1778,7 +1810,9 @@ function renderRank(){
 
   document.getElementById("rfScore").textContent="最近七天 "+r.score+" 颗";
   document.getElementById("rfKeep").textContent =
-    r.keep>0 ? ("坚持分 "+r.keep+"（来一天 +1，旷一天 −2）") : "今天开始";
+    r.keep>0 ? ("坚持分 "+r.keep+"（来一天 +1，旷一天 −2）")
+    : (beenDays()>0 ? ("你一共来过 "+beenDays()+" 天，回来接着攒")
+                    : "今天开始");
   const nmEl=document.getElementById("rfName"); if(nmEl) nmEl.textContent=r.rank.name;
   const fill=document.getElementById("rfFill");
   if(fill){
@@ -1856,7 +1890,8 @@ function renderBadge(){
     (d>0?('<span class="keep">坚持了 '+d+' 天</span>'):'<span class="keep">今天开始</span>');
 }
 function addStar(n){
-  try{D.starLog=D.starLog||{};var _k=todayKey();
+  const today=rollDay();          /* 顶层那个 const today 是加载时算死的，不能用 */
+  try{D.starLog=D.starLog||{};var _k=today;
      var _add=Math.min(n,(typeof capLeft==="function")?capLeft():n);
      if(_add>0)D.starLog[_k]=(D.starLog[_k]||0)+_add;}catch(e){}
 
@@ -1864,7 +1899,7 @@ function addStar(n){
   n=Math.min(n,capLeft());
   if(n<=0)return;
   D.stars+=n;D.total+=n;D.todayStars+=n;
-  const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const y=keyAdd(today,-1);   /* 跟着本地日界线走，别再用 UTC 算昨天 */
   if(D.last!==today){
     D.streak=(D.last===y)?D.streak+1:1;D.last=today;
     const MILE={3:5,7:15,14:30,30:80};              // 坚持的复利：越久越值钱
