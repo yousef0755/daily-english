@@ -762,6 +762,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       </div>
       <button class="main" id="tBtn"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px;margin-right:6px"><path d="M8 5.5v13l11-6.5z"/></svg>连接星星老师</button>
       <div id="tStatus" class="tip" style="min-height:2.2em;margin:8px 0 0">按一下开始，今天挑战哪一科由你决定。</div>
+      <div id="tScope" class="tip" style="margin:6px 0 0;text-align:left"></div>
       <div id="tUsage" class="tip" style="margin:4px 0 0"></div>
     </div>
     <div class="card" id="reciteCard" style="display:none">
@@ -795,35 +796,15 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
   <section class="page" id="p-diary">
     <div class="card">
-      <h2>今天的日记</h2>
+      <h2>想跟猫咪说点什么</h2>
+      <!-- 老板 2026-08-16：「把日记去掉，给他换成心愿墙」。
+           日记的两个输入框和列表撤了，这一栏改成心愿墙当主角。
+           六门学完没有的清单留着挂在上面——他一进来就看得见还差哪一门。 -->
       <div id="diaryGate" style="margin:0 0 14px"></div>
-      <div class="tip" style="text-align:left;margin:0 0 8px" id="diaryPrompt"></div>
-      <div class="dlabel" style="font-size:.8rem;color:var(--gold);margin:0 0 6px">中文日记</div><textarea id="diaryText" rows="6" placeholder="今天学了什么？发生了什么？写几句就行……" style="width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;color:var(--cream);padding:12px;font-family:inherit;font-size:1rem;resize:none"></textarea><div class="dlabel" style="font-size:.8rem;color:var(--gold);margin:14px 0 6px">English diary</div><textarea id="diaryTextEn" rows="5" placeholder="A few lines in English. Short is fine." style="width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;color:var(--cream);padding:12px;font-family:inherit;font-size:1rem;resize:none"></textarea>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="main" id="saveDiary" style="flex:2">写好了</button>
-        <button class="main ghost" id="newPrompt" style="flex:1">换题目</button>
-      </div>
-      <button class="main" id="diarySend" style="display:none;margin-top:10px">写好了，交给小林姐姐</button>
-      <div class="tip" id="diaryDone" style="margin-top:8px"></div>
-      <!-- 老板 2026-08-15：全学完 + 日记写完，才出现这个框；
-           他写的话，第二天由猫咪说出来 -->
-      <div id="catSayBox" style="display:none;margin-top:16px;padding:14px;
-        border:1px solid rgba(255,212,121,.3);border-radius:14px;
-        background:rgba(255,212,121,.06)">
-        <div style="font-size:.92rem;color:var(--gold);font-weight:700;margin-bottom:4px">
-          想跟猫咪说句话吗</div>
-        <div class="tip" style="text-align:left;margin:0 0 8px">
-          你写下来，明天 Snowy 和哆米就会说给你听。</div>
-        <textarea id="catSayText" rows="2" placeholder="想说什么都行"></textarea>
-        <button class="main" id="catSaySave" style="margin-top:9px">交给猫咪</button>
-        <div class="tip" id="catSayDone" style="margin-top:7px"></div>
-      </div>
-      <!-- 心愿榜（老板 2026-08-16）：日记写完之后，跟猫说点什么 -->
-      <div id="wishBox" style="display:none;margin-top:18px;padding:15px;
+
+      <div id="wishBox" style="display:none;padding:15px;
         border:1px solid rgba(255,212,121,.3);border-radius:15px;
         background:rgba(255,212,121,.05)">
-        <div style="font-size:.95rem;color:var(--gold);font-weight:700;margin-bottom:3px">
-          想跟猫咪说点什么</div>
         <div class="tip" style="text-align:left;margin:0 0 11px">
           点一个，Snowy 和哆米会照着回你。</div>
         <div id="wishBtns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
@@ -841,10 +822,20 @@ nav button.on span{filter:none;transform:translateY(-1px)}
           不想让他看的，就先别写在这儿——你可以直接去找他说。
         </div>
       </div>
-    </div>
-    <div class="card">
-      <h2>写过的日记</h2>
-      <div id="diaryList" class="tip" style="text-align:left"></div>
+
+      <!-- 老板 2026-08-15：他写的话，第二天由猫咪说出来。
+           原来要求先写完日记，日记撤了，改成六门学完就出现。 -->
+      <div id="catSayBox" style="display:none;margin-top:16px;padding:14px;
+        border:1px solid rgba(255,212,121,.3);border-radius:14px;
+        background:rgba(255,212,121,.06)">
+        <div style="font-size:.92rem;color:var(--gold);font-weight:700;margin-bottom:4px">
+          想跟猫咪说句话吗</div>
+        <div class="tip" style="text-align:left;margin:0 0 8px">
+          你写下来，明天 Snowy 和哆米就会说给你听。</div>
+        <textarea id="catSayText" rows="2" placeholder="想说什么都行"></textarea>
+        <button class="main" id="catSaySave" style="margin-top:9px">交给猫咪</button>
+        <div class="tip" id="catSayDone" style="margin-top:7px"></div>
+      </div>
     </div>
 
   <!-- 星星老师（老板 2026-08-16）：六门做完，考一考今天真背会了没 -->
@@ -1116,7 +1107,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 <nav>
   <button class="on" data-p="learn"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></span>任务</button>
   <button data-p="write"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 4.6l4.2 4.2M4 20l1-4.2L16.1 4.7a1.6 1.6 0 0 1 2.3 0l.9.9a1.6 1.6 0 0 1 0 2.3L8.2 19z"/></svg></span>练字</button>
-  <button data-p="diary"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h11a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg></span>记录</button>
+  <button data-p="diary"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h11a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg></span>心愿</button>
   <button data-p="reward"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.8 8.6h16.4v3.1H3.8zM5.2 11.7h13.6v8.1H5.2zM12 8.6v11.2"/><path d="M12 8.6C10.6 6.4 8.9 4 7.4 4.8 5.8 5.6 7.9 8 12 8.6zM12 8.6c1.4-2.2 3.1-4.6 4.6-3.8 1.6.8-.5 3.2-4.6 3.8z"/></svg></span>奖励</button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -2091,10 +2082,28 @@ function tConn(){
   var ready=false;
   tws.onopen=function(){
     var star=(typeof D!=="undefined"&&D.stars)||0, streak=(typeof D!=="undefined"&&D.streak)||0;
-    var ctx="\n\n【今天的博远】星星 "+star+" 颗，连续学习 "+streak+" 天。"+
-      "开场先用一句轻松的话让他放松（问问他今天怎么样，或讲个一句话的小笑话），"+
-      "再让他挑今天玩哪一科（古兰经/中文/英语/数学）——用'玩'这个字，别用'学'。"+
-      "然后先出一道他一定会的题让他赢一次，再慢慢往上加难度。如果他选古兰经，第一句先问他今天学的是第几章，只练那一章。记住：十五分钟见好就收。";
+    var ctx="\n\n【今天的博远】星星 "+star+" 颗，连续学习 "+streak+" 天。";
+    /* 老板 2026-08-16：「根据他选择的已背会的内容来让星星老师考他」。
+       学校老师跳着教，他今天可能只背了第二、第四行——
+       所以考什么由他自己点的「已背会」决定，不由课本顺序决定。
+       问他没学过的，就是在制造"我不会"，那正是他最怕的。 */
+    var learned=(typeof todayLearned==="function")?todayLearned():[];
+    if(learned.length){
+      ctx += "\n\n【今天他自己点了「已背会」的，就这些】\n"+learned.join("\n")+
+        "\n\n**这堂课的任务是把上面这些验一遍，不是教新东西。**"+
+        "\n规矩（务必照做）："+
+        "\n1. 开场还是先让他笑一下或先赢一次，别一上来就考。"+
+        "\n2. **只问上面列出的句子。上面没有的，一句都不要问**——"+
+        "学校老师是跳着教的，他没学的你一问，他立刻就怕了。"+
+        "\n3. 一句一句来：让他自己背，卡住就给提示（先给第一个词，再给半句），"+
+        "背出来了就具体地夸一句，再问他这句是什么意思。"+
+        "\n4. 背错了不许有一点点责备的味道，拆开陪他再来一遍，做对了再夸。"+
+        "\n5. 全过完了，用一句话告诉他今天验收了几句、哪几句最漂亮，然后收工。";
+    }else{
+      ctx += "开场先用一句轻松的话让他放松（问问他今天怎么样，或讲个一句话的小笑话），"+
+        "再让他挑今天玩哪一科（古兰经/中文/英语/数学）——用'玩'这个字，别用'学'。"+
+        "然后先出一道他一定会的题让他赢一次，再慢慢往上加难度。如果他选古兰经，第一句先问他今天学的是第几章，只练那一章。记住：十五分钟见好就收。";
+    }
     tws.send(JSON.stringify({setup:{model:model,
       generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}}},
       systemInstruction:{parts:[{text:TPERSONA+ctx}]}}}));
@@ -2677,7 +2686,7 @@ function renderGate(){
   g.innerHTML='<div style="background:rgba(0,0,0,.18);border:1px solid var(--line);'+
     'border-radius:12px;padding:12px 14px">'+
     '<div style="font-size:.8rem;color:var(--gold);margin-bottom:6px">'+
-    (open?'今天都学完了，可以写日记了':'今天的功课学完才能写日记')+'</div>'+rows+'</div>';
+    (open?'今天都学完了。想跟猫咪说点什么？':'六门都学完，才能跟猫咪说话')+'</div>'+rows+'</div>';
   const t1=document.getElementById("diaryText"), t2=document.getElementById("diaryTextEn");
   [t1,t2].forEach(function(t){ if(!t)return;
     t.disabled=!open; t.style.opacity=open?1:.4;
@@ -2708,37 +2717,13 @@ function updateDiarySend(){
   };
 }
 function renderDiary(){
+  /* 老板 2026-08-16 把日记撤了，这一栏现在是心愿墙。
+     函数名留着不动——十几处在调它，改名等于翻全页。 */
   renderGate();
-  try{updateDiarySend()}catch(e){}
-  const pr=document.getElementById("diaryPrompt");if(!pr)return;
-  const day=Math.floor(Date.now()/86400000);
-  const t=(D.diaryTopic!=null)?D.diaryTopic:DIARY_TOPICS[day%DIARY_TOPICS.length];
-  pr.textContent="今天的题目：" + t;
-  const list=document.getElementById("diaryList");
-  const all=D.diaries||[];
-  list.innerHTML=all.length?all.slice(-7).reverse().map(x=>
-    '<div style="border-left:2px solid var(--gold);padding:4px 0 4px 10px;margin-bottom:10px">'+
-    '<div style="font-size:.72rem;color:var(--muted)">'+x.d+'</div>'+
-    x.t.replace(/</g,"&lt;")+'</div>').join(""):"还没有写过日记，今天写第一篇吧。";
-  const doneToday=(D.diaries||[]).some(x=>x.d===todayKey());
-  document.getElementById("diaryDone").textContent=doneToday?"今天的日记已经写好啦 ✓":"";
   try{ renderCatSay() }catch(e){}
   try{ renderWish() }catch(e){}
   try{ renderExam() }catch(e){}
 }
-
-document.getElementById("saveDiary").onclick=function(){
-  const t=document.getElementById("diaryText").value.trim();
-  if(t.length<10){toast("再多写几句吧");return}
-  D.diaries=D.diaries||[];
-  if(D.diaries.some(x=>x.d===todayKey())){toast("今天已经写过啦");return}
-  D.diaries.push({d:todayKey(),t:t});save();
-  document.getElementById("diaryText").value="";
-  addStar(5);toast("日记写好了");renderDiary();
-};
-document.getElementById("newPrompt").onclick=function(){
-  D.diaryTopic=DIARY_TOPICS[Math.floor(Math.random()*DIARY_TOPICS.length)];save();renderDiary();
-};
 document.getElementById("rHide").onclick=function(){
   /* 打卡。按错了再按一下可以取消——十岁小孩手滑很正常，不能一按定死。 */
   const tk=todayKey(), k=tk+"_"+rSub;
@@ -2870,28 +2855,8 @@ function quranAdvance(){
   inp.addEventListener("keydown",function(e){if(e.key==="Enter")save()});
 })();
 
-/* 保存：中英两篇都要写，缺一篇不算完 */
-(function(){
-  const btn=document.getElementById("diarySave")||document.querySelector("#p-diary .main");
-  if(!btn)return;
-  btn.onclick=function(){
-    if(!diaryUnlocked()){alert("今天的功课还没学完，先去学。");return}
-    const zh=(document.getElementById("diaryText").value||"").trim();
-    const en=(document.getElementById("diaryTextEn").value||"").trim();
-    if(!zh){alert("中文那篇还没写。");return}
-    if(!en){alert("English diary is empty — even two lines is fine.");return}
-    D.diaries=D.diaries||[];
-    if(D.diaries.some(x=>x.d===todayKey())){alert("今天已经写过了。");return}
-    D.diaries.push({d:todayKey(),zh:zh,en:en});
-    if(typeof addStar==="function")addStar(3);
-    save();
-    document.getElementById("diaryText").value="";
-    document.getElementById("diaryTextEn").value="";
-    renderDiary();
-    const done=document.getElementById("diaryDone");
-    if(done)done.textContent="两篇都写好了，加 3 颗星 ✓";
-  };
-})();
+/* 日记撤了（老板 2026-08-16：「把日记去掉，给他换成心愿墙」）——
+   中英两篇的保存逻辑跟着一起拔掉。 */
 
 /* ═══ 笔顺：先看怎么写，再一笔一笔跟着写 ═══ */
 var STROKES=null, sChar=null, sIdx=0, sTimer=null;
@@ -3538,7 +3503,16 @@ function teachTopic(){
   const pick=done[(new Date().getDate())%done.length];
   return pick[1];
 }
+/* 卡片上先说清楚老师今天会考哪几句——他心里有底才敢按那个钮 */
+function renderTeachScope(){
+  const el=document.getElementById("tScope"); if(!el)return;
+  const n=(typeof todayLearned==="function")?todayLearned():[];
+  if(!n.length){ el.textContent=""; return }
+  el.innerHTML='今天你点了「已背会」的，老师<b>只考这些</b>：<br>'+
+    n.map(function(x){ return x.replace(/</g,"&lt;") }).join("<br>");
+}
 function renderTeach(){
+  try{ renderTeachScope() }catch(e){}
   const box=document.getElementById("teachBox"); if(!box)return;
   const n=(typeof walkDone==="function")?walkDone():0;
   const t=teachTopic();
@@ -3976,9 +3950,10 @@ function catSayPending(){
 function renderCatSay(){
   const box=document.getElementById("catSayBox"); if(!box)return;
   /* 六门全过 + 今天日记写完，这个框才出现 */
+  /* 老板 2026-08-16 把日记撤了，这里不能再等"日记写完"，
+     否则这个框永远不出现。改成六门学完就出来。 */
   const allDone=(typeof diaryUnlocked==="function") && diaryUnlocked();
-  const diaryDone=(D.diaries||[]).some(function(x){return x.d===todayKey()});
-  box.style.display=(allDone&&diaryDone)?"block":"none";
+  box.style.display=allDone?"block":"none";
   const wrote=catSayAll().some(function(x){return x.d===todayKey()});
   const t=document.getElementById("catSayText"),
         b=document.getElementById("catSaySave"),
@@ -4265,6 +4240,41 @@ function renderWish(){
   })();
 })();
 
+
+/* 今天他自己点了「已背会」的那些句子，原文抓出来喂给星星老师。
+   老板 2026-08-16：「老师跳着教了，这个诗他只背了2行……
+   根据他选择的已背会的内容来让星星老师考他」——
+   所以考什么由他点的决定，不由课本顺序决定。 */
+function todayLearned(){
+  const out=[], pre=todayKey()+"_bh_";
+  D.beihui=D.beihui||{};
+  const NAME={poem:"语文古诗",quran:"古兰经",arabic:"阿拉伯语",english:"英语单词"};
+  const bySub={};
+  for(const k in D.beihui){
+    if(k.indexOf(pre)!==0) continue;
+    const rest=k.slice(pre.length).split("_");
+    const li=parseInt(rest.pop(),10), idx=parseInt(rest.pop(),10), sub=rest.join("_");
+    const pack=(typeof RECITE!=="undefined")&&RECITE[sub]; if(!pack) continue;
+    const item=pack.list[idx]; if(!item) continue;
+    const ln=(item.lines||[])[li]; if(ln==null) continue;
+    const txt=(typeof ln==="object") ? (ln.ar+"（"+ln.zh+"）") : String(ln);
+    (bySub[sub]=bySub[sub]||{name:item.name||"",lines:[]}).lines.push(txt);
+  }
+  for(const sub in bySub){
+    out.push("【"+(NAME[sub]||sub)+"】"+(bySub[sub].name?bySub[sub].name+"：":"")+
+             bySub[sub].lines.join(" ／ "));
+  }
+  /* 成语：他造的句子本身就是答案，念给老师听 */
+  if(typeof idiomToday==="function" && typeof idGot==="function"){
+    const ids=idiomToday().map(function(k){
+      const it=RECITE.idiom.list[k], sent=(idGot(k)||"").trim();
+      return sent ? ((it&&it.name?it.name:"")+"：他造的句子是「"+sent+"」") : "";
+    }).filter(Boolean);
+    if(ids.length) out.push("【成语】"+ids.join("；"));
+  }
+  return out;
+}
+
 /* ═══ 星星老师（老板 2026-08-16：「每天学完考他一下，看看他学会了没」）═══
    「已背会」是他自己点的，没人验就等于没有。这一关给那个按钮加牙齿。
 
@@ -4423,6 +4433,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=397e6e22" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=c54775dc" data-me="boyuan"></script>
 </body>
 </html>
