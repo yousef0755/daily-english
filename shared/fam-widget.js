@@ -443,7 +443,31 @@
     } catch (e) {}
   }
 
+
+  /* ── 自己发现新版本就重载（老板 2026-08-16 连着三次看到旧页面）──
+     GitHub Pages 的 HTML 带 max-age=600，iPhone 加到主屏之后更黏。
+     叫用户"硬刷新"是把我的部署问题推给他，不合适。
+
+     每次打开先问服务器现在是哪一版，跟页面里烙的对不上就重载。
+     **ver.json 必须 no-store**，不然连版本号都被缓存住，等于没做。
+     sessionStorage 记一次，防止万一对不上导致无限刷新。 */
+  function autoUpdate() {
+    var mine = window.__BUILD__;
+    if (!mine) return;
+    fetch("ver.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.json() })
+      .then(function (j) {
+        if (!j || !j.build || j.build === mine) return;
+        var k = "reloaded:" + j.build;
+        if (sessionStorage.getItem(k)) return;      /* 这一版已经刷过一次了，别再来 */
+        sessionStorage.setItem(k, "1");
+        location.reload();
+      })
+      .catch(function () {});
+  }
+
   function start() {
+    try { autoUpdate() } catch (e) {}
     if (!mount()) return;
     qFlush().then(function (n) {
       if (n) { var t = el("fwTip"); if (t) t.textContent = "刚才没送出去的 " + n + " 条，已经补送了。" }
