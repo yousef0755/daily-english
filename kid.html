@@ -525,7 +525,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 </header>
 <main>
   <section class="page on" id="p-learn">
-    <div class="card" id="myInbox" style="display:none"></div>
+    <div id="famWidget"></div>
     <div class="card">
       <div class="cats" id="catsBox"><div class="catsWrap" id="catsWrap"><svg class="kcat" id="catSnowy" viewBox="0 0 200 170" aria-hidden="true">
   <defs><radialGradient id="gcatSnowy" cx="42%" cy="34%" r="72%">
@@ -3358,26 +3358,7 @@ function openTcSay(who){
   };
 })();
 
-/* 别人给博远说的话 */
-async function loadMySays(){
-  const host=document.getElementById("myInbox"); if(!host)return;
-  try{
-    const r=await fetch(SAY_API+"/fam/says?who=boyuan");
-    const j=await r.json();
-    if(!j.ok||!j.inbox||!j.inbox.length){ host.style.display="none"; return }
-    host.style.display="";
-    host.innerHTML='<div style="font-size:.88rem;color:var(--gold);font-weight:700;margin-bottom:8px">'
-      +'家里人跟你说的话</div>'+
-      j.inbox.slice(0,4).map(function(x){
-        return '<div style="border-left:2px solid var(--gold);padding:3px 0 3px 10px;margin-bottom:9px">'+
-          '<div style="font-size:.72rem;color:var(--muted)">'+x.fromName+'　'+x.d+'</div>'+
-          String(x.text).replace(/</g,"&lt;")+'</div>';
-      }).join("");
-    if(j.unread) fetch(SAY_API+"/fam/seen",{method:"POST",
-      headers:{"Content-Type":"application/json"},body:JSON.stringify({who:"boyuan"})}).catch(function(){});
-  }catch(e){ host.style.display="none" }
-}
-setTimeout(loadMySays, 1200);
 </script>
+<script src="./fam-widget.js" data-me="boyuan"></script>
 </body>
 </html>
