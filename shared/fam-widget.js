@@ -343,11 +343,24 @@
          现在：右边立一道真的线，线上一顶皇冠，到了的人站上去戴金圈。 */
       var arrived = ppl.filter(function (o) { return o.x.finished });
       var walking = ppl.filter(function (o) { return !o.x.finished });
-      var CROWN_W = 52;                       /* 右边给皇冠留的地方 */
+      var CROWN_W = 58;                       /* 右边给皇冠和站台留的地方 */
 
       /* 还在路上的：按进度铺在起点到终点线之间 */
+      /* 进度接近的会叠成一坨（老板截图里「曼」「玺」就是），
+         按顺序过一遍，挨得太近的往右推一点。 */
+      var GAP = 9;                            /* 百分比，约等于一个头像宽 */
+      var seen = [];
+      var spread = {};
+      walking.slice().sort(function (a, c) {
+        return xs[ppl.indexOf(a)] - xs[ppl.indexOf(c)] }).forEach(function (o) {
+        var v = xs[ppl.indexOf(o)];
+        if (seen.length && v - seen[seen.length - 1] < GAP) v = seen[seen.length - 1] + GAP;
+        if (v > 92) v = 92;                   /* 别越过终点线 */
+        seen.push(v);
+        spread[o.x.id] = v;
+      });
       var moving = walking.map(function (o) {
-        var x = xs[ppl.indexOf(o)];
+        var x = spread[o.x.id];
         return '<div title="' + esc(o.x.name) + '" style="position:absolute;' +
           'left:calc(14px + (100% - ' + (CROWN_W + 28) + 'px) * ' + (x / 100).toFixed(3) + ');' +
           'bottom:13px;transform:translateX(-50%);opacity:' + (o.x.here ? '1' : '.4') + ';' +
@@ -385,7 +398,7 @@
           ' 0 4px,transparent 4px 7px)"></div>' +
           moving +
           /* 皇冠 + 站上去的人 */
-          '<div style="position:absolute;right:0;bottom:2px;display:flex;flex-direction:column;' +
+          '<div style="position:absolute;right:6px;bottom:2px;display:flex;flex-direction:column;' +
           'align-items:center;gap:2px">' +
             (arrived.length ? '<div style="display:flex;align-items:flex-end">' + podium + '</div>' : '') +
             crown +
