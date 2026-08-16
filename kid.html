@@ -2080,16 +2080,24 @@ setInterval(function(){if(tStart0){var d=uGet();d.sec+=5;uPut(d);tStart0=Date.no
 uShow();
 async function tGo(){
   if(tOn){tEnd();return}
-  if(!tKey){tKey=await needKey();if(!tKey)return}
+  /* 老板 2026-08-16：钥匙搬到 Cloudflare 了，这台设备不用配。
+     原来这里一上来就拦着要钥匙——那正是今天他点了"没反应"的原因
+     （其实是弹出了「第一次设置」，他以为坏了）。
+     本地存过钥匙的还是走原来的直连，不占老板额度。 */
   btn.disabled=true;tsay("正在叫老师…");
   try{tStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
   catch(e){tsay("要允许用麦克风才能上课哦");btn.disabled=false;return}
   tIdx=0;tConn();
 }
 var tPlaying=false;
+var TPROXY="wss://su-family.yousef-abud.workers.dev/kid/live";
 function tConn(){
   var model=TMODELS[tIdx];
-  tws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+tKey);
+  /* 钥匙在 Cloudflare 那边，页面上一个字都没有——
+     这页在 GitHub Pages 上是公开的，钥匙写进来等于送人。 */
+  tws=new WebSocket(tKey
+    ? ("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+tKey)
+    : TPROXY);
   var ready=false;
   tws.onopen=function(){
     var star=(typeof D!=="undefined"&&D.stars)||0, streak=(typeof D!=="undefined"&&D.streak)||0;
@@ -2098,7 +2106,7 @@ function tConn(){
        学校老师跳着教，他今天可能只背了第二、第四行——
        所以考什么由他自己点的「已背会」决定，不由课本顺序决定。
        问他没学过的，就是在制造"我不会"，那正是他最怕的。 */
-    var learned=(typeof todayLearned==="function")?todayLearned():[];
+    var learned=(typeof learnedForTeacher==="function")?learnedForTeacher():[];
     if(learned.length){
       ctx += "\n\n【今天他自己点了「已背会」的，就这些】\n"+learned.join("\n")+
         "\n\n**这堂课的任务是把上面这些验一遍，不是教新东西。**"+
@@ -2109,7 +2117,10 @@ function tConn(){
         "\n3. 一句一句来：让他自己背，卡住就给提示（先给第一个词，再给半句），"+
         "背出来了就具体地夸一句，再问他这句是什么意思。"+
         "\n4. 背错了不许有一点点责备的味道，拆开陪他再来一遍，做对了再夸。"+
-        "\n5. 全过完了，用一句话告诉他今天验收了几句、哪几句最漂亮，然后收工。";
+        "\n5. **上面可能有二三十句，不要全考。挑 6 到 8 句**——"+
+        "语文和古兰经优先（那是学校和家里当天布置的），英语单词捡两三个问问就行。"+
+        "十五分钟到了就收，哪怕没考完；他状态好的时候结束，比他厌烦了才结束强一百倍。"+
+        "\n6. 收工时用一句话告诉他今天验收了几句、哪几句背得最漂亮。";
     }else{
       ctx += "开场先用一句轻松的话让他放松（问问他今天怎么样，或讲个一句话的小笑话），"+
         "再让他挑今天玩哪一科（古兰经/中文/英语/数学）——用'玩'这个字，别用'学'。"+
@@ -2131,7 +2142,22 @@ function tConn(){
   };
   tws.onclose=function(e){
     if(!ready&&tIdx<TMODELS.length-1){tIdx++;tConn();return}
-    if(!ready){tsay("没连上老师（"+e.code+"），等一下再试");btn.disabled=false;tClean();return}
+    if(!ready){
+      /* 说清楚是哪一步断的，别再让人猜。今天就是被一句含糊话拖了半天。 */
+      if(!tKey){
+        tsay("没连上老师（"+e.code+"）。要么今天叫太多次了，要么网络不好——"+
+             "过几分钟再点一次。老这样的话，让爸爸点这里手动设置。");
+        var a=document.getElementById("tStatus").appendChild(document.createElement("button"));
+        a.className="main ghost"; a.type="button";
+        a.style.cssText="margin-top:8px;font-size:.8rem;padding:6px 10px";
+        a.textContent="爸爸：手动填钥匙";
+        a.onclick=async function(){ tKey=await needKey(); if(tKey){ tIdx=0; tGo() } };
+      }else{
+        tsay("没连上老师（"+e.code+"）。这台设备存的钥匙可能过期了——"+
+             "让爸爸重新设置一下。");
+      }
+      btn.disabled=false;tClean();return;
+    }
     if(tOn)tsay("断线了，再点一次");tClean();
   };
 }
@@ -3536,10 +3562,23 @@ function teachTopic(){
 /* 卡片上先说清楚老师今天会考哪几句——他心里有底才敢按那个钮 */
 function renderTeachScope(){
   const el=document.getElementById("tScope"); if(!el)return;
-  const n=(typeof todayLearned==="function")?todayLearned():[];
-  if(!n.length){ el.textContent=""; return }
-  el.innerHTML='今天你点了「已背会」的，老师<b>只考这些</b>：<br>'+
-    n.map(function(x){ return x.replace(/</g,"&lt;") }).join("<br>");
+  const gs=(typeof todayLearned==="function")?todayLearned():[];
+  if(!gs.length){ el.textContent=""; return }
+  /* 老板 2026-08-16 说这里「乱码了」——其实是阿拉伯语（从右往左）
+     和中文（从左往右）混在一行，括号和斜杠被甩到错位置。
+     卡片上**只给中文**，每段用 <bdi> 圈住，方向不互相传染。 */
+  const esc=function(x){ return String(x).replace(/[<>&]/g,function(c){
+    return {"<":"&lt;",">":"&gt;","&":"&amp;"}[c] }) };
+  let total=0;
+  const rows=gs.map(function(g){
+    total+=g.lines.length;
+    const first=g.lines[0]||{};
+    const head=(first.zh||first.raw||"").slice(0,20);
+    return '<div style="margin-top:3px">·&nbsp;<b>'+esc(g.subName)+'</b> '+
+           g.lines.length+' 句　<bdi style="opacity:.85">'+esc(head)+
+           (g.lines.length>1?"…":"")+'</bdi></div>';
+  });
+  el.innerHTML='今天你点了「已背会」的一共 <b>'+total+'</b> 句，老师从这里面挑着考：'+rows.join("");
 }
 function renderTeach(){
   try{ renderTeachScope() }catch(e){}
@@ -4278,7 +4317,7 @@ function renderWish(){
    根据他选择的已背会的内容来让星星老师考他」——
    所以考什么由他点的决定，不由课本顺序决定。 */
 function todayLearned(){
-  const out=[], pre=todayKey()+"_bh_";
+  const pre=todayKey()+"_bh_";
   D.beihui=D.beihui||{};
   const NAME={poem:"语文古诗",quran:"古兰经",arabic:"阿拉伯语",english:"英语单词"};
   const bySub={};
@@ -4289,22 +4328,36 @@ function todayLearned(){
     const pack=(typeof RECITE!=="undefined")&&RECITE[sub]; if(!pack) continue;
     const item=pack.list[idx]; if(!item) continue;
     const ln=(item.lines||[])[li]; if(ln==null) continue;
-    const txt=(typeof ln==="object") ? (ln.ar+"（"+ln.zh+"）") : String(ln);
-    (bySub[sub]=bySub[sub]||{name:item.name||"",lines:[]}).lines.push(txt);
+    const g=(bySub[sub]=bySub[sub]||{sub:sub, subName:NAME[sub]||sub,
+                                      lesson:item.name||"", lines:[]});
+    if(typeof ln==="object"){
+      /* 阿语：原文和中文分开存，别拼成一个字符串——
+         拼在一起，卡片上就成了老板说的那团乱码。 */
+      g.lines.push({raw:ln.ar, zh:ln.zh||""});
+    }else{
+      const t=String(ln);
+      const cut=t.indexOf("—");            /* 英语是「word — 中文」 */
+      if(cut>0) g.lines.push({raw:t.slice(0,cut).trim(), zh:t.slice(cut+1).trim()});
+      else      g.lines.push({raw:t, zh:(item.mean&&item.mean[li])||""});
+    }
   }
-  for(const sub in bySub){
-    out.push("【"+(NAME[sub]||sub)+"】"+(bySub[sub].name?bySub[sub].name+"：":"")+
-             bySub[sub].lines.join(" ／ "));
-  }
-  /* 成语：他造的句子本身就是答案，念给老师听 */
+  const out=Object.keys(bySub).map(function(k){ return bySub[k] });
+  /* 成语：他造的句子本身就是答案 */
   if(typeof idiomToday==="function" && typeof idGot==="function"){
-    const ids=idiomToday().map(function(k){
+    const lines=idiomToday().map(function(k){
       const it=RECITE.idiom.list[k], sent=(idGot(k)||"").trim();
-      return sent ? ((it&&it.name?it.name:"")+"：他造的句子是「"+sent+"」") : "";
+      return sent ? {raw:(it&&it.name?it.name:""), zh:"他造的句子是「"+sent+"」"} : null;
     }).filter(Boolean);
-    if(ids.length) out.push("【成语】"+ids.join("；"));
+    if(lines.length) out.push({sub:"idiom", subName:"成语", lesson:"", lines:lines});
   }
   return out;
+}
+/* 喂给老师的：全文，阿拉伯原文必须在，她要拿这个考他 */
+function learnedForTeacher(){
+  return todayLearned().map(function(g){
+    return "【"+g.subName+"】"+(g.lesson?g.lesson+"：":"")+
+      g.lines.map(function(l){ return l.raw+(l.zh?("（"+l.zh+"）"):"") }).join(" ／ ");
+  });
 }
 
 /* ═══ 星星老师（老板 2026-08-16：「每天学完考他一下，看看他学会了没」）═══
@@ -4465,6 +4518,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=1909edab" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=fcd721ed" data-me="boyuan"></script>
 </body>
 </html>
