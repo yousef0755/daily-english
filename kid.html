@@ -1377,13 +1377,43 @@ function renderRank(){
 /* 等级按**累计拿到的星**算，第一天就是 LV.1，只升不降——那是他挣的。
    每 30 颗升一级；按日上限 15 算，认真学两天升一级。
    （原来页面上那个 LV.10 是写死的字，不是算出来的，孩子第一天就看到 10 级。） */
+/* 升级要多少星（老板 2026-08-16：「学了第二天了还是 V1」）。
+   原来是每 30 颗一级，一天大概 13 颗，第二天差 4 颗卡在门口。
+   改成曲线：前几级快、后面越来越慢——
+   按一天 13 颗算，LV2 第 2 天、LV3 第 4 天、LV5 第 11 天、LV10 第 50 天。
+   老板 8-15 说过段位不能太好拿，所以不是简单把门槛调低，是重新排疏密。 */
+const LV_STEPS=[0,20,50,90,140,200,280,380,500,650];
 function levelOf(){
   const t=D.total||0;
-  return 1+Math.floor(t/30);
+  let lv=1;
+  for(let i=0;i<LV_STEPS.length;i++){ if(t>=LV_STEPS[i]) lv=i+1 }
+  return lv;
+}
+/* 离下一级还差多少——孩子看着 LV.1 不动却不知道差几颗，只会觉得这东西不涨 */
+function levelNext(){
+  const t=D.total||0, lv=levelOf();
+  if(lv>=LV_STEPS.length) return null;
+  const need=LV_STEPS[lv];
+  return {need:need, left:Math.max(0,need-t),
+          pct:Math.min(100,Math.round((t-LV_STEPS[lv-1])/(need-LV_STEPS[lv-1])*100))};
 }
 function renderLevel(){
   const el=document.getElementById("lvText");
-  if(el)el.textContent="LV."+levelOf();
+  if(!el)return;
+  const n=levelNext();
+  el.textContent="LV."+levelOf();
+  el.title = n ? ("再拿 "+n.left+" 颗星就升级") : "已经是最高级了";
+  /* 徽章底下补一条细进度条，让他看得见在往前走 */
+  let bar=document.getElementById("lvBar");
+  if(!bar && el.parentNode){
+    bar=document.createElement("span");
+    bar.id="lvBar";
+    bar.style.cssText="display:block;height:3px;border-radius:99px;margin-top:4px;"+
+      "background:rgba(255,255,255,.18);overflow:hidden";
+    bar.innerHTML='<i style="display:block;height:100%;border-radius:99px;background:var(--mint,#7ed6b2);width:0"></i>';
+    el.parentNode.appendChild(bar);
+  }
+  if(bar && n) bar.firstChild.style.width=n.pct+"%";
 }
 function keepDays(){
   const set=new Set(Object.keys(D.reciteDone||{}).map(function(k){return k.split("_")[0]}));
