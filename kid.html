@@ -195,20 +195,11 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
 /* ── 笔顺 ── */
-#strokeBox{margin:10px 0 4px;display:flex;flex-direction:column;align-items:center;gap:8px}
-#strokeSvg{width:190px;height:190px;background:rgba(255,255,255,.05);
-  border:1px solid var(--line);border-radius:14px;touch-action:none}
-#strokeSvg .grid{stroke:var(--line);stroke-width:2;stroke-dasharray:8 8}
-#strokeSvg .done{fill:var(--cream)}
-#strokeSvg .now{fill:var(--gold)}
-#strokeSvg .todo{fill:rgba(243,239,226,.13)}
 .strokeBar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .strokeBar button{border:1px solid var(--gold);background:rgba(255,212,121,.1);
   color:var(--gold);border-radius:11px;padding:8px 14px;font-size:.9rem;cursor:pointer;
   font-family:inherit}
 .strokeBar button.on{background:var(--gold);color:#231a05;font-weight:700}
-#strokeTip{font-size:.85rem;color:var(--muted);min-height:1.3em;text-align:center}
-
 .lvbadge{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:.82rem;color:var(--muted)}
 .lvbadge b{background:var(--gold);color:#231a05;border-radius:9px;padding:2px 10px;font-size:.9rem}
 .lvbadge .keep{color:var(--mint)}
@@ -272,7 +263,6 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 @keyframes kcomeback{from{transform:translateX(70px);opacity:0}to{transform:translateX(0);opacity:1}}
 @media (prefers-reduced-motion:reduce){.kcat.poked,.kcat.purring,.kcat.leaving,.kcat.returning{animation:none !important;transition:none !important;transform:none !important;opacity:1 !important}}
 
-#strokeSpeak{border-color:var(--mint) !important;color:var(--mint) !important}
 .strokeBar button.go{background:var(--gold);color:#231a05;font-weight:700}
 
 /* ── 段位：一棵树 + 一张梯子（老板 2026-08-16 定的样子） ── */
@@ -552,8 +542,15 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 .navcats{position:fixed;z-index:49;left:50%;transform:translateX(-50%);
   width:min(calc(100% - 24px),720px);bottom:max(10px,env(safe-area-inset-bottom));
   height:var(--navh,56px);pointer-events:none}
+/* 老板 2026-08-16：「下框的那两只猫，最好点击的时候也有个和博远的互动」——
+   原来整块 pointer-events:none 是纯装饰。给猫本身开放点击，容器仍旧不挡。 */
 .navcat{position:absolute;bottom:calc(100% - 11px);width:58px;height:auto;
-  filter:drop-shadow(0 5px 12px rgba(0,0,0,.5))}
+  filter:drop-shadow(0 5px 12px rgba(0,0,0,.5));
+  pointer-events:auto;cursor:pointer;transition:transform .18s ease}
+.navcat:active{transform:scale(.9)}
+.navcat.poked{animation:navjump .5s ease}
+@keyframes navjump{0%,100%{transform:translateY(0)}35%{transform:translateY(-9px)}}
+@media (prefers-reduced-motion:reduce){.navcat.poked{animation:none}}
 /* 哆米是黑猫，页面又是深色的，加一圈很淡的月光边才看得出轮廓 */
 .navcat.right{filter:drop-shadow(0 0 1.5px rgba(190,214,244,.55))
   drop-shadow(0 5px 12px rgba(0,0,0,.5))}
@@ -1056,7 +1053,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 </main>
 
 <div class="navsay" id="navSay" aria-live="polite"></div>
-<div class="navcats" aria-hidden="true"><svg class="navcat left" viewBox="0 0 200 150" aria-hidden="true">
+<div class="navcats"><svg class="navcat left" viewBox="0 0 200 150" aria-hidden="true">
   <defs><radialGradient id="gnavS" cx="42%" cy="34%" r="72%">
     <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e9e3d8"/>
   </radialGradient></defs>
@@ -1121,7 +1118,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 </svg></div>
 <nav>
   <button class="on" data-p="learn"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></span>任务</button>
-  <button data-p="write"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 4.6l4.2 4.2M4 20l1-4.2L16.1 4.7a1.6 1.6 0 0 1 2.3 0l.9.9a1.6 1.6 0 0 1 0 2.3L8.2 19z"/></svg></span>练字</button>
+  <button data-p="write"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 4.6l4.2 4.2M4 20l1-4.2L16.1 4.7a1.6 1.6 0 0 1 2.3 0l.9.9a1.6 1.6 0 0 1 0 2.3L8.2 19z"/></svg></span>生字</button>
   <button data-p="diary"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h11a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg></span>心愿</button>
   <button data-p="reward"><span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.8 8.6h16.4v3.1H3.8zM5.2 11.7h13.6v8.1H5.2zM12 8.6v11.2"/><path d="M12 8.6C10.6 6.4 8.9 4 7.4 4.8 5.8 5.6 7.9 8 12 8.6zM12 8.6c1.4-2.2 3.1-4.6 4.6-3.8 1.6.8-.5 3.2-4.6 3.8z"/></svg></span>奖励</button>
 </nav>
@@ -2638,54 +2635,8 @@ function renderHanziTitle(){
 }
 
 
-/* ===== 手写练习板（田字格 + 描红） ===== */
-let padZ=null,padCtx=null,padDrawing=false;
-function openPad(h){
-  padZ=h;
-  document.getElementById("padCard").style.display="block";
-  document.getElementById("padTitle").textContent="写一写：" + h.z + "（" + h.py + " · " + h.bh + " 画）";
-  const c=document.getElementById("pad");
-  padCtx=c.getContext("2d");
-  drawGrid();
-  padProg();
-  document.getElementById("padCard").scrollIntoView({behavior:"smooth",block:"nearest"});
-}
-function drawGrid(){
-  const c=document.getElementById("pad"),x=padCtx,W=c.width;
-  x.clearRect(0,0,W,W);
-  x.fillStyle="#fdfbf4";x.fillRect(0,0,W,W);
-  // 田字格
-  x.strokeStyle="#e8c9a8";x.lineWidth=2;x.strokeRect(2,2,W-4,W-4);
-  x.setLineDash([7,7]);x.lineWidth=1.4;x.strokeStyle="#eccfae";
-  x.beginPath();x.moveTo(W/2,0);x.lineTo(W/2,W);x.moveTo(0,W/2);x.lineTo(W,W/2);
-  x.moveTo(0,0);x.lineTo(W,W);x.moveTo(W,0);x.lineTo(0,W);x.stroke();
-  x.setLineDash([]);
-  // 淡色范字
-  if(padZ){
-    x.fillStyle="rgba(120,110,95,.22)";
-    x.font="215px 'PingFang SC','Songti SC',serif";
-    x.textAlign="center";x.textBaseline="middle";
-    x.fillText(padZ.z,W/2,W/2+8);
-  }
-  x.strokeStyle="#1e2b23";x.lineWidth=9;x.lineCap="round";x.lineJoin="round";
-}
-function padPos(e){
-  const c=document.getElementById("pad"),r=c.getBoundingClientRect();
-  const t=e.touches?e.touches[0]:e;
-  return {x:(t.clientX-r.left)*c.width/r.width,y:(t.clientY-r.top)*c.height/r.height};
-}
-function padStart(e){
-  window.__inkStrokes=(window.__inkStrokes||0)+1;e.preventDefault();padDrawing=true;const p=padPos(e);padCtx.beginPath();padCtx.moveTo(p.x,p.y)}
-function padMove(e){
-  if(padDrawing){window.__inkPts=(window.__inkPts||0)+1}if(!padDrawing)return;e.preventDefault();const p=padPos(e);padCtx.lineTo(p.x,p.y);padCtx.stroke()}
-function padEnd(){padDrawing=false}
-function padProg(){
-  if(!padZ)return;
-  const k=todayKey()+"_pad_"+padZ.z;
-  const n=(D.padDone||{})[k]||0;
-  document.getElementById("padProg").textContent=n>=3?("「"+padZ.z+"」今天写满三遍了 ✓"):("已经写了 "+n+" / 3 遍");
-}
-
+/* 田字格手写板已整段删除（老板 2026-08-16：「练字删掉不要了」）。
+   它的 HTML 从来没写进页面，剩下的全是找不到元素的死代码。 */
 /* ===== 每天一篇日记 ===== */
 const DIARY_TOPICS=["今天最开心的一件事是什么？","今天学会了什么新东西？","今天谁帮了你？你说谢谢了吗？",
  "今天吃到最好吃的是什么？","今天有没有一件事你觉得很难？后来怎么样了？","如果明天可以做一件事，你最想做什么？",
@@ -2875,43 +2826,7 @@ document.getElementById("rHide").onclick=function(){
 /* rDone（当初那个「按住背给爸爸听」）在改成念十遍时就删掉了，
    这段挂在它身上的代码是死的，而且每次加载都抛 TypeError、
    把后面的初始化整个中断。2026-08-16 摘除。 */
-(function(){
-  const c=document.getElementById("pad");
-  if(c){
-    c.addEventListener("touchstart",padStart,{passive:false});
-    c.addEventListener("touchmove",padMove,{passive:false});
-    c.addEventListener("touchend",padEnd);
-    c.addEventListener("mousedown",padStart);
-    c.addEventListener("mousemove",padMove);
-    c.addEventListener("mouseup",padEnd);
-    c.addEventListener("mouseleave",padEnd);
-  }
-  const cl=document.getElementById("padClear");
-  if(cl)cl.onclick=function(){drawGrid();window.__inkPts=0;window.__inkStrokes=0};
-  const ok=document.getElementById("padOk");
-  if(ok)ok.onclick=function(){
-    if(!padZ)return;
-    /* 2026-08-15 堵漏洞：原来点一下就算写完一遍，格子里空的照样给星。
-       现在要真在格子里写过才算——落笔点数和笔画数都要够。 */
-    const pts=window.__inkPts||0, strokes=window.__inkStrokes||0;
-    if(pts<70 || strokes<2){
-      toast("要在格子里写一遍才算哦");
-      return;
-    }
-    window.__inkPts=0; window.__inkStrokes=0;
-    const k=todayKey()+"_pad_"+padZ.z;
-    D.padDone=D.padDone||{};
-    const n=(D.padDone[k]||0)+1;D.padDone[k]=n;
-    if(n>=3){
-      D.hanziDone=D.hanziDone||{};
-      D.hanziDone[todayKey()+"_"+padZ.z]=1;
-      addStar(1);toast("「"+padZ.z+"」写满三遍，会写了！+1 ⭐");
-    }else{
-      addStar(1);toast("写好第 "+n+" 遍 +1 ⭐");
-    }
-    save();drawGrid();padProg();renderHanzi();
-  };
-})();
+/* 手写板的事件绑定也一并删了（元素本来就不存在） */
 render();renderHanzi();renderDiary();
 
 try{renderLevel();renderRank();setWalker(D.walker||"Snowy");if(!catsMissYou())renderCats("start")}catch(e){}
@@ -2992,89 +2907,7 @@ function quranAdvance(){
 /* 日记撤了（老板 2026-08-16：「把日记去掉，给他换成心愿墙」）——
    中英两篇的保存逻辑跟着一起拔掉。 */
 
-/* ═══ 笔顺：先看怎么写，再一笔一笔跟着写 ═══ */
-var STROKES=null, sChar=null, sIdx=0, sTimer=null;
-fetch("media/hanzi/strokes.json").then(function(r){return r.json()})
-  .then(function(j){STROKES=j;}).catch(function(){});
-
-function strokeSvgFor(ch){
-  var d=STROKES&&STROKES[ch];
-  if(!d)return null;
-  return d;
-}
-/* hanzi-writer 的坐标是 1024 见方、Y 轴朝上，要翻过来 */
-var TRANS='translate(0,900) scale(1,-1)';
-
-function renderStrokes(ch, upto, highlight){
-  var box=document.getElementById("strokeSvg"); if(!box)return;
-  var d=strokeSvgFor(ch);
-  if(!d){box.innerHTML='<text x="512" y="560" text-anchor="middle" font-size="120" fill="#888">没有笔顺数据</text>';return}
-  var ns="http://www.w3.org/2000/svg";
-  var parts=[];
-  /* 田字格 */
-  parts.push('<line class="grid" x1="512" y1="0" x2="512" y2="1024"/>');
-  parts.push('<line class="grid" x1="0" y1="512" x2="1024" y2="512"/>');
-  parts.push('<g transform="'+TRANS+'">');
-  d.strokes.forEach(function(pathD,k){
-    var cls = k<upto ? "done" : (k===highlight ? "now" : "todo");
-    parts.push('<path class="'+cls+'" d="'+pathD+'"/>');
-  });
-  parts.push('</g>');
-  box.innerHTML=parts.join("");
-}
-
-function strokeDemo(ch){
-  clearTimeout(sTimer);
-  var d=strokeSvgFor(ch); if(!d)return;
-  sChar=ch; var n=d.strokes.length, k=0;
-  var tip=document.getElementById("strokeTip");
-  (function step(){
-    renderStrokes(ch,k,k);
-    if(tip)tip.textContent="第 "+(k+1)+" 笔 · 共 "+n+" 笔";
-    k++;
-    if(k<=n){ sTimer=setTimeout(step,620) }
-    else { renderStrokes(ch,n,-1); if(tip)tip.textContent="一共 "+n+" 笔，看清楚了再自己写"; }
-  })();
-}
-
-function strokeFollow(ch){
-  clearTimeout(sTimer);
-  var d=strokeSvgFor(ch); if(!d)return;
-  sChar=ch; sIdx=0;
-  var n=d.strokes.length;
-  renderStrokes(ch,0,0);
-  var tip=document.getElementById("strokeTip");
-  if(tip)tip.textContent="照着黄色那一笔写 · 第 1 笔 / 共 "+n+" 笔";
-  var nb=document.getElementById("strokeNext");
-  if(nb){nb.style.display="";nb.onclick=function(){
-    sIdx++;
-    if(sIdx>=n){
-      renderStrokes(ch,n,-1);
-      if(tip)tip.textContent="全部 "+n+" 笔写完了 ✓";
-      nb.style.display="none";
-      if(typeof markHanziDone==="function")markHanziDone(ch);
-      return;
-    }
-    renderStrokes(ch,sIdx,sIdx);
-    if(tip)tip.textContent="第 "+(sIdx+1)+" 笔 / 共 "+n+" 笔";
-  }}
-}
-
-/* 点开一个生字 → 笔顺跟着换 */
-(function(){
-  var fb=document.getElementById("strokeFollowBtn");
-  function cur(){ return (typeof padChar!=="undefined"&&padChar) ? padChar
-                 : (window.__curHanzi||null); }
-  /* 看笔顺按钮已按老板要求去掉，只留跟着写 */
-  
-  /* 包住原来的开笔函数，记住当前是哪个字并预渲染 */
-  if(typeof window.openPad==="function"){
-    var _o=window.openPad;
-    window.openPad=function(ch){ window.__curHanzi=ch; var r=_o.apply(this,arguments);
-      setTimeout(function(){ if(STROKES&&STROKES[ch]) renderStrokes(ch,0,-1); },60);
-      return r; };
-  }
-})();
+/* 笔顺演示也删了（同上，它依赖的 strokeSvg 等元素页面上没有） */
 
 /* ═══ Snowy（白猫）和哆米（黑猫）来鼓励他 ═══
    老板 09:07 交代。两只都是家里真的猫，说话要像猫，不讲大道理。 */
@@ -3221,6 +3054,40 @@ function catsBoth(key){
    底框这两只挑他正在做题、滑到下半截的时候说一句，说完自己淡出去。
    **不打断他**——只让他知道有猫在旁边看着。 */
 let navSayT=null, navSayLast=0;
+
+/* 底框那两只可以点（老板 2026-08-16）。戳了必须有反应，不然它就是张图。
+   **不给星**——不然又成了刷分的路子。
+   连着戳会换话；哆米戳多了会不耐烦，跟主页那只一个脾气。 */
+var navPoke={Snowy:0,"哆米":0};
+var NAV_POKE_S=["嗯？","我在下面呢。","你低头看我干嘛，做你的题。",
+  "……挠挠这里。","好啦好啦，我知道你在。","再点我要打呼噜了。"];
+var NAV_POKE_D=["干嘛。","别点了。","我说了别点。",
+  "你手很闲？","行，我挪个地方。","……好吧，就一下。"];
+function bindNavCats(){
+  var L=document.querySelector(".navcat.left"), R=document.querySelector(".navcat.right");
+  [[L,"Snowy",NAV_POKE_S],[R,"哆米",NAV_POKE_D]].forEach(function(a){
+    var el=a[0]; if(!el||el._bound)return;
+    el._bound=true;
+    el.style.pointerEvents="auto";
+    el.addEventListener("click", function(){
+      var who=a[1], pool=a[2];
+      var n=navPoke[who]++;
+      /* 戳三下里有一下换成真夸他——他要的就是这个 */
+      var txt=(n%3===2 && typeof praiseLine==="function") ? (praiseLine(who,4)||pool[n%pool.length])
+                                                          : pool[n%pool.length];
+      var box=document.getElementById("navSay");
+      if(box){
+        box.innerHTML='<b>'+who+'</b>　'+txt;
+        box.classList.add("on");
+        clearTimeout(navSayT);
+        navSayT=setTimeout(function(){ box.classList.remove("on") }, 4200);
+        navSayLast=Date.now();      /* 别让自动那条紧跟着又冒一句 */
+      }
+      el.classList.remove("poked"); void el.offsetWidth; el.classList.add("poked");
+    });
+  });
+}
+
 function navCatSay(){
   const el=document.getElementById("navSay"); if(!el)return;
   if(Date.now()-navSayLast < 95000) return;        /* 别唠叨，一分半以上才说一次 */
@@ -3416,22 +3283,8 @@ function purr(who){
   });
 })();
 
-/* 生字朗读（老板：生字那边弄个播音）——用云夏那批已生成的音频 */
-(function(){
-  var sp=document.getElementById("strokeSpeak");
-  function cur(){ return (typeof padZ!=="undefined"&&padZ&&padZ.z) ? padZ.z
-                 : (window.__curHanzi||null); }
-  
-  /* 打开一个字时自动念一遍，孩子先听见再动笔 */
-  if(typeof window.openPad==="function"){
-    var _o=window.openPad;
-    window.openPad=function(ch){
-      var r=_o.apply(this,arguments);
-      setTimeout(function(){ if(ch&&typeof speakRoster==="function")speakRoster(ch) },220);
-      return r;
-    };
-  }
-})();
+/* 手写板删了，包在 openPad 外面那段自动朗读也跟着删（padZ / strokeSpeak 都不存在了）。
+   生字表每行本来就有喇叭，念读音那件事没丢。 */
 
 /* ═══ 猫走的那条道（老板出的主意：半路有水，走完有饭） ═══
    进度按当天五科算，跟日记开锁同一套判定，不另立标准。 */
@@ -3640,7 +3493,7 @@ async function renderNag(){
 }
 /* 开页就把这一块画出来，并把今天的进度同步给 Service Worker */
 (function(){
-  function boot(){ try{loadMyWish()}catch(e){} try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} try{renderReview()}catch(e){} try{renderTeach()}catch(e){} }
+  function boot(){ try{loadMyWish()}catch(e){} try{bindNavCats()}catch(e){} try{nagMirror()}catch(e){} try{famPing()}catch(e){} try{renderNag()}catch(e){} try{renderReview()}catch(e){} try{renderTeach()}catch(e){} }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
   else boot();
 })();
@@ -4731,6 +4584,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=2a27da48" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=4272e14a" data-me="boyuan"></script>
 </body>
 </html>
