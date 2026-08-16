@@ -331,6 +331,51 @@ footer a{color:var(--indigo)}
    位置和样式是 Jay 那版，我只加 sticky —— 他放在正常流里不压标题，这点比我原来的 fixed 版好。 */
 .famlink{position:sticky;top:8px;z-index:60}
 @supports(padding:max(0px)){ .famlink{top:max(8px, env(safe-area-inset-top))} }
+
+/* ── 你的那株（老板 2026-08-16 让把博远那边的浇水猫给曼雅）──
+   按她这页的样布风格重做：亚麻底、绣线、鼠尾草绿，不是弟弟那套深空。 */
+#mGarden .mg-grid{display:grid;grid-template-columns:minmax(0,.96fr) minmax(0,1.04fr);
+  gap:8px;align-items:end;margin-top:6px}
+#mGarden .mg-tree{align-self:end}
+#mGarden svg{width:100%;height:auto;display:block;overflow:visible}
+#mGarden .mg-ladder ol{list-style:none;margin:0;padding:0;display:flex;
+  flex-direction:column;gap:4px}
+#mGarden .mg-row{display:flex;align-items:center;gap:7px;padding:5px 8px;
+  border-radius:4px;font-size:.8rem;color:var(--ink-2);
+  border:1px solid transparent}
+#mGarden .mg-dot{flex:0 0 auto;width:14px;height:14px;border-radius:50%;
+  border:1px solid var(--edge);display:grid;place-items:center;font-size:.52rem;color:var(--ink-2)}
+#mGarden .mg-nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mGarden .mg-n{flex:0 0 auto;margin-left:auto;font-size:.66rem;opacity:.75;
+  font-variant-numeric:tabular-nums}
+#mGarden .mg-row.done{color:var(--ink)}
+#mGarden .mg-row.done .mg-dot{background:var(--sage);border-color:var(--sage);color:var(--card)}
+#mGarden .mg-row.now{background:rgba(111,127,99,.12);border-color:var(--sage);
+  color:var(--sage);font-weight:700;font-size:.86rem}
+#mGarden .mg-row.now .mg-dot{background:var(--sage);border-color:var(--sage);color:var(--card)}
+#mGarden .mg-row.next{border-style:dashed;border-color:var(--edge)}
+#mGarden .mg-row.next .mg-n{color:var(--madder)}
+#mGarden .mg-say{margin-top:10px;font-size:.86rem;color:var(--ink-2);line-height:1.8}
+#mGarden .mg-say b{color:var(--madder);font-weight:700}
+#mGarden .tpart{opacity:0;transform-origin:200px 226px;transform:scale(.6);
+  transition:opacity .55s ease,transform .7s cubic-bezier(.2,.9,.3,1)}
+#mGarden .tpart.on{opacity:1;transform:scale(1)}
+#mTreeG{transform-origin:200px 226px;transition:transform .9s cubic-bezier(.2,.9,.3,1)}
+#mGarden .wcan{transform-origin:72px 88px;animation:mtilt 2.8s ease-in-out infinite}
+@keyframes mtilt{0%,100%{transform:rotate(0)}40%,70%{transform:rotate(-15deg)}}
+#mGarden .wdrop{opacity:0;animation:mfall 2.8s linear infinite}
+@keyframes mfall{0%,32%{opacity:0;transform:translateY(0)}38%{opacity:.85}
+  90%,100%{opacity:0;transform:translateY(34px)}}
+#mGarden .wtail{transform-origin:79px 90px;animation:mtail 4s ease-in-out infinite}
+@keyframes mtail{0%,100%{transform:rotate(0)}50%{transform:rotate(8deg)}}
+#mGarden .whead{transform-origin:55px 60px;animation:mnod 4.8s ease-in-out infinite}
+@keyframes mnod{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg)}}
+#mGarden.dry .wcan,#mGarden.dry .wdrop{animation:none}
+#mGarden.dry .wdrop{opacity:0}
+#mGarden .wcat{cursor:pointer}
+@media (prefers-reduced-motion:reduce){
+  #mGarden .wcan,#mGarden .wdrop,#mGarden .wtail,#mGarden .whead{animation:none}
+  #mGarden .tpart,#mTreeG{transition:none}}
 </style>
 <script>
 /* 本机预览一律不往共用的榜上报打卡。
@@ -352,7 +397,7 @@ footer a{color:var(--indigo)}
   };
 })();
 </script>
-<script>window.__BUILD__="3aa7cfd662"</script>
+<script>window.__BUILD__="328c70c8dd"</script>
 </head>
 <body>
 
@@ -495,6 +540,165 @@ footer a{color:var(--indigo)}
   <p class="label">这两周<span class="en">This fortnight</span></p>
   <p class="count" id="streakNum">0<small>days in a row</small></p>
   <div class="days" id="days"></div>
+</section>
+
+
+<!-- 老板 2026-08-16：「把博远里面的那个浇水的小猫给曼雅，稍微修改下设计，
+     让他感觉有点不一样，包括台词也稍微修改下」
+     ——同一个东西，按她的手艺重做：她这页是刺绣样布，不是深空。 -->
+<section class="cloth" id="mGarden">
+  <p class="label">你的那株<span class="en">Your plant</span></p>
+  <div class="mg-grid">
+    <div class="mg-tree"><svg id="mTree" viewBox="74 20 252 216" aria-hidden="true">
+        <ellipse cx="200" cy="228" rx="104" ry="12" fill="rgba(111,127,99,.13)"/>
+
+        <g id="mTreeG">
+          <path d="M158 227 q42 -15 84 0 z" fill="#5a4a33"/>
+          <!-- 六段一起在，靠 JS 决定露到第几段 -->
+          <!-- 第 1 档「种子」：埋在土里还没发芽。
+               不能画成一片空土——他要看六天，得看得出来底下有东西在憋着。 -->
+          <g class="tpart" data-min="1" data-max="1">
+            <path d="M186 227 q14 -9 28 0 z" fill="#4a3c2d"/>
+            <ellipse cx="200" cy="217" rx="11" ry="13.5" fill="#c9a56f"/>
+            <ellipse cx="200" cy="217" rx="11" ry="13.5" fill="none"
+              stroke="#a8854f" stroke-width="1.5"/>
+            <path d="M200 206 q-3.5 6 0 11 q3.5 6 0 11" fill="none" stroke="#8a6b3d"
+              stroke-width="1.6" stroke-linecap="round"/>
+            <g class="tseedwet">
+              <circle cx="188" cy="224" r="1.8" fill="#7f97b8" opacity=".55"/>
+              <circle cx="213" cy="223" r="1.5" fill="#7f97b8" opacity=".45"/>
+              <circle cx="200" cy="232" r="1.4" fill="#7f97b8" opacity=".4"/>
+            </g>
+          </g>
+          <g class="tpart" data-min="2" data-max="2">
+            <path d="M200 227 L200 197" stroke="#8a6f4a" stroke-width="5"
+              stroke-linecap="round" fill="none"/>
+            <path d="M200 201 q-19 -9 -22 -25 q19 -2 24 20 z" fill="#7d9268"/>
+            <path d="M200 201 q19 -9 22 -25 q-19 -2 -24 20 z" fill="#8ea378"/>
+          </g>
+          <g class="tpart" data-min="3">
+            <path d="M200 227 L200 156" stroke="#8a6f4a" stroke-width="9"
+              stroke-linecap="round" fill="none"/>
+            <circle cx="200" cy="140" r="30" fill="#6f7f63"/>
+            <circle cx="184" cy="150" r="20" fill="#7d9268"/>
+            <circle cx="216" cy="150" r="20" fill="#8ea378"/>
+          </g>
+          <g class="tpart" data-min="4">
+            <path d="M200 227 L200 138" stroke="#8a6f4a" stroke-width="13"
+              stroke-linecap="round" fill="none"/>
+            <path d="M200 176 L172 154 M200 168 L230 148" stroke="#8a6f4a"
+              stroke-width="7" stroke-linecap="round" fill="none"/>
+            <circle cx="200" cy="118" r="38" fill="#5d6b53"/>
+            <circle cx="168" cy="140" r="26" fill="#6f7f63"/>
+            <circle cx="232" cy="138" r="27" fill="#7d9268"/>
+            <circle cx="200" cy="146" r="26" fill="#8ea378"/>
+          </g>
+          <g class="tpart" data-min="5">
+            <circle cx="154" cy="120" r="21" fill="#6f7f63"/>
+            <circle cx="246" cy="118" r="22" fill="#7d9268"/>
+            <circle cx="200" cy="88" r="27" fill="#8ea378"/>
+            <g class="tfruit">
+              <circle cx="178" cy="132" r="5.5" fill="#a4453a"/>
+              <circle cx="223" cy="126" r="5" fill="#a8873f"/>
+              <circle cx="198" cy="152" r="5" fill="#a4453a"/>
+              <circle cx="156" cy="104" r="4.5" fill="#a8873f"/>
+            </g>
+          </g>
+          <g class="tpart" data-min="6">
+            <circle cx="140" cy="98" r="17" fill="#5d6b53"/>
+            <circle cx="260" cy="96" r="18" fill="#6f7f63"/>
+            <circle cx="200" cy="62" r="22" fill="#8ea378"/>
+            <g class="tstar">
+              <path d="M200 28 l4.6 9.4 10.4 1.5 -7.5 7.3 1.8 10.3 -9.3 -4.9
+                       -9.3 4.9 1.8 -10.3 -7.5 -7.3 10.4 -1.5 z" fill="#a8873f"/>
+              <circle cx="150" cy="64" r="3" fill="#a8873f" opacity=".8"/>
+              <circle cx="252" cy="56" r="2.4" fill="#a8873f" opacity=".65"/>
+            </g>
+          </g>
+        </g>
+
+        <g id="mWaterG"><circle class="wdrop" cx="186" cy="192" r="3.0" fill="#7f97b8" style="animation-delay:0s"/><circle class="wdrop" cx="190" cy="192" r="2.3" fill="#7f97b8" style="animation-delay:0.5s"/><circle class="wdrop" cx="183" cy="192" r="2.0" fill="#7f97b8" style="animation-delay:1.0s"/><circle class="wdrop" cx="214" cy="192" r="3.0" fill="#7f97b8" style="animation-delay:0.28s"/><circle class="wdrop" cx="210" cy="192" r="2.3" fill="#7f97b8" style="animation-delay:0.78s"/><circle class="wdrop" cx="217" cy="192" r="2.0" fill="#7f97b8" style="animation-delay:1.28s"/></g>
+        
+  <g class="wcat" id="mCatS" transform="translate(70,128)">
+    <defs><radialGradient id="gwcS" cx="42%" cy="32%" r="72%">
+      <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e4ddd0"/>
+    </radialGradient></defs>
+    <path class="wtail" d="M36 92 C18 91 12 78 18 69 C23 62 31 63 32 69"
+      fill="none" stroke="#e4ddd0" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30 96 C27 76 38 61 55 61 C72 61 83 76 80 96 Z" fill="url(#gwcS)"/>
+    <ellipse cx="41" cy="97" rx="8.5" ry="5" fill="#f8f5ef"/>
+    <ellipse cx="63" cy="97" rx="8.5" ry="5" fill="#f8f5ef"/>
+    <g class="whead">
+      <path d="M35 45 L31 27 L48 37 Z" fill="#e4ddd0"/>
+      <path d="M36.5 42.5 L34.5 33 L43.5 38 Z" fill="#e6b7ae"/>
+      <path d="M75 45 L79 27 L62 37 Z" fill="#e4ddd0"/>
+      <path d="M73.5 42.5 L75.5 33 L66.5 38 Z" fill="#e6b7ae"/>
+      <ellipse cx="55" cy="51" rx="24.5" ry="21" fill="url(#gwcS)"/>
+      <ellipse cx="47" cy="51" rx="4.2" ry="5" fill="#2b2721"/>
+      <ellipse cx="63" cy="51" rx="4.2" ry="5" fill="#2b2721"/>
+      <circle cx="48.6" cy="49" r="1.6" fill="#fff"/>
+      <circle cx="64.6" cy="49" r="1.6" fill="#fff"/>
+      <path d="M52.5 59 L57.5 59 L55 62 Z" fill="#d99a8f"/>
+      <path d="M55 62 q-4 4 -7 1 M55 62 q4 4 7 1" fill="none" stroke="#2b2721"
+        stroke-width="1.4" stroke-linecap="round" opacity=".6"/>
+      <g stroke="#f8f5ef" stroke-width="1.1" stroke-linecap="round" opacity=".55">
+        <path d="M34 58 L18 55"/><path d="M34 61 L18 64"/>
+        <path d="M76 58 L92 55"/><path d="M76 61 L92 64"/>
+      </g>
+    </g>
+    <!-- 水壶：壶身在猫的靠树那一侧，壶嘴朝树，尖端在 (116,60) -->
+    <g class="wcan">
+      <path d="M70 62 h24 a3 3 0 0 1 3 3 v22 a3 3 0 0 1 -3 3 h-24 a3 3 0 0 1 -3 -3
+               v-22 a3 3 0 0 1 3 -3 z" fill="#8fb6d9"/>
+      <path d="M73 62 q9 -12 18 0" fill="none" stroke="#7ba6cc" stroke-width="3.4"
+        stroke-linecap="round"/>
+      <path d="M94 66 L114 57 L117 63 L97 73 Z" fill="#a8c9e6"/>
+      <ellipse cx="115.5" cy="60" rx="4.6" ry="3.4" fill="#6b97be"
+        transform="rotate(-25 115.5 60)"/>
+    </g>
+  </g>
+  <g class="wcat" id="mCatD" transform="translate(330,128) scale(-1,1)">
+    <defs><radialGradient id="gwcD" cx="42%" cy="32%" r="72%">
+      <stop offset="0%" stop-color="#5a5e6c"/><stop offset="100%" stop-color="#41444f"/>
+    </radialGradient></defs>
+    <path class="wtail" d="M36 92 C18 91 12 78 18 69 C23 62 31 63 32 69"
+      fill="none" stroke="#41444f" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30 96 C27 76 38 61 55 61 C72 61 83 76 80 96 Z" fill="url(#gwcD)"/>
+    <ellipse cx="41" cy="97" rx="8.5" ry="5" fill="#5a5e6c"/>
+    <ellipse cx="63" cy="97" rx="8.5" ry="5" fill="#5a5e6c"/>
+    <g class="whead">
+      <path d="M35 45 L31 27 L48 37 Z" fill="#41444f"/>
+      <path d="M36.5 42.5 L34.5 33 L43.5 38 Z" fill="#8d6f76"/>
+      <path d="M75 45 L79 27 L62 37 Z" fill="#41444f"/>
+      <path d="M73.5 42.5 L75.5 33 L66.5 38 Z" fill="#8d6f76"/>
+      <ellipse cx="55" cy="51" rx="24.5" ry="21" fill="url(#gwcD)"/>
+      <ellipse cx="47" cy="51" rx="4.2" ry="5" fill="#2b2721"/>
+      <ellipse cx="63" cy="51" rx="4.2" ry="5" fill="#2b2721"/>
+      <circle cx="48.6" cy="49" r="1.6" fill="#fff"/>
+      <circle cx="64.6" cy="49" r="1.6" fill="#fff"/>
+      <path d="M52.5 59 L57.5 59 L55 62 Z" fill="#d99a8f"/>
+      <path d="M55 62 q-4 4 -7 1 M55 62 q4 4 7 1" fill="none" stroke="#2b2721"
+        stroke-width="1.4" stroke-linecap="round" opacity=".6"/>
+      <g stroke="#5a5e6c" stroke-width="1.1" stroke-linecap="round" opacity=".55">
+        <path d="M34 58 L18 55"/><path d="M34 61 L18 64"/>
+        <path d="M76 58 L92 55"/><path d="M76 61 L92 64"/>
+      </g>
+    </g>
+    <!-- 水壶：壶身在猫的靠树那一侧，壶嘴朝树，尖端在 (116,60) -->
+    <g class="wcan">
+      <path d="M70 62 h24 a3 3 0 0 1 3 3 v22 a3 3 0 0 1 -3 3 h-24 a3 3 0 0 1 -3 -3
+               v-22 a3 3 0 0 1 3 -3 z" fill="#8fb6d9"/>
+      <path d="M73 62 q9 -12 18 0" fill="none" stroke="#7ba6cc" stroke-width="3.4"
+        stroke-linecap="round"/>
+      <path d="M94 66 L114 57 L117 63 L97 73 Z" fill="#a8c9e6"/>
+      <ellipse cx="115.5" cy="60" rx="4.6" ry="3.4" fill="#6b97be"
+        transform="rotate(-25 115.5 60)"/>
+    </g>
+  </g>
+      </svg></div>
+    <div class="mg-ladder"><ol id="mList"></ol></div>
+  </div>
+  <p class="mg-say" id="mSay"></p>
 </section>
 
 <footer>
@@ -720,7 +924,9 @@ function unb64(s){var bin=atob(s),u=new Uint8Array(bin.length);for(var i=0;i<bin
 
 async function start(){
   if(on){hang();return}
-  if(!mKey){mKey=await needKey();if(!mKey)return}
+  /* 老板 2026-08-16：钥匙搬到 Cloudflare 中转了，这台设备不用配。
+     原来这里一上来就拦着要钥匙，孩子看到的是一张「第一次设置」卡，
+     以为按钮坏了。 */
   go.disabled=true;say("接通中… · Connecting…");mood("wake",false);
   try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
   catch(e){say("需要麦克风权限，在地址栏那里允许一下 · Allow the microphone");go.disabled=false;return}
@@ -728,7 +934,11 @@ async function start(){
 }
 function conn(){
   const model=MODELS[idx];
-  ws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+mKey);
+  var MPROXY="wss://su-family.yousef-abud.workers.dev/kid/live";
+  /* 钥匙在 Cloudflare 那边，页面上一个字都没有——这页是公开的。 */
+  ws=new WebSocket(mKey
+    ? ("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+mKey)
+    : MPROXY);
   let ready=false;
   ws.onopen=function(){
     const t=TOPICS.find(x=>x.k===S.topic)||TOPICS[TOPICS.length-1];
@@ -805,7 +1015,7 @@ function live(){
     const _need=_speaking?0.180:0.060;
     const _quiet=(_r<=_need)&&(_now-mLoudAt)>1000;
     if(!_quiet){for(let i=0;i<f.length;i++){const v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}}
-    ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"media/audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+    ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   play=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});at=play.currentTime;
 }
@@ -1195,8 +1405,117 @@ function famPing(){
   document.addEventListener("visibilitychange",function(){ if(document.hidden)report() });
   window.__studySec=function(){return sec};
 })();
+
+/* ═══ 你的那株（老板 2026-08-16）═══
+   跟弟弟那边同一套机制：按坚持天数长。但名字和台词是她的——
+   她 16 岁，会刺绣，自己攒生词本，不能用跟十岁小孩一样的话。 */
+(function(){
+  var STAGES=[
+    {keep:0,   name:"起针"},
+    {keep:7,   name:"一株"},
+    {keep:14,  name:"一枝"},
+    {keep:28,  name:"一丛"},
+    {keep:56,  name:"满园"},
+    {keep:112, name:"绣成"}
+  ];
+  var API="https://su-family.yousef-abud.workers.dev";
+  var keep=0, cameToday=false;
+
+  /* 台词：Snowy 暖、哆米嘴硬（跟她认识的那两只一个性子），
+     但说的是她的事——绣活、生词、森林站，不是背书。 */
+  function lines(){
+    var st=stageOf(), nx=nextStage(), left=nx?(nx.keep-keep):0;
+    if(!cameToday){
+      return keep>0
+        ? [["哆米","昨天你来了，今天还没。"],
+           ["Snowy","来一下就行，一针也算。"]]
+        : [["Snowy","今天来绣一针吧。"],
+           ["哆米","水我提着呢。"]];
+    }
+    if(nx && left<=3){
+      return [["Snowy","再 "+left+" 天就到「"+nx.name+"」了。"],
+              ["哆米",left+" 天。你数得清。"]];
+    }
+    if(!nx){
+      return [["Snowy","这一园是你一天一天绣出来的。"],
+              ["哆米","顶上那朵，我看着你绣的。"]];
+    }
+    return [["Snowy","你来了，那我们接着浇。"],
+            ["哆米","接着来。别停。"],
+            ["Snowy","绣东西和这个一样，急不得。"]];
+  }
+  var POKE_S=["嗯？","我在呢。","你那只小黑猫绣得真好。",
+              "累了就歇会儿，线不会跑。","这株认得你。"];
+  var POKE_D=["干嘛。","别戳我。","水快没了。",
+              "……行吧，你今天来了。","再来一天。"];
+
+  function stageOf(){ var r=STAGES[0];
+    STAGES.forEach(function(x){ if(keep>=x.keep) r=x }); return r }
+  function nextStage(){ var i=STAGES.indexOf(stageOf()); return STAGES[i+1]||null }
+
+  function render(){
+    var box=document.getElementById("mGarden"); if(!box)return;
+    var cur=stageOf(), idx=STAGES.indexOf(cur);
+
+    var ol=document.getElementById("mList");
+    if(ol){
+      ol.innerHTML="";
+      STAGES.forEach(function(x,n){
+        var li=document.createElement("li");
+        li.className="mg-row "+(n<idx?"done":n===idx?"now":n===idx+1?"next":"");
+        var d=document.createElement("span"); d.className="mg-dot";
+        d.textContent = n<idx?"✓":n===idx?"●":"";
+        var nm=document.createElement("span"); nm.className="mg-nm"; nm.textContent=x.name;
+        var nu=document.createElement("span"); nu.className="mg-n";
+        nu.textContent = n===idx?"现在" : n===idx+1?("再 "+(x.keep-keep)+" 天")
+                       : n<idx?"走过了" : (x.keep+" 天");
+        li.appendChild(d); li.appendChild(nm); li.appendChild(nu);
+        ol.appendChild(li);
+      });
+    }
+
+    var stage=idx+1;
+    box.querySelectorAll(".tpart").forEach(function(g){
+      var mx=g.dataset.max?+g.dataset.max:99;
+      g.classList.toggle("on", stage>=+g.dataset.min && stage<=mx);
+    });
+    var tg=document.getElementById("mTreeG");
+    if(tg) tg.style.transform="scale("+(0.70+stage*0.05).toFixed(3)+")";
+    box.classList.toggle("dry", !cameToday);
+    say();
+    bindCats();
+  }
+
+  var turn=0, timer=null;
+  function say(){
+    var el=document.getElementById("mSay"); if(!el)return;
+    var L=lines(); var p=L[turn%L.length]; turn++;
+    el.innerHTML='<b>'+p[0]+'</b>　'+p[1];
+  }
+  function bindCats(){
+    [["mCatS","Snowy",POKE_S],["mCatD","哆米",POKE_D]].forEach(function(a){
+      var g=document.getElementById(a[0]); if(!g||g._b)return;
+      g._b=true; g.style.cursor="pointer";
+      var n=0;
+      g.addEventListener("click",function(){
+        var el=document.getElementById("mSay");
+        if(el) el.innerHTML='<b>'+a[1]+'</b>　'+a[2][n++%a[2].length];
+        clearTimeout(timer); timer=setTimeout(say,7000);
+      });
+    });
+  }
+
+  /* 天数从家庭榜取——那是全家统一的口径，不另算一套 */
+  fetch(API+"/fam/board").then(function(r){return r.json()}).then(function(b){
+    var me=(b.people||[]).filter(function(x){return x.id==="manya"})[0];
+    if(me){ keep=me.streak||0; cameToday=!!me.here }
+    render();
+  }).catch(render);
+})();
 </script>
 
-<script src="./shared/fam-widget.js?v=3aa7cfd6" data-me="manya"></script>
+<script src="./shared/fam-widget.js?v=328c70c8" data-me="manya">
+
+</script>
 </body>
 </html>
