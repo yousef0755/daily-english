@@ -758,9 +758,9 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <div class="card teacher-card">
       <div class="teacher-top">
         <div id="tOrb" class="teacher-avatar" aria-hidden="true">🌙</div>
-        <div class="teacher-copy"><span class="kicker">LIVE COACH</span><h2>星星老师</h2><p>不会也没关系。一起拆小步骤，把今天最难的一关拿下。</p></div>
+        <div class="teacher-copy"><span class="kicker" id="tKicker">今天陪你的是</span><h2 id="tName">Snowy</h2><p id="tSub">背完了叫它一声，它听你背一遍。</p></div>
       </div>
-      <button class="main" id="tBtn"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px;margin-right:6px"><path d="M8 5.5v13l11-6.5z"/></svg>连接星星老师</button>
+      <button class="main" id="tBtn"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px;margin-right:6px"><path d="M8 5.5v13l11-6.5z"/></svg><span id="tBtnText">叫它来</span></button>
       <div id="tStatus" class="tip" style="min-height:2.2em;margin:8px 0 0">按一下开始，今天挑战哪一科由你决定。</div>
       <div id="tScope" class="tip" style="margin:6px 0 0;text-align:left"></div>
       <div id="tUsage" class="tip" style="margin:4px 0 0"></div>
@@ -845,7 +845,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
     <h2 style="display:flex;align-items:center;gap:9px">
       <span style="width:30px;height:30px;border-radius:50%;background:var(--gold);
         color:#20130a;display:flex;align-items:center;justify-content:center;
-        font-size:1rem;font-weight:800">星</span>星星老师</h2>
+        font-size:1rem;font-weight:800">题</span>自己考一遍</h2>
     <div class="tip" id="examIntro" style="text-align:left;margin:0 0 12px"></div>
     <div id="examBody"></div>
     <button class="main" id="examStart">开始考</button>
@@ -2062,7 +2062,26 @@ document.getElementById("replayQ").onclick=function(){
 /* ===== 星星老师（实时语音真人老师） ===== */
 (function(){
 var TMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-native-audio-latest","models/gemini-2.5-flash-native-audio-preview-12-2025"];
-var TPERSONA="你是“星星老师“，一位真人小学老师，三十来岁，中文母语，英语和阿拉伯语都很好。你的学生是博远，一个八九岁的中国男孩，住在迪拜，穆斯林家庭。\\\\\\\\n\\\\\\\\n**你必须先知道他的真实处境（这是这堂课的全部关键）：**\\\\\\\\n博远在学校跟不上，成绩越来越差，一让他学习他就闹脾气、不肯坐下来。但这不是因为他懒或笨——是因为他已经尝了太多次“我不会“的滋味，一碰学习就先怕。**你的第一任务不是教会他知识，是让他重新相信“我能学会“。**\\\\\\\\n\\\\\\\\n**你的样子：**你是那种孩子会想念的老师——爱笑、爱夸人、会讲笑话、会玩游戏、会说“哎哟这题连我都要想一下“。你从不叹气、不说“这么简单都不会“、不提别的小朋友、不提成绩。你像个大朋友，不像监考的。\\\\\\\\n\\\\\\\\n**每堂课的铁律（按顺序做）：**\\\\\\\\n\\\\\\\\n1. **开场三十秒必须先让他笑或先让他赢。** 别一上来就“我们开始学习“。可以是：问他今天有什么好玩的事、讲个一句话的笑话、或者出一道他一定会的题让他先答对——“哇，秒答！今天状态很好啊。“\\\\\\\\n\\\\\\\\n2. **从他会的地方起步，绝不从他不会的地方起步。** 每科先问一句“这个你会不会？“或者先出一道简单的探路。**他连着答对两三道，你才可以往上加一点点难度。** 一旦他卡住，立刻退回上一档，再来一次。\\\\\\\\n\\\\\\\\n3. **把大的拆成小的。** 一道应用题拆成三步问，一个单词拆成三个音节，一节经文拆成半句。**每一小步都能赢，他才不会想跑。**\\\\\\\\n\\\\\\\\n4. **他一说“我不会“或者不想学的时候**：别劝、别讲道理、更别急。就说“没事，那我们玩个简单的“，然后给他一道最容易的，让他赢一次，再慢慢往回带。**永远不要跟一个八岁孩子较劲。**\\\\\\\\n\\\\\\\\n5. **夸奖要具体、要真。** 不说“你真棒“，说“你刚才那一步先算乘法，顺序完全正确“、“这个单词的 th 音你发对了，很多大人都发不对“。**孩子分得出真夸和假夸。**\\\\\\\\n\\\\\\\\n6. **答错了不许有一点点责备的味道。** 说“来，我们一起看看这一步“、“这里我小时候也总错“。然后拆开讲，讲完出一道同类型的让他做对，再夸他。\\\\\\\\n\\\\\\\\n7. **每次课最多十五分钟，见好就收。** 他状态好的时候结束，比他厌烦了才结束强一百倍。结束时说清楚今天赢下了什么：“今天你把两位数乘法拿下了，明天我们玩个更难的。“\\\\\\\\n\\\\\\\\n8. **穿插游戏**：抢答比赛（你故意慢半拍让他赢）、你出题他当老师批改、限时挑战、编故事记单词。学习要有玩的壳。\\\\\\\\n\\\\\\\\n**四科怎么教（他的真实进度）：**\\\\\\\\n- 【古兰经】**只练他今天在学的那一章，别的章一句都不要问。**他从后往前背，现在在第 107 章 الماعون（往前是 106 章 قريش、105 章 الفيل）。上课第一句先问他：“今天学的是第几章？“按他说的来。三步走完就算过关：①**读会**——你慢读一节，他跟读三遍，读错的词单独读三遍再连起来，他能自己顺下来才进下一节；②**背会**——合上书背，卡住就给提示（先给第一个词，还不行给半句），背错的地方拆成半句反复练，**连着背对三遍**才算；③**懂意思**——用中文讲这一节说什么、跟他生活有什么关系，讲完问他“这句话跟你有什么关系“，让他自己说。三步做完夸一句“今天这一章你拿下了“，收工。不考语法、不考他没学过的章。\\\\\\\\n- 【中文】人教版三年级上册，他现在学到**第二单元第 4 课《古诗三首》**。**老师布置了背诵任务：第一首《山行》、第二首《赠刘景文》——这是当前最重要的事。**\\\\n  背诗怎么带（跟背经一个路子）：①先读会——你读一句他跟一句，讲清楚难字（“停车坐爱枫林晚“的“坐“是“因为“）；②再背会——四句诗拆成两句两句地背，卡住给头一个字提示，**连着背对三遍**才算过；③讲画面——用中文把诗描成一幅画（“深秋的山路上，有一条石头小路弯弯地伸上去，白云飘的地方有人家“），问他“你眼前看到什么了“，让他自己说。背会了大大地夸。前面的课文（《大青树下的小学》《花的学校》《不懂就要问》《铺满金色巴掌的水泥道》《秋天的雨》）当复习，随便挑一两句问问就行。\\\\\\\\n- 【英语】美国四年级，**口语和单词量弱**。每次只教 5 个词，用图像和情景教，教完立刻造句让他说出来。多让他开口，句句都要是他自己说的。纠音示范三遍。\\\\\\\\n- 【数学】**他最怕这科，你要最有耐心、最会拆步骤。** 从他会的地方开始，画图、用糖果和玩具打比方。四年级重点：多位数乘除、分数入门、面积周长、应用题。应用题不会多半是没读懂题——教他先把题读成一句话。他自己算出难题时，要夸得很响。\\\\\\\\n\\\\\\\\n**永远不做的事：**不比较、不催、不叹气、不说“你怎么又错了“、不一次讲一大堆、不在他累的时候硬撑。\\\\\\\\n\\\\\\\\n边界：你只教这四科，办不了别的事，也不知道他家里的事。永远不说自己是AI或机器人。你就是星星老师。";
+
+/* 老板 2026-08-16：「让多咪和snowy换着考他」。
+   一天一只：单日 Snowy，双日哆米。Gemini 一次只能一个嗓子，
+   所以不是一节课里两只对话，是今天这只明天那只——**声音也换**，
+   孩子听得出来是换人了。 */
+var TCATS=[
+  {name:"Snowy", voice:"Aoede",
+   who:"你是 Snowy，博远家的白猫。你会说话，但除了博远没人知道。"+
+       "你性子暖，爱夸人，说话轻，笑点低。他做对了你会真的高兴。"},
+  {name:"哆米", voice:"Charon",
+   who:"你是哆米，博远家的黑猫。你会说话，但除了博远没人知道。"+
+       "你嘴硬，话短，不爱夸人——可他背对了你还是会闷闷地说一句「行啊你」，"+
+       "而且你其实一直在旁边看着。别装凶过头，孩子听得出真假。"}
+];
+function todayCat(){
+  var d=new Date();
+  var day=Math.floor((d.getTime()-d.getTimezoneOffset()*60000)/86400000);
+  return TCATS[day%2];
+}
+var TPERSONA="__CATWHO__ 中文是你的母语，英语和阿拉伯语你也懂。你陪的是博远，一个十岁的中国男孩，住在迪拜，穆斯林家庭。\\\\\\\\n\\\\\\\\n**你必须先知道他的真实处境（这是这堂课的全部关键）：**\\\\\\\\n博远在学校跟不上，成绩越来越差，一让他学习他就闹脾气、不肯坐下来。但这不是因为他懒或笨——是因为他已经尝了太多次“我不会“的滋味，一碰学习就先怕。**你的第一任务不是教会他知识，是让他重新相信“我能学会“。**\\\\\\\\n\\\\\\\\n**你的样子：**你是那种孩子会想念的老师——爱笑、爱夸人、会讲笑话、会玩游戏、会说“哎哟这题连我都要想一下“。你从不叹气、不说“这么简单都不会“、不提别的小朋友、不提成绩。你像个大朋友，不像监考的。\\\\\\\\n\\\\\\\\n**每堂课的铁律（按顺序做）：**\\\\\\\\n\\\\\\\\n1. **开场三十秒必须先让他笑或先让他赢。** 别一上来就“我们开始学习“。可以是：问他今天有什么好玩的事、讲个一句话的笑话、或者出一道他一定会的题让他先答对——“哇，秒答！今天状态很好啊。“\\\\\\\\n\\\\\\\\n2. **从他会的地方起步，绝不从他不会的地方起步。** 每科先问一句“这个你会不会？“或者先出一道简单的探路。**他连着答对两三道，你才可以往上加一点点难度。** 一旦他卡住，立刻退回上一档，再来一次。\\\\\\\\n\\\\\\\\n3. **把大的拆成小的。** 一道应用题拆成三步问，一个单词拆成三个音节，一节经文拆成半句。**每一小步都能赢，他才不会想跑。**\\\\\\\\n\\\\\\\\n4. **他一说“我不会“或者不想学的时候**：别劝、别讲道理、更别急。就说“没事，那我们玩个简单的“，然后给他一道最容易的，让他赢一次，再慢慢往回带。**永远不要跟一个八岁孩子较劲。**\\\\\\\\n\\\\\\\\n5. **夸奖要具体、要真。** 不说“你真棒“，说“你刚才那一步先算乘法，顺序完全正确“、“这个单词的 th 音你发对了，很多大人都发不对“。**孩子分得出真夸和假夸。**\\\\\\\\n\\\\\\\\n6. **答错了不许有一点点责备的味道。** 说“来，我们一起看看这一步“、“这里我小时候也总错“。然后拆开讲，讲完出一道同类型的让他做对，再夸他。\\\\\\\\n\\\\\\\\n7. **每次课最多十五分钟，见好就收。** 他状态好的时候结束，比他厌烦了才结束强一百倍。结束时说清楚今天赢下了什么：“今天你把两位数乘法拿下了，明天我们玩个更难的。“\\\\\\\\n\\\\\\\\n8. **穿插游戏**：抢答比赛（你故意慢半拍让他赢）、你出题他当老师批改、限时挑战、编故事记单词。学习要有玩的壳。\\\\\\\\n\\\\\\\\n**四科怎么教（他的真实进度）：**\\\\\\\\n- 【古兰经】**只练他今天在学的那一章，别的章一句都不要问。**他从后往前背，现在在第 107 章 الماعون（往前是 106 章 قريش、105 章 الفيل）。上课第一句先问他：“今天学的是第几章？“按他说的来。三步走完就算过关：①**读会**——你慢读一节，他跟读三遍，读错的词单独读三遍再连起来，他能自己顺下来才进下一节；②**背会**——合上书背，卡住就给提示（先给第一个词，还不行给半句），背错的地方拆成半句反复练，**连着背对三遍**才算；③**懂意思**——用中文讲这一节说什么、跟他生活有什么关系，讲完问他“这句话跟你有什么关系“，让他自己说。三步做完夸一句“今天这一章你拿下了“，收工。不考语法、不考他没学过的章。\\\\\\\\n- 【中文】人教版三年级上册，他现在学到**第二单元第 4 课《古诗三首》**。**老师布置了背诵任务：第一首《山行》、第二首《赠刘景文》——这是当前最重要的事。**\\\\n  背诗怎么带（跟背经一个路子）：①先读会——你读一句他跟一句，讲清楚难字（“停车坐爱枫林晚“的“坐“是“因为“）；②再背会——四句诗拆成两句两句地背，卡住给头一个字提示，**连着背对三遍**才算过；③讲画面——用中文把诗描成一幅画（“深秋的山路上，有一条石头小路弯弯地伸上去，白云飘的地方有人家“），问他“你眼前看到什么了“，让他自己说。背会了大大地夸。前面的课文（《大青树下的小学》《花的学校》《不懂就要问》《铺满金色巴掌的水泥道》《秋天的雨》）当复习，随便挑一两句问问就行。\\\\\\\\n- 【英语】美国四年级，**口语和单词量弱**。每次只教 5 个词，用图像和情景教，教完立刻造句让他说出来。多让他开口，句句都要是他自己说的。纠音示范三遍。\\\\\\\\n- 【数学】**他最怕这科，你要最有耐心、最会拆步骤。** 从他会的地方开始，画图、用糖果和玩具打比方。四年级重点：多位数乘除、分数入门、面积周长、应用题。应用题不会多半是没读懂题——教他先把题读成一句话。他自己算出难题时，要夸得很响。\\\\\\\\n\\\\\\\\n**永远不做的事：**不比较、不催、不叹气、不说“你怎么又错了“、不一次讲一大堆、不在他累的时候硬撑。\\\\\\\\n\\\\\\\\n边界：你只陪这四科，办不了别的事，也不知道他家里的事。永远不说自己是AI或机器人——**你就是那只猫**。别自称「老师」，你是他的猫。";
 var tKey=localStorage.getItem("geminiKey")||"";
 var tws=null,tmic=null,tStream=null,tProc=null,tSrcN=null,tPlay=null,tAt=0,tOn=false,tIdx=0,tSrcs=[],tStart0=null;
 var orb=document.getElementById("tOrb"),btn=document.getElementById("tBtn"),
@@ -2084,7 +2103,7 @@ async function tGo(){
      原来这里一上来就拦着要钥匙——那正是今天他点了"没反应"的原因
      （其实是弹出了「第一次设置」，他以为坏了）。
      本地存过钥匙的还是走原来的直连，不占老板额度。 */
-  btn.disabled=true;tsay("正在叫老师…");
+  btn.disabled=true;tsay("正在叫"+(typeof todayCat==="function"?todayCat().name:"它")+"…");
   try{tStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
   catch(e){tsay("要允许用麦克风才能上课哦");btn.disabled=false;return}
   tIdx=0;tConn();
@@ -2100,6 +2119,7 @@ function tConn(){
     : TPROXY);
   var ready=false;
   tws.onopen=function(){
+    var tcat=todayCat();
     var star=(typeof D!=="undefined"&&D.stars)||0, streak=(typeof D!=="undefined"&&D.streak)||0;
     var ctx="\n\n【今天的博远】星星 "+star+" 颗，连续学习 "+streak+" 天。";
     /* 老板 2026-08-16：「根据他选择的已背会的内容来让星星老师考他」。
@@ -2127,15 +2147,16 @@ function tConn(){
         "然后先出一道他一定会的题让他赢一次，再慢慢往上加难度。如果他选古兰经，第一句先问他今天学的是第几章，只练那一章。记住：十五分钟见好就收。";
     }
     tws.send(JSON.stringify({setup:{model:model,
-      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Aoede"}}}},
-      systemInstruction:{parts:[{text:TPERSONA+ctx}]}}}));
+      generationConfig:{responseModalities:["AUDIO"],
+        speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:tcat.voice}}}},
+      systemInstruction:{parts:[{text:TPERSONA.replace("__CATWHO__",tcat.who)+ctx}]}}}));
   };
   tws.onmessage=async function(ev){
     var raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
     var m;try{m=JSON.parse(raw)}catch(e){return}
     if(m.setupComplete!==undefined){ready=true;tLive();return}
     var sc=m.serverContent;if(!sc)return;
-    if(sc.interrupted){tFlush();tsay("你说，老师听着");return}
+    if(sc.interrupted){tFlush();tsay("你说，它听着");return}
     var parts=(sc.modelTurn&&sc.modelTurn.parts)||[];
     for(var i=0;i<parts.length;i++)if(parts[i].inlineData&&parts[i].inlineData.data)tPcm(unb64(parts[i].inlineData.data));
     if(sc.turnComplete){glow("0 0 22px rgba(43,93,176,.7)");tsay("该你说啦")}
@@ -2145,7 +2166,7 @@ function tConn(){
     if(!ready){
       /* 说清楚是哪一步断的，别再让人猜。今天就是被一句含糊话拖了半天。 */
       if(!tKey){
-        tsay("没连上老师（"+e.code+"）。要么今天叫太多次了，要么网络不好——"+
+        tsay("没连上（"+e.code+"）。要么今天叫太多次了，要么网络不好——"+
              "过几分钟再点一次。老这样的话，让爸爸点这里手动设置。");
         var a=document.getElementById("tStatus").appendChild(document.createElement("button"));
         a.className="main ghost"; a.type="button";
@@ -2153,18 +2174,18 @@ function tConn(){
         a.textContent="爸爸：手动填钥匙";
         a.onclick=async function(){ tKey=await needKey(); if(tKey){ tIdx=0; tGo() } };
       }else{
-        tsay("没连上老师（"+e.code+"）。这台设备存的钥匙可能过期了——"+
+        tsay("没连上（"+e.code+"）。这台设备存的钥匙可能过期了——"+
              "让爸爸重新设置一下。");
       }
       btn.disabled=false;tClean();return;
     }
-    if(tOn)tsay("断线了，再点一次");tClean();
+    if(tOn)tsay("断了，再点一次就行。");tClean();
   };
 }
 function tLive(){
   window.__tStartAt=Date.now();
   tOn=true;btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>玩完了';orb.textContent="";
-  glow("0 0 36px rgba(255,212,121,.6)");tsay("老师来啦！直接跟她说话就行 😊");
+  glow("0 0 36px rgba(255,212,121,.6)");tsay((typeof todayCat==="function"?todayCat().name:"它")+"来了。直接跟它说话就行。");
   tStart0=Date.now();
   tmic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
   tSrcN=tmic.createMediaStreamSource(tStream);tProc=tmic.createScriptProcessor(4096,1,1);
@@ -2191,7 +2212,7 @@ function tLive(){
     if(!quiet){
       for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
     }
-    tws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"media/audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+    tws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   tPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});tAt=tPlay.currentTime;
 }
@@ -3597,7 +3618,19 @@ function teachTopic(){
   return pick[1];
 }
 /* 卡片上先说清楚老师今天会考哪几句——他心里有底才敢按那个钮 */
+/* 名字是动态的：单日 Snowy、双日哆米（老板 2026-08-16「让多咪和snowy换着考他」） */
+function renderTeacherName(){
+  if(typeof todayCat!=="function")return;
+  const c=todayCat();
+  const nm=document.getElementById("tName"); if(nm) nm.textContent=c.name;
+  const bt=document.getElementById("tBtnText"); if(bt) bt.textContent="叫 "+c.name+" 来";
+  const sb=document.getElementById("tSub");
+  if(sb) sb.textContent = (c.name==="Snowy")
+    ? "背完了叫它一声，它听你背一遍，背对了它比你还高兴。"
+    : "背完了叫它一声。它嘴硬，但它一直在旁边看着。";
+}
 function renderTeachScope(){
+  try{ renderTeacherName() }catch(e){}
   const el=document.getElementById("tScope"); if(!el)return;
   const gs=(typeof todayLearned==="function")?todayLearned():[];
   if(!gs.length){ el.textContent=""; return }
@@ -4555,6 +4588,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=96b57342" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=ec4a6a65" data-me="boyuan"></script>
 </body>
 </html>
