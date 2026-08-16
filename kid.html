@@ -544,12 +544,12 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   height:var(--navh,56px);pointer-events:none}
 /* 老板 2026-08-16：「下框的那两只猫，最好点击的时候也有个和博远的互动」——
    原来整块 pointer-events:none 是纯装饰。给猫本身开放点击，容器仍旧不挡。 */
-.navcat{position:absolute;bottom:calc(100% - 11px);width:58px;height:auto;
+.navcat{position:absolute;bottom:calc(100% - 13px);width:80px;height:auto;
   filter:drop-shadow(0 5px 12px rgba(0,0,0,.5));
   pointer-events:auto;cursor:pointer;transition:transform .18s ease}
 .navcat:active{transform:scale(.9)}
 .navcat.poked{animation:navjump .5s ease}
-@keyframes navjump{0%,100%{transform:translateY(0)}35%{transform:translateY(-9px)}}
+@keyframes navjump{0%,100%{transform:translateY(0)}35%{transform:translateY(-13px)}}
 @media (prefers-reduced-motion:reduce){.navcat.poked{animation:none}}
 /* 哆米是黑猫，页面又是深色的，加一圈很淡的月光边才看得出轮廓 */
 .navcat.right{filter:drop-shadow(0 0 1.5px rgba(190,214,244,.55))
@@ -605,7 +605,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   };
 })();
 </script>
-<script>window.__BUILD__="498317e655"</script>
+<script>window.__BUILD__="b8632d9c56"</script>
 </head>
 <body>
 
@@ -4597,6 +4597,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=498317e6" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=b8632d9c" data-me="boyuan"></script>
 </body>
 </html>
