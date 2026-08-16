@@ -163,9 +163,12 @@
       var r = await fetch(API + "/fam/says?who=" + ME), j = await r.json();
       if (!j.ok) return;
       var box = el("fwSays");
-      if (!j.inbox || !j.inbox.length) { box.style.display = "none"; return }
+      var hasIn = j.inbox && j.inbox.length;
+      var hasOut = j.sent && j.sent.length;
+      if (!hasIn && !hasOut) { box.style.display = "none"; return }
       box.style.display = "";
-      box.innerHTML =
+      if (!hasIn) { box.innerHTML = ""; }
+      if (hasIn) box.innerHTML =
         '<div style="font-size:.76rem;opacity:.5;margin:2px 0 6px">家里人跟你说的话</div>' +
         j.inbox.slice(0, 5).map(function (x) {
         var c = hueOf(x.from);
@@ -187,6 +190,23 @@
       [].forEach.call(box.querySelectorAll("[data-reply]"), function (b) {
         b.onclick = function () { replyTo(b.dataset.reply) };
       });
+      /* 我说出去的（老板 2026-08-16：「我这边要不要显示」——要，
+         而且要能看出对方看没看过）。收进折叠，不占地方。 */
+      if (j.sent && j.sent.length) {
+        var mine = document.createElement("details");
+        mine.style.cssText = "margin-top:4px;font-size:.88rem";
+        mine.innerHTML = '<summary style="cursor:pointer;opacity:.55;font-size:.78rem">' +
+          '我说出去的 ' + j.sent.length + ' 条</summary>' +
+          '<div style="margin-top:6px">' + j.sent.slice(0, 8).map(function (x) {
+            var c = hueOf(x.to);
+            return '<div style="display:flex;gap:8px;align-items:baseline;padding:3px 0;opacity:.8">' +
+              '<span style="color:' + c + ';font-weight:700;flex-shrink:0">→' + esc(x.toName) + '</span>' +
+              '<span style="flex:1;min-width:0;word-break:break-word">' + esc(x.text) + '</span>' +
+              '<span style="flex-shrink:0;font-size:.74rem;opacity:.6">' +
+                (x.seen ? "已看" : "还没看") + '</span></div>';
+          }).join("") + '</div>';
+        box.appendChild(mine);
+      }
       if (j.unread) {
         fetch(API + "/fam/seen", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ who: ME }) }).catch(function () {});

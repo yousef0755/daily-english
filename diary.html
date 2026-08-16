@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>日记</title>
+<link rel="icon" href="./icons/favicon.svg">
+<script>
+/* 本机预览一律不往共用的榜上报打卡（跟别的页一致）。 */
+(function(){
+  if(!/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)
+     && location.protocol!=="file:") return;
+  var real=window.fetch;
+  window.fetch=function(u,o){
+    var s=String((u&&u.url)||u||"");
+    if(/\/fam\/(ping|import)/.test(s)){
+      return Promise.resolve(new Response('{"ok":true,"local":true}',
+        {status:200,headers:{"Content-Type":"application/json"}}));
+    }
+    return real.apply(this,arguments);
+  };
+})();
+</script>
+<style>
+:root{
+  --paper:#f6f2e8; --ink:#23271f; --muted:#6f7466;
+  --line:rgba(35,39,31,.14); --accent:#5aa86f; --warn:#b4623f;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --paper:#12160f; --ink:#e9e6d8; --muted:#9aa08e;
+         --line:rgba(233,230,216,.16); --accent:#7ed6b2; --warn:#e0906f }
+}
+:root[data-theme="dark"]{ --paper:#12160f; --ink:#e9e6d8; --muted:#9aa08e;
+  --line:rgba(233,230,216,.16); --accent:#7ed6b2; --warn:#e0906f }
+:root[data-theme="light"]{ --paper:#f6f2e8; --ink:#23271f; --muted:#6f7466;
+  --line:rgba(35,39,31,.14); --accent:#5aa86f; --warn:#b4623f }
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Serif CJK SC",serif;
+  line-height:1.9;-webkit-text-size-adjust:100%}
+.wrap{max-width:680px;margin:0 auto;padding:20px 18px 60px}
+a{color:inherit}
+.back{display:inline-flex;align-items:center;min-height:40px;padding:6px 15px;
+  border:1px solid var(--line);border-radius:999px;text-decoration:none;font-size:.88rem}
+h1{font-size:1.5rem;margin:20px 0 4px;letter-spacing:.02em}
+.sub{color:var(--muted);font-size:.88rem;margin:0 0 22px}
+.card{border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 18px;
+  background:linear-gradient(180deg,rgba(128,128,128,.05),transparent)}
+label{display:block;font-size:.82rem;color:var(--muted);margin:0 0 6px}
+input,textarea{width:100%;padding:12px 13px;border-radius:11px;border:1px solid var(--line);
+  background:transparent;color:inherit;font-family:inherit;font-size:1rem;line-height:1.8}
+textarea{min-height:220px;resize:vertical}
+button{font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;
+  padding:12px 18px;border-radius:11px;border:1px solid var(--line);
+  background:transparent;color:inherit;min-height:44px}
+button.go{background:var(--accent);border-color:var(--accent);color:#0e1410}
+button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.tip{font-size:.85rem;color:var(--muted);margin-top:9px}
+.warn{color:var(--warn)}
+.entry{border-top:1px solid var(--line);padding:14px 0}
+.entry h3{margin:0 0 4px;font-size:.9rem;color:var(--muted);font-weight:600;
+  font-variant-numeric:tabular-nums}
+.entry div{white-space:pre-wrap;word-break:break-word}
+.lock{font-size:.82rem;color:var(--muted);border:1px dashed var(--line);
+  border-radius:11px;padding:11px 13px;margin-top:14px;line-height:1.8}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="back" href="./index.html">← 回到每天五分钟</a>
+
+<h1>日记</h1>
+<p class="sub">写给自己的。上了锁，只有你打得开。</p>
+
+<!-- ── 开锁 ── -->
+<div class="card" id="gate">
+  <label id="gateLabel">密码</label>
+  <input type="password" id="pw" autocomplete="current-password" placeholder="输入密码">
+  <div id="pw2wrap" class="hide" style="margin-top:10px">
+    <label>再输一遍</label>
+    <input type="password" id="pw2" autocomplete="new-password" placeholder="确认密码">
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button class="go" id="unlock">打开</button>
+  </div>
+  <div class="tip" id="gateTip"></div>
+  <div class="lock">
+    日记在你手机里就加密好了才送出去。服务器上存的是一串看不懂的字节，
+    Cloudflare 读不到，小林也读不到——我这边没有留任何能解开它的钥匙。
+    <b class="warn">代价是：密码丢了就真的找不回来了。</b>
+    找回功能等于给别人留一把钥匙，那就不叫只有你能看了。
+    请把密码记在一个安全的地方。
+  </div>
+</div>
+
+<!-- ── 写 ── -->
+<div class="card hide" id="editor">
+  <label id="dayLabel">今天</label>
+  <textarea id="text" placeholder="今天想说的话……"></textarea>
+  <div class="row" style="margin-top:12px">
+    <button class="go" id="save">存起来</button>
+    <button id="lockBtn">锁上</button>
+    <span class="tip" id="saveTip" style="margin:0"></span>
+  </div>
+</div>
+
+<!-- ── 以前写的 ── -->
+<div class="card hide" id="past">
+  <label>以前写的</label>
+  <div id="list"></div>
+</div>
+
+</div>
+
+<script>
+/* ═══ 爸爸的日记 ═══
+   老板 2026-08-16：「日记设密码」「你先不看，到时候我 WhatsApp 发给你」
+
+   所以这一页按「只有他能看」写：
+     · 密码 → PBKDF2(SHA-256, 30 万次) → AES-GCM 密钥，全在浏览器里
+     · 上传的只有密文，服务器拿到的是一坨看不懂的字节
+     · 我这边**没有第二把钥匙**。想讨论哪一篇，他自己贴给我
+
+   auth 是另一条派生路径（同一个密码，但盐不同、用途不同）算出来的，
+   只用来挡住乱写的人。拿到 auth 解不开日记——这是故意分开的。
+*/
+var API = "https://su-family.yousef-abud.workers.dev";
+var SALT_KEY  = "su-diary-key-v1";     /* 派生「解密的钥匙」用这个盐 */
+var SALT_AUTH = "su-diary-auth-v1";    /* 派生「证明是我」用另一个盐 */
+var ITER = 300000;
+
+var key = null, auth = null, entries = [];
+var enc = new TextEncoder(), dec = new TextDecoder();
+
+function $(id){ return document.getElementById(id) }
+function b64(buf){ var b=""; new Uint8Array(buf).forEach(function(c){b+=String.fromCharCode(c)}); return btoa(b) }
+function unb64(s){ var b=atob(s), u=new Uint8Array(b.length);
+  for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i); return u }
+
+async function derive(pw, salt, usage){
+  var base = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveBits","deriveKey"]);
+  if(usage === "auth"){
+    var bits = await crypto.subtle.deriveBits(
+      {name:"PBKDF2", salt:enc.encode(salt), iterations:ITER, hash:"SHA-256"}, base, 256);
+    return b64(bits);
+  }
+  return await crypto.subtle.deriveKey(
+    {name:"PBKDF2", salt:enc.encode(salt), iterations:ITER, hash:"SHA-256"},
+    base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+
+async function encrypt(text){
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var ct = await crypto.subtle.encrypt({name:"AES-GCM", iv:iv}, key, enc.encode(text));
+  return b64(iv) + "." + b64(ct);
+}
+async function decrypt(blob){
+  var p = String(blob).split(".");
+  if(p.length !== 2) return null;
+  try{
+    var pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(p[0])}, key, unb64(p[1]));
+    return dec.decode(pt);
+  }catch(e){ return null }   /* 密码不对，解不开 */
+}
+
+function today(){
+  var d = new Date(Date.now() + 4*3600*1000);   /* 迪拜 */
+  return d.toISOString().slice(0,10);
+}
+
+/* 第一次来 = 设密码（要输两遍）；以后 = 输密码 */
+(async function init(){
+  try{
+    var r = await fetch(API + "/diary/state"), j = await r.json();
+    if(!j.ready){
+      $("gateLabel").textContent = "给日记设一个密码";
+      $("pw").placeholder = "设一个密码";
+      $("pw2wrap").classList.remove("hide");
+      $("unlock").textContent = "设好，开始写";
+    }
+  }catch(e){
+    $("gateTip").textContent = "现在没网，等有网再打开。";
+  }
+})();
+
+$("unlock").onclick = async function(){
+  var pw = $("pw").value;
+  var first = !$("pw2wrap").classList.contains("hide");
+  if(pw.length < 6){ $("gateTip").innerHTML = '<span class="warn">密码至少 6 位。</span>'; return }
+  if(first && pw !== $("pw2").value){
+    $("gateTip").innerHTML = '<span class="warn">两次输的不一样。</span>'; return }
+  this.disabled = true; $("gateTip").textContent = "开锁中…";
+  try{
+    key  = await derive(pw, SALT_KEY, "key");
+    auth = await derive(pw, SALT_AUTH, "auth");
+    var r = await fetch(API + "/diary/list?auth=" + encodeURIComponent(auth));
+    var j = await r.json();
+    if(!j.ok){
+      $("gateTip").innerHTML = '<span class="warn">' + (j.err || "打不开") + '</span>';
+      key = auth = null; this.disabled = false; return;
+    }
+    entries = j.entries || [];
+    /* 有旧日记就验一下密码对不对——解不开任何一篇，多半是密码错了 */
+    if(entries.length){
+      var ok = false;
+      for(var i=0;i<entries.length;i++){ if(await decrypt(entries[i].blob) !== null){ ok = true; break } }
+      if(!ok){
+        $("gateTip").innerHTML = '<span class="warn">密码不对，打不开以前写的。</span>';
+        key = auth = null; this.disabled = false; return;
+      }
+    }
+    $("pw").value = ""; if($("pw2")) $("pw2").value = "";
+    $("gate").classList.add("hide");
+    $("editor").classList.remove("hide");
+    $("dayLabel").textContent = today();
+    var mine = entries.filter(function(x){ return x.id === today() })[0];
+    if(mine){ var t = await decrypt(mine.blob); if(t !== null) $("text").value = t }
+    await paintPast();
+    $("text").focus();
+  }catch(e){
+    $("gateTip").innerHTML = '<span class="warn">出错了：' + String(e).slice(0,60) + '</span>';
+    this.disabled = false;
+  }
+};
+
+async function paintPast(){
+  var host = $("list"), out = [];
+  for(var i=0;i<entries.length;i++){
+    if(entries[i].id === today()) continue;
+    var t = await decrypt(entries[i].blob);
+    if(t === null) continue;
+    out.push('<div class="entry"><h3>' + entries[i].id + '</h3><div>' +
+      t.replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c] }) + '</div></div>');
+  }
+  if(out.length){ host.innerHTML = out.join(""); $("past").classList.remove("hide") }
+  else { $("past").classList.add("hide") }
+}
+
+$("save").onclick = async function(){
+  var t = $("text").value;
+  if(!t.trim()){ $("saveTip").textContent = "还没写字。"; return }
+  this.disabled = true; $("saveTip").textContent = "存起来…";
+  try{
+    var blob = await encrypt(t);
+    var r = await fetch(API + "/diary/put", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ id: today(), blob: blob, auth: auth })});
+    var j = await r.json();
+    if(j.ok){
+      $("saveTip").textContent = "存好了。";
+      var found = false;
+      entries.forEach(function(x){ if(x.id === today()){ x.blob = blob; found = true } });
+      if(!found) entries.unshift({id: today(), blob: blob});
+    }else{
+      $("saveTip").innerHTML = '<span class="warn">' + (j.err || "没存上") + '</span>';
+    }
+  }catch(e){
+    $("saveTip").innerHTML = '<span class="warn">现在没网，先别关页面，等有网再点一次。</span>';
+  }
+  this.disabled = false;
+};
+
+$("lockBtn").onclick = function(){
+  key = auth = null; entries = [];
+  $("text").value = ""; $("list").innerHTML = "";
+  $("editor").classList.add("hide"); $("past").classList.add("hide");
+  $("gate").classList.remove("hide");
+  $("unlock").disabled = false; $("gateTip").textContent = "已经锁上了。";
+};
+
+/* 离开页面就把钥匙丢掉，别留在内存里 */
+addEventListener("pagehide", function(){ key = auth = null });
+</script>
+</body>
+</html>
