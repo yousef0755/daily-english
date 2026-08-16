@@ -241,28 +241,29 @@
          按今天的进度站位置。名字挤在一起的时候上下错开，别糊成一团。 */
       var ppl = b.people.map(function (x) { return { x: x, p: pctOf(x) } })
                         .sort(function (a, c) { return a.p - c.p });
-      var lastP = -99, lane = 0;
+      /* 一个圆 22px，在一条约 280px 的跑道上大概占 8%。
+         从慢到快走一遍，谁离前一个不够一个身位就往右挤开，保证不重叠。 */
+      var GAP = 8, prevX = -99;
       var dots = ppl.map(function (o) {
-        /* 位置太近就换一层，避免叠在一起看不清 */
-        /* 挨太近就换一层。四层错开，起点上挤着好几个人也不会糊。 */
-        lane = (o.p - lastP < 18) ? (lane + 1) % 4 : 0;
-        lastP = o.p;
+        var x = Math.max(o.p, prevX + GAP);
+        if (x > 100) x = 100;
+        prevX = x;
         var mine = o.x.id === ME;
-        var left = 'calc(' + o.p + '% * .88 + 6px)';
-        return '<div style="position:absolute;left:' + left + ';bottom:' + (10 + lane * 19) + 'px;' +
-          'transform:translateX(-50%);text-align:center;white-space:nowrap;' +
-          'transition:left .6s cubic-bezier(.4,0,.2,1)">' +
-          '<div style="font-size:.66rem;line-height:1.15;padding:0 2px;' +
-            (mine ? 'font-weight:800' : 'opacity:.72') + '">' + esc(o.x.name) + '</div>' +
-          '<div style="width:9px;height:9px;margin:2px auto 0;border-radius:50%;' +
-            'background:' + (o.x.finished ? '#7ed6b2' : (o.x.here ? 'currentColor' : 'rgba(128,128,128,.4)')) + ';' +
-            (mine ? 'box-shadow:0 0 0 3px rgba(126,214,178,.35)' : '') + '"></div></div>';
+        var ch = String(o.x.name || "?").slice(0, 1);
+        var bg = o.x.finished ? '#7ed6b2' : (o.x.here ? 'rgba(128,128,128,.55)' : 'rgba(128,128,128,.22)');
+        var fg = o.x.finished ? '#123' : 'inherit';
+        return '<div title="' + esc(o.x.name) + '" style="position:absolute;' +
+          'left:calc(' + x + '% * .84 + 14px);bottom:12px;transform:translateX(-50%);' +
+          'width:22px;height:22px;border-radius:50%;display:flex;align-items:center;' +
+          'justify-content:center;font-size:.7rem;font-weight:700;background:' + bg + ';color:' + fg + ';' +
+          (mine ? 'outline:2px solid currentColor;outline-offset:1px;' : '') +
+          'transition:left .6s cubic-bezier(.4,0,.2,1)">' + esc(ch) + '</div>';
       }).join("");
 
-      var track = '<div style="position:relative;height:' + (10 + 3 * 18 + 18) + 'px;margin:2px 0 4px">' +
-        '<div style="position:absolute;left:6px;right:6px;bottom:6px;height:3px;border-radius:99px;' +
+      var track = '<div style="position:relative;height:42px;margin:4px 0 2px">' +
+        '<div style="position:absolute;left:12px;right:24px;bottom:7px;height:3px;border-radius:99px;' +
         'background:linear-gradient(90deg,rgba(128,128,128,.18),rgba(126,214,178,.5))"></div>' +
-        '<div style="position:absolute;right:2px;bottom:1px;font-size:.7rem;opacity:.5">终点</div>' +
+        '<div style="position:absolute;right:0;bottom:1px;font-size:.66rem;opacity:.45">终点</div>' +
         dots + '</div>';
 
       /* 一句话说清自己的处境——老板要的是危机感，不是名次 */
