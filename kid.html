@@ -782,7 +782,9 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <button class="opt" id="replayQ" style="text-align:center;margin-bottom:12px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>再听一次</button>
       <div id="opts"></div>
       <div class="tip" id="prog"></div>
-    </div>
+      <!-- 老板 2026-08-16：「数学没有出现这一节课我已经完成了」——
+           那个钮长在背诵卡上，数学走的是这张卡，所以一直没有。补一个。 -->
+      <button class="main" id="mathDoneBtn" style="width:100%;margin-top:14px">这一课我完成了</button>
   </section>
 
   <section class="page" id="p-write">
@@ -806,7 +808,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
         border:1px solid rgba(255,212,121,.3);border-radius:15px;
         background:rgba(255,212,121,.05)">
         <div class="tip" style="text-align:left;margin:0 0 11px">
-          点一个，Snowy 和哆米会照着回你。</div>
+          先点一个，再打字。Snowy 和哆米会照着回你。</div>
         <div id="wishBtns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
         <div id="wishForm" style="display:none;margin-top:11px">
           <textarea id="wishText" rows="2" placeholder=""></textarea>
@@ -1956,6 +1958,7 @@ document.querySelectorAll("[data-sub]").forEach(b=>{
     list=[...bank.items].sort(()=>Math.random()-.5).slice(0,10);
     idx=0;score=0;
     document.getElementById("quizCard").style.display="block";
+  try{ renderMathDoneBtn() }catch(e){}
     document.getElementById("quizTitle").textContent=bank.title;
     ask();
     document.getElementById("quizCard").scrollIntoView({behavior:"smooth",block:"nearest"});
@@ -2042,6 +2045,14 @@ document.querySelectorAll("nav button").forEach(b=>{
     document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
     document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
     document.getElementById("p-"+b.dataset.p).classList.add("on");window.scrollTo(0,0);
+    /* 老板 2026-08-16：点「心愿」看不到输入框——因为这里只换了 CSS 类，
+       从来不重画。那一页还停在开页面那一刻的状态（那时他还没学完，框是藏的）。
+       现在切到哪一页就把哪一页重画一次。 */
+    const R={diary:["renderDiary"], reward:["renderBox"], write:["renderHanzi"],
+             home:["render","renderWalk","renderRank"]};
+    (R[b.dataset.p]||[]).forEach(function(f){
+      try{ if(typeof window[f]==="function") window[f]() }catch(e){}
+    });
   };
 });
 document.getElementById("replayQ").onclick=function(){
@@ -2724,6 +2735,25 @@ function renderDiary(){
   try{ renderWish() }catch(e){}
   try{ renderExam() }catch(e){}
 }
+/* 数学那张卡上的打卡钮。跟背诵卡那个同一套存法（D.subDone），
+   只是科目固定成 math。 */
+function renderMathDoneBtn(){
+  const b=document.getElementById("mathDoneBtn"); if(!b)return;
+  const on=((D.subDone||{})[todayKey()+"_math"]) || ((D.mathDone||{})[todayKey()]===1);
+  b.textContent = on ? "今天这一课已完成 ✓" : "这一课我完成了";
+  b.classList.toggle("ghost", !!on);
+}
+document.getElementById("mathDoneBtn")&&(document.getElementById("mathDoneBtn").onclick=function(){
+  const k=todayKey()+"_math";
+  D.subDone=D.subDone||{};
+  if(D.subDone[k]){ delete D.subDone[k]; toast("取消了，这一课算没完成") }
+  else { D.subDone[k]=1; toast("这一课打卡了") }
+  save(); renderMathDoneBtn();
+  ["render","renderWalk","renderGate","renderExam","renderTeach","renderWish",
+   "renderRank","renderDiary","famPing"].forEach(function(f){
+    try{ if(typeof window[f]==="function") window[f]() }catch(e){}
+  });
+});
 document.getElementById("rHide").onclick=function(){
   /* 打卡。按错了再按一下可以取消——十岁小孩手滑很正常，不能一按定死。 */
   const tk=todayKey(), k=tk+"_"+rSub;
@@ -4143,15 +4173,17 @@ function idSet(idx,t){ D.idiomSent=D.idiomSent||{}; D.idiomSent[idKey(idx)]=t; s
    **页面上明写着爸爸看得到。** 老板要看，我照办；
    但瞒着孩子不行——他知道了顶多少说两句，
    被瞒着哪天发现了，他就再也不信这个网站了。 */
+/* 提示语要给得具体。十岁小孩看见「想说什么都行」是会卡住的——
+   给他一个开头，他才知道往哪儿说。 */
 const WISHES=[
- {k:"praise", t:"夸夸我",         ph:"今天你做成了什么？",
+ {k:"praise", t:"夸夸我",         ph:"比如：今天古诗我一遍就背下来了",
   cat:[["Snowy","这个我看见了。你比昨天强。"],["哆米","行啊你。"]]},
- {k:"talk",   t:"陪我说说话",     ph:"想说什么都行",
+ {k:"talk",   t:"陪我说说话",     ph:"比如：今天学校发生了一件事……",
   cat:[["Snowy","我在呢，你说。"],["哆米","我不打岔，你讲。"]]},
- {k:"sad",    t:"有件不开心的事", ph:"是什么事让你不高兴了？",
+ {k:"sad",    t:"有件不开心的事", ph:"比如：今天有人说了一句话，我心里不舒服",
   cat:[["Snowy","这事儿难受，我懂。"],["哆米","谁惹的？我记住了。"],
        ["Snowy","不用急着好起来，慢慢来。"]]},
- {k:"wish",   t:"许个愿",         ph:"你想要什么？",
+ {k:"wish",   t:"许个愿",         ph:"比如：我想周末去海边／我想要一个……",
   cat:[["哆米","记下了。"],["Snowy","这个我帮你转告。"]]},
 ];
 let wishPick=null;
@@ -4433,6 +4465,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=c54775dc" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=1909edab" data-me="boyuan"></script>
 </body>
 </html>
