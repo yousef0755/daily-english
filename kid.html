@@ -275,18 +275,79 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 #strokeSpeak{border-color:var(--mint) !important;color:var(--mint) !important}
 .strokeBar button.go{background:var(--gold);color:#231a05;font-weight:700}
 
-/* ── 段位（老板：这一块太乱了，放在最下面） ── */
+/* ── 段位：一棵树 + 一张梯子（老板 2026-08-16 定的样子） ── */
 .rankfoot{margin:26px 12px 90px;background:rgba(255,255,255,.04);
-  border:1px solid var(--line);border-radius:18px;padding:16px 18px 18px}
-.rf-head{font-size:.72rem;letter-spacing:.18em;color:var(--muted);margin-bottom:10px}
-.rf-name{font-size:1.5rem;font-weight:700;color:var(--mint);line-height:1.2}
-.rf-meta{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 12px;
-  font-size:.82rem;color:var(--muted)}
-.rf-bar{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
-.rf-fill{height:100%;width:0;background:var(--mint);border-radius:99px;
-  transition:width .6s cubic-bezier(.2,.8,.3,1)}
-.rf-tip{margin-top:10px;font-size:.82rem;color:var(--muted);line-height:1.7}
+  border:1px solid var(--line);border-radius:18px;padding:16px 16px 14px}
+.rf-head{font-size:.72rem;letter-spacing:.18em;color:var(--muted);margin-bottom:8px}
+.rf-grid{display:grid;grid-template-columns:minmax(0,.96fr) minmax(0,1.04fr);
+  gap:6px;align-items:center}
+.rf-tree svg{width:100%;height:auto;display:block;overflow:visible}
+.rf-water{margin-top:8px;text-align:center;font-size:.74rem;color:var(--muted)}
+
+/* 梯子：五档全列出来，他一眼看到自己在第几级、上面还有几级 */
+.rf-ladder ol{list-style:none;margin:0;padding:0;display:flex;
+  flex-direction:column;gap:4px}
+.rf-row{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:10px;
+  font-size:.78rem;line-height:1.25;color:var(--muted);
+  border:1px solid transparent;transition:background .3s,color .3s}
+.rf-dot{flex:0 0 auto;width:15px;height:15px;border-radius:50%;
+  border:1.5px solid var(--line);display:grid;place-items:center;
+  font-size:.55rem;color:var(--muted)}
+.rf-rname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rf-rnum{flex:0 0 auto;margin-left:auto;padding-left:4px;font-size:.66rem;opacity:.8;font-variant-numeric:tabular-nums}
+/* 已经走过的档 */
+.rf-row.done{color:var(--cream)}
+.rf-row.done .rf-dot{border-color:var(--mint);background:var(--mint);color:#0b1a2c}
+/* 他现在站的那一档 */
+.rf-row.now{background:rgba(127,224,192,.13);border-color:rgba(127,224,192,.4);
+  color:var(--mint);font-weight:700;font-size:.86rem}
+.rf-row.now .rf-dot{border-color:var(--mint);background:var(--mint);color:#0b1a2c}
+.rf-row.now .rf-rnum{color:var(--mint);opacity:1}
+/* 下一档：写清楚还差几颗，别让他猜 */
+.rf-row.next{color:var(--cream);border-color:var(--line);border-style:dashed}
+.rf-row.next .rf-rnum{color:var(--gold)}
+.rf-tip{margin-top:8px;font-size:.72rem;color:var(--muted);line-height:1.6}
 .rf-tip.warn{color:#ff9b7a}
+.rf-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;
+  padding-top:9px;border-top:1px solid var(--line);
+  font-size:.76rem;color:var(--muted)}
+
+/* 树长高是有过程的，别瞬间蹦出来 */
+#treeG{transform-origin:200px 226px;transition:transform .9s cubic-bezier(.2,.9,.3,1)}
+.tpart{opacity:0;transform-origin:200px 226px;transform:scale(.6);
+  transition:opacity .55s ease,transform .7s cubic-bezier(.2,.9,.3,1)}
+.tpart.on{opacity:1;transform:scale(1)}
+.tfruit,.tstar{animation:tpop 3.4s ease-in-out infinite}
+@keyframes tpop{0%,100%{opacity:.85}50%{opacity:1}}
+
+/* 浇水：壶往树那边一倾，水滴落下去 */
+.wcan{transform-origin:72px 88px;animation:wtilt 2.6s ease-in-out infinite}
+@keyframes wtilt{0%,100%{transform:rotate(0)}40%,70%{transform:rotate(-16deg)}}
+.wdrop{opacity:0;animation:wfall 2.6s linear infinite}
+@keyframes wfall{
+  0%,32%{opacity:0;transform:translateY(0)}
+  38%{opacity:.9}
+  90%{opacity:0;transform:translateY(34px)}
+  100%{opacity:0;transform:translateY(34px)}}
+.wtail{transform-origin:79px 90px;animation:wtail 3.8s ease-in-out infinite}
+@keyframes wtail{0%,100%{transform:rotate(0)}50%{transform:rotate(9deg)}}
+.whead{transform-origin:55px 60px;animation:wnod 4.6s ease-in-out infinite}
+@keyframes wnod{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg)}}
+/* 树缩了就别浇了，猫把壶放下——他一眼看得出来是自己停了 */
+.rankfoot.dry .wcan,.rankfoot.dry .wdrop{animation:none}
+.rankfoot.dry .wcan{transform:rotate(0)}
+.rankfoot.dry .wdrop{opacity:0}
+@media (prefers-reduced-motion:reduce){
+  .wcan,.wdrop,.wtail,.whead,.tfruit,.tstar{animation:none}
+  #treeG,.tpart{transition:none}
+}
+/* 窄屏也保持左树右梯——梯子那几行字短，挤得下 */
+@media (max-width:360px){
+  .rf-grid{gap:6px}
+  .rf-row{padding:5px 5px;font-size:.7rem;gap:4px}
+  .rf-rnum{font-size:.62rem}
+  .rf-row.now{font-size:.78rem}
+}
 
 /* ── 猫走的那条道（老板出的主意） ── */
 .walk{margin:14px 0 4px;background:rgba(255,255,255,.04);
@@ -802,22 +863,163 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <div id="boxResult" style="font-size:1.05rem;color:var(--gold);font-weight:700;min-height:2.6em;margin-top:6px"></div>
       <div id="boxNext" class="tip" style="margin-top:4px"></div>
     </div>
-    <div class="card">
-      <h2>手机时间</h2>
-      <div class="tip" style="text-align:left;margin:0 0 8px">用星星换手机时间，换到多少给爸爸看一眼。</div>
-      <div class="reward"><div><div class="n">换 10 分钟</div><div class="c">15 ⭐</div></div><button id="buyTime">换</button></div>
-      <div class="tip" style="margin-top:10px">你有 <b id="phoneMin">0</b> 分钟没用的手机时间</div>
-    </div>
   </section>
 
 <section class="rankfoot" id="rankFoot">
   <div class="rf-head">我的段位</div>
-  <div class="rf-body">
-    <div class="rf-name" id="rfName">小树苗</div>
-    <div class="rf-meta"><span id="rfScore">最近七天 0 颗</span><span id="rfKeep">今天开始</span></div>
-    <div class="rf-bar"><div class="rf-fill" id="rfFill"></div></div>
-    <div class="rf-tip" id="rfTip"></div>
+
+  <div class="rf-grid">
+
+    <!-- 左边：树。树就是段位本身，不是装饰——升一档长一截，掉一档缩回去 -->
+    <div class="rf-tree">
+      <svg id="treeSvg" viewBox="74 20 252 216" aria-hidden="true">
+        <ellipse cx="200" cy="228" rx="104" ry="12" fill="rgba(127,224,192,.09)"/>
+
+        <g id="treeG">
+          <path d="M158 227 q42 -15 84 0 z" fill="#3d3227"/>
+          <!-- 五段一起在，靠 JS 决定露到第几段 -->
+          <g class="tpart" data-min="1" data-max="1">
+            <path d="M200 227 L200 197" stroke="#6d5b45" stroke-width="5"
+              stroke-linecap="round" fill="none"/>
+            <path d="M200 201 q-19 -9 -22 -25 q19 -2 24 20 z" fill="#6cc99f"/>
+            <path d="M200 201 q19 -9 22 -25 q-19 -2 -24 20 z" fill="#7fe0c0"/>
+          </g>
+          <g class="tpart" data-min="2">
+            <path d="M200 227 L200 156" stroke="#6d5b45" stroke-width="9"
+              stroke-linecap="round" fill="none"/>
+            <circle cx="200" cy="140" r="30" fill="#5fbc93"/>
+            <circle cx="184" cy="150" r="20" fill="#6cc99f"/>
+            <circle cx="216" cy="150" r="20" fill="#7fe0c0"/>
+          </g>
+          <g class="tpart" data-min="3">
+            <path d="M200 227 L200 138" stroke="#6d5b45" stroke-width="13"
+              stroke-linecap="round" fill="none"/>
+            <path d="M200 176 L172 154 M200 168 L230 148" stroke="#6d5b45"
+              stroke-width="7" stroke-linecap="round" fill="none"/>
+            <circle cx="200" cy="118" r="38" fill="#54ad86"/>
+            <circle cx="168" cy="140" r="26" fill="#5fbc93"/>
+            <circle cx="232" cy="138" r="27" fill="#6cc99f"/>
+            <circle cx="200" cy="146" r="26" fill="#7fe0c0"/>
+          </g>
+          <g class="tpart" data-min="4">
+            <circle cx="154" cy="120" r="21" fill="#5fbc93"/>
+            <circle cx="246" cy="118" r="22" fill="#6cc99f"/>
+            <circle cx="200" cy="88" r="27" fill="#7fe0c0"/>
+            <g class="tfruit">
+              <circle cx="178" cy="132" r="5.5" fill="#ff9ec4"/>
+              <circle cx="223" cy="126" r="5" fill="#ffd479"/>
+              <circle cx="198" cy="152" r="5" fill="#ff9ec4"/>
+              <circle cx="156" cy="104" r="4.5" fill="#ffd479"/>
+            </g>
+          </g>
+          <g class="tpart" data-min="5">
+            <circle cx="140" cy="98" r="17" fill="#54ad86"/>
+            <circle cx="260" cy="96" r="18" fill="#5fbc93"/>
+            <circle cx="200" cy="62" r="22" fill="#7fe0c0"/>
+            <g class="tstar">
+              <path d="M200 28 l4.6 9.4 10.4 1.5 -7.5 7.3 1.8 10.3 -9.3 -4.9
+                       -9.3 4.9 1.8 -10.3 -7.5 -7.3 10.4 -1.5 z" fill="#ffd479"/>
+              <circle cx="150" cy="64" r="3" fill="#ffd479" opacity=".8"/>
+              <circle cx="252" cy="56" r="2.4" fill="#ffd479" opacity=".65"/>
+            </g>
+          </g>
+        </g>
+
+        <g id="waterG"><circle class="wdrop" cx="186" cy="192" r="3.0" fill="#a8e4f7" style="animation-delay:0s"/><circle class="wdrop" cx="190" cy="192" r="2.3" fill="#a8e4f7" style="animation-delay:0.5s"/><circle class="wdrop" cx="183" cy="192" r="2.0" fill="#a8e4f7" style="animation-delay:1.0s"/><circle class="wdrop" cx="214" cy="192" r="3.0" fill="#a8e4f7" style="animation-delay:0.28s"/><circle class="wdrop" cx="210" cy="192" r="2.3" fill="#a8e4f7" style="animation-delay:0.78s"/><circle class="wdrop" cx="217" cy="192" r="2.0" fill="#a8e4f7" style="animation-delay:1.28s"/></g>
+        
+  <g class="wcat" transform="translate(70,128)">
+    <defs><radialGradient id="gwcS" cx="42%" cy="32%" r="72%">
+      <stop offset="0%" stop-color="#f8f5ef"/><stop offset="100%" stop-color="#e4ddd0"/>
+    </radialGradient></defs>
+    <path class="wtail" d="M36 92 C18 91 12 78 18 69 C23 62 31 63 32 69"
+      fill="none" stroke="#e4ddd0" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30 96 C27 76 38 61 55 61 C72 61 83 76 80 96 Z" fill="url(#gwcS)"/>
+    <ellipse cx="41" cy="97" rx="8.5" ry="5" fill="#f8f5ef"/>
+    <ellipse cx="63" cy="97" rx="8.5" ry="5" fill="#f8f5ef"/>
+    <g class="whead">
+      <path d="M35 45 L31 27 L48 37 Z" fill="#e4ddd0"/>
+      <path d="M36.5 42.5 L34.5 33 L43.5 38 Z" fill="#e6b7ae"/>
+      <path d="M75 45 L79 27 L62 37 Z" fill="#e4ddd0"/>
+      <path d="M73.5 42.5 L75.5 33 L66.5 38 Z" fill="#e6b7ae"/>
+      <ellipse cx="55" cy="51" rx="24.5" ry="21" fill="url(#gwcS)"/>
+      <ellipse cx="47" cy="51" rx="4.2" ry="5" fill="#2b2721"/>
+      <ellipse cx="63" cy="51" rx="4.2" ry="5" fill="#2b2721"/>
+      <circle cx="48.6" cy="49" r="1.6" fill="#fff"/>
+      <circle cx="64.6" cy="49" r="1.6" fill="#fff"/>
+      <path d="M52.5 59 L57.5 59 L55 62 Z" fill="#d99a8f"/>
+      <path d="M55 62 q-4 4 -7 1 M55 62 q4 4 7 1" fill="none" stroke="#2b2721"
+        stroke-width="1.4" stroke-linecap="round" opacity=".6"/>
+      <g stroke="#f8f5ef" stroke-width="1.1" stroke-linecap="round" opacity=".55">
+        <path d="M34 58 L18 55"/><path d="M34 61 L18 64"/>
+        <path d="M76 58 L92 55"/><path d="M76 61 L92 64"/>
+      </g>
+    </g>
+    <!-- 水壶：壶身在猫的靠树那一侧，壶嘴朝树，尖端在 (116,60) -->
+    <g class="wcan">
+      <path d="M70 62 h24 a3 3 0 0 1 3 3 v22 a3 3 0 0 1 -3 3 h-24 a3 3 0 0 1 -3 -3
+               v-22 a3 3 0 0 1 3 -3 z" fill="#8fb6d9"/>
+      <path d="M73 62 q9 -12 18 0" fill="none" stroke="#7ba6cc" stroke-width="3.4"
+        stroke-linecap="round"/>
+      <path d="M94 66 L114 57 L117 63 L97 73 Z" fill="#a8c9e6"/>
+      <ellipse cx="115.5" cy="60" rx="4.6" ry="3.4" fill="#6b97be"
+        transform="rotate(-25 115.5 60)"/>
+    </g>
+  </g>
+  <g class="wcat" transform="translate(330,128) scale(-1,1)">
+    <defs><radialGradient id="gwcD" cx="42%" cy="32%" r="72%">
+      <stop offset="0%" stop-color="#5a5e6c"/><stop offset="100%" stop-color="#41444f"/>
+    </radialGradient></defs>
+    <path class="wtail" d="M36 92 C18 91 12 78 18 69 C23 62 31 63 32 69"
+      fill="none" stroke="#41444f" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30 96 C27 76 38 61 55 61 C72 61 83 76 80 96 Z" fill="url(#gwcD)"/>
+    <ellipse cx="41" cy="97" rx="8.5" ry="5" fill="#5a5e6c"/>
+    <ellipse cx="63" cy="97" rx="8.5" ry="5" fill="#5a5e6c"/>
+    <g class="whead">
+      <path d="M35 45 L31 27 L48 37 Z" fill="#41444f"/>
+      <path d="M36.5 42.5 L34.5 33 L43.5 38 Z" fill="#8d6f76"/>
+      <path d="M75 45 L79 27 L62 37 Z" fill="#41444f"/>
+      <path d="M73.5 42.5 L75.5 33 L66.5 38 Z" fill="#8d6f76"/>
+      <ellipse cx="55" cy="51" rx="24.5" ry="21" fill="url(#gwcD)"/>
+      <ellipse cx="47" cy="51" rx="4.2" ry="5" fill="#2b2721"/>
+      <ellipse cx="63" cy="51" rx="4.2" ry="5" fill="#2b2721"/>
+      <circle cx="48.6" cy="49" r="1.6" fill="#fff"/>
+      <circle cx="64.6" cy="49" r="1.6" fill="#fff"/>
+      <path d="M52.5 59 L57.5 59 L55 62 Z" fill="#d99a8f"/>
+      <path d="M55 62 q-4 4 -7 1 M55 62 q4 4 7 1" fill="none" stroke="#2b2721"
+        stroke-width="1.4" stroke-linecap="round" opacity=".6"/>
+      <g stroke="#5a5e6c" stroke-width="1.1" stroke-linecap="round" opacity=".55">
+        <path d="M34 58 L18 55"/><path d="M34 61 L18 64"/>
+        <path d="M76 58 L92 55"/><path d="M76 61 L92 64"/>
+      </g>
+    </g>
+    <!-- 水壶：壶身在猫的靠树那一侧，壶嘴朝树，尖端在 (116,60) -->
+    <g class="wcan">
+      <path d="M70 62 h24 a3 3 0 0 1 3 3 v22 a3 3 0 0 1 -3 3 h-24 a3 3 0 0 1 -3 -3
+               v-22 a3 3 0 0 1 3 -3 z" fill="#8fb6d9"/>
+      <path d="M73 62 q9 -12 18 0" fill="none" stroke="#7ba6cc" stroke-width="3.4"
+        stroke-linecap="round"/>
+      <path d="M94 66 L114 57 L117 63 L97 73 Z" fill="#a8c9e6"/>
+      <ellipse cx="115.5" cy="60" rx="4.6" ry="3.4" fill="#6b97be"
+        transform="rotate(-25 115.5 60)"/>
+    </g>
+  </g>
+      </svg>
+    </div>
+
+    <!-- 右边：整张梯子，五档全摆出来，他自己看得见在第几级、下一级还差多少 -->
+    <div class="rf-ladder">
+      <ol id="rfList"></ol>
+      <div class="rf-tip" id="rfTip"></div>
+    </div>
+
   </div>
+
+  <div class="rf-water" id="rfWater">Snowy 和哆米在给你的树浇水</div>
+  <div class="rf-foot">
+    <span id="rfScore">最近七天 0 颗</span><span id="rfKeep">今天开始</span>
+  </div>
+  <div class="rf-name" id="rfName" hidden>小树苗</div>
+  <div class="rf-bar" hidden><div class="rf-fill" id="rfFill"></div></div>
 </section>
 <a class="famlink" href="./family.html">← 返回一家人</a>
 <section class="nagbox" id="nagBox">
@@ -1410,19 +1612,64 @@ function rankOf(){
   return {rank:r, score:sc, idx:RANKS.indexOf(r)};
 }
 function renderRank(){
-  const nm=document.getElementById("rfName"); if(!nm)return;
+  const box=document.getElementById("rankFoot"); if(!box)return;
   const r=rankOf(), next=RANKS[r.idx+1];
-  nm.textContent=r.rank.name;
+
+  /* 右边：整张梯子。老板 8-16：「让他自己也知道他到那里」——
+     所以五档全列出来，走过的打勾、现在这档高亮、下一档写清楚还差几颗。
+     再往上的只给名字不给数字：留点想头。 */
+  const ol=document.getElementById("rfList");
+  if(ol){
+    ol.innerHTML="";
+    RANKS.forEach(function(x,n){
+      const li=document.createElement("li");
+      li.className="rf-row "+(n<r.idx?"done":n===r.idx?"now":n===r.idx+1?"next":"");
+      const dot=document.createElement("span"); dot.className="rf-dot";
+      dot.textContent = n<r.idx ? "✓" : n===r.idx ? "●" : "";
+      const nm=document.createElement("span"); nm.className="rf-rname"; nm.textContent=x.name;
+      const nu=document.createElement("span"); nu.className="rf-rnum";
+      if(n===r.idx)      nu.textContent="现在";
+      else if(n===r.idx+1) nu.textContent="还差 "+(x.min-r.score)+" 颗";
+      else if(n<r.idx)   nu.textContent="走过了";
+      else               nu.textContent=x.min+" 颗";
+      li.appendChild(dot); li.appendChild(nm); li.appendChild(nu);
+      ol.appendChild(li);
+    });
+  }
+
+  /* 左边：树。段位名本来就是一棵树的一生，所以树不是装饰——
+     树就是段位：升一档长一截，掉一档缩回去。 */
+  const stage=r.idx+1;                       /* 1..5 */
+  document.querySelectorAll("#treeSvg .tpart").forEach(function(g){
+    const mx = g.dataset.max ? +g.dataset.max : 99;   /* 子叶只属于第一档，不往上叠 */
+    g.classList.toggle("on", stage >= +g.dataset.min && stage <= mx);
+  });
+  const tg=document.getElementById("treeG");
+  if(tg) tg.style.transform="scale("+(0.72+stage*0.056).toFixed(3)+")";
+
+  /* 猫浇的是「最近七天的星」。今天一颗没拿就把壶放下——
+     让他看得出来水是自己给的，不是画上去的。 */
+  const todayStars=(D.starLog||{})[dayKey(Date.now())]||0;
+  box.classList.toggle("dry", todayStars===0);
+  const w=document.getElementById("rfWater");
+  if(w) w.textContent = todayStars>0
+      ? ("今天你浇了 "+todayStars+" 颗星的水")
+      : "今天还没浇水，猫咪把水壶放下了";
+
   document.getElementById("rfScore").textContent="最近七天 "+r.score+" 颗";
   const d=keepDays();
   document.getElementById("rfKeep").textContent=d>0?("坚持了 "+d+" 天"):"今天开始";
-  /* 进度条：离下一档还差多少 */
-  const base=RANKS[r.idx].min, top=next?next.min:base+30;
-  const pct=Math.max(0,Math.min(100,Math.round((r.score-base)/(top-base)*100)));
-  document.getElementById("rfFill").style.width=pct+"%";
-  /* 明天会不会掉 */
+  const nmEl=document.getElementById("rfName"); if(nmEl) nmEl.textContent=r.rank.name;
+  const fill=document.getElementById("rfFill");
+  if(fill){
+    const base=RANKS[r.idx].min, top=next?next.min:base+30;
+    fill.style.width=Math.max(0,Math.min(100,Math.round((r.score-base)/(top-base)*100)))+"%";
+  }
+
+  /* 明天会不会掉档 */
   const drop=(D.starLog||{})[dayKey(Date.now()-6*86400000)]||0;
   const tip=document.getElementById("rfTip");
+  if(!tip)return;
   if(drop>0 && r.idx>0 && r.score-drop < RANKS[r.idx].min){
     tip.className="rf-tip warn";
     tip.textContent="今天不学，明天会掉回「"+RANKS[r.idx-1].name+"」";
@@ -1508,7 +1755,6 @@ function render(){try{renderLevel();renderRank();renderWalk();celebrateIfDue()}c
   document.getElementById("starCount").textContent=D.stars;
   document.getElementById("todayStars").textContent=D.todayStars;
   document.getElementById("streak").textContent=D.streak;
-  document.getElementById("phoneMin").textContent=D.phone;
   const sb=document.getElementById("sbar");sb.innerHTML="";
   for(let i=0;i<7;i++){const d=document.createElement("i");if(i<Math.min(7,D.streak))d.className="on";sb.appendChild(d)}
   const row=document.getElementById("boxRow");
@@ -1589,19 +1835,9 @@ function ask(){
   }
   const it=list[idx];
   qb.innerHTML=(cur==="english")?'<span class="big">'+it.q+'</span>这个词是什么意思？':it.q;
-  /* 乘法口诀要能听（老板 2026-08-16：「数学乘法口诀的声音没有」）。
-     口诀是念出来记的——念「七九六十三」比看「7×9=63」管用。 */
-  if(cur==="math" && it.say){
-    const sp=document.createElement("button");
-    sp.className="rbtn inline listen"; sp.type="button";
-    sp.style.cssText="margin-top:10px";
-    sp.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" '+
-      'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+
-      '<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>'+
-      '<path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg><b>听口诀</b>';
-    sp.onclick=function(){ if(typeof speakRoster==="function") speakRoster(it.say) };
-    qb.appendChild(sp);
-  }
+  /* 这里原来有个「听口诀」按钮，老板 2026-08-16 让拆——
+     口诀念出来是「七九六十三」，后三个字就是答案，
+     等于每道题边上放了个看答案的按钮。答完之后再念（下面两处），漏不了。 */
   ob.innerHTML="";
   const order=it.o.map((t,i)=>[t,i]).sort(()=>Math.random()-.5);
   order.forEach(([text,i])=>{
@@ -1629,16 +1865,7 @@ function ask(){
   speakRoster(it.q);
 }
 
-/* ================= 手机时间 & 愿望 ================= */
-document.getElementById("buyTime").onclick=()=>{
-  if(D.stars<15){toast("还差 "+(15-D.stars)+" 颗星星");return}
-  /* 老板：这个时间也不能一下换的太多 —— 每天最多换 30 分钟 */
-      D.phoneDay=D.phoneDay||{};
-      var _pk=todayKey(), _today=D.phoneDay[_pk]||0;
-      if(_today>=30){ toast("今天换够 30 分钟了，明天再来"); return; }
-      D.stars-=15;D.phone+=10;D.phoneDay[_pk]=_today+10;save();render();
-      toast("换到 10 分钟手机时间 📱（今天还能换 "+(30-_today-10)+" 分钟）");
-};
+/* ================= 愿望 ================= */
 
 (function(){
   const hb=document.querySelector("#p-reward h2");let tb=null;
@@ -3991,6 +4218,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=9bd196e0" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=c24a3ccf" data-me="boyuan"></script>
 </body>
 </html>
