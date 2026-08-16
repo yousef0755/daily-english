@@ -2308,6 +2308,9 @@ function quranFlat(){
   if(!pack) return [];
   const out=[];
   pack.list.forEach(function(item, idx){
+    /* 老板 2026-08-16：114–108 和 106 他早就背会了，
+       不能再排进"每天两句"里让他重背。只有还没背的才进队列。 */
+    if(item.mastered) return;
     (item.lines||[]).forEach(function(ln, li){
       if(typeof ln==="object") out.push({idx:idx, li:li});
     });
@@ -3796,6 +3799,26 @@ function renderWish(){
    · 选择题，能客观判对错（我把录音撤了，让他自己说"会了"就回到原点了）
    · 答错的那句**退回还没背会**，明天接着背。没后果的考试是装饰
    · 但**不扣星星**。错了已经够难受，再罚他就不想考了 */
+/* 已经背会的章，抽出来复习用（老板 2026-08-16：
+   「之前背的可以让星星老师随便考他一下，但是不要作为没有背会的对象」）。
+   标 review:true —— 答错**不退回**，只当提个醒。 */
+function examReviewPool(){
+  const out=[];
+  ["quran","poem"].forEach(function(sub){
+    const pack=RECITE[sub]; if(!pack) return;
+    pack.list.forEach(function(item, idx){
+      if(!item.mastered) return;
+      (item.lines||[]).forEach(function(ln, li){
+        const ar=(typeof ln==="object")?ln.ar:null;
+        const zh=(typeof ln==="object")?ln.zh:null;
+        /* 已背会那几章我没写中文（他早就会了），所以用章名当题面 */
+        if(ar) out.push({sub:sub, idx:idx, li:li, review:true,
+          q:"这一句出自哪一章？", a:ar, hint:item.name, kind:"ar"});
+      });
+    });
+  });
+  return out;
+}
 function examPool(){
   D.beihui=D.beihui||{};
   const pre=todayKey()+"_bh_", out=[];
@@ -3860,8 +3883,11 @@ function renderExam(){
 }
 document.getElementById("examStart")&&(document.getElementById("examStart").onclick=function(){
   const pool=examPool();
-  /* 最多问 5 句，别把他考累 */
-  examQs=pool.sort(function(){return Math.random()-.5}).slice(0,Math.min(5,pool.length));
+  /* 今天新背的最多 4 句，再掺 1 句「早就背会的」复习
+     （老板 2026-08-16：之前背的可以随便考，但答错不算没背会）。 */
+  const today=pool.sort(function(){return Math.random()-.5}).slice(0,4);
+  const rev=examReviewPool().sort(function(){return Math.random()-.5}).slice(0,1);
+  examQs=today.concat(rev).sort(function(){return Math.random()-.5});
   examAt=0; examWrong=[];
   this.style.display="none";
   nextExamQ();
@@ -3873,15 +3899,22 @@ function nextExamQ(){
     const right=examQs.length-examWrong.length;
     D.examDone=D.examDone||{};
     D.examDone[todayKey()]={right:right,total:examQs.length};
-    /* 错的退回「还没背会」——明天还得背。但不扣星星 */
-    examWrong.forEach(function(q){ bhSet(q.sub,q.idx,q.li,false) });
+    /* 错的退回「还没背会」——明天还得背。但不扣星星。
+       **复习题除外**：那是他早就背会的，答错只提个醒，不能打回没背会
+       （老板 2026-08-16 明确交代）。 */
+    examWrong.forEach(function(q){ if(!q.review) bhSet(q.sub,q.idx,q.li,false) });
     if(right===examQs.length){ addStar(3); }
     save();
     body.innerHTML="";
+    /* 复习题答错不退回，所以报数字要按**真正退回的**说，
+       不能把复习错的也算进去——数字对不上，孩子会以为自己错得更多。 */
+    const back=examWrong.filter(function(q){ return !q.review }).length;
+    const revWrong=examWrong.length-back;
     tip.innerHTML = right===examQs.length
       ? "<b>全对。</b>今天这几句是真会了，+3 ⭐"
-      : "对了 <b>"+right+"/"+examQs.length+"</b>。错的那 "+examWrong.length+
-        " 句我放回去了，明天再背一遍就好——不扣星星。";
+      : ("对了 <b>"+right+"/"+examQs.length+"</b>。"+
+         (back? ("今天新背的错了 "+back+" 句，我放回去了，明天再背一遍——不扣星星。") : "今天新背的全对。")+
+         (revWrong? "<br><small>以前背过的错了 "+revWrong+" 句，不算数，有空再看一眼就行。</small>" : ""));
     if(typeof catSay==="function"){
       catSay("Snowy", right===examQs.length?"我看见了，你是真会了。":"错几句没什么，明天再来。");
     }
@@ -3890,9 +3923,11 @@ function nextExamQ(){
   }
   const q=examQs[examAt];
   const opts=examDistract(examQs,q.a,q.sub).concat([q.a]).sort(function(){return Math.random()-.5});
+  const isRev=!!q.review;
   const rtl=(q.kind==="ar")?'direction:rtl;text-align:right;font-size:1.25rem;':'';
   body.innerHTML='<div class="tip" style="text-align:left;margin:0 0 6px">第 '+
-    (examAt+1)+' / '+examQs.length+' 题</div>'+
+    (examAt+1)+' / '+examQs.length+' 题'+
+    (isRev?'　<span style="color:var(--gold)">（以前背过的，考着玩）</span>':'')+'</div>'+
     '<div style="font-size:1.05rem;line-height:1.9;margin-bottom:12px">'+
       String(q.q).replace(/</g,"&lt;")+'</div>'+
     opts.map(function(o,i){
@@ -3904,7 +3939,9 @@ function nextExamQ(){
       const ok=(b.textContent.trim()===String(q.a).trim());
       if(!ok) examWrong.push(q);
       b.style.borderColor = ok ? "var(--mint,#7ed6b2)" : "#c0392b";
-      document.getElementById("examTip").textContent = ok ? "对了" : ("这句是：" + q.a);
+      document.getElementById("examTip").textContent = ok ? "对了"
+        : (isRev ? ("以前背过的，再看一眼：" + q.a + "（不算数，放心）")
+                 : ("这句是：" + q.a));
       [].forEach.call(body.querySelectorAll(".examopt"), function(x){ x.disabled=true });
       examAt++;
       setTimeout(function(){ document.getElementById("examTip").textContent=""; nextExamQ() }, ok?900:2200);
