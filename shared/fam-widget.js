@@ -318,16 +318,31 @@
       var ppl = b.people.map(function (x) { return { x: x, p: pctOf(x) } })
                         .sort(function (a, c) { return a.p - c.p });
       /* 一个圆 22px，在一条约 280px 的跑道上大概占 8%。
-         从慢到快走一遍，谁离前一个不够一个身位就往右挤开，保证不重叠。 */
-      var GAP = 8, prevX = -99;
-      var dots = ppl.map(function (o) {
-        var x = Math.max(o.p, prevX + GAP);
-        if (x > 100) x = 100;
-        prevX = x;
+         两遍排布：先从左往右挤开保证间距，右边撞墙了再从右往左推回来。
+         只往右挤是不够的——两个人都完成（都是 100%）时会被压到同一个点，
+         后画的把先画的整个盖住。老板 2026-08-16 就是这么"看不到博远"的。 */
+      var n = ppl.length;
+      var GAP = Math.min(8, n > 1 ? 100 / (n - 1) : 8);
+      var xs = ppl.map(function (o) { return o.p });
+      for (var i = 1; i < n; i++) {                    /* 从左往右挤 */
+        if (xs[i] < xs[i - 1] + GAP) xs[i] = xs[i - 1] + GAP;
+      }
+      if (n && xs[n - 1] > 100) {                      /* 撞到右墙，往回推 */
+        xs[n - 1] = 100;
+        for (var j = n - 2; j >= 0; j--) {
+          if (xs[j] > xs[j + 1] - GAP) xs[j] = xs[j + 1] - GAP;
+        }
+        if (xs[0] < 0) {                               /* 左边也放不下就整体压缩 */
+          var span = xs[n - 1] - xs[0] || 1;
+          xs = xs.map(function (v) { return (v - xs[0]) / span * 100 });
+        }
+      }
+      var dots = ppl.map(function (o, i) {
+        var x = xs[i];
         var mine = o.x.id === ME;
         var ch = String(o.x.name || "?").slice(0, 1);
         return '<div title="' + esc(o.x.name) + '" style="position:absolute;' +
-          'left:calc(' + x + '% * .84 + 14px);bottom:11px;transform:translateX(-50%);' +
+          'left:calc(' + x.toFixed(1) + '% * .84 + 14px);bottom:11px;transform:translateX(-50%);' +
           'opacity:' + (o.x.here ? '1' : '.42') + ';' +
           'transition:left .6s cubic-bezier(.4,0,.2,1)">' +
           avatar(o.x.id, ch, 24, mine) +
