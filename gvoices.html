@@ -28,7 +28,7 @@ V.forEach(([id,desc])=>{
   b.onclick=()=>{
     if(cur){cur.pause();if(curBtn){curBtn.classList.remove("playing");curBtn.textContent="▶ 听"}}
     if(curBtn===b&&cur&&!cur.ended){cur=null;curBtn=null;return}
-    cur=new Audio("gvoices/"+id+".wav");curBtn=b;
+    cur=new Audio("media/gvoices/"+id+".wav");curBtn=b;
     b.classList.add("playing");b.textContent="… 播放中";
     cur.onended=()=>{b.classList.remove("playing");b.textContent="▶ 听"};
     cur.play().catch(()=>{});

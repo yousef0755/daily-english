@@ -69,7 +69,7 @@ SECTIONS.forEach(([title,voices])=>{
     b.onclick=()=>{
       if(cur){cur.pause();if(curBtn){curBtn.classList.remove("playing");curBtn.textContent="▶ 听";}}
       if(curBtn===b&&cur&&!cur.ended){cur=null;curBtn=null;return;}
-      cur=new Audio("voices/"+id+".mp3");curBtn=b;
+      cur=new Audio("media/voices/"+id+".mp3");curBtn=b;
       b.classList.add("playing");b.textContent="… 播放中";
       cur.onended=()=>{b.classList.remove("playing");b.textContent="▶ 听";};
       cur.play().catch(()=>{});

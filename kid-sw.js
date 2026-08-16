@@ -93,8 +93,8 @@ self.addEventListener("push", e => {
 
     await self.registration.showNotification(who + " 说：", {
       body: line,
-      icon: "./kid-icon-192.png",
-      badge: "./kid-icon-192.png",
+      icon: "./icons/kid-icon-192.png",
+      badge: "./icons/kid-icon-192.png",
       tag: "kid-nag",
       renotify: true,
       data: { url: "./kid.html" }

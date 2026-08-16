@@ -804,7 +804,7 @@ function live(){
     const _need=_speaking?0.180:0.060;
     const _quiet=(_r<=_need)&&(_now-mLoudAt)>1000;
     if(!_quiet){for(let i=0;i<f.length;i++){const v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}}
-    ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+    ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"media/audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   play=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});at=play.currentTime;
 }
@@ -1196,6 +1196,6 @@ function famPing(){
 })();
 </script>
 
-<script src="./fam-widget.js" data-me="manya"></script>
+<script src="./shared/fam-widget.js" data-me="manya"></script>
 </body>
 </html>

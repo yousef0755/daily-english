@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
 <link rel="manifest" href="./kid.webmanifest">
-<link rel="apple-touch-icon" href="./kid-icon-192.png">
+<link rel="apple-touch-icon" href="./icons/kid-icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="学习星球">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -858,11 +858,11 @@ nav button.on span{filter:none;transform:translateY(-1px)}
 
 /* ===== 真人语音（花名册声线，预生成 MP3；缺文件才退回系统音） ===== */
 var VOICE_IDX=null, _vplayer=new Audio();
-fetch("kidaudio/index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+fetch("media/kidaudio/index.json").then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
 function speakRoster(text){
   if(!text)return;
   var key=String(text).trim();
-  if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("kidaudio/"+VOICE_IDX[key],key); return; }
+  if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("media/kidaudio/"+VOICE_IDX[key],key); return; }
   sysSpeak(key);
 }
 /* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio。
@@ -1615,7 +1615,7 @@ function tLive(){
     if(!quiet){
       for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}
     }
-    tws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+    tws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"media/audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   tPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});tAt=tPlay.currentTime;
 }
@@ -2199,7 +2199,7 @@ try{renderLevel();renderRank();setWalker(D.walker||"Snowy");if(!catsMissYou())re
 
 /* ═══ 笔顺：先看怎么写，再一笔一笔跟着写 ═══ */
 var STROKES=null, sChar=null, sIdx=0, sTimer=null;
-fetch("hanzi/strokes.json").then(function(r){return r.json()})
+fetch("media/hanzi/strokes.json").then(function(r){return r.json()})
   .then(function(j){STROKES=j;}).catch(function(){});
 
 function strokeSvgFor(ch){
@@ -3379,6 +3379,6 @@ function openTcSay(who){
 })();
 
 </script>
-<script src="./fam-widget.js" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js" data-me="boyuan"></script>
 </body>
 </html>

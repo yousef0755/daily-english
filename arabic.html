@@ -165,11 +165,11 @@ header .pill.on{
 
 /* ===== 真人语音（花名册声线，预生成 MP3；缺文件才退回系统音） ===== */
 var VOICE_IDX=null, _vplayer=new Audio();
-fetch("kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+fetch("media/kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
 function speakRoster(text){
   if(!text)return;
   var key=String(text).trim();
-  if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("kidaudio/"+VOICE_IDX[key],key); return; }
+  if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("media/kidaudio/"+VOICE_IDX[key],key); return; }
   sysSpeak(key);
 }
 /* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio。
@@ -317,18 +317,18 @@ let player=new Audio();
 /* 阿语卡片只播放现代标准阿拉伯语神经女声；中文保留为文字释义。 */
 function playPair(arText){
   var a=VOICE_IDX&&VOICE_IDX[arText];
-  if(a){playThroughSilent("kidaudio/"+a,arText);return}
+  if(a){playThroughSilent("media/kidaudio/"+a,arText);return}
   sysSpeak(arText);
 }
 function play(pack,i,kind,fallback,clean){
-  /* 2026-08-15 修：原来只认 audio/<pack>_<i>_s.mp3 这套旧文件名，
-     而 audio/ 里只有 dad/deal/heart/local 四个老词包，新加的词根本没有文件；
+  /* 2026-08-15 修：原来只认 media/audio/<pack>_<i>_s.mp3 这套旧文件名，
+     而 media/audio/ 里只有 dad/deal/heart/local 四个老词包，新加的词根本没有文件；
      退回时又把「Hello. 你好」这种拼串拿去查索引，当然查不到，最后落到机器音。
      而且 play().catch 是空的，失败了一点声音都没有——嫂子说的「没有声音」就是这里。
      现在：先按纯文本查花名册音频（覆盖率 100%），查不到再走旧文件，最后才机器音。 */
   const key=(clean||"").trim();
-  if(key&&VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("kidaudio/"+VOICE_IDX[key],key); return; }
-  const PKa=(window.__PACKS_ACTIVE||PACKS);const src="audio/"+PKa[pack].key+"_"+i+"_"+kind+".mp3";
+  if(key&&VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("media/kidaudio/"+VOICE_IDX[key],key); return; }
+  const PKa=(window.__PACKS_ACTIVE||PACKS);const src="media/audio/"+PKa[pack].key+"_"+i+"_"+kind+".mp3";
   try{player.pause()}catch(e){}
   player=new Audio(src);
   player.onerror=()=>{speakRoster(key||fallback)};
@@ -474,7 +474,7 @@ function aLive(){
     var _need = (typeof aPlay!=='undefined' && aPlay && aAt>aPlay.currentTime) ? 0.060*3 : 0.060;
     var _quiet = (_r<=_need) && (_now-aLoudAt)>1000;
     if(!_quiet){for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}}
-    aws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+    aws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"media/audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   aPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});aAt=aPlay.currentTime;
 }
@@ -663,6 +663,6 @@ function famPing(){
   window.__studySec=function(){return sec};
 })();
 </script>
-<script src="./fam-widget.js" data-me="amina"></script>
+<script src="./shared/fam-widget.js" data-me="amina"></script>
 </body>
 </html>

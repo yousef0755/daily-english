@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0d3027">
 <meta name="description" content="现代标准阿拉伯语每日听说课堂，统一使用标准阿语神经发音。">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
 <title>每天五分钟 · 英语 阿语 演讲 交谈 分寸</title>
 <style>
 :root{
@@ -565,7 +565,7 @@ window.__packNamesActive=packNames;
 let lastResult=null;
 let player=new Audio();
 var VOICE_IDX=null,_vplayer=new Audio(),_actx=null,_asrc=null,_abuf={};
-fetch("kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+fetch("media/kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
 function sysSpeak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang=/[\u0600-\u06ff]/.test(t)?"ar-SA":/[\u4e00-\u9fff]/.test(t)?"zh-CN":"en-US";u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
 /* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio */
 function playThroughSilent(url,fb){
@@ -585,15 +585,15 @@ function playTag(url,fb){try{_vplayer.pause()}catch(e){}_vplayer=new Audio(url);
 /* 阿语课只播放带元音符号的现代标准阿拉伯语神经女声；中文保留为文字释义。 */
 function playPair(arText){
   var a=VOICE_IDX&&VOICE_IDX[arText];
-  if(a){playThroughSilent("kidaudio/"+a,arText);return}
+  if(a){playThroughSilent("media/kidaudio/"+a,arText);return}
   sysSpeak(arText);
 }
 function play(pack,i,kind,fallback,clean){
-  /* 2026-08-15 修：原来只认 audio/<pack>_<i>_s.mp3，新词包没有文件就退到机器音，
+  /* 2026-08-15 修：原来只认 media/audio/<pack>_<i>_s.mp3，新词包没有文件就退到机器音，
      而 play().catch 是空的——失败时一点声音都没有。现在先按纯文本查花名册。 */
   const key=(clean||"").trim();
-  if(key&&VOICE_IDX&&VOICE_IDX[key]){playThroughSilent("kidaudio/"+VOICE_IDX[key],key);return}
-  const PKa=(window.__PACKS_ACTIVE||PACKS);const src="audio/"+PKa[pack].key+"_"+i+"_"+kind+".mp3";
+  if(key&&VOICE_IDX&&VOICE_IDX[key]){playThroughSilent("media/kidaudio/"+VOICE_IDX[key],key);return}
+  const PKa=(window.__PACKS_ACTIVE||PACKS);const src="media/audio/"+PKa[pack].key+"_"+i+"_"+kind+".mp3";
   try{player.pause()}catch(e){}
   player=new Audio(src);
   player.onerror=()=>{sysSpeak(key||fallback)};
@@ -807,7 +807,7 @@ function aLive(){
     var _need = (typeof aPlay!=='undefined' && aPlay && aAt>aPlay.currentTime) ? 0.060*3 : 0.060;
     var _quiet = (_r<=_need) && (_now-aLoudAt)>1000;
     if(!_quiet){for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}}
-    aws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+    aws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"media/audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   aPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});aAt=aPlay.currentTime;
 }
@@ -1077,6 +1077,6 @@ function applyUiLang(){
   window.__refreshDone=refresh;
 })();
 </script>
-<script src="./fam-widget.js" data-me="baba"></script>
+<script src="./shared/fam-widget.js" data-me="baba"></script>
 </body>
 </html>

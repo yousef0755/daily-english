@@ -119,7 +119,7 @@ function live(){
       i16[i]=s<0?s*0x8000:s*0x7FFF}
     if(peak>0.03){lastVoice=Date.now();orb.classList.add("hearing")}
     else if(Date.now()-lastVoice>400)orb.classList.remove("hearing");
-    ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+    ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"media/audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
   };
   playCtx=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});
   playAt=playCtx.currentTime;

@@ -9,7 +9,7 @@
  *        不然他也没有办法同意」
  *      —— 邀请直接摆在自己主页上，一个「好啊」就答应了。
  *
- * 用法：<script src="./fam-widget.js" data-me="boyuan"></script>
+ * 用法：<script src="../shared/fam-widget.js" data-me="boyuan"></script>
  * 想指定位置就在页面上放一个 <div id="famWidget"></div>，不放就挂在最前面。
  *
  * 样式故意写得很淡，靠 currentColor 和半透明边框，
@@ -76,11 +76,17 @@
 
   function mount() {
     var host = el("famWidget");
+    var main = document.querySelector("main,.wrap,body");
     if (!host) {
       host = document.createElement("div");
-      var main = document.querySelector("main,.wrap,body");
-      main.insertBefore(host, main.firstChild);
+      main.appendChild(host);
+    } else if (host.parentNode) {
+      /* 老板 2026-08-16：「把所有人的这个功能都放在最下面，
+         不影响正常自己的事情」——页面里原来放哪不管，一律挪到最后。 */
+      host.parentNode.removeChild(host);
+      main.appendChild(host);
     }
+    host.style.cssText = "margin-top:28px";
     host.innerHTML = HTML;
 
     var sel = el("fwTo");
@@ -229,13 +235,22 @@
       var me = solo.findIndex(function (x) { return x.id === ME });
       var rows = solo.map(function (x, i) {
         var mine = x.id === ME;
-        return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;' +
-          (mine ? 'font-weight:800' : 'opacity:.8') + '">' +
-          '<span style="width:1.4em">' + medal(i) + '</span>' +
-          '<span style="flex:1">' + esc(x.name) + (mine ? '（你）' : '') + '</span>' +
-          '<span>连着 ' + (x.streak || 0) + ' 天</span>' +
-          '<span style="width:2.6em;text-align:right;opacity:.75">' +
-          (x.here ? (x.finished ? '已完成' : '在学') : '还没来') + '</span></div>';
+        /* 进度跟一家人那页同一个算法：完成了就满格，
+           没完成取「时长」和「门数」里走得远的那个。 */
+        var pct = x.finished ? 100 : Math.min(100, Math.round(Math.max(
+          (x.mins || 0) / (x.goal || 15),
+          (x.total ? (x.done || 0) / x.total : 0)) * 100));
+        return '<div style="display:grid;grid-template-columns:1.3em 3.6em 1fr 2.6em;' +
+          'align-items:center;gap:7px;padding:2px 0;' + (mine ? 'font-weight:800' : 'opacity:.82') + '">' +
+          '<span style="opacity:.6">' + medal(i) + '</span>' +
+          '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+            esc(x.name) + '</span>' +
+          '<span style="height:7px;border-radius:99px;background:rgba(128,128,128,.22);' +
+            'overflow:hidden;display:block"><i style="display:block;height:100%;width:' + pct + '%;' +
+            'border-radius:99px;background:' + (x.finished ? '#7ed6b2' : 'currentColor') + ';' +
+            'opacity:' + (x.here ? '1' : '.35') + '"></i></span>' +
+          '<span style="text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap">' +
+            (x.streak || 0) + '天</span></div>';
       }).join("");
 
       /* 危机感：差一天就被谁追上/能超过谁 */
@@ -260,11 +275,19 @@
         pairRows = '<div style="margin-top:10px;font-weight:700;opacity:.85">搭子榜</div>' +
           ps.map(function (x, i) {
             var mine = x.a === ME || x.b === ME;
-            return '<div style="display:flex;gap:8px;padding:3px 0;' +
-              (mine ? 'font-weight:800' : 'opacity:.8') + '">' +
-              '<span style="width:1.4em">' + medal(i) + '</span>' +
-              '<span style="flex:1">' + esc(x.aName) + ' + ' + esc(x.bName) + '</span>' +
-              '<span>一起 ' + (x.weekDays || 0) + ' 天</span></div>';
+            var w = Math.min(100, Math.round((x.weekDays || 0) / 7 * 100));
+            return '<div style="display:grid;grid-template-columns:1.3em 1fr 2.6em;' +
+              'align-items:center;gap:7px;padding:2px 0;' +
+              (mine ? 'font-weight:800' : 'opacity:.82') + '">' +
+              '<span style="opacity:.6">' + medal(i) + '</span>' +
+              '<span style="display:flex;align-items:center;gap:7px;min-width:0">' +
+                '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto">' +
+                esc(x.aName) + '+' + esc(x.bName) + '</span>' +
+                '<span style="flex:1;height:7px;border-radius:99px;background:rgba(128,128,128,.22);' +
+                'overflow:hidden"><i style="display:block;height:100%;width:' + w + '%;' +
+                'border-radius:99px;background:currentColor"></i></span></span>' +
+              '<span style="text-align:right;font-variant-numeric:tabular-nums">' +
+                (x.weekDays || 0) + '天</span></div>';
           }).join("");
       }
 
