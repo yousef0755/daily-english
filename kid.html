@@ -3166,9 +3166,16 @@ async function renderNag(){
       const ns=await r.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:b64key(NAG_KEY)});
       const res=await fetch(NAG_API+"/kid/sub",{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify(ns.toJSON?ns.toJSON():ns)});
-      if(!res.ok)throw new Error("sub failed");
+      if(!res.ok)throw new Error("服务器不收（"+res.status+"）");
       nagMirror(); toast("好了。它们知道去哪找你了"); renderNag();
-    }catch(e){ toast("没成，回头我再看看"); }
+    }catch(e){
+      /* 别再吞原因了。8-16 就是因为这里只说「没成」，
+         真正的错（Worker 上没有 /kid/sub，404）藏了一整天。 */
+      const why=(e&&e.message)?String(e.message):"不知道哪一步";
+      toast("没成："+why);
+      try{ sessionStorage.setItem("nagErr", why+" @ "+new Date().toISOString()) }catch(_){}
+      console.error("[猫咪提醒] 订阅失败：", e);
+    }
     btn.disabled=false;
   };
 }
@@ -4218,6 +4225,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=c24a3ccf" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=2ccc0646" data-me="boyuan"></script>
 </body>
 </html>
