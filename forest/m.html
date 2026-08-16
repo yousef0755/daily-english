@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#07130c">
+<title>🌲 Forest of Us</title>
+<style>
+/* 手机专用轻量版：无canvas动画、无毛玻璃、无滤镜——为了在任何手机上都稳稳打开 */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font:15px/1.7 -apple-system,"PingFang SC",sans-serif;color:#dfe9df;
+  background:linear-gradient(180deg,#050d08 0%,#08170e 34%,#0c2013 62%,#123222 88%,#1a4030 100%);
+  background-attachment:fixed;min-height:100%;
+  padding-bottom:calc(74px + env(safe-area-inset-bottom));
+  overflow-x:hidden;
+}
+.moon{position:fixed;top:34px;right:30px;width:44px;height:44px;border-radius:50%;
+  background:radial-gradient(circle at 38% 38%,#fdf6d8,#e8dca8 68%,rgba(232,220,168,0) 72%);
+  box-shadow:0 0 34px 8px rgba(250,240,190,.16);pointer-events:none;z-index:0}
+.fire{position:fixed;width:4px;height:4px;border-radius:50%;background:#ffe9a0;opacity:.5;pointer-events:none;z-index:0;
+  animation:drift 9s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0);opacity:.15}50%{opacity:.6}to{transform:translate(14px,-26px);opacity:.2}}
+@media (prefers-reduced-motion:reduce){.fire{animation:none}}
+main{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:26px 18px 10px}
+.page{display:none;animation:fadein .35s ease}
+.page.on{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h1{font-weight:300;font-size:24px;letter-spacing:1px;margin:6px 0 2px}
+h1 em{font-style:normal;color:#ffd98e}
+h2{font-weight:300;font-size:20px;letter-spacing:1px;margin-bottom:4px}
+.sub{opacity:.45;font-size:13px;margin-bottom:16px}
+.greet{font-size:13px;letter-spacing:2px;color:#a9d0b2;opacity:.8;margin-bottom:10px}
+.card{background:rgba(16,36,24,.66);border:1px solid rgba(160,220,180,.12);border-radius:16px;padding:16px;margin-bottom:14px}
+.trees{display:flex;flex-wrap:wrap;gap:4px;font-size:17px;line-height:1.4;margin-top:8px}
+.tstat{font-size:13px;opacity:.6;margin-top:10px}
+/* 剧集 */
+.ep{display:block;width:100%;text-align:left;background:rgba(16,36,24,.66);border:1px solid rgba(160,220,180,.12);
+  border-radius:14px;padding:13px 15px;margin-bottom:10px;color:inherit;font:inherit}
+.ep b{color:#ffd98e;font-weight:600}
+.ep small{display:block;opacity:.5;margin-top:2px}
+.lines{display:none;margin:2px 0 14px;padding-left:4px}
+.lines.on{display:block}
+.ln{background:rgba(10,26,17,.7);border-left:2px solid #7fc79a;border-radius:0 12px 12px 0;padding:11px 13px;margin-bottom:8px}
+.ln .en{font-size:15.5px;color:#fff}
+.ln .zh{font-size:13.5px;color:#b9d6c1;margin-top:2px}
+.ln .meta{font-size:12px;opacity:.55;margin-top:6px;line-height:1.6}
+.learnrow{margin-top:8px;font-size:13px;color:#a9d0b2;display:flex;align-items:center;gap:7px}
+.learnrow input{width:17px;height:17px;accent-color:#7fc79a}
+/* 日记 */
+textarea,input[type=text]{width:100%;background:rgba(8,20,13,.8);border:1px solid rgba(160,220,180,.18);
+  border-radius:12px;color:#eaf4ec;font:inherit;padding:12px}
+textarea{min-height:96px;resize:none}
+.btn{display:inline-block;margin-top:10px;background:#1c5c3c;border:1px solid #2e7b52;color:#eaf7ee;
+  border-radius:22px;padding:9px 22px;font:inherit;font-size:14px}
+.btn:active{background:#26744c}
+.entry{border-bottom:1px dashed rgba(160,220,180,.14);padding:10px 2px;font-size:14px}
+.entry small{display:block;opacity:.4;font-size:11.5px;margin-top:3px}
+/* 叶子 */
+.leaves{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.leaf{background:rgba(20,46,30,.8);border:1px solid rgba(160,220,180,.16);border-radius:20px;
+  padding:7px 13px;font-size:13.5px;color:#cfe8d5}
+.leaf:active{background:#1f5236}
+/* Snowy 纯CSS白猫 */
+.cat{width:150px;height:130px;margin:16px auto 6px;position:relative}
+.cat .head{position:absolute;left:25px;top:22px;width:100px;height:88px;background:#f7f7f5;border-radius:50% 50% 46% 46%}
+.cat .ear{position:absolute;top:6px;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:30px solid #f7f7f5}
+.cat .ear.l{left:32px;transform:rotate(-12deg)}.cat .ear.r{right:32px;transform:rotate(12deg)}
+.cat .ear i{position:absolute;left:-8px;top:10px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:15px solid #f4c9cf}
+.cat .eye{position:absolute;top:58px;width:11px;height:14px;background:#3d5a80;border-radius:50%}
+.cat .eye.l{left:52px}.cat .eye.r{right:52px}
+.cat.blink .eye{height:2px;top:64px;border-radius:2px}
+.cat .nose{position:absolute;top:76px;left:71px;width:8px;height:6px;background:#e8a0a8;border-radius:40% 40% 60% 60%}
+.cat .w{position:absolute;top:78px;width:30px;height:1.5px;background:rgba(120,130,125,.6)}
+.cat .w.a{left:16px}.cat .w.b{left:14px;top:85px;transform:rotate(6deg)}
+.cat .w.c{right:16px}.cat .w.d{right:14px;top:85px;transform:rotate(-6deg)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:13.5px;opacity:.85;margin-top:12px}
+.purr{text-align:center;color:#ffd98e;font-size:14px;min-height:22px;margin-top:8px}
+/* 花海 */
+.sea{min-height:190px;background:rgba(12,28,18,.55);border-radius:16px;border:1px solid rgba(160,220,180,.1);
+  padding:14px;font-size:21px;line-height:1.7;letter-spacing:2px}
+.cnt{text-align:center;opacity:.6;font-size:13px;margin-top:10px}
+/* 长椅 */
+.bench{text-align:center;padding:64px 10px}
+.bench .i{font-size:52px}
+.bench p{margin-top:20px;font-size:16px;color:#cfe8d5;line-height:2}
+.bench small{display:block;margin-top:26px;letter-spacing:3px;opacity:.25;font-size:11px}
+/* 底部导航 */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;overflow-x:auto;
+  background:rgba(5,13,8,.96);border-top:1px solid rgba(160,220,180,.14);
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+nav button{flex:1 0 62px;background:none;border:0;color:#8fae97;font:inherit;font-size:10.5px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0}
+nav button span{font-size:19px;line-height:1.2}
+nav button.on{color:#ffd98e}
+</style>
+<script>
+/* 本机预览一律不往共用的榜上报打卡（跟别的页一致）。 */
+(function(){
+  if(!/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)
+     && location.protocol!=="file:") return;
+  var real=window.fetch;
+  window.fetch=function(u,o){
+    var s=String((u&&u.url)||u||"");
+    if(/\/fam\/(ping|import)/.test(s)){
+      console.info("[本机预览] 拦下一次打卡上报：",s);
+      return Promise.resolve(new Response('{"ok":true,"local":true}',
+        {status:200,headers:{"Content-Type":"application/json"}}));
+    }
+    return real.apply(this,arguments);
+  };
+})();
+</script>
+</head>
+<body>
+<a id="backMie" href="../mie.html" style="position:fixed;left:12px;top:12px;z-index:99998;padding:7px 13px;border-radius:999px;border:1px solid rgba(128,128,128,.45);background:rgba(0,0,0,.35);color:#f4f0df;text-decoration:none;font-size:.85rem;backdrop-filter:blur(6px)">← 跟 Snowy 说英文</a>
+
+<div class="moon"></div>
+<i class="fire" style="left:12%;top:30%"></i><i class="fire" style="left:78%;top:22%;animation-delay:-3s"></i>
+<i class="fire" style="left:40%;top:58%;animation-delay:-6s"></i><i class="fire" style="left:64%;top:72%;animation-delay:-1.5s"></i>
+
+<main>
+  <section class="page on" id="home">
+    <div class="greet" id="greet">🌅 清晨 · 露水</div>
+    <h1>Welcome back, <em>Manya</em>.</h1>
+    <p class="sub">这是手机版森林——轻得像一片叶子，再也不会闪退。</p>
+    <div class="card">
+      <div style="font-size:13px;letter-spacing:2px;opacity:.6">✦ 你的森林</div>
+      <div class="trees" id="treeRow"></div>
+      <div class="tstat" id="treeStat"></div>
+    </div>
+    <a href="daka.html" class="card" style="display:block;text-decoration:none;color:inherit">📅 学习打卡 →</a>
+    <p style="font-size:11px;opacity:.3;margin-top:4px"><a href="index.html?full=1" style="color:inherit">用完整版打开（电脑推荐）</a></p>
+  </section>
+
+  <section class="page" id="thisisus">
+    <h2>🎬 This Is Us</h2>
+    <p class="sub">点一集，看里面值得带走的句子</p>
+    <div id="epList"></div>
+  </section>
+
+  <section class="page" id="journal">
+    <h2>❤️ Flower Journal</h2>
+    <p class="sub">今天，哪一句话停住了你？</p>
+    <div class="card">
+      <textarea id="jin" placeholder="例如：It means more than you know."></textarea>
+      <button class="btn" id="jsave">种下这一句 🌱</button>
+      <div class="purr" id="jmsg"></div>
+    </div>
+    <div id="jpast"></div>
+  </section>
+
+  <section class="page" id="expr">
+    <h2>📚 Expression Forest</h2>
+    <p class="sub">每一片叶子 · 都是你学会的一句话</p>
+    <div class="leaves" id="leaves"></div>
+    <div class="card" id="leafD" style="display:none;margin-top:14px"></div>
+  </section>
+
+  <section class="page" id="snowy">
+    <h2>🐱 Snowy&rsquo;s Corner</h2>
+    <p class="sub">轻点 Snowy，听她打呼噜</p>
+    <div class="card">
+      <div class="cat" id="cat" onclick="pet()">
+        <span class="ear l"><i></i></span><span class="ear r"><i></i></span>
+        <span class="head"></span>
+        <span class="eye l"></span><span class="eye r"></span><span class="nose"></span>
+        <span class="w a"></span><span class="w b"></span><span class="w c"></span><span class="w d"></span>
+      </div>
+      <div class="purr" id="purr"></div>
+      <div class="stats">
+        <div>⚖️ 体重: 4.2kg</div><div>💉 疫苗: ✅ 2026</div>
+        <div>🏥 健康: 良好</div><div>😴 今天睡了: 14h</div>
+      </div>
+      <p style="margin-top:12px;font-size:14px;color:#cfe8d5">🌿 今天Snowy钻进了我的衣服里，蜷成一团，像一朵会呼吸的云。</p>
+    </div>
+  </section>
+
+  <section class="page" id="flowers">
+    <h2>🌸 花海</h2>
+    <p class="sub">点一下，开一朵</p>
+    <div class="sea" id="sea" onclick="bloom()"></div>
+    <div class="cnt" id="fcnt"></div>
+  </section>
+
+  <section class="page" id="allow">
+    <h2>🌿 Allow</h2>
+    <p class="sub">把"不许自己"的事写下来，交给风</p>
+    <div class="card">
+      <input type="text" id="ain" placeholder="例如：今天不许自己休息…">
+      <button class="btn" id="arel">放进风里 🍃</button>
+      <div class="purr" id="amsg"></div>
+    </div>
+    <div id="ahist" style="font-size:13px;opacity:.4;padding:0 4px"></div>
+  </section>
+
+  <section class="page" id="bench">
+    <div class="bench">
+      <div class="i">🪑</div>
+      <p>&ldquo;在这里，什么都不用做。<br>就待着。&rdquo; 🌲</p>
+      <small>✦ 风 · 鸟 · 阳光 ✦</small>
+    </div>
+  </section>
+</main>
+
+<nav id="nav">
+  <button data-p="home" class="on"><span>🌲</span>森林</button>
+  <button data-p="thisisus"><span>🎬</span>剧集</button>
+  <button data-p="journal"><span>❤️</span>日记</button>
+  <button data-p="expr"><span>📚</span>叶子</button>
+  <button data-p="snowy"><span>🐱</span>Snowy</button>
+  <button data-p="flowers"><span>🌸</span>花海</button>
+  <button data-p="allow"><span>🌿</span>Allow</button>
+  <button data-p="bench"><span>🪑</span>长椅</button>
+</nav>
+
+<script>
+// ===== 与大版共用同一份数据（localStorage: forestOfUs），互相通用 =====
+var DB={trees:new Array(100).fill(0),journalEntries:[],flowerCount:0,learnedEpisodes:{},allowHistory:[]};
+try{var s=localStorage.getItem('forestOfUs');if(s){var d=JSON.parse(s);
+  DB.trees=d.trees||DB.trees;DB.journalEntries=d.journalEntries||[];
+  DB.flowerCount=d.flowerCount||0;DB.learnedEpisodes=d.learnedEpisodes||{};DB.allowHistory=d.allowHistory||[];}}catch(e){}
+function save(){try{var d={};try{d=JSON.parse(localStorage.getItem('forestOfUs'))||{}}catch(e){}
+  d.trees=DB.trees;d.journalEntries=DB.journalEntries;d.flowerCount=DB.flowerCount;
+  d.learnedEpisodes=DB.learnedEpisodes;d.allowHistory=DB.allowHistory;
+  localStorage.setItem('forestOfUs',JSON.stringify(d))}catch(e){}}
+
+var expressions=['Take your time.','I got you.','It means more than you know.','One day at a time.',
+'You are enough.','This is us.','Hold on.','Let it be.','Be still.','Breathe.','I see you.','You matter.',
+'Stay.','Come back.',"It's okay.",'Not yet.','Almost there.','Good things take time.','You belong here.','Home.'];
+var episodes=[{id:1,title:'Pilot',desc:'S1E1 · 一切的开始'},{id:2,title:'The Big Three',desc:'S1E2 · 三个孩子'},
+{id:3,title:'Kyle',desc:'S1E3 · 失去与得到'},{id:4,title:'The Pool',desc:'S1E4 · 游泳池'},
+{id:5,title:'The Game Plan',desc:'S1E5 · 比赛'},{id:6,title:'Career Days',desc:'S1E6 · 职业日'}];
+var episodeLines={
+1:[{en:'This is us.',zh:'这就是我们。',g:'This is + 名词，介绍人或事物。',c:'常用于介绍家庭或团体。'},
+   {en:'I got you.',zh:'我懂你。/ 我护着你。',g:'get = 理解，或 = 照顾。',c:'美剧常见暖心表达。'}],
+2:[{en:'One day at a time.',zh:'一天一天来。',g:'at a time = 每次。',c:'12步康复计划常用语。'},
+   {en:'You are enough.',zh:'你本身就已足够。',g:'enough = 足够的。',c:'自我接纳的经典表达。'}],
+3:[{en:'It means more than you know.',zh:'它的意义远超你所知。',g:'more than = 超过。',c:'表达深沉情感。'},
+   {en:'Hold on.',zh:'坚持住。/ 等一下。',g:'hold on = 抓紧/等待。',c:'鼓励他人不放弃。'}],
+4:[{en:'Let it be.',zh:'顺其自然。',g:'let + 宾语 + be = 不管。',c:'披头士名曲标题。'},
+   {en:'Be still.',zh:'安静下来。',g:'still = 静止的。',c:'冥想或安抚时常用。'}],
+5:[{en:'Breathe.',zh:'呼吸。',g:'祈使句，动词原形开头。',c:'焦虑时的自我提醒。'},
+   {en:'I see you.',zh:'我看见你了。/ 我懂你。',g:'see = 看见/理解。',c:'《阿凡达》经典台词。'}],
+6:[{en:'You matter.',zh:'你很重要。',g:'matter = 要紧。',c:'自我价值肯定。'},
+   {en:'Stay.',zh:'留下来。',g:'stay = 停留。',c:'《星际穿越》经典台词。'}]};
+var reactions=['Snowy 呼噜呼噜……','Snowy 跳起来了！','Snowy 蹭了蹭你的手，温温的','Snowy 留下了一个爪印',
+'Snowy 闭上眼睛享受着……','好舒服，Snowy 打了个滚'];
+
+// 导航
+var pages=document.querySelectorAll('.page'),navBtns=document.querySelectorAll('nav button');
+navBtns.forEach(function(b){b.onclick=function(){
+  navBtns.forEach(function(x){x.classList.toggle('on',x===b)});
+  pages.forEach(function(p){p.classList.toggle('on',p.id===b.dataset.p)});
+  window.scrollTo(0,0)}});
+
+// 问候
+(function(){var h=new Date().getHours(),g;
+if(h<6)g='🌙 凌晨 · 星光';else if(h<11)g='🌅 清晨 · 露水';else if(h<17)g='☀️ 午后 · 树影';
+else if(h<20)g='🌇 黄昏 · 归鸟';else g='🌙 夜晚 · 萤火';
+document.getElementById('greet').textContent=g})();
+
+// 森林（前40棵展示，状态取自共用数据）
+function drawTrees(){var r=document.getElementById('treeRow'),n=DB.trees.filter(function(t){return t>0}).length,
+f=DB.trees.filter(function(t){return t>1}).length,h='';
+for(var i=0;i<40;i++)h+=DB.trees[i]>1?'🌳':DB.trees[i]>0?'🌲':'🌱';
+r.textContent='';r.insertAdjacentHTML('beforeend',h);
+document.getElementById('treeStat').textContent='已长成 '+n+' 棵 · 开花 '+f+' 棵 · 学会一句话，就多一棵树';}
+drawTrees();
+
+// 剧集 + 学会勾选（勾一句 = 种一棵树）
+(function(){var L=document.getElementById('epList'),h='';
+episodes.forEach(function(ep){
+  var done=DB.learnedEpisodes[ep.id]?' ✅':'';
+  h+='<button class="ep" data-e="'+ep.id+'"><b>'+ep.title+'</b>'+done+'<small>'+ep.desc+'</small></button>';
+  h+='<div class="lines" id="lz'+ep.id+'">';
+  (episodeLines[ep.id]||[]).forEach(function(l,i){
+    var k=ep.id+'-'+i,ck=DB.learnedEpisodes[k]?' checked':'';
+    h+='<div class="ln"><div class="en">'+l.en+'</div><div class="zh">'+l.zh+'</div>'+
+       '<div class="meta">语法：'+l.g+'<br>文化：'+l.c+'</div>'+
+       '<label class="learnrow"><input type="checkbox" data-k="'+k+'"'+ck+'> 学会了这一句</label></div>'});
+  h+='</div>'});
+L.insertAdjacentHTML('beforeend',h);
+L.addEventListener('click',function(e){
+  var b=e.target.closest('.ep');
+  if(b){var z=document.getElementById('lz'+b.dataset.e);z.classList.toggle('on');return}});
+L.addEventListener('change',function(e){
+  var c=e.target;if(!c.dataset.k)return;
+  DB.learnedEpisodes[c.dataset.k]=c.checked;
+  if(c.checked){var i=DB.trees.indexOf(0);if(i>-1)DB.trees[i]=1;
+    var j=DB.trees.indexOf(1);if(j>-1&&Math.random()<.5)DB.trees[j]=2}
+  save();drawTrees()})})();
+
+// 日记
+(function(){var IN=document.getElementById('jin'),P=document.getElementById('jpast');
+function render(){P.textContent='';DB.journalEntries.slice().reverse().slice(0,30).forEach(function(en){
+  var d=document.createElement('div');d.className='entry';
+  d.textContent=en.text||en;var s=document.createElement('small');s.textContent=en.date||'';d.appendChild(s);P.appendChild(d)})}
+render();
+document.getElementById('jsave').onclick=function(){var t=IN.value.trim();if(!t)return;
+  DB.journalEntries.push({text:t,date:new Date().toLocaleDateString('zh')});save();IN.value='';
+  document.getElementById('jmsg').textContent='🌱 已种进森林';render();
+  setTimeout(function(){document.getElementById('jmsg').textContent=''},2200)}})();
+
+// 叶子
+(function(){var L=document.getElementById('leaves'),D=document.getElementById('leafD');
+expressions.forEach(function(x){var b=document.createElement('button');b.className='leaf';b.textContent='🍃 '+x;
+b.onclick=function(){D.style.display='block';D.textContent='';
+  var e1=document.createElement('div');e1.style.cssText='font-size:17px;color:#fff';e1.textContent=x;
+  var e2=document.createElement('div');e2.style.cssText='font-size:13px;opacity:.6;margin-top:6px';
+  e2.textContent='这句话已经是你森林里的一片叶子了。';D.appendChild(e1);D.appendChild(e2)};
+L.appendChild(b)})})();
+
+// Snowy
+var petN=0;
+function pet(){var c=document.getElementById('cat');c.classList.add('blink');
+  setTimeout(function(){c.classList.remove('blink')},240);
+  document.getElementById('purr').textContent=reactions[petN++%reactions.length];
+  if(navigator.vibrate)navigator.vibrate(18)}
+
+// 花海
+function drawSea(){var s=document.getElementById('sea'),n=Math.min(DB.flowerCount,60),h='';
+  for(var i=0;i<n;i++)h+=['🌸','🌷','🌼','💮'][i%4];
+  s.textContent='';s.insertAdjacentHTML('beforeend',h||'<span style="font-size:14px;opacity:.4;letter-spacing:0">还没有花，点一下这里</span>');
+  document.getElementById('fcnt').textContent='🌸 已绽放: '+DB.flowerCount+' 朵'}
+function bloom(){DB.flowerCount++;save();drawSea()}
+drawSea();
+
+// Allow
+(function(){var IN=document.getElementById('ain'),H=document.getElementById('ahist');
+function render(){H.textContent='';DB.allowHistory.slice(-8).reverse().forEach(function(t){
+  var d=document.createElement('div');d.textContent='🍃 '+t;H.appendChild(d)})}
+render();
+document.getElementById('arel').onclick=function(){var t=IN.value.trim();if(!t)return;
+  DB.allowHistory.push(t);save();IN.value='';
+  document.getElementById('amsg').textContent='🍃 风把它带走了';render();
+  setTimeout(function(){document.getElementById('amsg').textContent=''},2200)}})();
+</script>
+<div id="famWidget"></div>
+<script src="../fam-widget.js" data-me="manya"></script>
+</body>
+</html>

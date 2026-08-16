@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d241b">
+<title>口袋森林 · Forest of Us</title>
+<style>
+:root{
+  --ink:#0d241b; --ink2:#12301f; --cream:#f4f0df; --muted:#9fb3a4;
+  --gold:#e7c57b; --moss:#76996e; --line:rgba(244,240,223,.14); --card:rgba(244,240,223,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"PingFang SC",system-ui,serif;background:var(--ink);color:var(--cream);
+  min-height:100vh;padding-bottom:78px;line-height:1.6;overscroll-behavior:none}
+header{padding:18px 18px 10px;display:flex;justify-content:space-between;align-items:baseline}
+header h1{font-size:1.05rem;letter-spacing:.14em;font-weight:600}
+header .streak{font-size:.82rem;color:var(--gold)}
+main{padding:6px 16px}
+.page{display:none}.page.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+h2{font-size:.92rem;color:var(--gold);letter-spacing:.08em;margin-bottom:10px;font-weight:600}
+.big{font-size:2rem;font-weight:700;color:var(--cream)}
+.sub{font-size:.78rem;color:var(--muted)}
+.row{display:flex;gap:12px}.row>*{flex:1}
+button,.btn{font-family:inherit;font-size:.95rem;border:none;border-radius:14px;padding:13px;cursor:pointer;
+  background:linear-gradient(135deg,#2c6b52,#17402d);color:var(--cream);width:100%;letter-spacing:.05em}
+button.gold{background:linear-gradient(135deg,var(--gold),#b8934a);color:#10231b;font-weight:700}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+button:active{transform:scale(.985)}
+.forest{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:6px}
+.tree{aspect-ratio:1;border-radius:8px;background:rgba(244,240,223,.05);display:flex;align-items:center;
+  justify-content:center;font-size:.95rem}
+.tree.t1{background:rgba(118,153,110,.22)}.tree.t2{background:rgba(118,153,110,.42)}
+.tree.t3{background:rgba(118,153,110,.62)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:8px}
+.cal .wd{font-size:.64rem;color:var(--muted);text-align:center}
+.cal .d{aspect-ratio:1;border-radius:8px;background:rgba(244,240,223,.05);display:flex;align-items:center;
+  justify-content:center;font-size:.75rem;color:var(--muted)}
+.cal .d.done{background:rgba(231,197,123,.85);color:#10231b;font-weight:700}
+.cal .d.today{outline:2px solid var(--gold)}
+.cal .d.blank{background:none}.cal .d.future{opacity:.25}
+textarea,input{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;
+  color:var(--cream);padding:12px;font-family:inherit;font-size:.95rem;resize:none}
+.entry{border-left:2px solid var(--moss);padding:6px 0 6px 12px;margin-bottom:12px}
+.entry .t{font-size:.7rem;color:var(--muted)}
+.sentence{font-size:1.02rem;line-height:1.7}
+.sentence .zh{display:block;color:var(--muted);font-size:.86rem;margin-top:4px}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,19,15,.96);border-top:1px solid var(--line);
+  display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom));backdrop-filter:none}
+nav button{background:none;color:var(--muted);font-size:.68rem;padding:4px 0;display:flex;flex-direction:column;
+  align-items:center;gap:3px;border-radius:0}
+nav button span{font-size:1.28rem;line-height:1}
+nav button.on{color:var(--gold)}
+.toast{position:fixed;left:50%;top:22%;transform:translateX(-50%);background:rgba(231,197,123,.95);color:#10231b;
+  padding:12px 22px;border-radius:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s;z-index:9}
+.toast.on{opacity:1}
+.tip{font-size:.72rem;color:var(--muted);text-align:center;margin:14px 0 4px}
+
+/* ── 曼雅要「可爱温暖一点点」：圆角放软、底色透一点暖、留白多一点 ── */
+:root{--warm:#f0d9a8;--blush:#e8b4a0;--soft:rgba(244,240,223,.09)}
+body{background-image:radial-gradient(1200px 600px at 50% -10%,rgba(231,197,123,.07),transparent 60%)}
+h2{letter-spacing:.01em}
+.card,section{border-radius:20px !important}
+button{border-radius:16px !important;transition:transform .15s ease,filter .15s ease}
+button:active{transform:scale(.97)}
+
+/* ── 长椅：从完整版搬过来的四样 ── */
+.bench{background:var(--soft);border:1px solid var(--line);border-radius:20px;
+  padding:16px 16px 18px;margin:16px 0}
+.bench h2{margin:0 0 4px}
+.benchsub{color:var(--muted);font-size:.82rem;margin:0 0 14px;line-height:1.7}
+.benchrow{display:flex;gap:9px;flex-wrap:wrap}
+.benchrow button{border:1px solid var(--gold);background:rgba(231,197,123,.1);
+  color:var(--gold);padding:10px 15px;font-size:.9rem;cursor:pointer;font-family:inherit}
+.benchrow button.go{background:var(--gold);color:#231a05;font-weight:700}
+#focusClock{font-size:2.6rem;font-family:Georgia,serif;color:var(--cream);
+  text-align:center;margin:10px 0 6px;letter-spacing:.02em}
+#focusNote{text-align:center;color:var(--muted);font-size:.82rem;min-height:1.3em}
+#artNote,#shakeNote,#photoNote{color:var(--muted);font-size:.82rem;margin-top:9px;line-height:1.7}
+#photoWrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;margin-top:10px}
+#photoWrap img{width:100%;border-radius:14px;display:block}
+
+/* 页面有全局 button{width:100%}，长椅那几个键各占一整行太长了 */
+.bench .benchrow{gap:8px}
+.bench .benchrow button{
+  width:auto !important;flex:0 1 auto !important;
+  padding:9px 14px !important;font-size:.88rem !important;
+}
+.bench .benchrow button.go{flex:1 1 100% !important;padding:11px !important;font-size:.95rem !important}
+.bench input[type=file]{width:100%;box-sizing:border-box}
+</style>
+<script>
+/* 本机预览一律不往共用的榜上报打卡（跟别的页一致）。 */
+(function(){
+  if(!/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)
+     && location.protocol!=="file:") return;
+  var real=window.fetch;
+  window.fetch=function(u,o){
+    var s=String((u&&u.url)||u||"");
+    if(/\/fam\/(ping|import)/.test(s)){
+      console.info("[本机预览] 拦下一次打卡上报：",s);
+      return Promise.resolve(new Response('{"ok":true,"local":true}',
+        {status:200,headers:{"Content-Type":"application/json"}}));
+    }
+    return real.apply(this,arguments);
+  };
+})();
+</script>
+</head>
+<body>
+<a id="backMie" href="../mie.html" style="position:fixed;left:12px;top:12px;z-index:99998;padding:7px 13px;border-radius:999px;border:1px solid rgba(128,128,128,.45);background:rgba(0,0,0,.35);color:#f4f0df;text-decoration:none;font-size:.85rem;backdrop-filter:blur(6px)">← 跟 Snowy 说英文</a>
+
+<header>
+  <h1>口袋森林</h1>
+  <div class="streak" id="hstreak">🔥 0 天</div>
+</header>
+<main>
+  <section class="page on" id="p-forest">
+    <div class="card">
+      <h2>今天</h2>
+      <div class="row" style="align-items:center">
+        <div><div class="big" id="treeCount">0</div><div class="sub">棵树</div></div>
+        <div><div class="big" id="totalDays">0</div><div class="sub">累计打卡</div></div>
+        <div><div class="big" id="streakNum">0</div><div class="sub">连续天数</div></div>
+      </div>
+      <div style="margin-top:14px"><button class="gold" id="checkin">今天打卡 · 种一棵树</button></div>
+    </div>
+    <div class="card">
+      <h2>补签 · 点亮漏掉的日子</h2>
+      <div class="cal" id="cal"></div>
+      <div class="tip">点过去的格子可以补回来（网站坏掉那天，不算你的）</div>
+    </div>
+    <div class="card">
+      <h2>我的森林</h2>
+      <div class="forest" id="forest"></div>
+    </div>
+  </section>
+
+  <section class="page" id="p-sentence">
+    <div class="card">
+      <h2>每日一句</h2>
+      <div class="sentence" id="sent"></div>
+      <div style="margin-top:14px" class="row">
+        <button class="gold" id="learned">学会了 · 种一棵树</button>
+        <button class="ghost" id="nextSent">换一句</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>学过的</h2>
+      <div id="learnedList" class="sub">还没有，学第一句吧。</div>
+    </div>
+  </section>
+
+  <section class="page" id="p-journal">
+    <div class="card">
+      <h2>小日志</h2>
+      <textarea id="jtext" rows="4" placeholder="今天想说点什么…"></textarea>
+      <div style="margin-top:10px"><button class="gold" id="saveJ">写进森林</button></div>
+    </div>
+    <div id="jlist"></div>
+  </section>
+
+  
+<section class="bench">
+  <h2>长椅</h2>
+  <p class="benchsub">坐一会儿。不用干什么也行。</p>
+
+  <div id="focusClock">25:00</div>
+  <p id="focusNote">专注林间 · 陪你安静一段</p>
+  <div class="benchrow">
+    <button type="button" id="focusGo" class="go">开始专注</button>
+    <button type="button" id="focus15">15 分钟</button>
+    <button type="button" id="focus25">25 分钟</button>
+    <button type="button" id="focusStop">停下</button>
+  </div>
+
+  <div class="benchrow" style="margin-top:16px">
+    <button type="button" id="artBtn">今天画过一点</button>
+    <button type="button" id="shakeBtn">允许摇一摇</button>
+  </div>
+  <p id="artNote"></p>
+  <p id="shakeNote">允许之后，摇手机会让整片森林起风。</p>
+
+  <div style="margin-top:16px">
+    <input type="file" id="photoFile" accept="image/*" style="font-size:.85rem;color:var(--muted)">
+    <p id="photoNote">给雪球拍的、给树拍的，都能放这儿。只存在你这台手机上。</p>
+    <div id="photoWrap"></div>
+  </div>
+</section>
+<section class="page" id="p-album">
+    <div class="card">
+      <h2>树的相册</h2>
+      <div class="sub" id="albumSub">每棵树都是一天的你。</div>
+      <div class="forest" id="album" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <h2>完整世界</h2>
+      <div class="sub">想看会动的森林、Snowy 和八个角落，就去大版（电脑或平板更好玩）。</div>
+      <div style="margin-top:12px"><a class="btn" style="display:block;text-align:center;text-decoration:none" href="index.html">打开完整世界 →</a></div>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button class="on" data-p="forest"><span>🌳</span>森林</button>
+  <button data-p="sentence"><span>📖</span>每日一句</button>
+  <button data-p="journal"><span>✍️</span>小日志</button>
+  <button data-p="album"><span>🖼</span>相册</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== 数据：与大版完全共用 localStorage 'forestOfUs' + 打卡键 mieDaka ===== */
+var DKEY="mieDaka";
+var DB={trees:new Array(100).fill(0),journalEntries:[],flowerCount:0,learnedEpisodes:{},allowHistory:[]};
+try{var raw=localStorage.getItem("forestOfUs");if(raw){var d=JSON.parse(raw);
+  DB.trees=d.trees||DB.trees;DB.journalEntries=d.journalEntries||[];DB.flowerCount=d.flowerCount||0;
+  DB.learnedEpisodes=d.learnedEpisodes||{};DB.allowHistory=d.allowHistory||[];}}catch(e){}
+var DAKA={};try{DAKA=JSON.parse(localStorage.getItem(DKEY)||"{}")}catch(e){DAKA={}}
+function save(){try{var d={};try{d=JSON.parse(localStorage.getItem("forestOfUs"))||{}}catch(e){}
+  d.trees=DB.trees;d.journalEntries=DB.journalEntries;d.flowerCount=DB.flowerCount;
+  d.learnedEpisodes=DB.learnedEpisodes;d.allowHistory=DB.allowHistory;
+  localStorage.setItem("forestOfUs",JSON.stringify(d))}catch(e){}}
+function saveDaka(){try{localStorage.setItem(DKEY,JSON.stringify(DAKA))}catch(e){}}
+function dkey(y,m,dd){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(dd).padStart(2,"0")}
+function todayKey(){var n=new Date();return dkey(n.getFullYear(),n.getMonth(),n.getDate())}
+function toast(t){var el=document.getElementById("toast");el.textContent=t;el.classList.add("on");
+  setTimeout(function(){el.classList.remove("on")},1600)}
+
+/* ===== 打卡 / 补签 ===== */
+function streak(){
+  var n=new Date(),s=0;
+  for(var i=0;;i++){var d=new Date(n);d.setDate(n.getDate()-i);
+    if(DAKA[dkey(d.getFullYear(),d.getMonth(),d.getDate())])s++;else{if(i===0)continue;break}}
+  return s;
+}
+function plantTree(){
+  var idx=DB.trees.findIndex(function(t){return t<3});
+  if(idx<0)idx=Math.floor(Math.random()*DB.trees.length);
+  DB.trees[idx]=Math.min(3,(DB.trees[idx]||0)+1);save();
+}
+function renderStats(){
+  var total=Object.keys(DAKA).filter(function(k){return DAKA[k]}).length;
+  var grown=DB.trees.filter(function(t){return t>0}).length;
+  document.getElementById("treeCount").textContent=grown;
+  document.getElementById("totalDays").textContent=total;
+  document.getElementById("streakNum").textContent=streak();
+  document.getElementById("hstreak").textContent="🔥 "+streak()+" 天";
+  var btn=document.getElementById("checkin");
+  if(DAKA[todayKey()]){btn.textContent="今天已打卡 ✓";btn.classList.remove("gold")}
+  else{btn.textContent="今天打卡 · 种一棵树";btn.classList.add("gold")}
+}
+function renderCal(){
+  var box=document.getElementById("cal");box.innerHTML="";
+  ["一","二","三","四","五","六","日"].forEach(function(w){
+    var e=document.createElement("div");e.className="wd";e.textContent=w;box.appendChild(e)});
+  var n=new Date(),first=new Date(n.getFullYear(),n.getMonth(),1);
+  var days=new Date(n.getFullYear(),n.getMonth()+1,0).getDate();
+  var lead=(first.getDay()+6)%7;
+  for(var i=0;i<lead;i++){var b=document.createElement("div");b.className="d blank";box.appendChild(b)}
+  var today=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  for(var dd=1;dd<=days;dd++){
+    (function(dd){
+      var e=document.createElement("div");e.className="d";e.textContent=dd;
+      var k=dkey(n.getFullYear(),n.getMonth(),dd);
+      var dt=new Date(n.getFullYear(),n.getMonth(),dd);
+      if(dt.getTime()===today.getTime())e.classList.add("today");
+      if(dt>today)e.classList.add("future");
+      if(DAKA[k])e.classList.add("done");
+      if(dt<=today)e.onclick=function(){
+        if(DAKA[k]){delete DAKA[k];toast("取消了 "+dd+" 号")}
+        else{DAKA[k]=1;plantTree();toast(dt.getTime()===today.getTime()?"今天种下一棵树 🌱":"补回 "+dd+" 号 ✓")}
+        saveDaka();renderAll();
+      };
+      box.appendChild(e);
+    })(dd);
+  }
+}
+function renderForest(id){
+  var box=document.getElementById(id);box.innerHTML="";
+  DB.trees.slice(0,100).forEach(function(t){
+    var e=document.createElement("div");e.className="tree"+(t?" t"+t:"");
+    e.textContent=t>=3?"🌳":t===2?"🌲":t===1?"🌱":"";box.appendChild(e)});
+}
+
+/* ===== 每日一句 ===== */
+var SENTENCES=[
+ ["It's not the load that breaks you down, it's the way you carry it.","压垮你的不是负担本身，而是你扛它的方式。"],
+ ["Everything you can imagine is real.","你能想象的一切都是真的。"],
+ ["Take it easy — you're doing better than you think.","别绷太紧，你比自己以为的做得好。"],
+ ["The forest keeps growing while no one is watching.","没人看着的时候，森林也在长。"],
+ ["Some days you plant, some days you rest.","有的日子种树，有的日子休息。"],
+ ["Small steps still count as steps.","小小的一步也是一步。"],
+ ["You can always start again tomorrow morning.","明天早上永远可以重新开始。"],
+ ["Be gentle with yourself, you're doing your best.","对自己温柔点，你已经很努力了。"]
+];
+function sentIdx(){var n=new Date();return (n.getFullYear()*372+n.getMonth()*31+n.getDate())%SENTENCES.length}
+var curSent=sentIdx();
+function renderSent(){
+  var s=SENTENCES[curSent];
+  document.getElementById("sent").innerHTML=s[0]+'<span class="zh">'+s[1]+'</span>';
+  var keys=Object.keys(DB.learnedEpisodes||{});
+  document.getElementById("learnedList").textContent=keys.length?("已经学会 "+keys.length+" 句，森林替你记着。"):"还没有，学第一句吧。";
+}
+
+/* ===== 日志 ===== */
+function renderJournal(){
+  var box=document.getElementById("jlist");box.innerHTML="";
+  (DB.journalEntries||[]).slice().reverse().slice(0,30).forEach(function(j){
+    var e=document.createElement("div");e.className="card entry";
+    var t=j.time||j.date||"";var body=j.text||j.content||String(j);
+    e.innerHTML='<div class="t">'+t+'</div><div>'+String(body).replace(/</g,"&lt;")+'</div>';
+    box.appendChild(e);
+  });
+}
+function renderAll(){renderStats();renderCal();renderForest("forest");renderForest("album");renderSent();renderJournal();
+  document.getElementById("albumSub").textContent="你一共种了 "+DB.trees.filter(function(t){return t>0}).length+" 棵树。每棵都是一天的你。";}
+
+document.getElementById("checkin").onclick=function(){
+  var k=todayKey();
+  if(DAKA[k]){toast("今天已经打过卡啦");return}
+  DAKA[k]=1;saveDaka();plantTree();toast("今天种下一棵树 🌱");renderAll();
+};
+document.getElementById("nextSent").onclick=function(){curSent=(curSent+1)%SENTENCES.length;renderSent()};
+document.getElementById("learned").onclick=function(){
+  DB.learnedEpisodes["s"+curSent]=1;plantTree();save();toast("学会了，森林多一棵树 🌿");renderAll();
+};
+document.getElementById("saveJ").onclick=function(){
+  var t=document.getElementById("jtext").value.trim();
+  if(!t){toast("先写点什么呀");return}
+  var n=new Date();
+  DB.journalEntries.push({time:n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0")+" "+String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0"),text:t});
+  save();document.getElementById("jtext").value="";toast("写进森林了 ✍️");renderJournal();
+};
+document.querySelectorAll("nav button").forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll("nav button").forEach(function(x){x.classList.remove("on")});
+    b.classList.add("on");
+    document.querySelectorAll(".page").forEach(function(p){p.classList.remove("on")});
+    document.getElementById("p-"+b.dataset.p).classList.add("on");
+    window.scrollTo(0,0);
+  };
+});
+renderAll();
+
+/* ═══ 长椅：专注 / 画画 / 摇一摇 / 照片 ═══
+   存档沿用 forestOfUs，不另起键——换了她之前的树就没了 */
+(function(){
+  function load(){try{return JSON.parse(localStorage.getItem("forestOfUs")||"{}")}catch(e){return {}}}
+  function persist(d){localStorage.setItem("forestOfUs",JSON.stringify(d))}
+  function today(){return new Date().toISOString().slice(0,10)}
+
+  /* ── 专注林间 ── */
+  var total=25*60, left=total, tick=null;
+  var clock=document.getElementById("focusClock"), note=document.getElementById("focusNote");
+  function show(){
+    var m=Math.floor(left/60), s=left%60;
+    clock.textContent=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  }
+  function setLen(min){ if(tick)return; total=min*60; left=total; show();
+    note.textContent="定了 "+min+" 分钟 · 点开始"; }
+  document.getElementById("focus15").onclick=function(){setLen(15)};
+  document.getElementById("focus25").onclick=function(){setLen(25)};
+  document.getElementById("focusStop").onclick=function(){
+    clearInterval(tick); tick=null; left=total; show();
+    note.textContent="停下了。想坐着也没关系。";
+  };
+  document.getElementById("focusGo").onclick=function(){
+    if(tick)return;
+    note.textContent="在陪你了。手机放下吧。";
+    tick=setInterval(function(){
+      left--; show();
+      if(left<=0){
+        clearInterval(tick); tick=null; left=total; show();
+        note.textContent="这一段过完了。森林记下了。";
+        var d=load(); d.focus=d.focus||[]; d.focus.push({d:today(),min:Math.round(total/60)});
+        persist(d);
+        try{navigator.vibrate&&navigator.vibrate([90,60,90])}catch(e){}
+      }
+    },1000);
+  };
+  show();
+
+  /* ── 画画打卡 ── */
+  var artNote=document.getElementById("artNote");
+  function renderArt(){
+    var d=load(), n=(d.art||[]).length;
+    var doneToday=(d.art||[]).some(function(x){return x===today()||x.d===today()});
+    artNote.textContent = n ? ("一共画过 "+n+" 次"+(doneToday?" · 今天记过了":"")) : "完成、没完成、只画两笔都算。";
+  }
+  document.getElementById("artBtn").onclick=function(){
+    var d=load(); d.art=d.art||[];
+    if(d.art.some(function(x){return x===today()||x.d===today()})){renderArt();return}
+    d.art.push(today()); persist(d); renderArt();
+    artNote.textContent="记下了。画两笔也是画。";
+  };
+  renderArt();
+
+  /* ── 摇一摇起风 ── */
+  var shakeNote=document.getElementById("shakeNote");
+  function windOnce(){
+    document.body.style.transition="transform .5s cubic-bezier(.3,.9,.4,1)";
+    document.body.style.transform="rotate(.35deg) translateY(-2px)";
+    setTimeout(function(){document.body.style.transform=""},520);
+    shakeNote.textContent="起风了。";
+  }
+  var last=0;
+  function onMotion(e){
+    var a=e.accelerationIncludingGravity; if(!a)return;
+    var mag=Math.abs(a.x||0)+Math.abs(a.y||0)+Math.abs(a.z||0);
+    var now=Date.now();
+    if(mag>32 && now-last>1200){ last=now; windOnce(); }
+  }
+  document.getElementById("shakeBtn").onclick=function(){
+    if(typeof DeviceMotionEvent!=="undefined" && DeviceMotionEvent.requestPermission){
+      DeviceMotionEvent.requestPermission().then(function(r){
+        if(r==="granted"){window.addEventListener("devicemotion",onMotion);shakeNote.textContent="好了，摇一摇试试。"}
+        else shakeNote.textContent="没答应也没关系，其他照样用。";
+      }).catch(function(){shakeNote.textContent="这个手机好像不支持。"});
+    }else{
+      window.addEventListener("devicemotion",onMotion);
+      shakeNote.textContent="好了，摇一摇试试。";
+    }
+  };
+
+  /* ── 照片 ── */
+  var wrap=document.getElementById("photoWrap");
+  function renderPhotos(){
+    var d=load(), ps=d.photos||[];
+    wrap.innerHTML=ps.slice(-9).map(function(src){return '<img src="'+src+'" alt="">'}).join("");
+  }
+  document.getElementById("photoFile").onchange=function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f)return;
+    var fr=new FileReader();
+    fr.onload=function(){
+      /* 缩到 480 宽再存，不然本地容量很快就满 */
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement("canvas");
+        var w=Math.min(480,img.width), h=Math.round(img.height*w/img.width);
+        c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);
+        var d=load(); d.photos=d.photos||[];
+        d.photos.push(c.toDataURL("image/jpeg",.72));
+        if(d.photos.length>24)d.photos=d.photos.slice(-24);
+        try{persist(d); renderPhotos();
+          document.getElementById("photoNote").textContent="放进来了。";
+        }catch(err){
+          document.getElementById("photoNote").textContent="存不下了，删几张旧的再放。";
+        }
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(f);
+  };
+  renderPhotos();
+})();
+</script>
+<div id="famWidget"></div>
+<script src="../fam-widget.js" data-me="manya"></script>
+</body>
+</html>

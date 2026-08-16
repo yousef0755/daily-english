@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1712">
+<title>Forest of Us — World Build</title>
+<style>
+:root{
+  --cream:#f4f0df; --muted:#c7cdbd; --gold:#e7c57b; --moss:#76996e;
+  --ink:#09130f; --glass:rgba(7,18,14,.72); --line:rgba(244,240,223,.14);
+  --wind:1; --light:1; --camera-scale:1; --focus-progress:0deg;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07110e;color:var(--cream);
+  font-family:-apple-system,BlinkMacSystemFont,"Avenir Next","Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,textarea,select{font:inherit}
+button{color:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid rgba(231,197,123,.65);outline-offset:2px}
+#viewport{position:fixed;inset:0;overflow:hidden;background:#07110e}
+#world{
+  position:absolute; width:3600px; height:2200px; left:0; top:0; transform-origin:0 0;
+  transition:transform 1.65s cubic-bezier(.2,.78,.17,1), filter 1.2s ease;
+  will-change:transform; overflow:hidden;
+}
+#sky{position:absolute;inset:0 0 auto 0;height:1250px;background:linear-gradient(#8ab1ae 0%,#b7c9aa 48%,#7d9a72 100%);transition:background 2s ease}
+#sky::after{content:"";position:absolute;inset:0;background:
+ radial-gradient(circle at 18% 22%,rgba(255,243,195,.34),transparent 18%),
+ linear-gradient(to bottom,rgba(255,255,255,.07),transparent 50%);mix-blend-mode:screen;pointer-events:none}
+#lightRays{position:absolute;inset:0 0 auto;height:1280px;z-index:3;pointer-events:none;opacity:.42;mix-blend-mode:screen;transition:opacity 1.4s;background:
+ conic-gradient(from 176deg at 17% 3%,transparent 0 5deg,rgba(255,239,184,.13) 7deg,transparent 13deg 21deg,rgba(255,244,203,.09) 24deg,transparent 32deg);
+ filter:blur(2px);animation:raysBreath 9s ease-in-out infinite alternate}
+@keyframes raysBreath{to{opacity:.66;transform:translateX(34px)}}
+#cloudLayer{position:absolute;inset:0 0 auto;height:900px;z-index:2;pointer-events:none;overflow:hidden;opacity:.74;transition:opacity 1.2s}
+.cloud{position:absolute;width:280px;height:72px;border-radius:50%;background:rgba(239,244,229,.12);filter:blur(12px);animation:cloudDrift var(--cd,50s) linear infinite;transform:scale(var(--cs,1))}
+.cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}.cloud::before{width:130px;height:110px;left:44px;top:-42px}.cloud::after{width:170px;height:95px;right:24px;top:-28px}
+@keyframes cloudDrift{from{translate:-460px 0}to{translate:3900px 0}}
+#birdLayer{position:absolute;inset:0 0 auto;height:1100px;z-index:10;pointer-events:none;overflow:hidden}
+.skyBird{position:absolute;width:32px;height:18px;opacity:.55;animation:birdCross var(--bd,24s) linear infinite, birdBob 2.8s ease-in-out infinite alternate;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+.skyBird::before,.skyBird::after{content:"";position:absolute;top:7px;width:18px;height:8px;border-top:3px solid #1b3026;border-radius:60% 60% 0 0;animation:birdFlap .55s ease-in-out infinite alternate}
+.skyBird::before{right:50%;transform-origin:100% 50%;rotate:-10deg}.skyBird::after{left:50%;transform-origin:0 50%;rotate:10deg}
+@keyframes birdCross{from{translate:-180px 0}to{translate:3820px 0}}
+@keyframes birdBob{to{margin-top:20px}}@keyframes birdFlap{to{transform:translateY(5px) scaleY(.45)}}
+#sunmoon{position:absolute;width:94px;height:94px;border-radius:50%;left:600px;top:190px;background:#fff2bd;
+ box-shadow:0 0 75px 28px rgba(255,235,170,.24);transition:all 2s ease;z-index:1}
+#stars{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 2s ease}
+.star{position:absolute;border-radius:50%;background:#fffbdc;box-shadow:0 0 7px rgba(255,255,220,.55);animation:twinkle var(--dur,4s) ease-in-out infinite}
+@keyframes twinkle{50%{opacity:.25;transform:scale(.72)}}
+#world.night #stars,#world.late #stars{opacity:.9}
+#world.night #sky,#world.late #sky{background:linear-gradient(#071527 0%,#0b1f27 43%,#173126 100%)}
+#world.dusk #sky{background:linear-gradient(#445f72 0%,#c48d65 43%,#60765c 100%)}
+#world.dawn #sky{background:linear-gradient(#536b7b 0%,#d0a883 45%,#70836a 100%)}
+#world.night #lightRays,#world.late #lightRays{opacity:.06}
+#world.night #cloudLayer,#world.late #cloudLayer{opacity:.3}
+#world.late #sunmoon,#world.night #sunmoon{background:#e6edf1;box-shadow:0 0 58px 18px rgba(210,226,237,.18)}
+#world.dusk #sunmoon{background:#ffd9a0;box-shadow:0 0 75px 25px rgba(255,173,90,.25)}
+.mountain{position:absolute;left:0;width:3600px;pointer-events:none}
+#mountainsBack{top:540px;height:610px;opacity:.58;filter:blur(.2px)}
+#mountainsFront{top:710px;height:540px;opacity:.86}
+.mist{position:absolute;left:-300px;width:4200px;height:300px;border-radius:50%;filter:blur(36px);background:rgba(223,235,216,.12);animation:mist 28s ease-in-out infinite alternate;pointer-events:none}
+#mist1{top:870px} #mist2{top:1120px;opacity:.55;animation-duration:38s}
+@keyframes mist{to{transform:translateX(210px) scaleX(1.05)}}
+#ground{position:absolute;left:0;top:1040px;width:3600px;height:1160px;background:
+ linear-gradient(#37543d 0,#28422f 25%,#193122 62%,#101f18 100%);z-index:4}
+#ground::before{content:"";position:absolute;inset:0;background:
+ radial-gradient(ellipse at 50% 12%,rgba(168,190,125,.18),transparent 29%),
+ radial-gradient(ellipse at 15% 35%,rgba(92,129,74,.16),transparent 28%),
+ radial-gradient(ellipse at 82% 46%,rgba(121,145,91,.11),transparent 28%);pointer-events:none}
+#riverSvg{position:absolute;inset:0;z-index:6;pointer-events:auto}
+.riverMain{fill:none;stroke:url(#riverGrad);stroke-width:145;stroke-linecap:round}
+.riverShine{fill:none;stroke:rgba(209,232,220,.17);stroke-width:8;stroke-linecap:round;stroke-dasharray:25 48;animation:flow 5s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-146}}
+#lake{position:absolute;left:1440px;top:1180px;width:760px;height:390px;border-radius:50%;
+ background:radial-gradient(ellipse at 42% 25%,rgba(201,229,213,.24),transparent 24%),
+ linear-gradient(150deg,rgba(62,119,105,.8),rgba(19,64,58,.92));
+ box-shadow:inset 0 0 80px rgba(0,0,0,.32),0 20px 100px rgba(0,0,0,.25);z-index:7;transform:rotate(-4deg);overflow:hidden;cursor:pointer}
+#lake::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 38%,rgba(255,255,255,.13) 48%,transparent 58%);animation:lakeLight 9s ease-in-out infinite alternate}
+@keyframes lakeLight{to{transform:translateX(150px)}}
+.ripple{position:absolute;width:18px;height:8px;border:1.5px solid rgba(235,246,237,.5);border-radius:50%;transform:translate(-50%,-50%);animation:ripple 1.7s ease-out forwards;pointer-events:none}
+@keyframes ripple{to{width:260px;height:110px;opacity:0}}
+#treeLayer,#grassLayer,#flowerLayer,#butterflyLayer{position:absolute;inset:0;z-index:8;pointer-events:none}
+.tree{position:absolute;transform-origin:50% 100%;filter:drop-shadow(0 18px 18px rgba(0,0,0,.24))}
+.tree .trunk{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:12%;height:43%;border-radius:60% 60% 18% 18%;background:linear-gradient(90deg,#3c2a1d,#62452c,#332419)}
+.tree .crown{position:absolute;left:50%;transform:translateX(-50%);border-radius:50%;background:
+ radial-gradient(circle at 31% 22%,rgba(190,207,139,.48),transparent 13%),
+ radial-gradient(circle at 41% 35%,rgba(112,153,92,.68),transparent 28%),
+ radial-gradient(circle at 72% 62%,rgba(21,57,37,.55),transparent 38%),
+ radial-gradient(circle at 50% 50%,#386b45 0 42%,#173b27 82%);box-shadow:inset -24px -22px 34px rgba(0,0,0,.22),inset 12px 10px 22px rgba(214,229,169,.06)}
+.tree .c1{width:86%;height:52%;bottom:36%}.tree .c2{width:70%;height:45%;bottom:58%;margin-left:-14%}.tree .c3{width:62%;height:40%;bottom:53%;margin-left:18%}
+.tree.wind .crown{animation:treeSway calc(5.8s / var(--wind)) ease-in-out infinite alternate}
+@keyframes treeSway{to{transform:translateX(-48%) rotate(1.3deg)}}
+.grassblade{position:absolute;width:3px;border-radius:100% 100% 0 0;background:linear-gradient(#719863,#355b39);transform-origin:50% 100%;animation:grassSway calc(var(--spd,4.8s)/var(--wind)) ease-in-out infinite alternate;opacity:.9}
+@keyframes grassSway{to{transform:rotate(var(--ang,7deg))}}
+.flower{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--f,#e7d9bd);box-shadow:0 0 0 3px color-mix(in srgb,var(--f) 70%,transparent);opacity:.92}
+.firefly{position:absolute;width:5px;height:5px;border-radius:50%;background:#fff2a8;box-shadow:0 0 14px 5px rgba(255,242,168,.54);animation:fly var(--fd,8s) ease-in-out infinite alternate;opacity:0}
+#world.night .firefly,#world.late .firefly{opacity:.8}
+@keyframes fly{to{transform:translate(var(--fx,50px),var(--fy,-35px))}}
+.butterfly{position:absolute;width:15px;height:9px;opacity:0;transition:opacity 1.6s}
+.butterfly::before,.butterfly::after{content:"";position:absolute;width:8px;height:9px;border-radius:70% 20%;background:rgba(236,213,146,.72);transform-origin:100% 50%;animation:flap .8s ease-in-out infinite alternate}
+.butterfly::after{left:7px;transform-origin:0 50%;border-radius:20% 70%}
+@keyframes flap{to{transform:scaleX(.25)}}
+#world.hasButterflies .butterfly{opacity:1}
+#world.weather-rain #cloudLayer{opacity:.92;filter:saturate(.45) brightness(.65)}
+#world.weather-rain #lightRays{opacity:.12}
+#rainLayer{position:absolute;inset:0;z-index:24;pointer-events:none;display:none;overflow:hidden;background:linear-gradient(115deg,rgba(150,183,174,.04),transparent 42%)}
+#world.weather-rain #rainLayer{display:block}
+.rainDrop{position:absolute;top:-90px;width:2px;height:58px;background:linear-gradient(transparent,rgba(209,229,219,.45));transform:rotate(13deg);animation:rainFall var(--rd,1.4s) linear infinite;opacity:var(--ro,.55)}
+@keyframes rainFall{to{translate:-340px 2380px}}
+#world.weather-mist .mist{opacity:1;background:rgba(228,238,221,.22);filter:blur(48px)}
+#world.weather-mist #cloudLayer{opacity:.86}
+.zone{position:absolute;z-index:12;cursor:pointer;transition:opacity 1.5s ease,filter 1.5s ease,transform 1.4s ease}
+.zone.locked{opacity:.14;filter:saturate(.35) brightness(.48) blur(.6px);pointer-events:none}
+.zone.newlyUnlocked{animation:reveal 4.5s ease both}
+@keyframes reveal{0%{opacity:.02;filter:brightness(.25) blur(4px);transform:translateY(25px) scale(.98)}55%{opacity:1;filter:brightness(1.55) blur(0)}100%{opacity:1;filter:none;transform:none}}
+.zoneLabel{position:absolute;left:50%;transform:translateX(-50%);bottom:-38px;white-space:nowrap;font:12px Georgia,serif;letter-spacing:.08em;color:#f4efda;text-shadow:0 3px 12px #000;opacity:.72;transition:.3s}
+.zone:hover .zoneLabel{opacity:1;transform:translateX(-50%) translateY(-3px)}
+#library{left:390px;top:920px;width:450px;height:360px}
+#studio{left:2800px;top:1320px;width:420px;height:340px}
+#observatory{left:2800px;top:420px;width:420px;height:350px}
+#catMeadow{left:420px;top:1480px;width:560px;height:380px}
+#flowerValley{left:1380px;top:1660px;width:750px;height:390px}
+#benchZone{left:2250px;top:1320px;width:300px;height:240px}
+#allowGrove{left:1080px;top:1300px;width:300px;height:270px}
+#moonMeadow{left:2410px;top:700px;width:560px;height:320px;opacity:0;pointer-events:none}
+#moonMeadow.discovered{opacity:1;pointer-events:auto}
+.cabin{position:absolute;left:52px;bottom:44px;width:330px;height:205px;background:linear-gradient(90deg,#3f3426,#67523a 45%,#473726);clip-path:polygon(8% 32%,50% 2%,94% 31%,90% 100%,10% 100%);filter:drop-shadow(0 24px 22px rgba(0,0,0,.35))}
+.cabin::before{content:"";position:absolute;left:52px;top:86px;width:78px;height:87px;background:#201e18;border:6px solid #7c6242}
+.cabin::after{content:"";position:absolute;right:52px;top:78px;width:88px;height:66px;background:linear-gradient(#d6ba73,#8a743f);border:7px solid #5f4d34;box-shadow:0 0 26px rgba(235,198,111,.28)}
+.cabin .roof{position:absolute;left:22px;top:18px;width:286px;height:74px;background:#273a2c;transform:skewY(-7deg);border-radius:50% 50% 12% 12%;box-shadow:inset 0 12px 0 rgba(87,113,74,.25)}
+.libraryVines{position:absolute;inset:35px 30px 30px;pointer-events:none;background:
+ radial-gradient(circle at 15% 40%,#668760 0 4px,transparent 5px),
+ radial-gradient(circle at 25% 62%,#77936a 0 5px,transparent 6px),
+ radial-gradient(circle at 75% 55%,#577950 0 4px,transparent 5px)}
+.obsBase{position:absolute;left:80px;bottom:42px;width:270px;height:145px;background:linear-gradient(#39433f,#1b2622);border-radius:24px 24px 12px 12px;box-shadow:0 25px 35px rgba(0,0,0,.35)}
+.obsDome{position:absolute;left:97px;bottom:135px;width:235px;height:130px;border-radius:235px 235px 20px 20px;background:linear-gradient(120deg,#66716d,#29332f 58%,#17211e);overflow:hidden}
+.obsDome::after{content:"";position:absolute;left:111px;top:-12px;width:6px;height:160px;background:#121b18;transform:rotate(22deg);box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.obsLight{position:absolute;left:205px;bottom:188px;width:18px;height:18px;border-radius:50%;background:#ffe3a1;box-shadow:0 0 42px 18px rgba(255,211,128,.0);transition:box-shadow 2s,background 2s}
+.zone:not(.locked) .obsLight{box-shadow:0 0 42px 18px rgba(255,211,128,.22)}
+.studioCabin{position:absolute;left:56px;bottom:40px;width:310px;height:200px;background:linear-gradient(90deg,#4d392c,#7d5e43 50%,#3f3027);clip-path:polygon(0 31%,17% 31%,28% 10%,85% 8%,100% 28%,95% 100%,5% 100%)}
+.studioCabin::before{content:"";position:absolute;left:60px;top:78px;width:108px;height:76px;background:linear-gradient(#b7d6ca,#668f87);border:9px solid #5a4533;box-shadow:0 0 20px rgba(195,232,219,.15)}
+.studioCabin::after{content:"";position:absolute;right:52px;bottom:0;width:66px;height:104px;background:#282019;border:7px solid #684c36}
+.benchObj{position:absolute;left:30px;bottom:60px;width:230px;height:95px}
+.benchObj .seat,.benchObj .back{position:absolute;left:0;width:230px;height:18px;border-radius:7px;background:linear-gradient(#856440,#553c27)}
+.benchObj .back{top:12px}.benchObj .seat{top:52px}.benchObj::before,.benchObj::after{content:"";position:absolute;top:65px;width:12px;height:50px;background:#3a2e23}.benchObj::before{left:30px}.benchObj::after{right:30px}
+.allowTree{position:absolute;left:90px;bottom:30px;width:140px;height:220px}
+.allowTree .trunk{position:absolute;left:58px;bottom:0;width:28px;height:115px;background:linear-gradient(90deg,#3a2a1e,#664934,#302319);border-radius:50%}
+.allowTree .crown{position:absolute;left:-7px;top:0;width:155px;height:140px;border-radius:50%;background:radial-gradient(circle at 40% 32%,#709066,#365f3d 58%,#24452f)}
+.meadowGlow{position:absolute;inset:35px;border-radius:50%;background:radial-gradient(ellipse,rgba(172,195,127,.18),transparent 70%)}
+#snowy{position:absolute;z-index:20;width:116px;height:78px;left:1650px;top:1425px;transition:left 8s cubic-bezier(.35,.05,.62,1),top 8s cubic-bezier(.35,.05,.62,1),transform .6s;filter:drop-shadow(0 8px 8px rgba(0,0,0,.28));pointer-events:auto;cursor:pointer}
+#snowy svg{width:100%;height:100%;overflow:visible}
+#snowy .tail{transform-origin:20% 80%;animation:tail 2.5s ease-in-out infinite alternate}
+@keyframes tail{to{transform:rotate(12deg)}}
+#snowy.sit{transform:scale(.95) translateY(3px)}
+#snowy.sleep{transform:scale(.9) rotate(-2deg);opacity:.94}
+#snowyNote{position:absolute;left:50%;top:-28px;transform:translateX(-50%);font:11px Georgia,serif;color:#f8efd7;text-shadow:0 2px 12px #000;white-space:nowrap;opacity:0;transition:.4s}
+#snowy:hover #snowyNote{opacity:.9}
+#hud{position:fixed;z-index:40;inset:0;pointer-events:none}
+.brand{position:absolute;left:18px;top:calc(16px + env(safe-area-inset-top));font:15px Georgia,serif;letter-spacing:.15em;text-shadow:0 2px 18px #000}
+.brand small{display:block;font:9px -apple-system,sans-serif;letter-spacing:.22em;opacity:.46;margin-top:4px}
+.hudBtns{position:absolute;right:16px;top:calc(14px + env(safe-area-inset-top));display:flex;gap:7px;pointer-events:auto}
+.hudBtn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:rgba(5,17,13,.55);backdrop-filter:blur(16px);box-shadow:0 10px 28px rgba(0,0,0,.2);cursor:pointer}
+.hudBtn svg{width:19px;height:19px;opacity:.75}
+.hudPill{height:42px;border-radius:999px;border:1px solid rgba(231,197,123,.25);background:linear-gradient(180deg,rgba(15,38,27,.78),rgba(5,17,13,.72));backdrop-filter:blur(18px);padding:0 15px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.06em;box-shadow:0 10px 32px rgba(0,0,0,.22)}
+.hudPill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(231,197,123,.7)}
+#guideBtn{position:absolute;left:50%;bottom:calc(15px + env(safe-area-inset-bottom));transform:translateX(-50%);pointer-events:auto;border:1px solid var(--line);background:rgba(5,17,13,.65);backdrop-filter:blur(18px);border-radius:999px;padding:10px 16px;font-size:11px;letter-spacing:.08em;box-shadow:0 12px 35px rgba(0,0,0,.25)}
+#sceneName{position:absolute;left:18px;bottom:calc(18px + env(safe-area-inset-bottom));font:italic 13px Georgia,serif;opacity:.55;text-shadow:0 2px 12px #000}
+#backBtn{position:absolute;left:18px;top:calc(72px + env(safe-area-inset-top));pointer-events:auto;display:none;border:1px solid var(--line);background:rgba(5,17,13,.58);backdrop-filter:blur(14px);border-radius:999px;padding:8px 12px;font-size:11px}
+#guide{position:fixed;z-index:60;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(1,7,4,.38);backdrop-filter:blur(8px)}
+#guide.open{display:flex}
+.sheet{width:min(850px,100%);max-height:82vh;overflow:auto;border:1px solid var(--line);border-bottom:0;border-radius:30px 30px 0 0;background:linear-gradient(160deg,rgba(15,36,27,.97),rgba(5,17,13,.98));padding:23px 20px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -30px 100px rgba(0,0,0,.44)}
+.sheetTop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sheet h2{font:400 28px Georgia,serif;margin:0}
+.sheet .subtitle{font-size:12px;opacity:.52;margin-top:5px}
+.sheetClose{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent}
+.tabs{display:flex;gap:7px;overflow:auto;margin:18px 0 16px;padding-bottom:4px}
+.tabs button{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:999px;padding:8px 11px;font-size:11px;white-space:nowrap;opacity:.72}
+.tabs button.active{background:rgba(231,197,123,.1);border-color:rgba(231,197,123,.3);opacity:1;color:#f2d692}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px}
+.card{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:22px;padding:16px;min-height:128px}
+.card h3{font:400 18px Georgia,serif;margin:0 0 7px}
+.card p{font-size:12px;line-height:1.55;opacity:.58;margin:7px 0}
+input,textarea,select{width:100%;border:1px solid var(--line);background:rgba(0,0,0,.18);color:var(--cream);border-radius:14px;padding:11px 12px;outline:none}
+textarea{min-height:88px;resize:vertical}
+select option{background:#102219}
+.action{margin-top:9px;border:1px solid rgba(231,197,123,.38);background:rgba(231,197,123,.08);color:#f0d391;border-radius:999px;padding:9px 13px;cursor:pointer}
+.progress{height:6px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-top:9px}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,#7fa780,#e3c36f);border-radius:inherit}
+.entry{padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;line-height:1.5}
+.entry b{font-weight:500;color:#e8cf8c}
+.muted{opacity:.5}
+#areaPanel{position:fixed;z-index:50;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translate(-50%,24px);width:min(720px,92vw);max-height:45vh;overflow:auto;border:1px solid var(--line);border-radius:25px;background:rgba(6,18,13,.78);backdrop-filter:blur(22px);box-shadow:0 22px 60px rgba(0,0,0,.35);padding:18px;opacity:0;pointer-events:none;transition:.55s}
+#areaPanel.open{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+#areaPanel h2{font:400 24px Georgia,serif;margin:0 0 4px}
+#areaPanel .areaSub{font-size:11px;opacity:.52;margin-bottom:14px}
+#toast{position:fixed;z-index:100;left:50%;top:12%;transform:translate(-50%,-10px);opacity:0;pointer-events:none;transition:.45s;padding:11px 16px;border:1px solid rgba(231,197,123,.3);border-radius:999px;background:rgba(6,19,13,.88);backdrop-filter:blur(16px);font:12px Georgia,serif;box-shadow:0 14px 40px rgba(0,0,0,.3)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#focusDock{position:fixed;z-index:90;inset:0;display:none;align-items:center;justify-content:flex-end;padding:clamp(18px,4vw,58px);background:linear-gradient(90deg,rgba(2,8,5,.06),rgba(2,8,5,.48));backdrop-filter:blur(2px)}
+#focusDock.open{display:flex;animation:focusReveal .45s ease both}@keyframes focusReveal{from{opacity:0}to{opacity:1}}
+.focusPanel{width:min(440px,100%);max-height:calc(100vh - 36px);overflow:auto;border:1px solid rgba(235,224,188,.18);border-radius:34px;background:linear-gradient(155deg,rgba(13,35,25,.9),rgba(4,15,10,.93));box-shadow:0 35px 120px rgba(0,0,0,.54),inset 0 1px 0 rgba(255,255,255,.07);padding:26px;backdrop-filter:blur(28px)}
+.focusHead{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.focusEyebrow{font-size:9px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase}.focusHead h2{font:400 30px Georgia,serif;margin:5px 0 0}.focusClose{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.03);cursor:pointer}
+.timerRing{width:220px;aspect-ratio:1;margin:22px auto 18px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--gold) var(--focus-progress),rgba(255,255,255,.075) 0);box-shadow:0 20px 70px rgba(0,0,0,.28),0 0 80px rgba(130,176,116,.08)}
+.timerRing::before{content:"";position:absolute;inset:9px;border-radius:50%;background:radial-gradient(circle at 50% 35%,rgba(73,113,76,.35),rgba(6,20,13,.96) 68%);border:1px solid rgba(255,255,255,.06)}
+.timerInner{position:relative;text-align:center}.timerValue{font:400 51px/1 Georgia,serif;letter-spacing:.03em;font-variant-numeric:tabular-nums}.timerState{margin-top:8px;font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.focusLabel{display:block;margin:14px 0 7px;font-size:10px;letter-spacing:.12em;color:var(--muted)}
+.presetRow,.atmoRow,.weatherRow{display:flex;gap:7px;flex-wrap:wrap}.presetRow button,.atmoRow button,.weatherRow button{flex:1;min-width:58px;border:1px solid var(--line);background:rgba(255,255,255,.025);padding:9px 8px;border-radius:14px;font-size:11px;cursor:pointer;opacity:.72}.presetRow button.active,.atmoRow button.active,.weatherRow button.active{opacity:1;color:#f5db98;border-color:rgba(231,197,123,.4);background:rgba(231,197,123,.09)}
+.focusActions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:16px}.focusMain{border:1px solid rgba(231,197,123,.42);background:linear-gradient(180deg,rgba(231,197,123,.2),rgba(231,197,123,.08));color:#f5d991;border-radius:18px;padding:13px;cursor:pointer}.focusReset{width:48px;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:18px;cursor:pointer}
+.focusStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:17px}.focusStat{border:1px solid var(--line);border-radius:16px;padding:11px;text-align:center;background:rgba(255,255,255,.025)}.focusStat strong{display:block;font:400 19px Georgia,serif;color:#f2d796}.focusStat span{font-size:9px;color:var(--muted)}
+.weekBars{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:62px;margin-top:12px}.weekBar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;height:100%}.weekBar i{display:block;width:100%;max-width:22px;min-height:4px;border-radius:10px 10px 3px 3px;background:linear-gradient(#e7c57b,#618d68);box-shadow:0 0 12px rgba(231,197,123,.08)}.weekBar small{font-size:8px;color:var(--muted)}
+body.focus-running #hud{opacity:.3;transition:opacity .6s}body.focus-running #areaPanel{opacity:.18;transition:opacity .6s;pointer-events:none}
+body.focus-running #focusDock{background:linear-gradient(90deg,rgba(2,8,5,.15),rgba(2,8,5,.55))}
+#transitionVeil{position:fixed;z-index:45;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 0,rgba(3,9,6,.24) 60%,rgba(2,7,5,.6) 100%);opacity:0;transition:.5s}
+#transitionVeil.on{opacity:1}
+#nowhere{position:fixed;z-index:80;inset:0;display:none;overflow:hidden;background:linear-gradient(#83a8a3 0 42%,#9aae7d 66%,#536e46)}
+#nowhere.open{display:block}
+#nowhere::before{content:"";position:absolute;inset:55% 0 0;background:linear-gradient(#77935f,#405c36)}
+#nowhere::after{content:"";position:absolute;left:9%;bottom:22%;width:82%;height:22%;background:repeating-linear-gradient(86deg,transparent 0 12px,rgba(43,79,43,.35) 13px 15px);filter:blur(.2px);animation:grassfield 4s ease-in-out infinite alternate}
+@keyframes grassfield{to{transform:skewX(2deg) translateX(7px)}}
+.nowWords{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:italic clamp(20px,4vw,34px) Georgia,serif;text-shadow:0 2px 22px rgba(0,0,0,.2);z-index:3;pointer-events:none}
+.nowWords small{display:block;font:11px -apple-system,sans-serif;letter-spacing:.08em;opacity:.55;margin-top:10px}
+#leaveNowhere{position:absolute;right:16px;top:calc(16px + env(safe-area-inset-top));z-index:4;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);border-radius:999px;padding:9px 13px}
+.hiddenPath{position:absolute;z-index:11;left:2460px;top:980px;width:390px;height:90px;border-radius:50%;background:linear-gradient(90deg,transparent,rgba(186,200,128,.18),transparent);filter:blur(7px);opacity:0;transition:opacity 2s}
+#world.hasHiddenPath .hiddenPath{opacity:1}
+.deer{position:absolute;z-index:14;left:2460px;top:1180px;width:95px;height:100px;opacity:0;transition:opacity 2s;filter:drop-shadow(0 8px 6px rgba(0,0,0,.25))}
+#world.hasDeer .deer{opacity:.68}
+.deer svg{width:100%;height:100%}
+@media(max-width:700px){
+  #world{transform-origin:0 0}
+  .brand{font-size:13px}.brand small{font-size:8px}
+  .hudBtn{width:39px;height:39px}
+  #guideBtn{font-size:10px}
+  .sheet{border-radius:24px 24px 0 0}
+  #areaPanel{bottom:calc(62px + env(safe-area-inset-bottom));max-height:40vh;padding:15px}
+  .hudPill{width:42px;padding:0;justify-content:center;font-size:0}.focusPanel{padding:20px;border-radius:28px}.timerRing{width:190px}#focusDock{align-items:flex-end;padding:10px}.focusPanel{max-height:88vh}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}#world{transition-duration:.2s}}
+
+/* ── VISUAL ENHANCEMENTS ── */
+/* Parallax transitions */
+#sky{transition:background 2s ease,transform .18s ease}
+#mountainsBack{transition:transform .2s ease}
+#cloudLayer{transition:opacity 1.2s,transform .18s ease}
+#birdLayer{transition:transform .22s ease}
+
+/* Season veil */
+#seasonVeil{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 4s ease}
+body.season-spring #seasonVeil{background:radial-gradient(ellipse at 50% 0%,rgba(230,160,190,.07),transparent 65%);opacity:1}
+body.season-summer #seasonVeil{background:radial-gradient(ellipse at 50% 0%,rgba(230,210,130,.05),transparent 65%);opacity:1}
+body.season-autumn #seasonVeil{background:radial-gradient(ellipse at 50% 0%,rgba(210,120,50,.08),transparent 65%);opacity:1}
+body.season-winter #seasonVeil{background:radial-gradient(ellipse at 50% 0%,rgba(150,185,240,.07),transparent 65%);opacity:1}
+
+/* Better clouds */
+.cloud{background:radial-gradient(ellipse at 32% 38%,rgba(255,255,255,.22) 0%,rgba(239,244,229,.09) 60%,transparent 82%);filter:blur(9px);box-shadow:inset 0 -10px 24px rgba(0,0,0,.05),0 5px 16px rgba(255,255,255,.03)}
+.cloud::before{background:radial-gradient(ellipse,rgba(255,255,255,.2),rgba(239,244,229,.07) 72%);filter:blur(3px)}
+.cloud::after{background:radial-gradient(ellipse,rgba(255,255,255,.18),rgba(239,244,229,.06) 72%);filter:blur(4px)}
+
+/* Sunmoon corona */
+#sunmoon::before{content:"";position:absolute;inset:-20px;border-radius:50%;border:1px solid rgba(255,235,170,.15);animation:coronaPulse 4.5s ease-in-out infinite alternate;pointer-events:none}
+#sunmoon::after{content:"";position:absolute;inset:-42px;border-radius:50%;border:1px solid rgba(255,235,170,.06);animation:coronaPulse 4.5s ease-in-out infinite alternate-reverse;pointer-events:none}
+@keyframes coronaPulse{from{transform:scale(.95);opacity:.5}to{transform:scale(1.05);opacity:1}}
+#world.night #sunmoon::before,#world.late #sunmoon::before{border-color:rgba(200,220,240,.14)}
+#world.night #sunmoon::after,#world.late #sunmoon::after{border-color:rgba(200,220,240,.06)}
+
+/* Better mist */
+.mist{background:linear-gradient(90deg,transparent 0%,rgba(220,234,212,.13) 18%,rgba(218,232,210,.17) 50%,rgba(220,234,212,.13) 82%,transparent 100%)}
+#mist3{top:960px;opacity:.3;animation-duration:55s;animation-delay:-20s;width:3800px;height:190px;filter:blur(30px)}
+
+/* Zone hover glow */
+.zone::after{content:"";position:absolute;inset:-36px;border-radius:50%;background:radial-gradient(ellipse,rgba(231,197,123,0),transparent 68%);transition:background .6s ease;pointer-events:none}
+.zone:not(.locked):hover::after{background:radial-gradient(ellipse,rgba(231,197,123,.11) 0%,transparent 68%)}
+.zone:not(.locked):hover .zoneLabel{color:#f5d98a;text-shadow:0 0 18px rgba(231,197,123,.55),0 3px 12px #000}
+
+/* Drifting leaves */
+#leafLayer{position:absolute;inset:0;z-index:15;pointer-events:none;overflow:hidden}
+.leafParticle{position:absolute;border-radius:0 60% 60% 60%;pointer-events:none;animation:leafFall var(--lf,14s) ease-in-out infinite}
+@keyframes leafFall{0%{transform:translate(0,-30px) rotate(var(--lr0,0deg));opacity:0}8%{opacity:.75}88%{opacity:.6}100%{transform:translate(var(--ldx,160px),820px) rotate(var(--lr1,540deg));opacity:0}}
+body.season-spring .leafParticle{border-radius:50%}
+body.season-winter .leafParticle{border-radius:50%}
+
+/* Fish */
+.fish{position:absolute;height:9px;border-radius:50%;background:rgba(55,130,115,.28);animation:fishSwim var(--fs,9s) ease-in-out infinite alternate;filter:blur(.5px)}
+.fish::after{content:"";position:absolute;right:-7px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:8px solid rgba(55,130,115,.22);border-top:5px solid transparent;border-bottom:5px solid transparent}
+@keyframes fishSwim{from{transform:translateX(-80px) scaleX(1)}to{transform:translateX(80px) scaleX(-1)}}
+
+/* Lake sparkles */
+.lakeSparkle{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.8);box-shadow:0 0 4px rgba(255,255,255,.5);animation:sparkleFlash var(--ls,3s) ease-in-out infinite;pointer-events:none}
+@keyframes sparkleFlash{0%,100%{opacity:0;transform:scale(0)}50%{opacity:.85;transform:scale(1.3)}}
+
+/* Better firefly */
+.firefly{background:radial-gradient(circle,rgba(255,251,168,1) 0%,rgba(176,218,118,.6) 100%);box-shadow:0 0 9px 4px rgba(255,244,160,.32),0 0 22px 8px rgba(176,218,118,.14)}
+
+/* Pollen dots */
+.pollen{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(242,215,148,.65);box-shadow:0 0 5px rgba(242,215,148,.4);animation:pollenFloat var(--pd,16s) ease-in-out infinite;pointer-events:none;z-index:12}
+@keyframes pollenFloat{0%{transform:translate(0,0);opacity:0}12%{opacity:.6}88%{opacity:.5}100%{transform:translate(var(--pdx,80px),var(--pdy,-180px));opacity:0}}
+#world.night .pollen,#world.late .pollen{display:none}
+
+/* HUD refinements */
+.hudBtn{transition:all .2s ease}
+.hudBtn:hover{background:rgba(10,26,20,.75);border-color:rgba(231,197,123,.35);transform:scale(1.07);box-shadow:0 12px 32px rgba(0,0,0,.25),0 0 0 1px rgba(231,197,123,.1)}
+.hudBtn:active{transform:scale(.93)}
+.hudPill{transition:all .2s ease}
+.hudPill:hover{background:linear-gradient(180deg,rgba(22,50,34,.85),rgba(8,22,16,.82));border-color:rgba(231,197,123,.38);box-shadow:0 12px 36px rgba(0,0,0,.28)}
+#guideBtn{transition:all .2s ease}
+#guideBtn:hover{background:rgba(10,26,20,.78);border-color:rgba(231,197,123,.28)}
+
+/* Card hover lift */
+.card{transition:transform .28s ease,border-color .28s ease,background .28s ease}
+.card:hover{transform:translateY(-2px);border-color:rgba(231,197,123,.2);background:rgba(255,255,255,.048)}
+
+/* Focus ring outer glow */
+.timerRing{box-shadow:0 20px 70px rgba(0,0,0,.28),0 0 55px rgba(130,176,116,.1),0 0 110px rgba(130,176,116,.04)}
+.timerRing::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:1px solid rgba(231,197,123,.07);pointer-events:none}
+
+/* Better areaPanel top border */
+#areaPanel{border-top:1px solid rgba(231,197,123,.1)}
+
+/* Toast refinement */
+#toast{box-shadow:0 14px 40px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.04)}
+
+/* Click sparkle */
+.clickSparkle{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(231,197,123,.75);box-shadow:0 0 10px rgba(231,197,123,.55);pointer-events:none;z-index:30;transform:translate(-50%,-50%)}
+
+/* Aurora for winter nights */
+#aurora{position:absolute;inset:0 0 auto;height:700px;z-index:1;pointer-events:none;opacity:0;transition:opacity 3s ease;background:
+  radial-gradient(ellipse at 25% 0%,rgba(62,180,140,.12),transparent 50%),
+  radial-gradient(ellipse at 72% 0%,rgba(92,130,200,.1),transparent 48%);
+  animation:auroraSway 12s ease-in-out infinite alternate;mix-blend-mode:screen}
+@keyframes auroraSway{to{transform:translateX(40px) scaleX(1.04);opacity:.85}}
+body.season-winter #world.night #aurora,body.season-winter #world.late #aurora{opacity:.6}
+
+/* ── iOS 手机安全层（8-14 小林术后加固）：不动观感骨架，只卸显存重负 ── */
+@media (max-width:820px), (pointer:coarse){
+  .hudBtn,.hudPill,#guideBtn,#backBtn,#guide,#areaPanel,#toast,#focusDock,.focusPanel{backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+  .mist{filter:blur(14px) !important}
+  #mist3{display:none}
+  .cloud{filter:blur(6px) !important}
+  .cloud::before,.cloud::after{filter:none !important}
+  #lightRays{filter:none !important}
+  .tree{filter:none !important}
+  .skyBird{filter:none !important}
+  .deer{filter:none !important}
+  #snowy{filter:drop-shadow(0 4px 4px rgba(0,0,0,.25)) !important}
+  .pollen{display:none}
+  .lakeSparkle{display:none}
+}
+</style>
+<script>
+/* 本机预览一律不往共用的榜上报打卡（跟别的页一致）。 */
+(function(){
+  if(!/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)
+     && location.protocol!=="file:") return;
+  var real=window.fetch;
+  window.fetch=function(u,o){
+    var s=String((u&&u.url)||u||"");
+    if(/\/fam\/(ping|import)/.test(s)){
+      console.info("[本机预览] 拦下一次打卡上报：",s);
+      return Promise.resolve(new Response('{"ok":true,"local":true}',
+        {status:200,headers:{"Content-Type":"application/json"}}));
+    }
+    return real.apply(this,arguments);
+  };
+})();
+</script>
+</head>
+<body>
+<a id="backMie" href="../mie.html" style="position:fixed;left:12px;top:12px;z-index:99998;padding:7px 13px;border-radius:999px;border:1px solid rgba(128,128,128,.45);background:rgba(0,0,0,.35);color:#f4f0df;text-decoration:none;font-size:.85rem;backdrop-filter:blur(6px)">← 跟 Snowy 说英文</a>
+
+<div id="viewport">
+  <div id="world">
+    <div id="aurora"></div>
+    <div id="sky"></div><div id="sunmoon"></div><div id="stars"></div><div id="cloudLayer"></div><div id="lightRays"></div><div id="birdLayer"></div>
+    <div id="leafLayer"></div>
+    <svg id="mountainsBack" class="mountain" viewBox="0 0 3600 610" preserveAspectRatio="none">
+      <path d="M0 530 L0 390 L280 220 L510 365 L820 125 L1070 335 L1380 190 L1640 350 L1980 80 L2240 330 L2500 180 L2810 365 L3140 140 L3600 370 L3600 610 L0 610Z" fill="#496456"/>
+    </svg>
+    <svg id="mountainsFront" class="mountain" viewBox="0 0 3600 540" preserveAspectRatio="none">
+      <path d="M0 540 L0 355 L320 200 L610 365 L920 220 L1220 395 L1570 185 L1910 405 L2240 235 L2550 410 L2890 210 L3220 390 L3600 250 L3600 540Z" fill="#2b4935"/>
+    </svg>
+    <div class="mist" id="mist1"></div><div class="mist" id="mist2"></div><div class="mist" id="mist3"></div>
+    <div id="ground"></div>
+    <svg id="riverSvg" viewBox="0 0 3600 2200" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="riverGrad" x1="0" x2="1"><stop offset="0" stop-color="#315f59"/><stop offset=".5" stop-color="#4d8277"/><stop offset="1" stop-color="#274d49"/></linearGradient>
+        
+      </defs>
+      <path class="riverMain" d="M3500,1120 C3070,1170 2990,1510 2650,1490 C2300,1470 2270,1270 1950,1310 C1650,1350 1550,1570 1280,1575 C970,1580 900,1390 620,1440 C390,1480 270,1620 20,1650"/>
+      <path class="riverShine" d="M3500,1120 C3070,1170 2990,1510 2650,1490 C2300,1470 2270,1270 1950,1310 C1650,1350 1550,1570 1280,1575 C970,1580 900,1390 620,1440 C390,1480 270,1620 20,1650"/>
+    </svg>
+    <div id="lake"></div>
+    <div id="treeLayer"></div><div id="grassLayer"></div><div id="flowerLayer"></div><div id="butterflyLayer"></div><div id="rainLayer"></div>
+    <div class="hiddenPath"></div>
+    <div class="deer"><svg viewBox="0 0 100 110"><path d="M49 32 C38 20 30 13 24 6 M52 30 C65 18 71 10 76 3 M32 18 L21 18 M66 15 L81 13" fill="none" stroke="#d6c4a4" stroke-width="3" stroke-linecap="round"/><ellipse cx="50" cy="41" rx="18" ry="22" fill="#887052"/><ellipse cx="52" cy="75" rx="28" ry="22" fill="#80684b"/><path d="M36 88 L31 108 M56 91 L56 110 M68 86 L75 106" stroke="#66503b" stroke-width="6" stroke-linecap="round"/><circle cx="45" cy="37" r="2" fill="#13110d"/></svg></div>
+
+    <div id="library" class="zone locked" data-zone="library"><div class="cabin"><div class="roof"></div></div><div class="libraryVines"></div><div class="zoneLabel">Library Garden</div></div>
+    <div id="studio" class="zone locked" data-zone="studio"><div class="studioCabin"></div><div class="zoneLabel">Artist’s Cabin</div></div>
+    <div id="observatory" class="zone locked" data-zone="observatory"><div class="obsBase"></div><div class="obsDome"></div><div class="obsLight"></div><div class="zoneLabel">Observatory</div></div>
+    <div id="catMeadow" class="zone locked" data-zone="cat"><div class="meadowGlow"></div><div class="zoneLabel">Snowy’s Meadow</div></div>
+    <div id="flowerValley" class="zone locked" data-zone="flowers"><div class="meadowGlow"></div><div class="zoneLabel">Flower Valley</div></div>
+    <div id="benchZone" class="zone" data-zone="bench"><div class="benchObj"><div class="back"></div><div class="seat"></div></div><div class="zoneLabel">Forest Bench</div></div>
+    <div id="allowGrove" class="zone" data-zone="allow"><div class="allowTree"><div class="trunk"></div><div class="crown"></div></div><div class="zoneLabel">Allow Grove</div></div>
+    <div id="moonMeadow" class="zone" data-zone="moon"><div class="meadowGlow"></div><div class="zoneLabel">Moon Meadow</div></div>
+
+    <div id="snowy">
+      <div id="snowyNote">Snowy</div>
+      <svg viewBox="0 0 120 82" aria-label="Snowy">
+        <defs><linearGradient id="fur" x1="0" x2="1"><stop offset="0" stop-color="#e8d8af"/><stop offset=".55" stop-color="#f5ead0"/><stop offset="1" stop-color="#cdbd94"/></linearGradient></defs>
+        <path class="tail" d="M31 61 C7 66 5 47 21 42 C29 39 32 47 27 51 C21 56 14 52 16 46" fill="none" stroke="#d8c89e" stroke-width="10" stroke-linecap="round"/>
+        <ellipse cx="67" cy="55" rx="36" ry="21" fill="url(#fur)"/>
+        <circle cx="88" cy="35" r="18" fill="url(#fur)"/>
+        <path d="M76 24 L80 7 L90 21 M96 21 L104 8 L106 27" fill="#e3d2aa"/>
+        <path d="M80 16 L82 11 L86 19 M99 18 L103 12 L103 22" fill="#caa995"/>
+        <ellipse cx="83" cy="35" rx="2.3" ry="3.2" fill="#4d5b43"/><ellipse cx="95" cy="35" rx="2.3" ry="3.2" fill="#4d5b43"/>
+        <path d="M88 41 Q91 44 94 41" fill="none" stroke="#9d7768" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M52 68 L50 78 M76 70 L76 79" stroke="#d8c89e" stroke-width="7" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div id="hud">
+  <div class="brand">FOREST OF US<small>WORLD BUILD</small></div>
+  <div class="hudBtns">
+    <button class="hudPill" id="focusBtn" aria-label="打开专注林间" title="专注林间">专注林间</button>
+    <button class="hudBtn" id="soundBtn" aria-label="环境声音" title="环境声音">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 9v6h4l5 4V5L9 9H5z"/><path d="M17 9c1.5 1.5 1.5 4.5 0 6"/></svg>
+    </button>
+    <button class="hudBtn" id="homeBtn" aria-label="回到林间空地" title="回到林间空地">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 11l8-7 8 7"/><path d="M6.5 10v9h11v-9"/></svg>
+    </button>
+  </div>
+  <button id="backBtn">← 回到林间空地</button>
+  <button id="guideBtn">打开旅行手册</button>
+  <div id="sceneName">林间空地 · The Clearing</div>
+</div>
+<div id="transitionVeil"></div>
+<div id="toast"></div>
+<div id="seasonVeil"></div>
+
+<div id="focusDock" aria-hidden="true">
+  <section class="focusPanel" role="dialog" aria-modal="true" aria-labelledby="focusTitle">
+    <div class="focusHead"><div><div class="focusEyebrow">Forest Focus</div><h2 id="focusTitle">专注林间</h2></div><button class="focusClose" id="focusClose" aria-label="关闭专注面板">×</button></div>
+    <div class="timerRing" id="timerRing"><div class="timerInner"><div class="timerValue" id="timerValue">25:00</div><div class="timerState" id="timerState">准备进入森林</div></div></div>
+    <label class="focusLabel" for="focusIntention">这段时间，只想做什么？</label>
+    <input id="focusIntention" placeholder="读几页书、画一会儿、整理思绪…" maxlength="80">
+    <span class="focusLabel">时长</span><div class="presetRow" id="presetRow"><button data-min="15">15 分</button><button class="active" data-min="25">25 分</button><button data-min="45">45 分</button><button data-min="60">60 分</button></div>
+    <span class="focusLabel">天空</span><div class="atmoRow" id="atmoRow"><button class="active" data-atmo="auto">此刻</button><button data-atmo="dawn">清晨</button><button data-atmo="dusk">黄昏</button><button data-atmo="night">夜晚</button></div>
+    <span class="focusLabel">天气</span><div class="weatherRow" id="weatherRow"><button class="active" data-weather="clear">晴朗</button><button data-weather="mist">薄雾</button><button data-weather="rain">小雨</button></div>
+    <div class="focusActions"><button class="focusMain" id="focusStart">开始专注</button><button class="focusReset" id="focusReset" aria-label="重置计时器">↺</button></div>
+    <div class="focusStats"><div class="focusStat"><strong id="focusToday">0</strong><span>今日分钟</span></div><div class="focusStat"><strong id="focusTotal">0</strong><span>累计分钟</span></div><div class="focusStat"><strong id="focusSessions">0</strong><span>完成次数</span></div></div>
+    <div class="weekBars" id="weekBars" aria-label="最近七天专注时间"></div>
+  </section>
+</div>
+
+<div id="areaPanel"></div>
+
+<div id="guide">
+  <div class="sheet">
+    <div class="sheetTop"><div><h2>Forest Field Guide</h2><div class="subtitle">这里记录，不审判。你可以做很多，也可以什么都不做。</div></div><button class="sheetClose" id="guideClose">×</button></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="guideBody"></div>
+  </div>
+</div>
+
+<div id="nowhere">
+  <div class="nowWords">什么都没有。<small>只有风。这里不会记录你待了多久。</small></div>
+  <button id="leaveNowhere">回森林</button>
+</div>
+
+<script>
+const MOBILE=matchMedia('(max-width:820px)').matches||('ontouchstart' in window); // 全局：手机安全层总开关（修复8-15：曾误锁在makeStars内导致全站JS崩溃）
+const W=3600,H=2200, KEY='forestOfUsWorldBuild_v1';
+const defaults={
+  english:[], art:[], questions:[], snowy:[], journal:[], expressions:[],
+  achievements:{}, unlocked:{library:false,studio:false,observatory:false,cat:false,flowers:false},
+  discoveries:{moon:false,firefly:false}, focusSessions:[], settings:{sound:false,atmosphere:'auto',weather:'clear',focusActive:null}, visits:0
+};
+let data=load();
+function load(){
+  try{
+    const x=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(x) return Object.assign(structuredClone(defaults),x,{achievements:Object.assign({},defaults.achievements,x.achievements||{}),unlocked:Object.assign({},defaults.unlocked,x.unlocked||{}),discoveries:Object.assign({},defaults.discoveries,x.discoveries||{}),settings:Object.assign({},defaults.settings,x.settings||{})});
+  }catch(e){}
+  return structuredClone(defaults);
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+data.visits=(data.visits||0)+1; save();
+
+const world=document.getElementById('world'),viewport=document.getElementById('viewport');
+const toastEl=document.getElementById('toast'), areaPanel=document.getElementById('areaPanel');
+const tabs=document.getElementById('tabs'),guideBody=document.getElementById('guideBody'),guide=document.getElementById('guide');
+const sceneName=document.getElementById('sceneName'),backBtn=document.getElementById('backBtn'),veil=document.getElementById('transitionVeil');
+const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const today=()=>new Date().toISOString().slice(0,10);
+function toast(s){toastEl.textContent=s;toastEl.classList.add('show');setTimeout(()=>toastEl.classList.remove('show'),2600)}
+
+let camera={x:1800,y:1120,scale:1};
+const scenes={
+  clearing:{x:1800,y:1180,scale:0.78,name:'林间空地 · The Clearing'},
+  library:{x:620,y:1080,scale:1.18,name:'Library Garden'},
+  studio:{x:3010,y:1470,scale:1.2,name:"Artist’s Cabin"},
+  observatory:{x:3020,y:570,scale:1.18,name:'Observatory'},
+  cat:{x:680,y:1630,scale:1.12,name:"Snowy’s Meadow"},
+  flowers:{x:1760,y:1820,scale:1.05,name:'Flower Valley'},
+  bench:{x:2380,y:1430,scale:1.25,name:'Forest Bench'},
+  allow:{x:1210,y:1430,scale:1.25,name:'Allow Grove'},
+  moon:{x:2680,y:830,scale:1.05,name:'Moon Meadow'}
+};
+let currentScene='clearing';
+function fitScale(base){const vw=innerWidth,vh=innerHeight;const mobile=vw<700; return base*(mobile?0.72:1)}
+function moveTo(name){
+  const s=scenes[name]; if(!s)return;
+  if(['library','studio','observatory','cat','flowers'].includes(name) && !data.unlocked[name==='cat'?'cat':name])return;
+  currentScene=name;veil.classList.add('on'); areaPanel.classList.remove('open');
+  setTimeout(()=>{
+    camera={x:s.x,y:s.y,scale:fitScale(s.scale)};applyCamera();
+    sceneName.textContent=s.name; backBtn.style.display=name==='clearing'?'none':'block';
+    setTimeout(()=>{veil.classList.remove('on'); if(name!=='clearing')openArea(name)},720);
+  },220);
+  updateSoundMix();
+}
+function applyCamera(){
+  const vw=innerWidth,vh=innerHeight,s=camera.scale;
+  const tx=vw/2-camera.x*s, ty=vh/2-camera.y*s;
+  world.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${s})`;
+}
+addEventListener('resize',applyCamera);
+
+function setTime(){
+  const naturalHour=new Date().getHours()+new Date().getMinutes()/60;
+  const atmo=data.settings.atmosphere||'auto';
+  const h=atmo==='dawn'?6.4:atmo==='dusk'?18.6:atmo==='night'?22:naturalHour;
+  world.classList.remove('late','night','dawn','dusk','day');
+  let cls='day';
+  if(h<5)cls='late'; else if(h<7)cls='dawn'; else if(h>=18&&h<20)cls='dusk'; else if(h>=20)cls='night';
+  world.classList.add(cls);
+  const angle=((h-6)/24)*Math.PI*2;
+  const x=1800+Math.cos(angle)*1250, y=360-Math.sin(angle)*240;
+  const sm=document.getElementById('sunmoon');sm.style.left=(x-47)+'px';sm.style.top=(y-47)+'px';
+  if(naturalHour<4 && !data.discoveries.moon){data.discoveries.moon=true;save();setTimeout(()=>toast('今夜，远处多出了一片你以前没见过的草地。'),1800)}
+  document.getElementById('moonMeadow').classList.toggle('discovered',!!data.discoveries.moon);
+}
+setTime();setInterval(setTime,60000);
+
+function makeStars(){
+  const c=document.getElementById('stars');
+  let seed=17;const rnd=()=>((seed=(seed*9301+49297)%233280)/233280);
+for(let i=0;i<(MOBILE?55:155);i++){const s=document.createElement('i');s.className='star';const z=.7+rnd()*2.1;s.style.cssText=`left:${rnd()*100}%;top:${rnd()*58}%;width:${z}px;height:${z}px;--dur:${2.5+rnd()*5}s;animation-delay:${-rnd()*5}s`;c.appendChild(s)}
+}
+makeStars();
+
+function makeSkyLife(){
+  const clouds=document.getElementById('cloudLayer');
+  for(let i=0;i<(MOBILE?4:8);i++){const c=document.createElement('i');c.className='cloud';c.style.cssText=`left:${-360+i*520}px;top:${80+(i%4)*105}px;--cd:${46+i*7}s;--cs:${.65+(i%3)*.28};animation-delay:${-i*8}s`;clouds.appendChild(c)}
+  const birds=document.getElementById('birdLayer');
+  for(let i=0;i<(MOBILE?4:9);i++){const b=document.createElement('i');b.className='skyBird';b.style.cssText=`left:${-250-i*185}px;top:${260+(i%5)*95}px;--bd:${22+i*3.5}s;transform:scale(${.65+(i%4)*.16});animation-delay:${-i*2.7}s`;birds.appendChild(b)}
+  const rain=document.getElementById('rainLayer');let seed=73;const rnd=()=>((seed=(seed*9301+49297)%233280)/233280);
+  for(let i=0;i<(MOBILE?50:150);i++){const d=document.createElement('i');d.className='rainDrop';d.style.cssText=`left:${rnd()*W}px;--rd:${.9+rnd()*.85}s;--ro:${.18+rnd()*.48};animation-delay:${-rnd()*2}s`;rain.appendChild(d)}
+}
+makeSkyLife();
+
+function setAtmosphere(value){
+  data.settings.atmosphere=value;save();setTime();syncEnvironmentControls();
+  toast(({auto:'天空回到此刻。',dawn:'森林醒在清晨。',dusk:'光线慢慢变成黄昏。',night:'星星从树梢后亮起来。'})[value])
+}
+function setWeather(value,silent=false){
+  data.settings.weather=value;save();world.classList.remove('weather-clear','weather-mist','weather-rain');world.classList.add('weather-'+value);syncEnvironmentControls();
+  if(!silent){if(value==='rain')toast('一阵小雨落进森林。');else if(value==='mist')toast('薄雾沿着河岸升起来。');else toast('云层散开了一些。')}
+}
+function syncEnvironmentControls(){
+  document.querySelectorAll('[data-atmo]').forEach(b=>b.classList.toggle('active',b.dataset.atmo===(data.settings.atmosphere||'auto')));
+  document.querySelectorAll('[data-weather]').forEach(b=>b.classList.toggle('active',b.dataset.weather===(data.settings.weather||'clear')))
+}
+setWeather(data.settings.weather||'clear',true);
+
+function makeTrees(){
+  const layer=document.getElementById('treeLayer');let seed=94;const rnd=()=>((seed=(seed*9301+49297)%233280)/233280);
+  const zones=[ [0,960,3600,330,80],[0,1320,1150,750,70],[2380,1040,1220,1000,80],[980,1740,1550,440,46] ];
+  zones.forEach(([x,y,w,h,n])=>{for(let i=0;i<n;i++){const t=document.createElement('div');t.className='tree wind';const size=90+rnd()*170;const px=x+rnd()*w,py=y+rnd()*h;
+    t.style.cssText=`left:${px}px;top:${py}px;width:${size}px;height:${size*1.2}px;z-index:${Math.floor(py)};opacity:${.72+rnd()*.26}`;
+    t.innerHTML='<div class="trunk"></div><div class="crown c1"></div><div class="crown c2"></div><div class="crown c3"></div>';layer.appendChild(t)}});
+}
+makeTrees();
+
+function makeGrass(){
+  const layer=document.getElementById('grassLayer');let seed=51;const rnd=()=>((seed=(seed*9301+49297)%233280)/233280);
+  for(let i=0;i<(MOBILE?130:560);i++){const g=document.createElement('i');g.className='grassblade';const x=rnd()*W,y=1100+rnd()*1080,h=12+rnd()*36;
+    g.style.cssText=`left:${x}px;top:${y}px;height:${h}px;z-index:${Math.floor(y)};--spd:${3+rnd()*4}s;--ang:${3+rnd()*9}deg;opacity:${.35+rnd()*.6}`;layer.appendChild(g)}
+  for(let i=0;i<(MOBILE?16:45);i++){const f=document.createElement('i');f.className='firefly';f.style.cssText=`left:${rnd()*W}px;top:${1000+rnd()*850}px;--fx:${-70+rnd()*140}px;--fy:${-60+rnd()*120}px;--fd:${5+rnd()*8}s;animation-delay:${-rnd()*8}s`;layer.appendChild(f)}
+}
+makeGrass();
+
+function makeFlowers(){
+  const layer=document.getElementById('flowerLayer');let seed=11;const rnd=()=>((seed=(seed*9301+49297)%233280)/233280);
+  const colors=['#e5d2ba','#d9b8c4','#e6c877','#c6d0b2','#c1a8d5','#d9e0cf'];
+  for(let i=0;i<(MOBILE?60:145);i++){const f=document.createElement('i');f.className='flower';f.style.cssText=`left:${1390+rnd()*720}px;top:${1690+rnd()*350}px;--f:${colors[Math.floor(rnd()*colors.length)]};z-index:${1750+Math.floor(rnd()*260)};transform:scale(${.5+rnd()*1.25})`;layer.appendChild(f)}
+  const focusFlowers=Math.min(48,(data.focusSessions||[]).length*3);for(let i=0;i<focusFlowers;i++){const f=document.createElement('i');f.className='flower';f.style.cssText=`left:${1510+rnd()*570}px;top:${1370+rnd()*300}px;--f:${colors[(i+2)%colors.length]};z-index:${1500+Math.floor(rnd()*230)};transform:scale(${.65+rnd()*1.1})`;layer.appendChild(f)}
+  const b=document.getElementById('butterflyLayer');for(let i=0;i<(MOBILE?6:12);i++){const x=document.createElement('i');x.className='butterfly';x.style.cssText=`left:${1200+rnd()*1300}px;top:${1200+rnd()*650}px;animation-delay:${-rnd()*3}s`;b.appendChild(x)}
+}
+makeFlowers();
+
+function lakeRipple(e){
+  const lake=document.getElementById('lake'),r=document.createElement('i');r.className='ripple';const rect=lake.getBoundingClientRect();
+  const scale=camera.scale||1;r.style.left=((e.clientX-rect.left)/scale)+'px';r.style.top=((e.clientY-rect.top)/scale)+'px';lake.appendChild(r);setTimeout(()=>r.remove(),1800)
+}
+document.getElementById('lake').addEventListener('pointerdown',lakeRipple);
+
+let holdTimer;
+document.getElementById('sky').addEventListener('pointerdown',e=>{holdTimer=setTimeout(()=>{world.classList.add('night');toast('星星慢慢显出来了。')},750)});
+document.getElementById('sky').addEventListener('pointerup',()=>clearTimeout(holdTimer));
+document.getElementById('sky').addEventListener('pointercancel',()=>clearTimeout(holdTimer));
+document.getElementById('sky').addEventListener('dblclick',()=>{const list=['auto','dawn','dusk','night'],next=list[(list.indexOf(data.settings.atmosphere||'auto')+1)%list.length];setAtmosphere(next)});
+
+function windBurst(){
+  document.documentElement.style.setProperty('--wind','3.2');
+  document.querySelectorAll('.mist').forEach(m=>m.style.transform='translateX(180px)');
+  setTimeout(()=>{document.documentElement.style.setProperty('--wind','1');document.querySelectorAll('.mist').forEach(m=>m.style.transform='')},1700);
+  if(sound.enabled) sound.gust();
+}
+let lastShake=0;
+async function enableMotion(){
+  try{
+    if(typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function'){
+      const p=await DeviceMotionEvent.requestPermission(); if(p!=='granted')return;
+    }
+    addEventListener('devicemotion',e=>{
+      const a=e.accelerationIncludingGravity;if(!a)return;const mag=Math.sqrt((a.x||0)**2+(a.y||0)**2+(a.z||0)**2);
+      if(mag>20 && Date.now()-lastShake>1800){lastShake=Date.now();windBurst()}
+    });toast('摇动手机时，森林会起风。')
+  }catch(e){toast('Safari 没有允许运动传感器。')}
+}
+
+document.querySelectorAll('.zone').forEach(z=>z.addEventListener('click',()=>moveTo(z.dataset.zone)));
+document.getElementById('homeBtn').onclick=()=>moveTo('clearing');backBtn.onclick=()=>moveTo('clearing');
+let swipeStart=null;
+viewport.addEventListener('pointerdown',e=>{if(e.target.closest('button,input,textarea,select,.zone,#lake,#snowy'))return;swipeStart={x:e.clientX,y:e.clientY,t:Date.now()}});
+viewport.addEventListener('pointerup',e=>{if(!swipeStart)return;const dx=e.clientX-swipeStart.x,dy=e.clientY-swipeStart.y,fast=Date.now()-swipeStart.t<900;swipeStart=null;if(fast&&Math.hypot(dx,dy)>85){windBurst();toast('你拨动了穿过树梢的风。')}});
+
+function englishDates(){return [...new Set(data.english.map(x=>x.date))].sort()}
+function englishStreak(){
+  const a=englishDates().sort().reverse();let n=0,d=new Date();
+  for(const x of a){const t=d.toISOString().slice(0,10);if(x===t){n++;d.setDate(d.getDate()-1)}else break}return n
+}
+function checkAchievements(){
+  const st=englishStreak(), before=JSON.stringify(data.unlocked);
+  const milestones=[1,3,7,14,30,50,100];milestones.forEach(n=>{if(st>=n)data.achievements['streak'+n]=true});
+  if(data.achievements.streak14)world.classList.add('hasButterflies');
+  if(data.achievements.streak30)world.classList.add('hasDeer');
+  if(data.achievements.streak7)world.classList.add('hasHiddenPath');
+  if(data.english.length>=30)data.unlocked.library=true;
+  if(data.art.length>=10)data.unlocked.studio=true;
+  if(data.questions.length>=20)data.unlocked.observatory=true;
+  if(data.snowy.length>=50)data.unlocked.cat=true;
+  if(data.journal.length>=30)data.unlocked.flowers=true;
+  save();
+  for(const [key,id] of [['library','library'],['studio','studio'],['observatory','observatory'],['cat','catMeadow'],['flowers','flowerValley']]){
+    const el=document.getElementById(id),was=el.classList.contains('locked');
+    el.classList.toggle('locked',!data.unlocked[key]);
+    if(was&&data.unlocked[key]){el.classList.add('newlyUnlocked');setTimeout(()=>el.classList.remove('newlyUnlocked'),5000)}
+  }
+  if(before!==JSON.stringify(data.unlocked)){
+    setTimeout(()=>toast('森林里有一处地方变得不一样了。去远处看看。'),1600)
+  }
+}
+checkAchievements();
+
+function logQuick(type){
+  const date=today();
+  if(type==='english'){
+    if(data.english.some(x=>x.date===date)){toast('今天的英语已经在森林里留下痕迹。');return}
+    data.english.push({date,note:''});toast('今天，一株新的幼苗出现了。')
+  } else if(type==='art'){data.art.push({date,note:''});toast('画室的窗边多了一张纸。')}
+  save();checkAchievements();renderTab(activeTab)
+}
+function addQuestion(){
+  const el=document.getElementById('qInput');if(!el||!el.value.trim())return;
+  data.questions.push({date:today(),text:el.value.trim(),answer:''});save();checkAchievements();renderTab('log');toast('一个还没有答案的问题，被挂到了天空。')
+}
+function addJournal(){
+  const el=document.getElementById('jInput'),flower=document.getElementById('flowerPick');if(!el||!el.value.trim())return;
+  data.journal.push({date:today(),text:el.value.trim(),flower:flower.value});save();checkAchievements();renderTab('log');toast('花谷里多了一株新的生命。')
+}
+function addSnowy(){
+  const el=document.getElementById('sInput');if(!el||!el.value.trim())return;
+  data.snowy.push({date:today(),text:el.value.trim()});save();checkAchievements();renderTab('log');toast('这一天，被留在 Snowy 的时间线里。')
+}
+function addExpression(){
+  const w=document.getElementById('eWord'),meaning=document.getElementById('eMeaning'),source=document.getElementById('eSource');if(!w||!w.value.trim())return;
+  data.expressions.push({date:today(),text:w.value.trim(),meaning:meaning.value.trim(),source:source.value.trim(),recordings:[]});save();renderTab('leaves');toast('Expression Forest 长出了一片新叶子。')
+}
+function allowRelease(){
+  const el=document.getElementById('allowInput');if(!el||!el.value.trim())return;
+  const text=el.value.trim();el.value='';
+  areaPanel.innerHTML=`<div style="height:150px;display:grid;place-items:center;position:relative;overflow:hidden"><div id="releaseText" style="font:italic 20px Georgia,serif;text-align:center;max-width:90%">${esc(text)}</div></div>`;
+  const rt=document.getElementById('releaseText');rt.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:'translateY(-90px) translateX(70px) rotate(8deg)',opacity:0}],{duration:2300,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'});
+  windBurst();setTimeout(()=>{areaPanel.classList.remove('open');toast('没有保存。它真的走了。')},2200)
+}
+function progress(v,max){return `<div class="progress"><span style="width:${Math.min(100,v/max*100)}%"></span></div>`}
+
+// Focus glade — persistent, pauseable forest timer
+const focusDock=document.getElementById('focusDock'),focusValue=document.getElementById('timerValue'),focusState=document.getElementById('timerState'),focusStart=document.getElementById('focusStart');
+let focusMinutes=25,focusRemaining=25*60,focusEndAt=0,focusTimer=null,focusMode='idle';
+function formatFocus(sec){const m=Math.floor(Math.max(0,sec)/60),s=Math.max(0,sec)%60;return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function openFocus(){
+  closeGuide();areaPanel.classList.remove('open');focusDock.classList.add('open');focusDock.setAttribute('aria-hidden','false');
+  document.getElementById('focusIntention').value=data.settings.focusActive?.intention||document.getElementById('focusIntention').value;
+  syncEnvironmentControls();renderFocusStats();updateFocusUI()
+}
+function closeFocus(){focusDock.classList.remove('open');focusDock.setAttribute('aria-hidden','true')}
+function updateFocusUI(){
+  if(focusMode==='running')focusRemaining=Math.max(0,Math.ceil((focusEndAt-Date.now())/1000));
+  const total=focusMinutes*60,pct=Math.min(1,Math.max(0,1-focusRemaining/total));
+  focusValue.textContent=formatFocus(focusRemaining);document.documentElement.style.setProperty('--focus-progress',`${pct*360}deg`);
+  focusState.textContent=focusMode==='running'?'森林正在替你守住时间':focusMode==='paused'?'先停在这里':focusMode==='done'?'这一段已经完成':'准备进入森林';
+  focusStart.textContent=focusMode==='running'?'暂停一下':focusMode==='paused'?'继续专注':focusMode==='done'?'再来一段':'开始专注';
+  const hud=document.getElementById('focusBtn');hud.textContent=focusMode==='running'?formatFocus(focusRemaining):'专注林间';hud.classList.toggle('active',focusMode==='running');
+}
+function persistActiveFocus(){
+  data.settings.focusActive=focusMode==='idle'||focusMode==='done'?null:{mode:focusMode,minutes:focusMinutes,remaining:focusRemaining,endAt:focusEndAt,intention:document.getElementById('focusIntention').value.trim()};save()
+}
+function beginFocus(){
+  if(focusMode==='done'){resetFocus();return}
+  if(focusMode==='running'){
+    focusRemaining=Math.max(0,Math.ceil((focusEndAt-Date.now())/1000));focusMode='paused';clearInterval(focusTimer);focusTimer=null;document.body.classList.remove('focus-running');persistActiveFocus();updateFocusUI();return
+  }
+  focusMode='running';focusEndAt=Date.now()+focusRemaining*1000;document.body.classList.add('focus-running');
+  clearInterval(focusTimer);focusTimer=setInterval(tickFocus,250);persistActiveFocus();updateFocusUI();toast('森林会安静地替你守住这段时间。')
+}
+function tickFocus(){
+  focusRemaining=Math.max(0,Math.ceil((focusEndAt-Date.now())/1000));updateFocusUI();
+  if(focusRemaining<=0)completeFocus()
+}
+function completeFocus(){
+  clearInterval(focusTimer);focusTimer=null;focusMode='done';focusRemaining=0;document.body.classList.remove('focus-running');
+  const intention=document.getElementById('focusIntention').value.trim();data.focusSessions=data.focusSessions||[];data.focusSessions.push({date:today(),minutes:focusMinutes,intention,finishedAt:new Date().toISOString()});data.settings.focusActive=null;save();
+  windBurst();focusBloom();renderFocusStats();updateFocusUI();toast(`完成了 ${focusMinutes} 分钟。森林记住了这段安静。`)
+}
+function resetFocus(){
+  clearInterval(focusTimer);focusTimer=null;focusMode='idle';focusRemaining=focusMinutes*60;focusEndAt=0;document.body.classList.remove('focus-running');data.settings.focusActive=null;save();updateFocusUI()
+}
+function focusBloom(){
+  const layer=document.getElementById('flowerLayer');
+  for(let i=0;i<18;i++){const f=document.createElement('i');f.className='flower focusBloom';f.style.cssText=`left:${1580+Math.random()*440}px;top:${1470+Math.random()*260}px;--f:${['#f1d48a','#d7c2e7','#e9c8cf','#dfe7c3'][i%4]};z-index:1850;transform:scale(${.7+Math.random()*1.2})`;layer.appendChild(f);f.animate([{opacity:0,transform:'scale(.1)'},{opacity:1,transform:f.style.transform}],{duration:900+i*45,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'})}
+}
+function focusSummary(){
+  const sessions=data.focusSessions||[],todayMinutes=sessions.filter(x=>x.date===today()).reduce((n,x)=>n+x.minutes,0),total=sessions.reduce((n,x)=>n+x.minutes,0);
+  return {sessions,todayMinutes,total}
+}
+function lastSevenDays(){
+  const out=[];for(let i=6;i>=0;i--){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10),minutes=(data.focusSessions||[]).filter(x=>x.date===key).reduce((n,x)=>n+x.minutes,0);out.push({key,minutes,label:['日','一','二','三','四','五','六'][d.getDay()]})}return out
+}
+function renderFocusStats(){
+  const s=focusSummary();document.getElementById('focusToday').textContent=s.todayMinutes;document.getElementById('focusTotal').textContent=s.total;document.getElementById('focusSessions').textContent=s.sessions.length;
+  const days=lastSevenDays(),max=Math.max(30,...days.map(x=>x.minutes));document.getElementById('weekBars').innerHTML=days.map(x=>`<div class="weekBar" title="${x.key} · ${x.minutes} 分钟"><i style="height:${Math.max(5,x.minutes/max*42)}px;opacity:${x.minutes?1:.22}"></i><small>${x.label}</small></div>`).join('')
+}
+function restoreFocus(){
+  const a=data.settings.focusActive;if(!a)return renderFocusStats();focusMinutes=a.minutes||25;focusRemaining=a.mode==='running'?Math.max(0,Math.ceil((a.endAt-Date.now())/1000)):(a.remaining||focusMinutes*60);focusEndAt=a.endAt||0;focusMode=a.mode||'paused';
+  if(focusRemaining<=0){document.getElementById('focusIntention').value=a.intention||'';setTimeout(completeFocus,0);return}
+  if(focusMode==='running'){document.body.classList.add('focus-running');focusTimer=setInterval(tickFocus,250)}
+  document.getElementById('focusIntention').value=a.intention||'';document.querySelectorAll('#presetRow button').forEach(b=>b.classList.toggle('active',+b.dataset.min===focusMinutes));renderFocusStats();updateFocusUI()
+}
+document.getElementById('focusBtn').onclick=openFocus;document.getElementById('focusClose').onclick=closeFocus;focusStart.onclick=beginFocus;document.getElementById('focusReset').onclick=resetFocus;
+document.querySelectorAll('#presetRow button').forEach(b=>b.onclick=()=>{if(focusMode==='running')return toast('先暂停，再更换时长。');focusMinutes=+b.dataset.min;focusRemaining=focusMinutes*60;focusMode='idle';document.querySelectorAll('#presetRow button').forEach(x=>x.classList.toggle('active',x===b));updateFocusUI()});
+document.querySelectorAll('[data-atmo]').forEach(b=>b.onclick=()=>setAtmosphere(b.dataset.atmo));document.querySelectorAll('[data-weather]').forEach(b=>b.onclick=()=>setWeather(b.dataset.weather));
+focusDock.addEventListener('click',e=>{if(e.target===focusDock)closeFocus()});addEventListener('keydown',e=>{if(e.key==='Escape'&&focusDock.classList.contains('open'))closeFocus()});
+restoreFocus();
+
+let activeTab='log';
+const tabDefs=[['log','今天'],['focus','专注'],['growth','森林生长'],['leaves','树叶'],['memories','回忆'],['map','地图'],['archive','保存']];
+function openGuide(tab='log'){guide.classList.add('open');renderTabs();renderTab(tab)}
+function closeGuide(){guide.classList.remove('open')}
+function renderTabs(){tabs.innerHTML=tabDefs.map(([k,n])=>`<button data-tab="${k}" class="${activeTab===k?'active':''}">${n}</button>`).join('');tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>renderTab(b.dataset.tab))}
+function renderTab(tab){
+  activeTab=tab;renderTabs();
+  if(tab==='log'){
+    guideBody.innerHTML=`<div class="grid">
+      <div class="card"><h3>专注林间</h3><p>选 15、25、45 或 60 分钟，让森林替你守住一小段时间。</p><button class="action" onclick="closeGuide();openFocus()">开始一段专注</button><p>今天 ${focusSummary().todayMinutes} 分钟</p></div>
+      <div class="card"><h3>英语</h3><p>今天只要真的读、听、说或写了一点，就算回来过。</p><button class="action" onclick="logQuick('english')">今天碰过英语了</button><p>${data.english.length} 次 · 当前连续 ${englishStreak()} 天</p></div>
+      <div class="card"><h3>画画</h3><p>完成、没完成、只画两笔都算。</p><button class="action" onclick="logQuick('art')">今天画过一点</button><p>${data.art.length} 次</p></div>
+      <div class="card"><h3>一个为什么</h3><input id="qInput" placeholder="例如：极光为什么是绿色的？"><button class="action" onclick="addQuestion()">挂到天空</button></div>
+      <div class="card"><h3>生活碎片</h3><textarea id="jInput" placeholder="今天想留下什么？"></textarea><select id="flowerPick"><option>白色野花</option><option>薰衣草</option><option>金色小花</option><option>粉色花</option><option>枯花</option><option>杂草</option></select><button class="action" onclick="addJournal()">种下</button></div>
+      <div class="card"><h3>Snowy</h3><textarea id="sInput" placeholder="今天发生了什么？"></textarea><button class="action" onclick="addSnowy()">留下回忆</button></div>
+      <div class="card"><h3>新的表达</h3><input id="eWord" placeholder="ordinary / It means more than you know."><input id="eMeaning" placeholder="你现在怎么理解它" style="margin-top:7px"><input id="eSource" placeholder="来源：Wonder / VOA / This Is Us" style="margin-top:7px"><button class="action" onclick="addExpression()">长一片叶子</button></div>
+    </div>`;
+  }else if(tab==='focus'){
+    const summary=focusSummary(),days=lastSevenDays(),recent=summary.sessions.slice(-8).reverse();
+    guideBody.innerHTML=`<div class="grid"><div class="card"><h3>专注林间</h3><p>不追求满格，只替当下留出一段不被打断的时间。</p><button class="action" onclick="closeGuide();openFocus()">打开专注计时器</button><p>今天 ${summary.todayMinutes} 分钟 · 累计 ${summary.total} 分钟</p></div><div class="card"><h3>最近七天</h3>${days.map(x=>`<div class="entry"><b>周${x.label}</b> · ${x.minutes} 分钟</div>`).join('')}</div><div class="card"><h3>最近完成</h3>${recent.map(x=>`<div class="entry"><b>${x.date} · ${x.minutes} 分钟</b><br>${esc(x.intention||'安静地做完一件事')}</div>`).join('')||'<p class="muted">第一段专注会从这里开始。</p>'}</div></div>`;
+  }else if(tab==='growth'){
+    const st=englishStreak();
+    guideBody.innerHTML=`<div class="grid">
+      <div class="card"><h3>英语留下的痕迹</h3><p>${data.english.length} 次 · 当前连续 ${st} 天</p>${progress(Math.min(st,100),100)}<p>1天幼苗 · 3天嫩叶 · 7天花开 · 14天蝴蝶 · 30天鹿 · 50天溪流 · 100天古树。已经获得的不会因为中断消失。</p></div>
+      <div class="card"><h3>Library Garden</h3><p>${data.english.length}/30 次英语</p>${progress(data.english.length,30)}</div>
+      <div class="card"><h3>Artist’s Cabin</h3><p>${data.art.length}/10 次创作</p>${progress(data.art.length,10)}</div>
+      <div class="card"><h3>Observatory</h3><p>${data.questions.length}/20 个为什么</p>${progress(data.questions.length,20)}</div>
+      <div class="card"><h3>Snowy’s Meadow</h3><p>${data.snowy.length}/50 个回忆</p>${progress(data.snowy.length,50)}</div>
+      <div class="card"><h3>Flower Valley</h3><p>${data.journal.length}/30 个生活碎片</p>${progress(data.journal.length,30)}</div>
+      <div class="card"><h3>Focus Glade</h3><p>${focusSummary().total} 分钟 · ${focusSummary().sessions.length} 次完成</p>${progress(Math.min(focusSummary().total,600),600)}<p>专注会在林间空地留下季节性的花，不需要连续。</p></div>
+    </div>`;
+  }else if(tab==='leaves'){
+    guideBody.innerHTML=`<div class="grid">${data.expressions.slice().reverse().map((x,i)=>`<div class="card"><h3>${esc(x.text)}</h3><p>${esc(x.meaning||'')}</p><p>${esc(x.source||'')} · ${x.date}</p><button class="action" onclick="startRecording(${data.expressions.length-1-i})">录下现在的声音</button><p>${(x.recordings||[]).length} 段录音</p></div>`).join('')||'<div class="card"><h3>森林还没有叶子</h3><p>真正学会的词和句子会慢慢长进来。</p></div>'}</div>`;
+  }else if(tab==='memories'){
+    const all=[...data.journal.map(x=>({...x,type:'生活'})),...data.snowy.map(x=>({...x,type:'Snowy'})),...data.questions.map(x=>({...x,type:'为什么'}))].sort((a,b)=>b.date.localeCompare(a.date));
+    guideBody.innerHTML=all.slice(0,80).map(x=>`<div class="entry"><b>${x.date} · ${x.type}</b><br>${esc(x.text)}</div>`).join('')||'<div class="muted">还没有回忆。森林不着急。</div>';
+  }else if(tab==='map'){
+    guideBody.innerHTML=`<div class="grid">
+      ${mapCard('Library Garden',data.unlocked.library,'英语累计30次')}
+      ${mapCard("Artist’s Cabin",data.unlocked.studio,'画画累计10次')}
+      ${mapCard('Observatory',data.unlocked.observatory,'收藏20个为什么')}
+      ${mapCard("Snowy’s Meadow",data.unlocked.cat,'Snowy留下50个回忆')}
+      ${mapCard('Flower Valley',data.unlocked.flowers,'写下30个生活碎片')}
+      <div class="card"><h3>未知区域</h3><p>不是所有地方都有进度条。某些路只在特定时间、天气或偶然的互动里出现。</p><p>已发现：${Object.values(data.discoveries).filter(Boolean).length}</p></div>
+    </div>`;
+  }else if(tab==='archive'){
+    guideBody.innerHTML=`<div class="grid"><div class="card"><h3>导出森林</h3><p>把所有文字、进度和解锁状态保存为 JSON 文件。</p><button class="action" onclick="exportForest()">下载备份</button></div><div class="card"><h3>恢复森林</h3><input type="file" id="importFile" accept=".json,application/json"><button class="action" onclick="importForest()">恢复备份</button></div><div class="card"><h3>iPhone 触摸</h3><p>允许运动传感器后，摇手机会让整片森林起风。</p><button class="action" onclick="enableMotion()">允许摇一摇</button></div></div>`;
+  }
+}
+function mapCard(name,ok,req){return `<div class="card"><h3>${name}</h3><p>${ok?'已经在森林里出现':'仍被雾遮住'}</p><p>${req}</p></div>`}
+document.getElementById('guideBtn').onclick=()=>openGuide();document.getElementById('guideClose').onclick=closeGuide;guide.addEventListener('click',e=>{if(e.target===guide)closeGuide()});
+
+function openArea(name){
+  const titles={library:'Library Garden',studio:"Artist’s Cabin",observatory:'Observatory',cat:"Snowy’s Meadow",flowers:'Flower Valley',bench:'Forest Bench',allow:'Allow Grove',moon:'Moon Meadow'};
+  let html=`<h2>${titles[name]}</h2>`;
+  if(name==='library')html+=`<div class="areaSub">这里不会提醒你缺席了多少天。书会停在你上次离开的地方。</div><div class="grid"><div class="card"><h3>Wonder</h3><p>记录你读到哪里、留下句子和录音。下一次继续，不补债。</p></div><div class="card"><h3>VOA</h3><p>听见一个喜欢的声音、一句表达，也可以成为森林的一部分。</p></div><div class="card"><h3>This Is Us</h3><p>剧集、句子和你当时的理解可以慢慢积累。</p></div></div>`;
+  if(name==='studio')html+=`<div class="areaSub">窗户已经亮了。这里不把“未完成”当成一种状态。</div><div class="grid"><div class="card"><h3>最近的创作</h3><p>${data.art.length} 次创作已经留在这里。</p></div><div class="card"><h3>放一张画进来</h3><input type="file" id="artFile" accept="image/*"><button class="action" onclick="storeImage('art')">保存图片</button></div></div>`;
+  if(name==='observatory')html+=`<div class="areaSub">没有回答的问题也可以一直留在夜空。</div>${data.questions.slice(-10).reverse().map(x=>`<div class="entry"><b>${x.date}</b> · ${esc(x.text)}</div>`).join('')||'<p class="muted">今晚的天空很空。</p>'}`;
+  if(name==='cat')html+=`<div class="areaSub">Snowy在这里生活，不是一个“亲密度数值”。</div><div class="grid"><div class="card"><h3>最近</h3>${data.snowy.slice(-5).reverse().map(x=>`<div class="entry"><b>${x.date}</b> · ${esc(x.text)}</div>`).join('')}</div><div class="card"><h3>照片</h3><input type="file" id="snowyFile" accept="image/*"><button class="action" onclick="storeImage('snowy')">留下照片</button></div><div class="card"><h3>健康时间线</h3><p>体重、疫苗、手术、复诊会保留为现实记录；不会覆盖她的生活故事。</p></div></div>`;
+  if(name==='flowers')html+=`<div class="areaSub">这里会越来越杂。野花、枯花、杂草都可以存在。</div><div class="grid">${data.journal.slice(-12).reverse().map(x=>`<div class="card"><h3>${esc(x.flower)}</h3><p>${esc(x.text)}</p><p>${x.date}</p></div>`).join('')}</div>`;
+  if(name==='bench')html+=`<div class="areaSub">这里仍然没有计时器。想专注时，可以回到林间空地打开「专注林间」。</div><div style="min-height:120px;display:grid;place-items:center;text-align:center;font:italic 22px Georgia,serif;opacity:.72">Stay as long as you want.</div>`;
+  if(name==='allow')html+=`<div class="areaSub">这页唯一的规则：放下的东西不会进入历史。</div><textarea id="allowInput" placeholder="例如：今天必须读30分钟英语。"></textarea><button class="action" onclick="allowRelease()">放下</button>`;
+  if(name==='moon')html+=`<div class="areaSub">你是在一个很晚的夜里发现这里的。</div><div style="min-height:110px;display:grid;place-items:center;font:italic 20px Georgia,serif;opacity:.7">有些地方，不靠努力解锁。</div>`;
+  areaPanel.innerHTML=html;areaPanel.classList.add('open');
+}
+
+document.getElementById('snowy').onclick=()=>{const s=document.getElementById('snowy'),phrases=['她只是看了你一眼。','尾巴轻轻晃了一下。','她用额头轻轻碰了碰你。','Snowy 发出很小的一声呼噜。','她慢慢眨了一次眼睛。','然后她继续做自己的事。'];s.animate([{transform:'scale(1)'},{transform:'scale(1.08) translateY(-4px)'},{transform:'scale(1)'}],{duration:650,easing:'ease-out'});toast(phrases[Math.floor(Math.random()*phrases.length)])};
+const snowySpots=[[1650,1425],[780,1590],[2350,1390],[2920,1510],[1390,1260],[540,1260]];
+function moveSnowy(){
+  const [x,y]=snowySpots[Math.floor(Math.random()*snowySpots.length)],s=document.getElementById('snowy');
+  s.style.left=x+'px';s.style.top=y+'px';s.classList.remove('sit','sleep');const r=Math.random();if(r>.66)s.classList.add('sit');if(r>.87)s.classList.add('sleep');
+}
+setInterval(moveSnowy,12000);
+
+let fireflyClicks=0;
+document.addEventListener('click',e=>{
+  if(e.target.classList&&e.target.classList.contains('firefly')){
+    fireflyClicks++;if(fireflyClicks>=7&&!data.discoveries.firefly){data.discoveries.firefly=true;save();toast('萤火虫像是在带你去一条没有标记的小路。');world.classList.add('hasHiddenPath')}
+  }
+});
+
+function openNowhere(){document.getElementById('nowhere').classList.add('open');if(sound.enabled)sound.setNowhere(true)}
+function closeNowhere(){document.getElementById('nowhere').classList.remove('open');if(sound.enabled)sound.setNowhere(false)}
+document.getElementById('leaveNowhere').onclick=closeNowhere;
+document.getElementById('nowhere').addEventListener('pointermove',e=>{document.getElementById('nowhere').style.setProperty('--nx',e.clientX/innerWidth)});
+
+function exportForest(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`forest-of-us-backup-${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+}
+function importForest(){
+  const f=document.getElementById('importFile').files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{data=Object.assign(structuredClone(defaults),JSON.parse(r.result));save();checkAchievements();renderTab('archive');toast('森林已经重新种回来了。')}catch(e){toast('这个备份无法读取。')}};r.readAsText(f)
+}
+
+// Media in IndexedDB
+let dbp=new Promise((resolve,reject)=>{const req=indexedDB.open('forestOfUsMedia',1);req.onupgradeneeded=()=>req.result.createObjectStore('media');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});
+async function putMedia(key,blob){const db=await dbp;return new Promise((res,rej)=>{const tx=db.transaction('media','readwrite');tx.objectStore('media').put(blob,key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
+async function storeImage(kind){
+  const input=document.getElementById(kind==='art'?'artFile':'snowyFile');const f=input&&input.files[0];if(!f)return;
+  const key=`${kind}-${Date.now()}`;await putMedia(key,f);if(kind==='art')data.art.push({date:today(),note:'image',media:key});else data.snowy.push({date:today(),text:'留下了一张照片',media:key});save();checkAchievements();toast('已经留在森林里。')
+}
+async function startRecording(idx){
+  if(!navigator.mediaDevices||!MediaRecorder){toast('这个 Safari 版本暂时不能直接录音。');return}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});const rec=new MediaRecorder(stream),chunks=[];rec.ondataavailable=e=>chunks.push(e.data);rec.onstop=async()=>{const blob=new Blob(chunks,{type:rec.mimeType});const key=`voice-${Date.now()}`;await putMedia(key,blob);data.expressions[idx].recordings=data.expressions[idx].recordings||[];data.expressions[idx].recordings.push({date:today(),media:key});save();stream.getTracks().forEach(t=>t.stop());renderTab('leaves');toast('现在的声音被留在这片叶子里。')};rec.start();toast('正在录音。再次点屏幕任意位置停止。');const stop=()=>{document.removeEventListener('pointerdown',stop,true);if(rec.state==='recording')rec.stop()};setTimeout(()=>document.addEventListener('pointerdown',stop,true),500)
+  }catch(e){toast('没有获得麦克风权限。')}
+}
+
+// Procedural ambient sound
+const sound={enabled:false,ctx:null,master:null,windGain:null,waterGain:null,cricketGain:null,noise:null,
+ async toggle(){
+   if(!this.enabled){this.start();}else{this.enabled=false;this.master.gain.setTargetAtTime(0,this.ctx.currentTime,.25);data.settings.sound=false;save();document.getElementById('soundBtn').style.opacity=.5}
+ },
+ start(){
+   const AC=window.AudioContext||window.webkitAudioContext;if(!AC){toast('这个浏览器暂时不支持环境声音。');return}
+   this.ctx=this.ctx||new AC();const c=this.ctx;
+   this.master=c.createGain();this.master.gain.value=.22;this.master.connect(c.destination);
+   const len=c.sampleRate*2,buf=c.createBuffer(1,len,c.sampleRate),arr=buf.getChannelData(0);for(let i=0;i<len;i++)arr[i]=Math.random()*2-1;
+   const src=c.createBufferSource();src.buffer=buf;src.loop=true;
+   const windFilter=c.createBiquadFilter();windFilter.type='lowpass';windFilter.frequency.value=650;this.windGain=c.createGain();this.windGain.gain.value=.18;src.connect(windFilter).connect(this.windGain).connect(this.master);src.start();this.noise=src;
+   const waterSrc=c.createBufferSource();waterSrc.buffer=buf;waterSrc.loop=true;const wf=c.createBiquadFilter();wf.type='bandpass';wf.frequency.value=1200;wf.Q.value=.5;this.waterGain=c.createGain();this.waterGain.gain.value=.03;waterSrc.connect(wf).connect(this.waterGain).connect(this.master);waterSrc.start();
+   this.cricketGain=c.createGain();this.cricketGain.gain.value=0;this.cricketGain.connect(this.master);
+   this.enabled=true;data.settings.sound=true;save();document.getElementById('soundBtn').style.opacity=1;this.birds();updateSoundMix();toast('环境声音打开了。')
+ },
+ birds(){
+   if(!this.enabled)return;const h=new Date().getHours();if(h>6&&h<19&&Math.random()>.35){const c=this.ctx,o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(1600+Math.random()*600,c.currentTime);o.frequency.exponentialRampToValueAtTime(2300+Math.random()*600,c.currentTime+.12);g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(.05,c.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.22);o.connect(g).connect(this.master);o.start();o.stop(c.currentTime+.24)}
+   setTimeout(()=>this.birds(),3500+Math.random()*7000)
+ },
+ gust(){if(!this.enabled)return;const c=this.ctx,n=this.windGain.gain.value;this.windGain.gain.cancelScheduledValues(c.currentTime);this.windGain.gain.setValueAtTime(n,c.currentTime);this.windGain.gain.linearRampToValueAtTime(.45,c.currentTime+.18);this.windGain.gain.exponentialRampToValueAtTime(.18,c.currentTime+1.6)},
+ setNowhere(on){if(!this.enabled)return;const t=this.ctx.currentTime;this.waterGain.gain.setTargetAtTime(on?0:.03,t,.5);this.windGain.gain.setTargetAtTime(on?.28:.18,t,.5)}
+};
+document.getElementById('soundBtn').onclick=()=>sound.toggle();
+function updateSoundMix(){if(!sound.enabled)return;const c=sound.ctx.currentTime;const rain=data.settings.weather==='rain';const water=rain ? .12 : (['cat','flowers','clearing'].includes(currentScene) ? .08 : .025);sound.waterGain.gain.setTargetAtTime(water,c,.7);sound.windGain.gain.setTargetAtTime(rain ? .25 : .18,c,.7)}
+
+addEventListener('keydown',e=>{if((e.key==='f'||e.key==='F')&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){e.preventDefault();openFocus()}});
+
+checkAchievements();
+moveTo('clearing');
+if(data.settings.sound)document.getElementById('soundBtn').style.opacity=.55;
+
+// ── VISUAL ENHANCEMENTS ──
+
+// Season
+const _month=new Date().getMonth();
+const _season=_month<2||_month===11?'winter':_month<5?'spring':_month<8?'summer':'autumn';
+document.body.classList.add('season-'+_season);
+
+// Mouse parallax (desktop only)
+{
+  let _px=0,_py=0,_raf=0;
+  const _sky=document.getElementById('sky'),_mb=document.getElementById('mountainsBack'),_cl=document.getElementById('cloudLayer'),_bl=document.getElementById('birdLayer');
+  addEventListener('mousemove',e=>{
+    cancelAnimationFrame(_raf);
+    _raf=requestAnimationFrame(()=>{
+      _px+=(e.clientX/innerWidth-.5-_px)*.09;
+      _py+=(e.clientY/innerHeight-.5-_py)*.09;
+      _sky.style.transform=`translate3d(${_px*-16}px,${_py*-6}px,0)`;
+      _mb.style.transform=`translate3d(${_px*-11}px,${_py*-4}px,0)`;
+      _cl.style.transform=`translate3d(${_px*-24}px,0,0)`;
+      _bl.style.transform=`translate3d(${_px*-7}px,0,0)`;
+    });
+  },{passive:true});
+}
+
+// Drifting leaves / petals
+{
+  const leafColors={spring:['rgba(220,160,185,.8)','rgba(245,195,210,.7)','rgba(200,165,190,.75)'],summer:['rgba(105,162,82,.72)','rgba(130,182,100,.65)'],autumn:['rgba(202,100,38,.8)','rgba(222,142,48,.75)','rgba(180,78,28,.72)'],winter:['rgba(222,232,242,.5)','rgba(202,218,240,.42)']};
+  const cols=leafColors[_season]||leafColors.summer;
+  const layer=document.getElementById('leafLayer');
+  let s2=43;const r2=()=>((s2=(s2*9301+49297)%233280)/233280);
+  for(let i=0;i<26;i++){
+    const l=document.createElement('i');l.className='leafParticle';
+    const w=5+r2()*6,h=4+r2()*5,col=cols[Math.floor(r2()*cols.length)];
+    l.style.cssText=`left:${r2()*3600}px;top:${r2()*600}px;width:${w}px;height:${h}px;background:${col};--lf:${10+r2()*8}s;--ldx:${-90+r2()*180}px;--lr0:${r2()*180}deg;--lr1:${360+r2()*360}deg;animation-delay:${-r2()*12}s`;
+    layer.appendChild(l);
+  }
+}
+
+// Fish in lake
+{
+  const lake=document.getElementById('lake');
+  let sf=29;const rf=()=>((sf=(sf*9301+49297)%233280)/233280);
+  for(let i=0;i<5;i++){
+    const f=document.createElement('div');f.className='fish';
+    f.style.cssText=`left:${80+rf()*520}px;top:${55+rf()*270}px;width:${18+rf()*16}px;--fs:${6+rf()*5}s;animation-delay:${-rf()*8}s;opacity:${.28+rf()*.22}`;
+    lake.appendChild(f);
+  }
+}
+
+// Lake sparkles
+{
+  const lake=document.getElementById('lake');
+  let ss=77;const rs=()=>((ss=(ss*9301+49297)%233280)/233280);
+  for(let i=0;i<9;i++){
+    const s=document.createElement('div');s.className='lakeSparkle';
+    s.style.cssText=`left:${40+rs()*680}px;top:${28+rs()*340}px;--ls:${2+rs()*3}s;animation-delay:${-rs()*3}s`;
+    lake.appendChild(s);
+  }
+}
+
+// Pollen (not winter)
+if(_season!=='winter'){
+  let sp=91;const rp=()=>((sp=(sp*9301+49297)%233280)/233280);
+  for(let i=0;i<36;i++){
+    const p=document.createElement('i');p.className='pollen';
+    p.style.cssText=`left:${rp()*3600}px;top:${800+rp()*1200}px;--pd:${13+rp()*10}s;--pdx:${-60+rp()*120}px;--pdy:${-90+rp()*60}px;animation-delay:${-rp()*15}s`;
+    world.appendChild(p);
+  }
+}
+
+// Enhanced Snowy — more phrases with season awareness
+{
+  const baseP=['她只是看了你一眼。','尾巴轻轻晃了一下。','她用额头轻轻碰了碰你。','Snowy 发出很小的一声呼噜。','她慢慢眨了一次眼睛。','然后她继续做自己的事。','她走过来，又走远了。','你们之间有一段不需要填满的沉默。'];
+  const seasonP={spring:['她嗅了嗅空气里的花香。','毛发里还沾着一点花瓣。'],summer:['她懒懒地伸了个懒腰。','热。她找了块阴凉趴下了。'],autumn:['她盯着一片落叶看了很久。','她蹲在那里，叶子落在她背上。'],winter:['她的爪子踩在地上几乎没有声音。','她缩着身子，眼睛却很亮。']};
+  const allP=[...baseP,...(seasonP[_season]||[])];
+  const sn=document.getElementById('snowy');
+  // replace existing onclick
+  sn.onclick=()=>{
+    sn.animate([{transform:'scale(1)',filter:'drop-shadow(0 8px 8px rgba(0,0,0,.28))'},{transform:'scale(1.1) translateY(-5px)',filter:'drop-shadow(0 15px 20px rgba(0,0,0,.4))'},{transform:'scale(1)',filter:'drop-shadow(0 8px 8px rgba(0,0,0,.28))'}],{duration:700,easing:'cubic-bezier(.2,.8,.2,1)'});
+    toast(allP[Math.floor(Math.random()*allP.length)]);
+  };
+}
+
+// Tree click shake
+document.getElementById('treeLayer').addEventListener('click',e=>{
+  const t=e.target.closest('.tree');if(!t)return;
+  t.animate([{transform:'rotate(0)'},{transform:'rotate(1.6deg)'},{transform:'rotate(-.8deg)'},{transform:'rotate(.4deg)'},{transform:'rotate(0)'}],{duration:560,easing:'ease-out'});
+  for(let i=0;i<4;i++){
+    const sp=document.createElement('div');sp.className='clickSparkle';
+    const px=parseInt(t.style.left||0)+20+Math.random()*60,py=parseInt(t.style.top||0)+10;
+    sp.style.cssText=`left:${px}px;top:${py}px`;world.appendChild(sp);
+    sp.animate([{opacity:1,transform:'translate(-50%,-50%) scale(1)'},{opacity:0,transform:`translate(${-25+Math.random()*50}px,${-20-Math.random()*35}px) scale(2.5)`}],{duration:500+i*80,easing:'ease-out',fill:'forwards'});
+    setTimeout(()=>sp.remove(),650);
+  }
+},{passive:true});
+
+// World click sparkle
+viewport.addEventListener('click',e=>{
+  if(e.target.closest('button,input,textarea,select,.zone,#lake,#snowy,#hud,#guide,#focusDock,#areaPanel,#nowhere'))return;
+  const rect=world.getBoundingClientRect(),sc=camera.scale||1;
+  const wx=(e.clientX-rect.left)/sc,wy=(e.clientY-rect.top)/sc;
+  const sp=document.createElement('div');sp.className='clickSparkle';
+  sp.style.cssText=`left:${wx}px;top:${wy}px`;world.appendChild(sp);
+  sp.animate([{opacity:.9,transform:'translate(-50%,-50%) scale(1)'},{opacity:0,transform:'translate(-50%,-50%) scale(3.5)'}],{duration:480,easing:'ease-out',fill:'forwards'});
+  setTimeout(()=>sp.remove(),520);
+},{passive:true});
+</script>
+</body>
+</html>
+
+<div id="famWidget"></div>
+<script src="../fam-widget.js" data-me="manya"></script>
+</body></html>

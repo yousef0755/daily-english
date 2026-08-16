@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mie 的学习打卡</title>
+<style>
+:root{--bg:#fdf9f3;--card:#fff;--ink:#3d3428;--sub:#9a8c78;--acc:#c07840;--ok:#3f9e57;--line:#f0e6d8}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1814;--card:#262019;--ink:#f0e8dc;--sub:#a09080;--acc:#e09858;--ok:#5cb874;--line:#3a3128}}
+*{margin:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 "PingFang SC",system-ui,sans-serif;padding:24px 16px 60px}
+.wrap{max-width:430px;margin:0 auto}
+h1{font-size:22px;margin-bottom:2px}
+.sub{color:var(--sub);font-size:13px;margin-bottom:16px}
+.stats{display:flex;gap:10px;margin-bottom:16px}
+.stat{flex:1;background:var(--card);border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.stat b{display:block;font-size:22px;color:var(--acc)}
+.stat span{font-size:12px;color:var(--sub)}
+.month{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.mtitle{font-weight:700;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.wd{text-align:center;font-size:11px;color:var(--sub)}
+.day{aspect-ratio:1;border:1.5px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;user-select:none;background:transparent;color:var(--ink)}
+.day.blank{border:none;cursor:default}
+.day.done{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:700}
+.day.today{border-color:var(--acc);border-width:2.5px}
+.day.future{opacity:.35;cursor:default}
+.tip{margin-top:16px;color:var(--sub);font-size:13px;text-align:center}
+</style>
+<script>
+/* 本机预览一律不往共用的榜上报打卡（跟别的页一致）。 */
+(function(){
+  if(!/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)
+     && location.protocol!=="file:") return;
+  var real=window.fetch;
+  window.fetch=function(u,o){
+    var s=String((u&&u.url)||u||"");
+    if(/\/fam\/(ping|import)/.test(s)){
+      console.info("[本机预览] 拦下一次打卡上报：",s);
+      return Promise.resolve(new Response('{"ok":true,"local":true}',
+        {status:200,headers:{"Content-Type":"application/json"}}));
+    }
+    return real.apply(this,arguments);
+  };
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+<h1>Mie 的学习打卡</h1>
+<div class="sub">学一天点一天，绿了就是赢 · 小林陪你</div>
+<div class="stats">
+  <div class="stat"><b id="total">0</b><span>累计打卡</span></div>
+  <div class="stat"><b id="streak">0</b><span>连续天数</span></div>
+</div>
+<div id="months"></div>
+<div class="tip">打卡记录存在你手机里，换浏览器会清零 · 坚持住，Nailed it!</div>
+</div>
+<script>
+const KEY='mie_checkin';
+let data={};
+try{data=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+const now=new Date();
+const WDS=['一','二','三','四','五','六','日'];
+function dkey(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')}
+function build(){
+  const box=document.getElementById('months');box.innerHTML='';
+  for(let off=0;off>=0;off--){
+    const y=now.getFullYear(),m=now.getMonth()-off;
+    const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate();
+    const mv=document.createElement('div');mv.className='month';
+    mv.innerHTML='<div class="mtitle">'+first.getFullYear()+'年'+(first.getMonth()+1)+'月</div>';
+    const g=document.createElement('div');g.className='grid';
+    WDS.forEach(w=>{const e=document.createElement('div');e.className='wd';e.textContent=w;g.appendChild(e)});
+    let lead=(first.getDay()+6)%7;
+    for(let i=0;i<lead;i++){const e=document.createElement('div');e.className='day blank';g.appendChild(e)}
+    for(let d=1;d<=days;d++){
+      const e=document.createElement('div');e.className='day';e.textContent=d;
+      const k=dkey(first.getFullYear(),first.getMonth(),d);
+      const dt=new Date(first.getFullYear(),first.getMonth(),d);
+      const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+      if(dt.getTime()===today.getTime())e.classList.add('today');
+      if(dt>today)e.classList.add('future');
+      if(data[k])e.classList.add('done');
+      if(dt<=today)e.onclick=()=>{data[k]=!data[k];if(!data[k])delete data[k];localStorage.setItem(KEY,JSON.stringify(data));build()};
+      g.appendChild(e);
+    }
+    mv.appendChild(g);box.appendChild(mv);
+  }
+  const keys=Object.keys(data).filter(k=>data[k]).sort();
+  document.getElementById('total').textContent=keys.length;
+  let s=0;const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  for(let i=0;;i++){
+    const d=new Date(t);d.setDate(t.getDate()-i);
+    const k=dkey(d.getFullYear(),d.getMonth(),d.getDate());
+    if(data[k])s++;else{if(i===0)continue;break}
+  }
+  document.getElementById('streak').textContent=s;
+}
+build();
+</script>
+</body>
+</html>
