@@ -337,25 +337,64 @@
           xs = xs.map(function (v) { return (v - xs[0]) / span * 100 });
         }
       }
-      var dots = ppl.map(function (o, i) {
-        var x = xs[i];
-        var mine = o.x.id === ME;
-        var ch = String(o.x.name || "?").slice(0, 1);
+      /* 老板 2026-08-16：「三个人完成了，感觉还是没有完成」。
+         原来完成的人 x=100 却被摆在 `x%*.84+14px`——停在 84% 处，
+         根本没走到线上；终点只是一行灰字，完成只有个 9px 绿点。
+         现在：右边立一道真的线，线上一顶皇冠，到了的人站上去戴金圈。 */
+      var arrived = ppl.filter(function (o) { return o.x.finished });
+      var walking = ppl.filter(function (o) { return !o.x.finished });
+      var CROWN_W = 52;                       /* 右边给皇冠留的地方 */
+
+      /* 还在路上的：按进度铺在起点到终点线之间 */
+      var moving = walking.map(function (o) {
+        var x = xs[ppl.indexOf(o)];
         return '<div title="' + esc(o.x.name) + '" style="position:absolute;' +
-          'left:calc(' + x.toFixed(1) + '% * .84 + 14px);bottom:11px;transform:translateX(-50%);' +
-          'opacity:' + (o.x.here ? '1' : '.42') + ';' +
-          'transition:left .6s cubic-bezier(.4,0,.2,1)">' +
-          avatar(o.x.id, ch, 24, mine) +
-          (o.x.finished ? '<div style="position:absolute;right:-2px;top:-2px;width:9px;height:9px;' +
-            'border-radius:50%;background:#7ed6b2;border:1.5px solid rgba(255,255,255,.8)"></div>' : '') +
+          'left:calc(14px + (100% - ' + (CROWN_W + 28) + 'px) * ' + (x / 100).toFixed(3) + ');' +
+          'bottom:13px;transform:translateX(-50%);opacity:' + (o.x.here ? '1' : '.4') + ';' +
+          'transition:left .6s cubic-bezier(.4,0,.2,1)">' + avatar(o.x.id, String(o.x.name||"?").slice(0,1), 24, o.x.id === ME) +
           '</div>';
       }).join("");
 
-      var track = '<div style="position:relative;height:42px;margin:4px 0 2px">' +
-        '<div style="position:absolute;left:12px;right:24px;bottom:7px;height:3px;border-radius:99px;' +
-        'background:linear-gradient(90deg,rgba(128,128,128,.18),rgba(126,214,178,.5))"></div>' +
-        '<div style="position:absolute;right:0;bottom:1px;font-size:.66rem;opacity:.45">终点</div>' +
-        dots + '</div>';
+      /* 到了的：挤在皇冠底下站成一排，戴金圈——这才叫"到了" */
+      var podium = arrived.map(function (o, k) {
+        var mine = o.x.id === ME;
+        return '<div title="' + esc(o.x.name) + '" style="position:relative;margin-left:' +
+          (k ? '-7px' : '0') + ';z-index:' + (10 + k) + '">' +
+          '<div style="border-radius:50%;padding:2px;background:linear-gradient(140deg,#ffd479,#ffb74d);' +
+          'box-shadow:0 0 0 1.5px rgba(11,26,44,.85)' + (mine ? ',0 0 12px rgba(255,212,121,.55)' : '') + '">' +
+          avatar(o.x.id, String(o.x.name||"?").slice(0,1), 24, mine) + '</div></div>';
+      }).join("");
+
+      var lit = arrived.length > 0;
+      var crown =
+        '<svg viewBox="0 0 40 30" width="26" height="20" aria-hidden="true" style="display:block;' +
+        (lit ? 'filter:drop-shadow(0 0 6px rgba(255,212,121,.6))' : 'opacity:.3') + '">' +
+        '<path d="M4 24 L2 8 L12 15 L20 4 L28 15 L38 8 L36 24 Z" fill="' +
+        (lit ? '#ffd479' : 'rgba(255,255,255,.35)') + '"/>' +
+        '<rect x="4" y="24" width="32" height="3.6" rx="1.6" fill="' +
+        (lit ? '#ffb74d' : 'rgba(255,255,255,.3)') + '"/></svg>';
+
+      var track =
+        '<div style="position:relative;height:' + (arrived.length ? '56px' : '46px') + ';margin:6px 0 2px">' +
+          /* 跑道 */
+          '<div style="position:absolute;left:12px;right:' + (CROWN_W + 6) + 'px;bottom:8px;height:4px;' +
+          'border-radius:99px;background:linear-gradient(90deg,rgba(255,255,255,.10),rgba(126,214,178,.55))"></div>' +
+          /* 终点线：一道竖的虚线，不是一行灰字 */
+          '<div style="position:absolute;right:' + CROWN_W + 'px;bottom:4px;width:2px;height:22px;' +
+          'background:repeating-linear-gradient(180deg,' + (lit ? '#ffd479' : 'rgba(255,255,255,.3)') +
+          ' 0 4px,transparent 4px 7px)"></div>' +
+          moving +
+          /* 皇冠 + 站上去的人 */
+          '<div style="position:absolute;right:0;bottom:2px;display:flex;flex-direction:column;' +
+          'align-items:center;gap:2px">' +
+            (arrived.length ? '<div style="display:flex;align-items:flex-end">' + podium + '</div>' : '') +
+            crown +
+          '</div>' +
+        '</div>' +
+        (arrived.length
+          ? '<div style="font-size:.76rem;color:#ffd479;margin:2px 0 0">今天 ' + arrived.length +
+            ' 个人到了终点' + (arrived.some(function(o){return o.x.id===ME}) ? '，你也在里面。' : '。') + '</div>'
+          : '<div style="font-size:.76rem;opacity:.5;margin:2px 0 0">今天还没有人到终点。</div>');
 
       /* 一句话说清自己的处境——老板要的是危机感，不是名次 */
       var byStreak = b.people.slice().sort(function (a, c) {
