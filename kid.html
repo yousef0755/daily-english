@@ -1589,16 +1589,36 @@ function ask(){
   }
   const it=list[idx];
   qb.innerHTML=(cur==="english")?'<span class="big">'+it.q+'</span>这个词是什么意思？':it.q;
+  /* 乘法口诀要能听（老板 2026-08-16：「数学乘法口诀的声音没有」）。
+     口诀是念出来记的——念「七九六十三」比看「7×9=63」管用。 */
+  if(cur==="math" && it.say){
+    const sp=document.createElement("button");
+    sp.className="rbtn inline listen"; sp.type="button";
+    sp.style.cssText="margin-top:10px";
+    sp.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" '+
+      'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+
+      '<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>'+
+      '<path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg><b>听口诀</b>';
+    sp.onclick=function(){ if(typeof speakRoster==="function") speakRoster(it.say) };
+    qb.appendChild(sp);
+  }
   ob.innerHTML="";
   const order=it.o.map((t,i)=>[t,i]).sort(()=>Math.random()-.5);
   order.forEach(([text,i])=>{
     const b=document.createElement("button");b.className="opt";b.textContent=text;
     b.onclick=()=>{
-      if(i===it.a){b.classList.add("right");score++;toast("答对了 +1 ⭐");if(cur==="english")speakRoster(it.q)}
+      if(i===it.a){b.classList.add("right");score++;toast("答对了 +1 ⭐");
+        if(cur==="english")speakRoster(it.q);
+        /* 答对也念一遍，把口诀跟答案绑在一起 */
+        if(cur==="math"&&it.say)speakRoster(it.say)}
       else{b.classList.add("wrong");
         [...ob.children].forEach((c,j)=>{if(order[j][1]===it.a)c.classList.add("right")});
         try{wrongAdd(cur,it)}catch(e){}       /* 记一笔，过两天自己回来找他 */
-        if(cur==="math"){list.splice(idx+2,0,it);toast("等下我们再做一道一样的")}
+        if(cur==="math"){
+          list.splice(idx+2,0,it);
+          /* 答错更要听——口诀念出来才记得住 */
+          if(it.say){ toast(it.say); speakRoster(it.say) } else toast("等下我们再做一道一样的");
+        }
         else toast("再看一眼正确答案")}
       [...ob.children].forEach(c=>c.onclick=null);
       setTimeout(()=>{idx++;ask()},1100);
