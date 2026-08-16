@@ -780,6 +780,18 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <h2>写过的日记</h2>
       <div id="diaryList" class="tip" style="text-align:left"></div>
     </div>
+
+  <!-- 星星老师（老板 2026-08-16）：六门做完，考一考今天真背会了没 -->
+  <div class="card" id="examBox" style="display:none">
+    <h2 style="display:flex;align-items:center;gap:9px">
+      <span style="width:30px;height:30px;border-radius:50%;background:var(--gold);
+        color:#20130a;display:flex;align-items:center;justify-content:center;
+        font-size:1rem;font-weight:800">星</span>星星老师</h2>
+    <div class="tip" id="examIntro" style="text-align:left;margin:0 0 12px"></div>
+    <div id="examBody"></div>
+    <button class="main" id="examStart">开始考</button>
+    <div class="tip" id="examTip" style="margin-top:9px"></div>
+  </div>
   </section>
 
   <section class="page" id="p-reward">
@@ -2198,6 +2210,7 @@ function renderDiary(){
   document.getElementById("diaryDone").textContent=doneToday?"今天的日记已经写好啦 ✓":"";
   try{ renderCatSay() }catch(e){}
   try{ renderWish() }catch(e){}
+  try{ renderExam() }catch(e){}
 }
 
 document.getElementById("saveDiary").onclick=function(){
@@ -3749,6 +3762,130 @@ function renderWish(){
     try{ localStorage.setItem("wishQueue",JSON.stringify(left)) }catch(e){}
   })();
 })();
+
+/* ═══ 星星老师（老板 2026-08-16：「每天学完考他一下，看看他学会了没」）═══
+   「已背会」是他自己点的，没人验就等于没有。这一关给那个按钮加牙齿。
+
+   四条规矩：
+   · 题目只从**他今天点过已背会**的内容里出——考没学过的没意义
+   · 选择题，能客观判对错（我把录音撤了，让他自己说"会了"就回到原点了）
+   · 答错的那句**退回还没背会**，明天接着背。没后果的考试是装饰
+   · 但**不扣星星**。错了已经够难受，再罚他就不想考了 */
+function examPool(){
+  D.beihui=D.beihui||{};
+  const pre=todayKey()+"_bh_", out=[];
+  for(const k in D.beihui){
+    if(k.indexOf(pre)!==0) continue;
+    const rest=k.slice(pre.length).split("_");
+    const li=parseInt(rest.pop(),10), idx=parseInt(rest.pop(),10), sub=rest.join("_");
+    const pack=RECITE[sub]; if(!pack) continue;
+    const item=pack.list[idx]; if(!item) continue;
+    const ln=(item.lines||[])[li]; if(ln==null) continue;
+    if(typeof ln==="object"){
+      if(ln.ar && ln.zh) out.push({sub:sub,idx:idx,li:li,q:ln.zh,a:ln.ar,kind:"ar"});
+    }else{
+      const t=String(ln);
+      if(t.indexOf("—")>0){
+        const en=t.split("—")[0].trim(), zh=t.split("—")[1].trim();
+        out.push({sub:sub,idx:idx,li:li,q:zh,a:en,kind:"en"});
+      }else if(item.mean && item.mean[li]){
+        out.push({sub:sub,idx:idx,li:li,q:item.mean[li],a:t,kind:"poem"});
+      }
+    }
+  }
+  return out;
+}
+/* 干扰项从同一门里取，不瞎编——他真会了才分得出来 */
+function examDistract(pool, right, sub){
+  const all=[];
+  const pack=RECITE[sub];
+  if(pack) pack.list.forEach(function(it){
+    (it.lines||[]).forEach(function(ln,li){
+      const v=(typeof ln==="object")?ln.ar:String(ln).split("—")[0].trim();
+      if(v && v!==right) all.push(v);
+    });
+  });
+  const out=[];
+  while(out.length<3 && all.length){
+    const j=Math.floor(Math.random()*all.length);
+    const v=all.splice(j,1)[0];
+    if(out.indexOf(v)<0) out.push(v);
+  }
+  return out;
+}
+let examQs=[], examAt=0, examWrong=[];
+function renderExam(){
+  const box=document.getElementById("examBox"); if(!box)return;
+  const allDone=(typeof diaryUnlocked==="function") && diaryUnlocked();
+  D.examDone=D.examDone||{};
+  const done=D.examDone[todayKey()];
+  const pool=examPool();
+  box.style.display=(allDone && pool.length>=2)?"block":"none";
+  const intro=document.getElementById("examIntro");
+  const btn=document.getElementById("examStart");
+  if(done){
+    intro.innerHTML="今天考过了：<b>"+done.right+" / "+done.total+"</b> 对。"+
+      (done.right===done.total?"全对，厉害。":"错的那几句我放回去了，明天再背一遍。");
+    btn.style.display="none";
+    document.getElementById("examBody").innerHTML="";
+  }else{
+    intro.textContent="今天你点了 "+pool.length+" 句「已背会」。我抽几句问问你，看是不是真会了。";
+    btn.style.display="";
+  }
+}
+document.getElementById("examStart")&&(document.getElementById("examStart").onclick=function(){
+  const pool=examPool();
+  /* 最多问 5 句，别把他考累 */
+  examQs=pool.sort(function(){return Math.random()-.5}).slice(0,Math.min(5,pool.length));
+  examAt=0; examWrong=[];
+  this.style.display="none";
+  nextExamQ();
+});
+function nextExamQ(){
+  const body=document.getElementById("examBody");
+  const tip=document.getElementById("examTip");
+  if(examAt>=examQs.length){
+    const right=examQs.length-examWrong.length;
+    D.examDone=D.examDone||{};
+    D.examDone[todayKey()]={right:right,total:examQs.length};
+    /* 错的退回「还没背会」——明天还得背。但不扣星星 */
+    examWrong.forEach(function(q){ bhSet(q.sub,q.idx,q.li,false) });
+    if(right===examQs.length){ addStar(3); }
+    save();
+    body.innerHTML="";
+    tip.innerHTML = right===examQs.length
+      ? "<b>全对。</b>今天这几句是真会了，+3 ⭐"
+      : "对了 <b>"+right+"/"+examQs.length+"</b>。错的那 "+examWrong.length+
+        " 句我放回去了，明天再背一遍就好——不扣星星。";
+    if(typeof catSay==="function"){
+      catSay("Snowy", right===examQs.length?"我看见了，你是真会了。":"错几句没什么，明天再来。");
+    }
+    setTimeout(renderExam,2200);
+    return;
+  }
+  const q=examQs[examAt];
+  const opts=examDistract(examQs,q.a,q.sub).concat([q.a]).sort(function(){return Math.random()-.5});
+  const rtl=(q.kind==="ar")?'direction:rtl;text-align:right;font-size:1.25rem;':'';
+  body.innerHTML='<div class="tip" style="text-align:left;margin:0 0 6px">第 '+
+    (examAt+1)+' / '+examQs.length+' 题</div>'+
+    '<div style="font-size:1.05rem;line-height:1.9;margin-bottom:12px">'+
+      String(q.q).replace(/</g,"&lt;")+'</div>'+
+    opts.map(function(o,i){
+      return '<button class="main ghost examopt" data-i="'+i+'" style="width:100%;'+
+        'text-align:left;margin-bottom:8px;'+rtl+'">'+String(o).replace(/</g,"&lt;")+'</button>';
+    }).join("");
+  [].forEach.call(body.querySelectorAll(".examopt"), function(b){
+    b.onclick=function(){
+      const ok=(b.textContent.trim()===String(q.a).trim());
+      if(!ok) examWrong.push(q);
+      b.style.borderColor = ok ? "var(--mint,#7ed6b2)" : "#c0392b";
+      document.getElementById("examTip").textContent = ok ? "对了" : ("这句是：" + q.a);
+      [].forEach.call(body.querySelectorAll(".examopt"), function(x){ x.disabled=true });
+      examAt++;
+      setTimeout(function(){ document.getElementById("examTip").textContent=""; nextExamQ() }, ok?900:2200);
+    };
+  });
+}
 </script>
 <script src="./shared/fam-widget.js?v=9bd196e0" data-me="boyuan"></script>
 </body>
