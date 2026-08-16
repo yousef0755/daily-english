@@ -770,7 +770,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
       <div id="rLines" style="margin:10px 0"></div>
       <div class="tip" id="rTip" style="text-align:left;color:var(--muted)"></div>
       <div style="display:flex;gap:8px;margin-top:14px">
-        <button class="main" id="rHide" style="flex:1">遮住背一遍</button>
+        <button class="main" id="rHide" style="flex:1">这一课我完成了</button>
         
       </div>
       <div class="tip" id="rProg" style="margin-top:8px"></div>
@@ -2177,7 +2177,7 @@ function openRecite(sub){
   if(sub==="idiom"){
     const today=idiomToday(), left=idiomLeft();
     if(today.indexOf(rIdx)<0) rIdx = left.length ? left[0] : today[0];
-    else if(readGot("idiom",rIdx,0)>=READ_GOAL && left.length) rIdx=left[0];
+    else if(idiomLeft().indexOf(rIdx)<0 && left.length) rIdx=left[0];
   }
   document.getElementById("quizCard").style.display="none";
   document.getElementById("reciteCard").style.display="block";
@@ -2391,7 +2391,14 @@ function renderRecite(){
   document.getElementById("rTip").textContent="💡 "+item.tip;
   const done=(D.reciteDone||{})[todayKey()+"_"+rSub+"_"+rIdx]||0;
   document.getElementById("rProg").textContent=done>=3?"这一段今天背对 3 遍了 ✓ 很棒！":("今天背对了 "+done+" / 3 遍");
-  document.getElementById("rHide").textContent=rHidden?"显示出来":"遮住";
+  /* 老板 2026-08-16：「把遮住换成已完成」——这个钮从"遮住背一遍"
+     改成一门课的打卡钮。按了这门就算过，他自己看得见哪门还没打。 */
+  (function(){
+    const hb=document.getElementById("rHide"); if(!hb)return;
+    const on=(D.subDone||{})[todayKey()+"_"+rSub];
+    hb.textContent = on ? "今天这一课已完成 ✓" : "这一课我完成了";
+    hb.classList.toggle("ghost", !!on);
+  })();
   /* 相关圣训：每条标出处，编号只作索引，集子名为准 */
   if(window.__pendingHadith){
     const hw=document.createElement("div");
@@ -2532,16 +2539,74 @@ const DIARY_TOPICS=["今天最开心的一件事是什么？","今天学会了�
 /* 六门（老板：每天要打卡6个课程，那6个学完小猫才可以吃到饭） */
 const DIARY_SUBS=[["poem","语文古诗"],["idiom","成语"],["arabic","阿拉伯语"],
                   ["quran","古兰经"],["english","英语单词"],["math","数学"]];
+/* 一门今天算不算学完。
+
+   老板 2026-08-16 把「念十遍」全去掉、换成已背会/造句之后，
+   这个函数一直没跟着改，还在查 reciteDone>=3 ——
+   于是他按新方式学完了六门，这里还说没学完，
+   猫不走、日记不开、心愿墙不出、星星老师的框也不显示。
+
+   现在按各门自己的新规矩判，外加一个他自己按的「已完成」打卡钮。
+   老数据（reciteDone）留着兜底，从旧版本过来的人不会掉进度。 */
+function bhLessonDone(sub){
+  const pack=(typeof RECITE!=="undefined") && RECITE[sub];
+  if(!pack||!pack.list) return false;
+  const idx=((D.recitePos||{})[sub])|0;
+  const item=pack.list[idx];
+  if(!item||!item.lines||!item.lines.length) return false;
+  return item.lines.every(function(_,li){ return bhGot(sub, idx, li) });
+}
 function subDoneToday(sub){
-  if(sub==="math"){ return ((D.mathDone||{})[todayKey()]===1) }
-  const rd=D.reciteDone||{}, pre=todayKey()+"_"+sub+"_";
-  /* 成语一天三个，三个都念够才算这门过——不然他念完第一个就打勾，
-     剩下两个白摆（老板 2026-08-15：「成语，一天3个吧」）。 */
+  const tk=todayKey();
+  /* 他自己按的「已完成」——老板 8-16：「把遮住换成已完成，
+     这样就证明他这个课已完成，也说明这个课打卡完成了」 */
+  if((D.subDone||{})[tk+"_"+sub]) return true;
+
+  if(sub==="math"){ return ((D.mathDone||{})[tk]===1) }
+
+  /* 成语：每个成语造一句话就算过（老板 8-16），至少四个字 */
   if(sub==="idiom" && typeof idiomToday==="function"){
-    return idiomToday().every(function(k){ return (rd[pre+k]||0)>=3 });
+    const t=idiomToday();
+    if(t.length && t.every(function(k){
+      return ((typeof idGot==="function"? idGot(k) : "")||"").trim().length>=4 })) return true;
   }
+  /* 古诗 / 古兰经：今天标够两句已背会 */
+  if((sub==="poem"||sub==="quran") && typeof bhCheckDay==="function"){
+    if(bhCheckDay(sub)) return true;
+  }
+  /* 阿语 / 英语：这一课的句子全标了已背会 */
+  if((sub==="arabic"||sub==="english") && bhLessonDone(sub)) return true;
+
+  /* 兜底：念十遍时代留下的记录仍然算数 */
+  const rd=D.reciteDone||{}, pre=tk+"_"+sub+"_";
   for(const k in rd){ if(k.indexOf(pre)===0 && rd[k]>=3) return true }
   return false;
+}
+/* 一门差什么，用人话说出来。老板 8-16：「看下现在卡在那个课上？」
+   与其他问我，不如让页面自己说清楚。 */
+function subMissing(sub){
+  if(subDoneToday(sub)) return "";
+  if(sub==="math") return "做一组乘法口诀";
+  if(sub==="idiom" && typeof idiomToday==="function"){
+    const left=idiomToday().filter(function(k){
+      return ((typeof idGot==="function"? idGot(k):"")||"").trim().length<4 }).length;
+    return left ? ("还差 "+left+" 个成语没造句") : "造句";
+  }
+  if(sub==="poem"||sub==="quran"){
+    const n=(sub==="poem" && typeof poemMarkedToday==="function") ? poemMarkedToday()
+          : ((typeof quranToday==="function")
+              ? quranToday().filter(function(x){return bhGot("quran",x.idx,x.li)}).length : 0);
+    return "今天背会两句（已经 "+n+" 句）";
+  }
+  const pack=(typeof RECITE!=="undefined") && RECITE[sub];
+  if(pack&&pack.list){
+    const idx=((D.recitePos||{})[sub])|0, item=pack.list[idx];
+    if(item&&item.lines){
+      const left=item.lines.filter(function(_,li){ return !bhGot(sub,idx,li) }).length;
+      if(left) return "还差 "+left+" 句没标已背会";
+    }
+  }
+  return "点一下下面的「已完成」";
 }
 function diaryUnlocked(){ return DIARY_SUBS.every(x=>subDoneToday(x[0])) }
 function renderGate(){
@@ -2571,7 +2636,7 @@ function renderGate(){
            'color:'+(ok?'var(--mint)':'var(--muted)')+'">'+
            '<span style="width:18px">'+(ok?'✓':'○')+'</span>'+x[1]+
            (ok?'':'<span style="margin-left:auto;font-size:.78rem;opacity:.85">'+
-                 gateHint(x[0])+'</span>')+'</div>';
+                 subMissing(x[0])+'</span>')+'</div>';
   }).join("");
   const open=diaryUnlocked();
   g.innerHTML='<div style="background:rgba(0,0,0,.18);border:1px solid var(--line);'+
@@ -2639,7 +2704,20 @@ document.getElementById("saveDiary").onclick=function(){
 document.getElementById("newPrompt").onclick=function(){
   D.diaryTopic=DIARY_TOPICS[Math.floor(Math.random()*DIARY_TOPICS.length)];save();renderDiary();
 };
-document.getElementById("rHide").onclick=function(){rHidden=!rHidden;renderRecite()};
+document.getElementById("rHide").onclick=function(){
+  /* 打卡。按错了再按一下可以取消——十岁小孩手滑很正常，不能一按定死。 */
+  const tk=todayKey(), k=tk+"_"+rSub;
+  D.subDone=D.subDone||{};
+  if(D.subDone[k]){ delete D.subDone[k]; toast("取消了，这一课算没完成") }
+  else { D.subDone[k]=1; toast("这一课打卡了") }
+  save();
+  renderRecite();
+  /* 这一下要把所有靠它的东西都推一遍：猫、日记、心愿墙、星星老师、家庭榜 */
+  ["render","renderWalk","renderGate","renderExam","renderTeach","renderWish",
+   "renderRank","famPing"].forEach(function(f){
+    try{ if(typeof window[f]==="function") window[f]() }catch(e){}
+  });
+};
 /* rDone（当初那个「按住背给爸爸听」）在改成念十遍时就删掉了，
    这段挂在它身上的代码是死的，而且每次加载都抛 TypeError、
    把后面的初始化整个中断。2026-08-16 摘除。 */
@@ -2721,7 +2799,9 @@ function quranToday(){
 function quranAdvance(){
   const today=quranToday();
   if(!today.length) return false;
-  const done = today.every(function(x){ return readGot("quran", x.idx, x.li) >= READ_GOAL });
+  /* 老板 8-16 拆掉念十遍之后，这里还在等 readGot>=10——那个数字永远是 0，
+     指针一步都挪不动，他明天打开还是今天这两句。改成看「已背会」。 */
+  const done = today.every(function(x){ return bhGot("quran", x.idx, x.li) });
   if(done){
     D.quranPos = quranPos() + quranPerDay();
     save();
@@ -3792,52 +3872,11 @@ function finishRecite(){
    老板 2026-08-15：「最下面显示一个是显示，遮住。旁边的在弄一个按键显示朗读10遍」
    点它会跳到下一句还没念够的，省得他自己找。 */
 function renderReadFoot(){
-  /* 老板 2026-08-16 去掉念十遍之后，这条横杠改成显示"今天背会几句"。
-     函数留着是因为它还管着「遮住/显示」那半边。 */
-  const host=document.getElementById("rHide");
-  if(!host||!host.parentNode)return;
-  let btn=document.getElementById("readFoot");
-  if(!btn){
-    /* 老板 2026-08-15：「你看下如何设计才更好看」——
-       原来这一排里还留着一个空的 div 占着半行，两个钮全挤在左边。
-       改成一条完整的横杠：左边遮住/显示，右边朗读进度，中间一条细线分开。 */
-    host.parentNode.classList.add("recbar");
-    btn=document.createElement("button");
-    btn.id="readFoot"; btn.className="readfoot";
-    btn.type="button";
-    btn.innerHTML='<span class="rf-t">今天进度</span>'+
-                  '<span class="rf-bar"><i></i></span>'+
-                  '<span class="rf-n"></span>';
-    host.parentNode.insertBefore(btn, host.nextSibling);
-    btn.onclick=function(){
-      const item=(RECITE[rSub]&&RECITE[rSub].list[rIdx])||{lines:[]};
-      for(let i=0;i<item.lines.length;i++){
-        if(readGot(rSub,rIdx,i)<READ_GOAL){
-          const row=document.getElementById("rd_"+rSub+"_"+rIdx+"_"+i);
-          if(row){ row.scrollIntoView({block:"center",behavior:"smooth"});
-                   row.classList.add("flash");
-                   setTimeout(function(){row.classList.remove("flash")},1400) }
-          return;
-        }
-      }
-      toast("这一段每句都念够十遍了");
-    };
-  }
-  const item=(RECITE[rSub]&&RECITE[rSub].list[rIdx])||{lines:[]};
-  let got=0, need=0;
-  if(rSub==="idiom"){ need=READ_GOAL; got=Math.min(READ_GOAL, readGot(rSub,rIdx,0)) }
-  else item.lines.forEach(function(_,i){ need+=READ_GOAL; got+=Math.min(READ_GOAL, readGot(rSub,rIdx,i)) });
-  const pct = need? Math.round(got/need*100) : 0;
-  const bar=btn.querySelector(".rf-bar i"), num=btn.querySelector(".rf-n");
-  if(bar)bar.style.width=pct+"%";
-  if(num)num.textContent=got+" / "+need;
-  btn.classList.toggle("full", need>0 && got>=need);
+  /* 念十遍那条进度杠。老板 2026-08-16 把读十遍去掉了，这条就成了
+     一句谎话（还写着"每句都念够十遍了"）。留个空壳把旧节点清掉。 */
+  const old=document.getElementById("readFoot");
+  if(old&&old.parentNode) old.parentNode.removeChild(old);
 }
-
-/* ═══ 听 / 录 一对按钮（老板 2026-08-15：「一个是听，一个是录，按键小点协调一点」）═══
-   两个键同样大小、同样圆角，一个喇叭一个麦克风。
-   录音键：**点一下开始，静下来自己停**——老板说「不需要一直按住不放」。 */
-const MIC_SVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>';
 function readBtnFace(btn,n){
   if(n>=READ_GOAL){ btn.innerHTML=MIC_SVG+'<b>够了</b>'; btn.classList.add("done") }
   else { btn.innerHTML=MIC_SVG+'<b>'+n+'/'+READ_GOAL+'</b>'; btn.classList.remove("done") }
@@ -3853,7 +3892,7 @@ function wireRead(btn, getText, sub, idx, li, onOk){
   btn.addEventListener("click", function(ev){
     ev.preventDefault();
     if(rdOn){ if(rdBtn===btn) readFinish(); return }
-    if(readGot(sub,idx,li)>=READ_GOAL){ toast("这句已经念够十遍了"); return }
+    /* 念十遍拆了，这条拦截跟着去掉——不然它永远不触发，留着只会让人误会 */
     readStart(btn, getText(), sub, idx, li, onOk);
   });
 }
@@ -3882,9 +3921,11 @@ function idiomToday(){
 }
 /* 今天这三个里，还有哪个没念够 */
 function idiomLeft(){
+  /* 老板 8-16：「成语里面让他每个成语造一句话就算过」。
+     原来这里数的是"念够十遍没有"，念十遍拆了以后这个数永远是 0，
+     于是三个成语永远都算没做，翻页老把他甩回第一个。 */
   return idiomToday().filter(function(k){
-    const it=RECITE.idiom.list[k];
-    return readGot("idiom",k,0) < READ_GOAL;
+    return ((typeof idGot==="function"? idGot(k) : "")||"").trim().length<4;
   });
 }
 
@@ -4347,6 +4388,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=e7225cf9" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=397e6e22" data-me="boyuan"></script>
 </body>
 </html>
