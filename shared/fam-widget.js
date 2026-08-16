@@ -221,81 +221,81 @@
      只按「来没来 + 连着几天」排，**不按学了多少**。
      这是老板早就定下的规矩：按数量比，博远看一眼就不干了。 */
   function medal(i) { return ["①", "②", "③", "④", "⑤", "⑥"][i] || (i + 1) }
+
+  /* 今天走了多少（跟一家人那页同一个算法）：
+     完成了就满格，没完成取「时长」和「门数」里走得远的那个。 */
+  function pctOf(x) {
+    if (x.finished) return 100;
+    return Math.min(100, Math.round(Math.max(
+      (x.mins || 0) / (x.goal || 15),
+      (x.total ? (x.done || 0) / x.total : 0)) * 100));
+  }
+
   async function loadRank() {
     try {
       var r = await fetch(API + "/fam/board"), b = await r.json();
-      var p = await fetch(API + "/fam/pairs"), pr = await p.json();
       var box = el("fwRank");
       if (!b || !b.people) return;
 
-      var solo = b.people.slice().sort(function (a, c) {
-        return (c.streak || 0) - (a.streak || 0) ||
-               ((c.here ? 1 : 0) - (a.here ? 1 : 0));
-      });
-      var me = solo.findIndex(function (x) { return x.id === ME });
-      var rows = solo.map(function (x, i) {
-        var mine = x.id === ME;
-        /* 进度跟一家人那页同一个算法：完成了就满格，
-           没完成取「时长」和「门数」里走得远的那个。 */
-        var pct = x.finished ? 100 : Math.min(100, Math.round(Math.max(
-          (x.mins || 0) / (x.goal || 15),
-          (x.total ? (x.done || 0) / x.total : 0)) * 100));
-        return '<div style="display:grid;grid-template-columns:1.3em 3.6em 1fr 2.6em;' +
-          'align-items:center;gap:7px;padding:2px 0;' + (mine ? 'font-weight:800' : 'opacity:.82') + '">' +
-          '<span style="opacity:.6">' + medal(i) + '</span>' +
-          '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
-            esc(x.name) + '</span>' +
-          '<span style="height:7px;border-radius:99px;background:rgba(128,128,128,.22);' +
-            'overflow:hidden;display:block"><i style="display:block;height:100%;width:' + pct + '%;' +
-            'border-radius:99px;background:' + (x.finished ? '#7ed6b2' : 'currentColor') + ';' +
-            'opacity:' + (x.here ? '1' : '.35') + '"></i></span>' +
-          '<span style="text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap">' +
-            (x.streak || 0) + '天</span></div>';
+      /* ── 一条跑道，六个人都在上面（老板：「你追我赶的效果」）──
+         按今天的进度站位置。名字挤在一起的时候上下错开，别糊成一团。 */
+      var ppl = b.people.map(function (x) { return { x: x, p: pctOf(x) } })
+                        .sort(function (a, c) { return a.p - c.p });
+      var lastP = -99, lane = 0;
+      var dots = ppl.map(function (o) {
+        /* 位置太近就换一层，避免叠在一起看不清 */
+        /* 挨太近就换一层。四层错开，起点上挤着好几个人也不会糊。 */
+        lane = (o.p - lastP < 18) ? (lane + 1) % 4 : 0;
+        lastP = o.p;
+        var mine = o.x.id === ME;
+        var left = 'calc(' + o.p + '% * .88 + 6px)';
+        return '<div style="position:absolute;left:' + left + ';bottom:' + (10 + lane * 19) + 'px;' +
+          'transform:translateX(-50%);text-align:center;white-space:nowrap;' +
+          'transition:left .6s cubic-bezier(.4,0,.2,1)">' +
+          '<div style="font-size:.66rem;line-height:1.15;padding:0 2px;' +
+            (mine ? 'font-weight:800' : 'opacity:.72') + '">' + esc(o.x.name) + '</div>' +
+          '<div style="width:9px;height:9px;margin:2px auto 0;border-radius:50%;' +
+            'background:' + (o.x.finished ? '#7ed6b2' : (o.x.here ? 'currentColor' : 'rgba(128,128,128,.4)')) + ';' +
+            (mine ? 'box-shadow:0 0 0 3px rgba(126,214,178,.35)' : '') + '"></div></div>';
       }).join("");
 
-      /* 危机感：差一天就被谁追上/能超过谁 */
-      var warn = "";
+      var track = '<div style="position:relative;height:' + (10 + 3 * 18 + 18) + 'px;margin:2px 0 4px">' +
+        '<div style="position:absolute;left:6px;right:6px;bottom:6px;height:3px;border-radius:99px;' +
+        'background:linear-gradient(90deg,rgba(128,128,128,.18),rgba(126,214,178,.5))"></div>' +
+        '<div style="position:absolute;right:2px;bottom:1px;font-size:.7rem;opacity:.5">终点</div>' +
+        dots + '</div>';
+
+      /* 一句话说清自己的处境——老板要的是危机感，不是名次 */
+      var byStreak = b.people.slice().sort(function (a, c) {
+        return (c.streak || 0) - (a.streak || 0) });
+      var me = byStreak.findIndex(function (x) { return x.id === ME });
+      var line = "";
       if (me >= 0) {
-        var mineRow = solo[me], up = solo[me - 1], down = solo[me + 1];
-        if (up) {
-          var gap = (up.streak || 0) - (mineRow.streak || 0);
-          warn += '再连 ' + (gap + 1) + ' 天就能超过 ' + esc(up.name) + '。';
-        }
-        if (down && (mineRow.streak || 0) - (down.streak || 0) <= 1) {
-          warn += (warn ? ' ' : '') + esc(down.name) + ' 就在你后面，今天不来就被超过了。';
-        }
-        if (!mineRow.here) warn += (warn ? ' ' : '') + '你今天还没来。';
+        var mineRow = byStreak[me], up = byStreak[me - 1], down = byStreak[me + 1];
+        if (!mineRow.here) line = "今天你还没来。";
+        else if (up) line = "再连 " + ((up.streak || 0) - (mineRow.streak || 0) + 1) +
+                            " 天就超过" + up.name + "。";
+        else line = "你连着 " + (mineRow.streak || 0) + " 天，全家最久。";
+        if (down && (mineRow.streak || 0) - (down.streak || 0) <= 1)
+          line += down.name + "就在你后面。";
       }
 
-      var pairRows = "";
-      if (pr && pr.pairs && pr.pairs.length) {
-        /* weekDays = 两个人都来了的天数。days 是七天的明细，不是数字。 */
-        var ps = pr.pairs.slice().sort(function (a, c) {
-          return (c.weekDays || 0) - (a.weekDays || 0) });
-        pairRows = '<div style="margin-top:10px;font-weight:700;opacity:.85">搭子榜</div>' +
-          ps.map(function (x, i) {
-            var mine = x.a === ME || x.b === ME;
-            var w = Math.min(100, Math.round((x.weekDays || 0) / 7 * 100));
-            return '<div style="display:grid;grid-template-columns:1.3em 1fr 2.6em;' +
-              'align-items:center;gap:7px;padding:2px 0;' +
-              (mine ? 'font-weight:800' : 'opacity:.82') + '">' +
-              '<span style="opacity:.6">' + medal(i) + '</span>' +
-              '<span style="display:flex;align-items:center;gap:7px;min-width:0">' +
-                '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto">' +
-                esc(x.aName) + '+' + esc(x.bName) + '</span>' +
-                '<span style="flex:1;height:7px;border-radius:99px;background:rgba(128,128,128,.22);' +
-                'overflow:hidden"><i style="display:block;height:100%;width:' + w + '%;' +
-                'border-radius:99px;background:currentColor"></i></span></span>' +
-              '<span style="text-align:right;font-variant-numeric:tabular-nums">' +
-                (x.weekDays || 0) + '天</span></div>';
-          }).join("");
-      }
+      /* 明细收进折叠，想看再点 */
+      var detail = byStreak.map(function (x, i) {
+        return '<div style="display:grid;grid-template-columns:1.2em 1fr 3.4em;gap:6px;' +
+          'padding:1px 0;font-size:.85rem;' + (x.id === ME ? 'font-weight:800' : 'opacity:.75') + '">' +
+          '<span style="opacity:.55">' + medal(i) + '</span><span>' + esc(x.name) + '</span>' +
+          '<span style="text-align:right;font-variant-numeric:tabular-nums">' +
+          (x.streak || 0) + '天</span></div>';
+      }).join("");
 
       box.style.display = "";
-      box.innerHTML = '<div style="font-weight:700;margin-bottom:6px;opacity:.85">一家人排行</div>' +
-        rows + pairRows +
-        (warn ? '<div style="margin-top:8px;padding:7px 10px;border-radius:9px;' +
-          'border:1px dashed rgba(128,128,128,.45);font-size:.88rem">' + warn + '</div>' : "");
+      box.innerHTML =
+        '<div style="font-weight:700;opacity:.85">一家人今天</div>' +
+        '<div style="font-size:.82rem;opacity:.7;margin:1px 0 2px">' + esc(line) + '</div>' +
+        track +
+        '<details style="font-size:.85rem"><summary style="cursor:pointer;opacity:.6;' +
+          'font-size:.8rem">连着几天</summary><div style="margin-top:5px">' + detail + '</div></details>';
     } catch (e) {}
   }
 
