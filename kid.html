@@ -2219,7 +2219,7 @@ function tLive(){
 function tPcm(buf){
   tPlaying=true; clearTimeout(window.__tpT);
   window.__tpT=setTimeout(function(){tPlaying=false},700);
-  if(!tPlay)return;glow("0 0 46px rgba(255,212,121,.95)");tsay("老师在说话（可以打断她）");
+  if(!tPlay)return;glow("0 0 46px rgba(255,212,121,.95)");tsay((typeof todayCat==="function"?todayCat().name:"它")+"在说话（想插嘴就插）");
   var i16=new Int16Array(buf),f32=new Float32Array(i16.length);
   for(var i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
   var ab=tPlay.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
@@ -4588,6 +4588,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=ec4a6a65" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=236a5ae2" data-me="boyuan"></script>
 </body>
 </html>
