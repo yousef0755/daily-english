@@ -2197,12 +2197,32 @@ function subDoneToday(sub){
 function diaryUnlocked(){ return DIARY_SUBS.every(x=>subDoneToday(x[0])) }
 function renderGate(){
   const g=document.getElementById("diaryGate"); if(!g)return;
+  /* 每门的提示按各自的新规矩说，还要说清**还差什么**。
+     老板 2026-08-16 发截图指出来的：这里原来一律写「还没背够 3 遍」，
+     那是念十遍时代的话，现在六门规矩各不相同，数学更是压根不用背。
+     孩子看着"还没背够3遍"，不知道到底该干嘛。 */
+  function gateHint(sub){
+    if(sub==="math") return "做一组乘法口诀";
+    if(sub==="idiom"){
+      const t=(typeof idiomToday==="function")?idiomToday():[];
+      const left=t.filter(function(k){ return ((typeof idGot==="function"?idGot(k):"")||"").trim().length<4 }).length;
+      return left ? ("还差 "+left+" 个成语没造句") : "造句";
+    }
+    if(sub==="poem"||sub==="quran"){
+      const n=(sub==="poem" && typeof poemMarkedToday==="function") ? poemMarkedToday()
+            : (typeof quranToday==="function"
+                ? quranToday().filter(function(x){ return bhGot("quran",x.idx,x.li) }).length : 0);
+      return "今天背会两句（已经 "+n+" 句）";
+    }
+    return "把这一课标成已背会";
+  }
   const rows=DIARY_SUBS.map(function(x){
     const ok=subDoneToday(x[0]);
     return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.92rem;'+
            'color:'+(ok?'var(--mint)':'var(--muted)')+'">'+
            '<span style="width:18px">'+(ok?'✓':'○')+'</span>'+x[1]+
-           (ok?'':'<span style="margin-left:auto;font-size:.78rem">还没背够 3 遍</span>')+'</div>';
+           (ok?'':'<span style="margin-left:auto;font-size:.78rem;opacity:.85">'+
+                 gateHint(x[0])+'</span>')+'</div>';
   }).join("");
   const open=diaryUnlocked();
   g.innerHTML='<div style="background:rgba(0,0,0,.18);border:1px solid var(--line);'+
@@ -3730,10 +3750,12 @@ const WISHES=[
 let wishPick=null;
 function renderWish(){
   const box=document.getElementById("wishBox"); if(!box)return;
-  /* 跟猫咪留言那块同一个条件：全学完 + 日记写完 */
+  /* 老板 2026-08-16：「完成一天的课程的给猫咪的心愿」——
+     课程做完就出来，不再要求日记也写完。
+     日记本身已经卡在课程后面了，再卡一道纯属多余：
+     他哪天不想写日记，就永远见不到心愿墙。 */
   const allDone=(typeof diaryUnlocked==="function") && diaryUnlocked();
-  const diaryDone=(D.diaries||[]).some(function(x){return x.d===todayKey()});
-  box.style.display=(allDone&&diaryDone)?"block":"none";
+  box.style.display=allDone?"block":"none";
   const host=document.getElementById("wishBtns");
   if(host && !host.children.length){
     WISHES.forEach(function(w){
