@@ -615,7 +615,7 @@ nav button.on span{filter:none;transform:translateY(-1px)}
   };
 })();
 </script>
-<script>window.__BUILD__="328c70c8dd"</script>
+<script>window.__BUILD__="48e28c3718"</script>
 </head>
 <body>
 
@@ -2147,9 +2147,7 @@ function tConn(){
   var model=TMODELS[tIdx];
   /* 钥匙在 Cloudflare 那边，页面上一个字都没有——
      这页在 GitHub Pages 上是公开的，钥匙写进来等于送人。 */
-  tws=new WebSocket(tKey
-    ? ("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+tKey)
-    : TPROXY);
+  tws=new WebSocket(TPROXY);   /* 一律走中转，旧钥匙不再用 */
   var ready=false;
   tws.onopen=function(){
     var tcat=todayCat();
@@ -4616,6 +4614,6 @@ function nextExamQ(){
   });
 }
 </script>
-<script src="./shared/fam-widget.js?v=328c70c8" data-me="boyuan"></script>
+<script src="./shared/fam-widget.js?v=48e28c37" data-me="boyuan"></script>
 </body>
 </html>

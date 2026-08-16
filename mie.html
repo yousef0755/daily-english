@@ -397,7 +397,7 @@ footer a{color:var(--indigo)}
   };
 })();
 </script>
-<script>window.__BUILD__="328c70c8dd"</script>
+<script>window.__BUILD__="48e28c3718"</script>
 </head>
 <body>
 
@@ -936,9 +936,7 @@ function conn(){
   const model=MODELS[idx];
   var MPROXY="wss://su-family.yousef-abud.workers.dev/kid/live";
   /* 钥匙在 Cloudflare 那边，页面上一个字都没有——这页是公开的。 */
-  ws=new WebSocket(mKey
-    ? ("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+mKey)
-    : MPROXY);
+  ws=new WebSocket(MPROXY);   /* 一律走中转，旧钥匙不再用 */
   let ready=false;
   ws.onopen=function(){
     const t=TOPICS.find(x=>x.k===S.topic)||TOPICS[TOPICS.length-1];
@@ -988,7 +986,18 @@ function conn(){
   };
   ws.onclose=function(e){
     if(!ready&&idx<MODELS.length-1){idx++;conn();return}
-    if(!ready){say("Couldn't connect (code "+e.code+"). Tell Lin.");go.disabled=false;clean();return}
+    if(!ready){
+      /* 说人话，并且留一行给小林看——老板 2026-08-16 在她手机上试「还是不行」，
+         而我这边测是过的，就是因为失败原因没留下来，只能靠猜。 */
+      var why = (e.code===1006) ? "网络断了，或者被挡住了"
+              : (e.code===1008) ? "服务器不认这个来源"
+              : (e.code===1007) ? "发过去的东西格式不对"
+              : (e.code===429 || e.code===1013) ? "今天用得太多了，等会儿再来"
+              : ("代码 "+e.code);
+      say("没接通："+why+"。截图发给小林就行。");
+      try{ localStorage.setItem("mieLastErr", e.code+" "+(e.reason||"")+" @ "+new Date().toISOString()) }catch(_){}
+      go.disabled=false;clean();return;
+    }
     if(on)say("断线了，点一下重来 · Line dropped, tap to restart");
     clean();
   };
@@ -1514,7 +1523,7 @@ function famPing(){
 })();
 </script>
 
-<script src="./shared/fam-widget.js?v=328c70c8" data-me="manya">
+<script src="./shared/fam-widget.js?v=48e28c37" data-me="manya">
 
 </script>
 </body>
