@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>博远的英语 · 今天一课</title>
+<style>
+  :root{
+    --bg0:#0a0e1a; --bg1:#111a2e; --bg2:#0d1424;
+    --card:rgba(255,255,255,.045); --card-bd:rgba(255,255,255,.09);
+    --ink:#eef2fb; --ink-dim:#9aa8c6; --ink-faint:#5b6a86;
+    --gold:#e8b45a; --gold-soft:#f5d9a0;
+    --cyan:#5ad1c8; --cyan-soft:#a8ebe5;
+    --green:#6fce8f; --line:rgba(255,255,255,.14);
+    --shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,"PingFang SC","Segoe UI",Roboto,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 700px at 78% -8%, rgba(232,180,90,.10), transparent 55%),
+      radial-gradient(1000px 620px at 12% 108%, rgba(90,209,200,.10), transparent 55%),
+      linear-gradient(168deg,var(--bg0),var(--bg1) 52%,var(--bg2));
+    background-attachment:fixed;
+    min-height:100vh; line-height:1.6;
+    padding:22px 16px 60px;
+  }
+  .wrap{max-width:620px;margin:0 auto}
+
+  header{text-align:center;margin:6px 0 22px}
+  .eyebrow{font-size:12.5px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;font-weight:600}
+  h1{font-size:26px;margin:9px 0 4px;font-weight:700;letter-spacing:.01em}
+  .subtitle{font-size:15px;color:var(--ink-dim)}
+  .datechip{display:inline-block;margin-top:12px;font-size:12.5px;color:var(--ink-dim);
+    border:1px solid var(--card-bd);border-radius:999px;padding:5px 14px;background:var(--card)}
+
+  .steps{display:flex;gap:8px;margin:22px 0 8px}
+  .step-tab{flex:1;text-align:center;font-size:13px;padding:9px 4px;border-radius:12px;
+    border:1px solid var(--card-bd);background:var(--card);color:var(--ink-dim);font-weight:600;
+    cursor:pointer;transition:.2s}
+  .step-tab .num{display:block;font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:2px}
+  .step-tab.on{background:linear-gradient(160deg,rgba(232,180,90,.20),rgba(232,180,90,.06));
+    border-color:rgba(232,180,90,.4);color:var(--ink)}
+
+  section{margin-top:20px}
+  .sec-head{display:flex;align-items:baseline;gap:10px;margin:0 2px 14px}
+  .sec-head .idx{font-size:13px;color:var(--gold);font-weight:700;letter-spacing:.14em}
+  .sec-head h2{font-size:18px;margin:0;font-weight:700}
+  .sec-head .hint{font-size:12.5px;color:var(--ink-dim);margin-left:auto}
+
+  .listen-all{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    border:1px solid rgba(90,209,200,.35);background:linear-gradient(160deg,rgba(90,209,200,.14),rgba(90,209,200,.04));
+    color:var(--cyan-soft);font-size:14.5px;font-weight:600;border-radius:14px;padding:13px;margin-bottom:14px;cursor:pointer}
+  .listen-all svg{flex:none;width:19px;height:19px}
+  .listen-all:active{transform:scale(.99)}
+
+  .cards{display:flex;flex-direction:column;gap:11px}
+  .card{position:relative;display:flex;align-items:center;gap:14px;
+    background:var(--card);border:1px solid var(--card-bd);border-radius:16px;
+    padding:15px 16px;box-shadow:var(--shadow);cursor:pointer;transition:.15s;overflow:hidden}
+  .card:active{transform:scale(.994);background:rgba(255,255,255,.07)}
+  .card .n{position:absolute;top:9px;right:13px;font-size:12px;color:var(--ink-faint);opacity:.5}
+  .card .play{flex:none;width:46px;height:46px;border-radius:50%;
+    background:linear-gradient(155deg,var(--gold),#c9923c);color:#1a1206;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(232,180,90,.3)}
+  .card .play svg{width:20px;height:20px;margin-left:2px}
+  .card.playing .play{background:linear-gradient(155deg,var(--cyan),#2f9d95);color:#04201d;
+    box-shadow:0 6px 18px rgba(90,209,200,.45)}
+  .card .body{flex:1;min-width:0}
+  .card .word{font-size:23px;font-weight:700;letter-spacing:.01em;line-height:1.2;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card .ipa{font-size:14px;color:var(--cyan-soft);font-family:"Times New Roman",serif;margin-top:1px}
+  .card .meta{font-size:14.5px;color:var(--ink-dim);margin-top:3px}
+  .card .pos{color:var(--gold-soft);font-style:italic;margin-right:6px;font-size:13px}
+  .tag-read{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--cyan-soft);
+    border:1px solid rgba(90,209,200,.4);background:rgba(90,209,200,.1);border-radius:999px;
+    padding:2px 9px;vertical-align:middle}
+
+  .sentences{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+  .sent{display:flex;align-items:center;gap:12px;background:rgba(90,209,200,.06);
+    border:1px solid rgba(90,209,200,.18);border-radius:14px;padding:12px 15px;cursor:pointer}
+  .sent .sp{flex:none;width:34px;height:34px;border-radius:50%;background:rgba(90,209,200,.16);
+    display:flex;align-items:center;justify-content:center;color:var(--cyan-soft)}
+  .sent .sp svg{width:16px;height:16px;margin-left:1px}
+  .sent .en{font-size:16.5px;font-weight:600}
+  .sent .cn{font-size:13px;color:var(--ink-dim);margin-top:1px}
+
+  .note-star{font-size:12.5px;color:var(--ink-dim);margin-top:14px;padding:10px 13px;
+    border-left:2px solid rgba(90,209,200,.4);background:rgba(90,209,200,.05);border-radius:0 10px 10px 0}
+
+  .write-list{display:flex;flex-direction:column;gap:16px}
+  .write-row .wlabel{font-size:14px;color:var(--ink-dim);margin:0 2px 6px}
+  .write-row .wlabel b{color:var(--ink);font-size:16px;font-weight:700}
+  .fourline{position:relative;height:64px;border-radius:12px;background:rgba(255,255,255,.03);
+    border:1px solid var(--card-bd);overflow:hidden}
+  .fourline .l{position:absolute;left:0;right:0;height:1px;background:var(--line)}
+  .fourline .l.dash{border-top:1px dashed rgba(255,255,255,.22);background:none;height:0}
+  .fourline .l.mid{background:rgba(232,180,90,.32)}
+  .fourline .trace{position:absolute;left:16px;top:50%;transform:translateY(-50%);
+    font-family:"Times New Roman",serif;font-size:36px;letter-spacing:.06em;
+    color:rgba(255,255,255,.14);font-weight:400;user-select:none}
+  .spellbox{margin-top:8px;display:flex;gap:8px;align-items:center}
+  .spellbox input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--card-bd);
+    border-radius:10px;padding:11px 14px;color:var(--ink);font-size:17px;
+    font-family:"Times New Roman",serif;letter-spacing:.04em;outline:none}
+  .spellbox input:focus{border-color:rgba(232,180,90,.5)}
+  .spellbox .mark{flex:none;width:44px;text-align:center;font-size:20px}
+  .spellbox .mark.ok{color:var(--green)}
+  .spellbox .mark.try{color:var(--gold);font-size:13px}
+
+  .diary-card{background:var(--card);border:1px solid var(--card-bd);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+  .diary-words{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+  .diary-words .w{font-size:13.5px;padding:5px 11px;border-radius:999px;
+    background:rgba(232,180,90,.12);border:1px solid rgba(232,180,90,.28);color:var(--gold-soft);cursor:pointer}
+  .diary-card textarea{width:100%;min-height:110px;resize:vertical;background:rgba(255,255,255,.03);
+    border:1px solid var(--card-bd);border-radius:12px;padding:13px;color:var(--ink);
+    font-size:16px;line-height:1.7;outline:none;font-family:inherit}
+  .diary-card textarea:focus{border-color:rgba(232,180,90,.5)}
+  .diary-foot{display:flex;align-items:center;gap:12px;margin-top:12px}
+  .diary-foot .save{border:1px solid rgba(111,206,143,.4);background:rgba(111,206,143,.12);
+    color:var(--green);font-size:14.5px;font-weight:600;border-radius:12px;padding:11px 22px;cursor:pointer}
+  .diary-foot .saved{font-size:13px;color:var(--ink-dim)}
+  .example{font-size:13px;color:var(--ink-dim);margin-top:10px;font-style:italic}
+
+  footer{text-align:center;margin-top:34px;font-size:12px;color:var(--ink-faint);opacity:.6}
+  .sec-hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="eyebrow">Unit 9</div>
+    <h1 id="title">May I have a pie?</h1>
+    <div class="subtitle" id="subtitle">今天的单词</div>
+    <div class="datechip" id="datechip">今天</div>
+  </header>
+
+  <div class="steps">
+    <div class="step-tab on" data-go="s1"><span class="num">STEP 1</span>听 & 读</div>
+    <div class="step-tab" data-go="s2"><span class="num">STEP 2</span>写一遍</div>
+    <div class="step-tab" data-go="s3"><span class="num">STEP 3</span>写日记</div>
+  </div>
+
+  <section id="s1">
+    <div class="sec-head"><span class="idx">01</span><h2>先听，再跟着读</h2><span class="hint">点单词就会念</span></div>
+    <button class="listen-all" id="listenAll">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg>
+      听一遍整课（原声朗读）
+    </button>
+    <div class="cards" id="cards"></div>
+    <div class="sentences" id="sentences"></div>
+    <div class="note-star" id="noteStar"></div>
+  </section>
+
+  <section id="s2" class="sec-hidden">
+    <div class="sec-head"><span class="idx">02</span><h2>照着写一遍</h2><span class="hint">四线格里，先描后写</span></div>
+    <div class="write-list" id="writeList"></div>
+  </section>
+
+  <section id="s3" class="sec-hidden">
+    <div class="sec-head"><span class="idx">03</span><h2>用今天的词，写一句话</h2><span class="hint">写你自己的事</span></div>
+    <div class="diary-card">
+      <div class="diary-words" id="diaryWords"></div>
+      <textarea id="diary" placeholder="用上今天学的一个词，写一句英文。写你今天吃了什么、想要什么都行。"></textarea>
+      <div class="diary-foot">
+        <button class="save" id="saveDiary">保存</button>
+        <span class="saved" id="savedMsg"></span>
+      </div>
+      <div class="example" id="example"></div>
+    </div>
+  </section>
+
+  <footer>博远的英语 · 每天一课 · 一家人一起学</footer>
+</div>
+
+<script>
+/* ====== 一课一条，加课只往 UNITS 里加、改 TODAY ====== */
+const UNITS = {
+  "1u9": {
+    volume:"一年级上", unit:9, title:"May I have a pie?", page:"011",
+    lesson:"boyuan-audio/lesson.mp3",
+    example:"比如：I have a cake. / May I have a pizza, please.",
+    words:[
+      {n:1,w:"may",ipa:"[meɪ]",pos:"modal v.",zh:"可以"},
+      {n:2,w:"have",ipa:"[hæv]",pos:"v.",zh:"有；拥有"},
+      {n:3,w:"pie",ipa:"[paɪ]",pos:"n.",zh:"果馅饼"},
+      {n:4,w:"hamburger",ipa:"[ˈhæmbɜːgə(r)]",pos:"n.",zh:"汉堡包"},
+      {n:5,w:"pizza",ipa:"[ˈpiːtsə]",pos:"n.",zh:"比萨饼"},
+      {n:6,w:"cake",ipa:"[keɪk]",pos:"n.",zh:"蛋糕"},
+      {n:7,w:"snack",ipa:"[snæk]",pos:"n.",zh:"小吃；点心",star:true},
+      {n:8,w:"bar",ipa:"[bɑː(r)]",pos:"n.",zh:"小吃部",star:true}
+    ],
+    sentences:[
+      {n:1,en:"May I have a pie, please.",zh:"请给我一个果馅饼，好吗？"},
+      {n:2,en:"Can I help you?",zh:"我能帮助你吗？"}
+    ]
+  }
+};
+const TODAY = "1u9";
+const U = UNITS[TODAY];
+const AUDIO_DIR = "boyuan-audio/";
+const SPK='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>';
+
+/* 头部 */
+document.getElementById('eyebrow').textContent = `${U.volume} · Unit ${U.unit} · 第 ${U.page} 页`;
+document.getElementById('title').textContent = U.title;
+document.getElementById('example').textContent = U.example || '';
+document.getElementById('datechip').textContent =
+  new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'});
+
+/* 播放 */
+let curAudio=null, curCard=null;
+function play(src, cardEl){
+  try{
+    if(curAudio) curAudio.pause();
+    if(curCard) curCard.classList.remove('playing');
+    curAudio=new Audio(src); curCard=cardEl||null;
+    if(cardEl) cardEl.classList.add('playing');
+    curAudio.play().catch(()=>{});
+    curAudio.onended=()=>{ if(cardEl) cardEl.classList.remove('playing'); };
+  }catch(e){}
+}
+
+/* STEP1 单词卡 */
+const cardsEl=document.getElementById('cards');
+U.words.forEach(w=>{
+  const d=document.createElement('div'); d.className='card';
+  const readTag = w.star ? '<span class="tag-read">只认读</span>' : '';
+  d.innerHTML=`<span class="n">${w.n}</span>
+    <div class="play">${SPK}</div>
+    <div class="body">
+      <div class="word">${w.w}${readTag}</div>
+      <div class="ipa">${w.ipa}</div>
+      <div class="meta"><span class="pos">${w.pos}</span>${w.zh}</div>
+    </div>`;
+  d.onclick=()=>play(AUDIO_DIR+w.w+'.mp3', d);
+  cardsEl.appendChild(d);
+});
+document.getElementById('listenAll').onclick=()=>play(U.lesson,null);
+
+/* 重点句 */
+const sentsEl=document.getElementById('sentences');
+U.sentences.forEach((s,i)=>{
+  const d=document.createElement('div'); d.className='sent';
+  d.innerHTML=`<div class="sp">${SPK}</div><div><div class="en">${s.en}</div><div class="cn">${s.zh}</div></div>`;
+  d.onclick=()=>play(AUDIO_DIR+'sent'+(i+1)+'.mp3',null);
+  sentsEl.appendChild(d);
+});
+
+/* 星号说明 */
+const stars=U.words.filter(w=>w.star).map(w=>w.w);
+document.getElementById('noteStar').innerHTML = stars.length
+  ? `带「只认读」的词（${stars.join('、')}）：会念、认得就好，这两个不用写。`
+  : '';
+if(!stars.length) document.getElementById('noteStar').style.display='none';
+
+/* STEP2 写一遍（跳过只认读的词） */
+const wl=document.getElementById('writeList');
+U.words.filter(w=>!w.star).forEach(w=>{
+  const row=document.createElement('div'); row.className='write-row';
+  row.innerHTML=`
+    <div class="wlabel"><b>${w.w}</b> &nbsp;${w.zh}</div>
+    <div class="fourline">
+      <div class="l" style="top:16%"></div>
+      <div class="l dash" style="top:38%"></div>
+      <div class="l mid" style="top:62%"></div>
+      <div class="l" style="top:84%"></div>
+      <div class="trace">${w.w}</div>
+    </div>
+    <div class="spellbox">
+      <input type="text" placeholder="在这里也打一遍" autocomplete="off" autocapitalize="off" spellcheck="false" data-w="${w.w}">
+      <span class="mark"></span>
+    </div>`;
+  wl.appendChild(row);
+});
+wl.querySelectorAll('.spellbox input').forEach(inp=>{
+  inp.addEventListener('input',()=>{
+    const mark=inp.parentElement.querySelector('.mark');
+    const v=inp.value.trim().toLowerCase(), t=inp.dataset.w.toLowerCase();
+    if(!v){mark.className='mark';mark.textContent='';}
+    else if(v===t){mark.className='mark ok';mark.textContent='✓';}
+    else if(t.startsWith(v)){mark.className='mark';mark.textContent='';}
+    else {mark.className='mark try';mark.textContent='再看看';}
+  });
+});
+
+/* STEP3 日记（全部词都能用，含只认读的） */
+const dw=document.getElementById('diaryWords');
+const diary=document.getElementById('diary');
+U.words.forEach(w=>{
+  const chip=document.createElement('span'); chip.className='w'; chip.textContent=w.w;
+  chip.onclick=()=>{ const s=diary.selectionStart||diary.value.length;
+    diary.value=diary.value.slice(0,s)+(s&&diary.value[s-1]!==' '?' ':'')+w.w+' '+diary.value.slice(s);
+    diary.focus(); };
+  dw.appendChild(chip);
+});
+const KEY='boyuan_diary_'+TODAY;
+const savedVal=localStorage.getItem(KEY);
+if(savedVal){ diary.value=savedVal; document.getElementById('savedMsg').textContent='上次写的还在'; }
+document.getElementById('saveDiary').onclick=()=>{
+  localStorage.setItem(KEY,diary.value);
+  document.getElementById('savedMsg').textContent='保存好了 ✓';
+};
+
+/* 步骤切换 */
+document.querySelectorAll('.step-tab').forEach(tab=>{
+  tab.onclick=()=>{
+    document.querySelectorAll('.step-tab').forEach(t=>t.classList.remove('on'));
+    tab.classList.add('on');
+    ['s1','s2','s3'].forEach(id=>document.getElementById(id).classList.add('sec-hidden'));
+    document.getElementById(tab.dataset.go).classList.remove('sec-hidden');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+</script>
+</body>
+</html>
