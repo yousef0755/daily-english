@@ -58,6 +58,8 @@ body.mask .z.show{filter:none}
 .say{background:var(--acc-soft);border:none;color:var(--acc);border-radius:10px;
   width:32px;height:32px;flex:0 0 auto;cursor:pointer;display:grid;place-items:center}
 .say:active{transform:scale(.92)}
+.say.playing{background:var(--acc);color:#fff}
+#snd{margin-top:12px;color:var(--acc);font-size:12.5px;line-height:1.8}
 .del{background:none;border:none;color:var(--line);font-size:20px;cursor:pointer;
   flex:0 0 auto;line-height:1;padding:0 2px}
 .del:active{color:var(--acc)}
@@ -110,7 +112,8 @@ li.learned .w{text-decoration:line-through;text-decoration-color:var(--line)}
 <section class="grp"><div class="letter">Y</div><ul><li data-w="you big flirt" data-z="意思是："你这个撩人精！"/"你可真会调情啊！""><div class="row"><span class="w">you big flirt</span><button class="say" aria-label="听 you big flirt"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></button><button class="del" aria-label="删掉">×</button></div><div class="z">意思是："你这个撩人精！"/"你可真会调情啊！"</div><label class="ok"><input type="checkbox" data-k="you big flirt"><span>学会了</span></label></li></ul></section>
 
 <div class="tip">
-点喇叭听发音。点<b>遮中文</b>把意思盖住，按住某一条能偷看一眼——这样才算自测。<br>
+点喇叭听发音（换过声音了，不是手机自带那把）。<span id="snd" hidden>没出声的话：iPhone 左侧那个小拨杆拨到不是橙色那一边，那是静音键，它连网页的声音一起关。</span><br>
+点<b>遮中文</b>把意思盖住，按住某一条能偷看一眼——这样才算自测。<br>
 背会一个就勾上<b>学会了</b>，勾了会变淡，下次一眼看见还剩哪些没背。<br>
 认出错的点右边的 <b>×</b> 删掉，删了会记住。<br>
 <b>以后有新词，直接发我（打字或截图都行），我加进这个本子里，网址不变。</b>
@@ -160,6 +163,36 @@ var learned=JSON.parse(localStorage.getItem(LK)||"[]");
   });
 });
 
+/* 发音：放事先生成好的神经语音 MP3（en-US-AvaNeural）。
+   她说「语音声音很奇怪」—— 原来用的是浏览器自带的 speechSynthesis，
+   给什么声音全看设备，iPhone 上默认那把确实机械。
+   MP3 是我这边生成好的，谁的手机打开都是同一把。
+   文件名的算法必须和生成脚本一模一样，错一个字符就是静默失败。 */
+function slug(w){ return w.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") }
+
+var cur=null;
+function say(li){
+  var w=li.querySelector(".w").textContent.trim();
+  var btn=li.querySelector(".say");
+  if(cur){ cur.pause(); cur=null }
+  var a=new Audio("vocabaudio/"+slug(w)+".mp3");
+  cur=a;
+  btn.classList.add("playing");
+  a.addEventListener("ended",function(){ btn.classList.remove("playing") });
+  a.play().catch(function(){
+    // MP3 没放成（文件缺了、或者浏览器不让放）——退回系统语音，
+    // 但不能一声不吭：静默失败是最难查的那种毛病。
+    btn.classList.remove("playing");
+    try{
+      var u=new SpeechSynthesisUtterance(w);
+      u.lang="en-US"; u.rate=.9;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    }catch(err){}
+    var t=document.getElementById("snd");
+    if(t){ t.hidden=false }
+  });
+}
+
 document.addEventListener("click",function(e){
   var li=e.target.closest("li"); if(!li)return;
   if(e.target.closest(".ok"))return;   // 勾选框自己管
@@ -168,14 +201,7 @@ document.addEventListener("click",function(e){
     localStorage.setItem(K,JSON.stringify(gone));
     apply(); return;
   }
-  if(e.target.closest(".say")){
-    try{
-      var u=new SpeechSynthesisUtterance(li.querySelector(".w").textContent);
-      u.lang="en-US"; u.rate=.9;
-      speechSynthesis.cancel(); speechSynthesis.speak(u);
-    }catch(err){}
-    return;
-  }
+  if(e.target.closest(".say")){ say(li); return; }
   var z=li.querySelector(".z");
   z.classList.add("show"); setTimeout(function(){z.classList.remove("show")},1500);
 });
