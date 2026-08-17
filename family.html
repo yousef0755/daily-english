@@ -79,6 +79,25 @@ footer{margin-top:22px;text-align:center;font-size:.7rem;color:var(--dim)}
 .tick.on{border-color:rgba(126,214,178,.45);background:rgba(126,214,178,.14);color:var(--mint)}
 .tick:disabled{opacity:.5}
 
+/* ── 提醒（2026-08-17）：以前只有博远那一页能开通知，
+   其余五个人打开自己的页面根本没有这个按钮，所以家里只有一台手机收得到。 ── */
+.nagfoot{margin:26px 12px 34px;background:rgba(255,255,255,.04);
+  border:1px solid var(--line);border-radius:16px;padding:16px 15px 15px}
+.nagfoot h3{margin:0 0 6px;font-family:var(--serif);font-weight:600;
+  font-size:1rem;color:var(--ink);letter-spacing:.02em}
+.nagtip{margin:0 0 12px;font-size:.82rem;line-height:1.65;color:var(--muted)}
+.nagtip b{color:var(--gold);font-weight:600}
+.nagrow{display:flex;flex-wrap:wrap;gap:8px}
+.nagbtn{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);
+  border-radius:999px;padding:8px 15px;font-size:.82rem;font-family:inherit;
+  font-weight:600;cursor:pointer;white-space:nowrap}
+.nagbtn:active{opacity:.65}
+.nagbtn:disabled{opacity:.45}
+.nagfoot.on{border-color:rgba(126,214,178,.35);background:rgba(126,214,178,.07)}
+.nagfoot.on h3{color:var(--mint)}
+.nagbtn.off{border-color:rgba(255,255,255,.14);color:var(--muted);font-weight:500}
+
+
 a.who{text-decoration:none;color:inherit;display:block}
 a.who:active .nm{opacity:.6}
 .nm .go{font-style:normal;color:var(--gold);margin-left:6px;font-size:.95em;opacity:.75}
@@ -449,6 +468,11 @@ li.here .mins b{color:var(--gold)}
   <div id="pbSolo"></div>
   <div id="pbPick"></div>
 </section>
+<section class="nagfoot" id="nagFoot">
+  <h3>忘了来的时候，让猫叫你</h3>
+  <p class="nagtip" id="nagTip">在<b>你自己的手机</b>上点你的名字。一台手机点一次就行。</p>
+  <div class="nagrow" id="nagBtns"></div>
+</section>
 <p class="note" id="note"></p>
 
 <footer id="foot"></footer>
@@ -467,6 +491,8 @@ function chain(n){
 }
 function render(d){
   const ps=d.people||[];
+  NAG_PEOPLE=ps;
+  try{renderNagFoot()}catch(e){}
   try{renderToys(d.toy)}catch(e){}
   try{toyCelebrate(d.toy)}catch(e){}
   const here=ps.filter(p=>p.here).length, fin=ps.filter(p=>p.finished).length;
@@ -1006,6 +1032,125 @@ function fetchT(url, opt, ms){
   var t=setTimeout(function(){ac.abort()},ms);
   return fetch(url,opt).finally(function(){clearTimeout(t)});
 }
+
+/* ═══ 提醒订阅（2026-08-17 加）══════════════════════════════
+   为什么加：开通知的按钮以前只做在博远那一页上，其余五个人打开自己的
+   页面没有这个东西，所以家里六个人只有一台手机收得到催学推送，
+   榜上连着两天全员挂零——不是他们不学，是没人叫。
+
+   为什么打的是 Worker 不是这台 Mac：催学脚本 kid_nag.py 取名单是先问
+   Cloudflare（/kid/list），本机那份只是兜底。可博远那页却把订阅 POST 给
+   了这台 Mac，两头压根不是同一个库，本机那份 subs.json 到今天都不存在。
+   订阅进了一个没人读的地方。这里按脚本注释里本来写的做：打 Worker，
+   跟这台 Mac 醒不醒没关系。
+   ══════════════════════════════════════════════════════ */
+const NAG_SUB_API="https://su-family.yousef-abud.workers.dev";
+const NAG_KEY="BGOs2vrk1QcTHhzeRotmBtjaqz4Pac591KNs2SBGtOb36aKnr1plom2w7a9Cp5xebfdRLtJTIYwodezn1_LJ6lw";
+let NAG_PEOPLE=[], nagBusy=false;
+
+function b64key(s){
+  const pad="=".repeat((4-s.length%4)%4);
+  const raw=atob((s+pad).replace(/-/g,"+").replace(/_/g,"/"));
+  const a=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)a[i]=raw.charCodeAt(i);
+  return a;
+}
+function nagStandalone(){
+  return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
+}
+async function nagReg(){
+  if(!("serviceWorker" in navigator))return null;
+  try{ return await navigator.serviceWorker.register("./kid-sw.js") }catch(e){ return null }
+}
+/* 这台手机是谁的——Worker 目前只存 endpoint 和 keys，who 会被丢掉，
+   所以名字先记在本机，页面上看得见。等 Worker 那边加上 who，服务端也能看见。 */
+function nagWho(){ try{ return localStorage.getItem("famNagWho")||"" }catch(e){ return "" } }
+function nagSetWho(v){ try{ localStorage.setItem("famNagWho",v) }catch(e){} }
+
+async function renderNagFoot(){
+  const box=document.getElementById("nagFoot"),
+        tip=document.getElementById("nagTip"),
+        row=document.getElementById("nagBtns");
+  if(!box||!tip||!row||nagBusy)return;
+
+  const iOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)||typeof Notification==="undefined"){
+    row.innerHTML="";
+    tip.innerHTML = iOS && !nagStandalone()
+      ? '这一页要先<b>加到主屏幕</b>才能收提醒：点下面的分享按钮 → 添加到主屏幕，'+
+        '然后从主屏幕那个图标打开，再回到这里点你的名字。'
+      : '这个浏览器收不到提醒。用 Safari 或者 Chrome 打开试试。';
+    return;
+  }
+
+  /* 先把名字按钮画出来再去问 Service Worker。
+     反过来写过一版：先 await 注册再画，结果注册一慢（headless 里直接挂住），
+     这一块就一直是空白，人还以为页面坏了。先画后查，慢的是状态，不是按钮。 */
+  nagPaintNames(box, tip, row);
+
+  const reg=await nagReg();
+  const sub=reg? await reg.pushManager.getSubscription() : null;
+  if(nagBusy)return;
+
+  if(sub && Notification.permission==="granted"){
+    const w=nagWho();
+    box.classList.add("on");
+    tip.innerHTML='<b>这台手机已经在收提醒了'+(w?'（'+w+'）':'')+'。</b>'+
+      '一天没动的话，下午和晚上各叫一次。当天做完了就不叫。';
+    row.innerHTML='<button class="nagbtn off" id="nagOff">不用叫我了</button>';
+    document.getElementById("nagOff").onclick=async function(){
+      nagBusy=true; this.disabled=true;
+      try{ await sub.unsubscribe() }catch(e){}
+      try{
+        await fetch(NAG_SUB_API+"/kid/unsub",{method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({endpoint:sub.endpoint})});
+      }catch(e){}
+      nagSetWho(""); nagBusy=false; renderNagFoot();
+    };
+    return;
+  }
+
+  nagPaintNames(box, tip, row);
+}
+
+/* 画六个名字。谁在自己手机上点自己的名字，这台手机就归谁。 */
+function nagPaintNames(box, tip, row){
+  box.classList.remove("on");
+  tip.innerHTML='在<b>你自己的手机</b>上点你的名字。一台手机点一次就行。'+
+                '忘了来的时候，Snowy 和哆米会叫你；当天做完了它们就不吭声。';
+  const ps=NAG_PEOPLE.length?NAG_PEOPLE:[];
+  if(!ps.length){ row.innerHTML='<span class="nagtip">名单还在连，稍等一下。</span>'; return }
+  row.innerHTML=ps.map(p=>'<button class="nagbtn" data-nm="'+p.name+'">'+p.name+'</button>').join("");
+  [...row.querySelectorAll(".nagbtn")].forEach(b=>{
+    b.onclick=async function(){
+      const nm=b.dataset.nm;
+      nagBusy=true;
+      [...row.querySelectorAll(".nagbtn")].forEach(x=>x.disabled=true);
+      try{
+        const perm=await Notification.requestPermission();
+        if(perm!=="granted"){ tip.innerHTML='你没答应，那就不叫了。想开随时回来点。'; return }
+        const r=await nagReg();
+        if(!r)throw new Error("no sw");
+        await navigator.serviceWorker.ready;
+        const ns=await r.pushManager.subscribe({userVisibleOnly:true,
+          applicationServerKey:b64key(NAG_KEY)});
+        const body=Object.assign({}, ns.toJSON?ns.toJSON():ns, {who:nm});
+        const res=await fetch(NAG_SUB_API+"/kid/sub",{method:"POST",
+          headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+        if(!res.ok)throw new Error("sub "+res.status);
+        nagSetWho(nm);
+      }catch(e){
+        tip.innerHTML='没开成，回头再试一次。';
+      }finally{
+        nagBusy=false;
+        [...row.querySelectorAll(".nagbtn")].forEach(x=>x.disabled=false);
+        renderNagFoot();
+      }
+    };
+  });
+}
+try{renderNagFoot()}catch(e){}
 
 /* ═══ 在外面打的卡不丢 ═══
    老板 2026-08-15：「先让整个数据上网，这样就不会打不开」。
