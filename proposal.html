@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Five Minutes — new first screen (proposal)</title>
+<style>
+:root{
+  --canvas:#f3f0e8; --ink:#16241f; --muted:#6d746f;
+  --line:rgba(24,65,52,.12); --green:#1d5b48; --green-deep:#0d3027;
+  --green-soft:#dfeae4; --gold:#c59a4d; --gold-soft:#ead8ad;
+  --card:rgba(255,255,252,.94);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --shadow-sm:0 8px 24px rgba(19,48,39,.07);
+  --shadow-lg:0 24px 70px rgba(11,42,33,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:var(--sans); color:var(--ink); background:var(--canvas);
+  min-height:100vh; padding:0 0 40px;
+}
+.wrap{max-width:520px;margin:0 auto;padding:0 18px}
+
+/* 顶：一条，不占地方 */
+.top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 0 10px;
+}
+.brand{font-family:var(--serif);font-size:19px;letter-spacing:.2px}
+.brand small{
+  display:block;font-family:var(--sans);font-size:10px;letter-spacing:1.6px;
+  color:var(--muted);text-transform:uppercase;margin-top:2px
+}
+.streak{
+  display:flex;align-items:center;gap:6px;
+  background:var(--green-soft);color:var(--green-deep);
+  border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:600;
+  white-space:nowrap
+}
+.streak b{font-variant-numeric:tabular-nums}
+
+/* 今天这一件 */
+.today{
+  background:var(--green-deep);color:#f6f4ec;border-radius:22px;
+  padding:20px 20px 18px;box-shadow:var(--shadow-lg);margin-top:6px;
+  background-image:radial-gradient(120% 90% at 90% 0%,rgba(197,154,77,.20),transparent 60%);
+}
+.kicker{
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold-soft);margin-bottom:9px
+}
+.today h1{
+  font-family:var(--serif);font-weight:400;font-size:25px;line-height:1.28;
+  margin-bottom:6px
+}
+.today .why{font-size:13px;line-height:1.6;color:rgba(246,244,236,.72)}
+.mins{
+  margin-top:14px;display:inline-flex;align-items:center;gap:7px;
+  font-size:11.5px;color:rgba(246,244,236,.6)
+}
+.mins i{width:5px;height:5px;border-radius:50%;background:var(--gold);font-style:normal}
+
+/* 四行，编号，像聊天 */
+.lines{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.line{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:13px 14px;display:flex;gap:11px;align-items:flex-start;
+  box-shadow:var(--shadow-sm);cursor:pointer;
+  transition:border-color .16s,transform .1s
+}
+.line:active{transform:scale(.995)}
+.line.open{border-color:rgba(29,91,72,.30)}
+.n{
+  flex:0 0 auto;width:21px;height:21px;border-radius:50%;
+  background:var(--green-soft);color:var(--green-deep);
+  font-size:11px;font-weight:700;display:grid;place-items:center;margin-top:2px;
+  font-variant-numeric:tabular-nums
+}
+.body{flex:1;min-width:0}
+.ar{
+  font-size:19px;line-height:1.75;direction:rtl;text-align:right;
+  font-family:"Geeza Pro","Al Bayan",var(--serif)
+}
+.en{font-size:14px;line-height:1.5;margin-top:2px}
+.enmain{font-size:17px;line-height:1.5;font-family:var(--serif)}
+.enmain+.en{font-size:12.5px;color:var(--muted);margin-top:6px;font-style:italic}
+.zh{
+  font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.55;
+  display:none
+}
+.line.open .zh{display:block}
+.hint{font-size:11.5px;color:var(--muted);margin-top:6px;display:none}
+.line.open .hint{display:block}
+.play{
+  flex:0 0 auto;width:34px;height:34px;border-radius:11px;
+  border:1px solid rgba(197,154,77,.5);background:rgba(234,216,173,.28);
+  color:var(--green-deep);display:grid;place-items:center;cursor:pointer;font-size:12px
+}
+.play:active{background:var(--gold-soft)}
+
+/* 一个动作 */
+.done{
+  margin-top:16px;width:100%;border:0;border-radius:16px;
+  background:var(--green);color:#fff;font-family:var(--sans);
+  font-size:15px;font-weight:600;padding:16px;cursor:pointer;
+  box-shadow:0 10px 26px rgba(29,91,72,.22)
+}
+.done:disabled{background:var(--green-soft);color:var(--green-deep);box-shadow:none}
+.after{
+  display:none;margin-top:10px;font-size:12.5px;color:var(--muted);text-align:center
+}
+
+/* 次要的都收起来 */
+.more{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+.more h2{
+  font-size:10px;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-bottom:11px
+}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  border:1px solid var(--line);background:rgba(255,255,252,.7);
+  border-radius:999px;padding:9px 15px;font-size:13px;color:var(--ink);
+  cursor:pointer
+}
+.chip.on{background:var(--green-deep);color:#f6f4ec;border-color:transparent}
+.speak{
+  margin-top:12px;display:flex;align-items:center;gap:12px;
+  border:1px solid rgba(197,154,77,.45);border-radius:16px;
+  padding:13px 15px;background:linear-gradient(180deg,rgba(234,216,173,.22),rgba(234,216,173,.06));
+  cursor:pointer
+}
+.orb{
+  width:34px;height:34px;border-radius:50%;flex:0 0 auto;
+  background:radial-gradient(circle at 35% 30%,#e8d4a4,#c59a4d)
+}
+.speak b{display:block;font-size:14px;font-weight:600}
+.speak span{font-size:12px;color:var(--muted)}
+
+/* 说明，默认收着 */
+.note{margin-top:26px}
+.note>summary{
+  list-style:none;cursor:pointer;font-size:12.5px;color:var(--muted);
+  border:1px dashed var(--line);border-radius:12px;padding:11px 14px;text-align:center
+}
+.note>summary::-webkit-details-marker{display:none}
+.note ol{margin:14px 4px 0 20px;font-size:13px;line-height:1.85;color:var(--ink)}
+.note li{margin-bottom:9px}
+.note li b{font-weight:600}
+.tag{
+  display:inline-block;font-size:10.5px;padding:2px 7px;border-radius:6px;
+  background:var(--green-soft);color:var(--green-deep);margin-left:5px;vertical-align:1px
+}
+.tag.ask{background:rgba(197,154,77,.22);color:#7a5a1c}
+footer{margin-top:26px;text-align:center;font-size:11px;color:var(--muted);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">Five Minutes<small>one thing a day</small></div>
+    <div class="streak" id="streak">🔥 <b>Day 1</b> · starts today</div>
+  </div>
+
+  <section class="today">
+    <div class="kicker">Today · Arabic · negotiation</div>
+    <h1>Holding your ground without closing the door</h1>
+    <p class="why">Four moves: agree in principle but reject the term, concede with a condition, stop the room to clarify, take back control by summarising.</p>
+    <div class="mins"><i></i> about 5 minutes</div>
+  </section>
+
+  <div class="lines" id="lines">
+    <div class="line" data-ar="مِنْ حَيْثُ الْمَبْدَأ نَحْنُ مُتَّفِقُون، غَيْرَ أَنَّ الْجَدْوَلَ الزَّمَنِيَّ الْمُقْتَرَحَ غَيْرُ وَاقِعِيٍّ بِالنِّسْبَةِ إِلَيْنا">
+      <div class="n">1</div>
+      <div class="body">
+        <div class="ar">مِنْ حَيْثُ الْمَبْدَأ نَحْنُ مُتَّفِقُون، غَيْرَ أَنَّ الْجَدْوَلَ الزَّمَنِيَّ الْمُقْتَرَحَ غَيْرُ وَاقِعِيٍّ بِالنِّسْبَةِ إِلَيْنا</div>
+        <div class="en">In principle we agree — but the proposed timeline is not realistic for us.</div>
+        <div class="zh">原则上我们同意，只是这个时间表对我们不现实。<br>先给对方一个「同意」，再把不能接受的那一条单独拎出来。</div>
+        <div class="hint">غَيْرَ أَنَّ 是书面转折，比 لكن 重，会议上用它显得是立场不是抱怨。</div>
+      </div>
+      <button class="play" aria-label="listen">▶</button>
+    </div>
+
+    <div class="line" data-ar="نَحْنُ مُسْتَعِدُّونَ لِلنُّزُولِ فِي السِّعْر، شَرِيطَةَ أَنْ يَكُونَ الدَّفْعُ مُقَدَّمًا وَالْكَمِّيَّةُ لا تَقِلُّ عَنْ أَلْفِ جِهاز">
+      <div class="n">2</div>
+      <div class="body">
+        <div class="ar">نَحْنُ مُسْتَعِدُّونَ لِلنُّزُولِ فِي السِّعْر، شَرِيطَةَ أَنْ يَكُونَ الدَّفْعُ مُقَدَّمًا وَالْكَمِّيَّةُ لا تَقِلُّ عَنْ أَلْفِ جِهاز</div>
+        <div class="en">We're ready to come down on price — provided payment is upfront and the quantity is no less than a thousand handsets.</div>
+        <div class="zh">价格我们可以让，条件是款项预付、数量不低于一千台设备。<br>让步和条件必须在同一句话里说完，中间不停顿。</div>
+        <div class="hint">شَرِيطَةَ أَنْ ＝「以…为条件」。分两句说，对方会只记住你让了价。</div>
+      </div>
+      <button class="play" aria-label="listen">▶</button>
+    </div>
+
+    <div class="line" data-ar="أَوَدُّ أَنْ أَسْتَوْضِحَ نُقْطَةً وَاحِدَةً قَبْلَ أَنْ نَنْتَقِلَ إِلَى الْبَنْدِ التَّالِي">
+      <div class="n">3</div>
+      <div class="body">
+        <div class="ar">أَوَدُّ أَنْ أَسْتَوْضِحَ نُقْطَةً وَاحِدَةً قَبْلَ أَنْ نَنْتَقِلَ إِلَى الْبَنْدِ التَّالِي</div>
+        <div class="en">I'd like to clarify one point before we move to the next item.</div>
+        <div class="zh">在进入下一项之前，我想把一个点问清楚。<br>会议被人推着往前走的时候，用这句把节奏拿回来。</div>
+        <div class="hint">说「一个点」而不是「几个问题」——听起来是收尾，不是拖延。</div>
+      </div>
+      <button class="play" aria-label="listen">▶</button>
+    </div>
+
+    <div class="line" data-ar="دَعُونِي أُلَخِّصْ مَا اتَّفَقْنا عَلَيْهِ حَتَّى الآن، ثُمَّ نَعُودُ إِلَى الْمَسَائِلِ الْعالِقَة">
+      <div class="n">4</div>
+      <div class="body">
+        <div class="ar">دَعُونِي أُلَخِّصْ مَا اتَّفَقْنا عَلَيْهِ حَتَّى الآن، ثُمَّ نَعُودُ إِلَى الْمَسَائِلِ الْعالِقَة</div>
+        <div class="en">Let me summarise what we've agreed so far — then we'll come back to the open items.</div>
+        <div class="zh">让我把到目前为止谈定的先归拢一下，然后回到没解决的几件。<br>谁做总结，谁定调子。</div>
+        <div class="hint">الْمَسَائِلِ الْعالِقَة ＝「悬着没解决的事」，比说「问题」中性，不像指责。</div>
+      </div>
+      <button class="play" aria-label="listen">▶</button>
+    </div>
+  </div>
+
+  <button class="done" id="done">Done — the family sees it</button>
+  <div class="after" id="after">Day 1 · 家人板上已经亮了</div>
+
+  <div class="more">
+    <h2>Other tracks</h2>
+    <div class="row">
+      <div class="chip on">Arabic</div>
+      <div class="chip">English</div>
+      <div class="chip">Speaking</div>
+      <div class="chip">Small talk</div>
+      <div class="chip">Tact</div>
+    </div>
+    <div class="speak">
+      <div class="orb"></div>
+      <div>
+        <b>Speak with Fatima</b>
+        <span>Live voice class · when you have more than five minutes</span>
+      </div>
+    </div>
+  </div>
+
+  <details class="note">
+    <summary>为什么改成这样（点开看，8 条）</summary>
+    <ol>
+      <li><b>打开就是今天这一件。</b>不用先选轨道。轨道挪到下面，想换才点。<span class="tag">诉求 1</span></li>
+      <li><b>一屏做完。</b>四行、一个「做完了」按钮，到此为止；旧版首屏是标题和五个按钮，真正要学的东西在第二屏。<span class="tag">诉求 1</span></li>
+      <li><b>阿语按会议实战排</b>：原则同意但否掉一条 → 带条件让步 → 叫停澄清 → 用总结拿回主导。<b>不做寒暄自我介绍那一套</b>——你说过「简单的阿拉伯语我不需要，我有 5 年经验」。<span class="tag">诉求 8</span></li>
+      <li><b>编号 1234，一条一件事</b>，照你说的 WhatsApp 那种条理。<span class="tag">8-18 定</span></li>
+      <li><b>0 不打脸。</b>没连上时写「Day 1 · starts today」，不写 0。段位仍按坚持天数，罚重于奖不清零。<span class="tag">诉求 4</span></li>
+      <li><b>界面英文照旧</b>（你 8-15 定的），阿语课保留中文释义，因为那是给中文母语的人学阿语用的。<span class="tag">诉求 6</span></li>
+    </ol>
+    <ol start="7" style="margin-top:4px">
+      <li><b>英语轨道走真口语美式</b>——ballpark、no-go、circle back 这类生意场上真说的，配美音听力，不做课本英式套话。今天这张是阿语，英语样张明天补。<span class="tag">你 8-19 定</span></li>
+      <li><b>拿你白天真发的消息当练习</b>——这条我没做，要你点头才做。<span class="tag ask">等你答</span></li>
+    </ol>
+  </details>
+
+  <footer>
+    这是方案稿，不是上线的站。<br>
+    朗读用手机自带的发音，不需要钥匙；跟法蒂玛的实时口语课照旧走原来那条线。<br>难度按中高级排的——嫌浅比嫌难更容易让你不来。<br>这四句阿语是我起的稿，启明还没核；你 5 年的底子，浅了深了你一眼就知道，直接说。
+  </footer>
+</div>
+
+<script>
+/* 朗读：走浏览器自带的 speechSynthesis，跟现站 sysSpeak() 同一条路，不要钥匙 */
+function say(t){
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(t);
+    u.lang=/[؀-ۿ]/.test(t)?"ar-SA":/[一-鿿]/.test(t)?"zh-CN":"en-US";
+    u.rate=.85;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+/* 打卡：只演示样子，不写任何存储——这页不碰现站的键 */
+var doneBtn=document.getElementById("done");
+doneBtn.addEventListener("click",function(){
+  doneBtn.disabled=true;
+  doneBtn.textContent="Done today ✓";
+  document.getElementById("after").style.display="block";
+  document.getElementById("streak").innerHTML="🔥 <b>Day 1</b> · 今天算上了";
+});
+</script>
+
+<script>
+const DAY = {
+  ar:{
+    kicker:"Today · Arabic · negotiation",
+    title:"Holding your ground without closing the door",
+    why:"Four moves: agree in principle but reject the term, concede with a condition, stop the room to clarify, take back control by summarising.",
+    lines:[
+      {t:"مِنْ حَيْثُ الْمَبْدَأ نَحْنُ مُتَّفِقُون، غَيْرَ أَنَّ الْجَدْوَلَ الزَّمَنِيَّ الْمُقْتَرَحَ غَيْرُ وَاقِعِيٍّ بِالنِّسْبَةِ إِلَيْنا",
+       en:"In principle we agree — but the proposed timeline is not realistic for us.",
+       zh:"原则上我们同意，只是这个时间表对我们不现实。<br>先给对方一个「同意」，再把不能接受的那一条单独拎出来。",
+       hint:"غَيْرَ أَنَّ 是书面转折，比 لكن 重，会议上用它显得是立场不是抱怨。", rtl:true},
+      {t:"نَحْنُ مُسْتَعِدُّونَ لِلنُّزُولِ فِي السِّعْر، شَرِيطَةَ أَنْ يَكُونَ الدَّفْعُ مُقَدَّمًا وَالْكَمِّيَّةُ لا تَقِلُّ عَنْ أَلْفِ جِهاز",
+       en:"We're ready to come down on price — provided payment is upfront and the quantity is no less than a thousand handsets.",
+       zh:"价格我们可以让，条件是款项预付、数量不低于一千台设备。<br>让步和条件必须在同一句话里说完，中间不停顿。",
+       hint:"شَرِيطَةَ أَنْ ＝「以…为条件」。分两句说，对方会只记住你让了价。", rtl:true},
+      {t:"أَوَدُّ أَنْ أَسْتَوْضِحَ نُقْطَةً وَاحِدَةً قَبْلَ أَنْ نَنْتَقِلَ إِلَى الْبَنْدِ التَّالِي",
+       en:"I'd like to clarify one point before we move to the next item.",
+       zh:"在进入下一项之前，我想把一个点问清楚。<br>会议被人推着往前走的时候，用这句把节奏拿回来。",
+       hint:"说「一个点」而不是「几个问题」——听起来是收尾，不是拖延。", rtl:true},
+      {t:"دَعُونِي أُلَخِّصْ مَا اتَّفَقْنا عَلَيْهِ حَتَّى الآن، ثُمَّ نَعُودُ إِلَى الْمَسَائِلِ الْعالِقَة",
+       en:"Let me summarise what we've agreed so far — then we'll come back to the open items.",
+       zh:"让我把到目前为止谈定的先归拢一下，然后回到没解决的几件。<br>谁做总结，谁定调子。",
+       hint:"الْمَسَائِلِ الْعالِقَة ＝「悬着没解决的事」，比说「问题」中性，不像指责。", rtl:true}
+    ]
+  },
+  en:{
+    kicker:"Today · English · how Americans actually say it",
+    title:"Four lines you'd really send on WhatsApp",
+    why:"Not textbook English. This is what an American supplier types at 9pm — short, blunt, friendly.",
+    lines:[
+      {t:"Can you give me a ballpark on that?",
+       en:"say it: “C'n you gimme a BALLpark on that?”",
+       zh:"能给我个大概数吗？<br>ballpark ＝ 大致范围。比 approximate price 自然十倍，生意场天天说。",
+       hint:"连读：give me → gimme，can you → c'n you。重音落在 BALL 上。"},
+      {t:"Let me circle back to you after I check with my supplier.",
+       en:"say it: “Lemme circle back to ya after I check with my supplier.”",
+       zh:"我跟供应商核一下，回头再找你。<br>circle back ＝ 回头再聊，比 I will reply later 圆滑，不算拒绝。",
+       hint:"连读：let me → lemme，to you → to ya。这句是拖时间又不失礼的标准说法。"},
+      {t:"That's a no-go on our end, but here's what I can do.",
+       en:"say it: “That's a NO-go on our end — but here's whad I can do.”",
+       zh:"这个我们这边做不了，不过我能做的是这些。<br>no-go ＝ 行不通。先关门再马上开一扇窗，美国人谈判的基本句式。",
+       hint:"on our end ＝ 我们这边。what I → whad I（t 浊化）。别说 impossible，太硬。"},
+      {t:"Let's touch base Monday — I'll shoot you the numbers.",
+       en:"say it: “Let's touch base Monday — I'll shootcha the numbers.”",
+       zh:"周一再对一下，我把数字发你。<br>touch base ＝ 碰个头；shoot you ＝ 发给你，比 send 随意。",
+       hint:"shoot you → shootcha。收尾用它，比 looking forward to hearing from you 真实得多。"}
+    ]
+  }
+};
+function render(k){
+  const d=DAY[k];
+  document.querySelector(".kicker").textContent=d.kicker;
+  document.querySelector(".today h1").textContent=d.title;
+  document.querySelector(".today .why").textContent=d.why;
+  const box=document.getElementById("lines"); box.innerHTML="";
+  d.lines.forEach(function(L,i){
+    const el=document.createElement("div"); el.className="line"; el.dataset.ar=L.t;
+    el.innerHTML='<div class="n">'+(i+1)+'</div><div class="body">'+
+      '<div class="'+(L.rtl?'ar':'enmain')+'">'+L.t+'</div>'+
+      '<div class="en">'+L.en+'</div>'+
+      '<div class="zh">'+L.zh+'</div>'+
+      '<div class="hint">'+L.hint+'</div></div>'+
+      '<button class="play" aria-label="listen">▶</button>';
+    el.addEventListener("click",function(e){
+      if(e.target.closest(".play")){say(L.t);return}
+      el.classList.toggle("open");
+    });
+    box.appendChild(el);
+  });
+}
+document.querySelectorAll(".chip").forEach(function(c){
+  c.addEventListener("click",function(){
+    const t=c.textContent.trim();
+    if(t!=="Arabic"&&t!=="English"){
+      c.animate([{opacity:1},{opacity:.35},{opacity:1}],{duration:420});
+      return;   /* 其余三条轨道这版还没做内容，点了给个反馈，不装死 */
+    }
+    document.querySelectorAll(".chip").forEach(function(x){x.classList.remove("on")});
+    c.classList.add("on");
+    render(t==="Arabic"?"ar":"en");
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+(function(){
+  var k=(location.hash||"").replace("#","")==="en"?"en":"ar";
+  if(k==="en"){document.querySelectorAll(".chip").forEach(function(x){x.classList.remove("on");
+    if(x.textContent.trim()==="English")x.classList.add("on")});}
+  render(k);
+})();
+</script>
+
+</body>
+</html>
