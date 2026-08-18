@@ -200,33 +200,1683 @@
 </div>
 
 <script>
-/* ====== 一课一条，加课只往 UNITS 里加、改 TODAY ======
-   2026-08-19 起照《春如金卷》单词书走（老板拍板选A）：
-   每天一个 Unit，单词逐字抄书（含音标、词性、中文），
-   每个单词配一个例句和例句配音（w_s.mp3），重点句也照书。
-   旧的 Unit 9 那套内容和音频按老板 8-19 的话删掉了。 */
+/* ====== 春如金卷单元库：数据由 tools/boyuan_units.py 生成，改内容改那边 ======
+   一年级上 Unit 12 缺后半页书图，暂不在队里；老板拍来 013-014 页就插进 1u11 后面。 */
 const UNITS = {
-  "1u11": {
-    volume:"一年级上", unit:11, title:"In the zoo", page:"013",
-    lesson:"boyuan-audio/lesson.mp3",
-    example:"比如：It's a panda. / Is that a tiger?",
-    words:[
-      {n:1,w:"monkey",ipa:"[ˈmʌŋkɪ]",pos:"n.",zh:"猴子",
-       eg:{en:"The monkey is in the tree.",zh:"猴子在树上。"}},
-      {n:2,w:"bear",ipa:"[beə(r)]",pos:"n.",zh:"熊",
-       eg:{en:"The bear is big.",zh:"熊很大。"}},
-      {n:3,w:"panda",ipa:"[ˈpændə]",pos:"n.",zh:"熊猫",
-       eg:{en:"The panda is black and white.",zh:"熊猫是黑白色的。"}},
-      {n:4,w:"tiger",ipa:"[ˈtaɪgə(r)]",pos:"n.",zh:"老虎",
-       eg:{en:"The tiger can run.",zh:"老虎会跑。"}}
-    ],
-    sentences:[
-      {n:1,en:"Is this/that a monkey?",zh:"这／那是猴子吗？"},
-      {n:2,en:"No. It's a panda.",zh:"不是。它是一只熊猫。"}
-    ]
-  }
+ "1u11": {
+  "volume": "一年级上",
+  "unit": 11,
+  "title": "In the zoo",
+  "page": "013",
+  "example": "比如：It's a panda. / Is that a tiger?",
+  "words": [
+   {
+    "n": 1,
+    "w": "monkey",
+    "ipa": "[ˈmʌŋkɪ]",
+    "pos": "n.",
+    "zh": "猴子",
+    "eg": {
+     "en": "The monkey is in the tree.",
+     "zh": "猴子在树上。"
+    },
+    "f": "monkey"
+   },
+   {
+    "n": 2,
+    "w": "bear",
+    "ipa": "[beə(r)]",
+    "pos": "n.",
+    "zh": "熊",
+    "eg": {
+     "en": "The bear is big.",
+     "zh": "熊很大。"
+    },
+    "f": "bear"
+   },
+   {
+    "n": 3,
+    "w": "panda",
+    "ipa": "[ˈpændə]",
+    "pos": "n.",
+    "zh": "熊猫",
+    "eg": {
+     "en": "The panda is black and white.",
+     "zh": "熊猫是黑白色的。"
+    },
+    "f": "panda"
+   },
+   {
+    "n": 4,
+    "w": "tiger",
+    "ipa": "[ˈtaɪgə(r)]",
+    "pos": "n.",
+    "zh": "老虎",
+    "eg": {
+     "en": "The tiger can run.",
+     "zh": "老虎会跑。"
+    },
+    "f": "tiger"
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "Is this/that a monkey?",
+    "zh": "这／那是猴子吗？"
+   },
+   {
+    "n": 2,
+    "en": "No. It's a panda.",
+    "zh": "不是。它是一只熊猫。"
+   }
+  ]
+ },
+ "2u1": {
+  "volume": "一年级下",
+  "unit": 1,
+  "title": "Look and see",
+  "page": "016",
+  "example": "比如：I see a bird. / I see a frog.",
+  "words": [
+   {
+    "n": 1,
+    "w": "see",
+    "ipa": "[siː]",
+    "pos": "v.",
+    "zh": "看见",
+    "eg": {
+     "en": "I see a bird.",
+     "zh": "我看见一只鸟。"
+    },
+    "f": "see"
+   },
+   {
+    "n": 2,
+    "w": "frog",
+    "ipa": "[frɒg]",
+    "pos": "n.",
+    "zh": "青蛙",
+    "eg": {
+     "en": "The frog is green.",
+     "zh": "青蛙是绿色的。"
+    },
+    "f": "frog"
+   },
+   {
+    "n": 3,
+    "w": "rabbit",
+    "ipa": "[ˈræbɪt]",
+    "pos": "n.",
+    "zh": "兔子",
+    "eg": {
+     "en": "The rabbit can jump.",
+     "zh": "兔子会跳。"
+    },
+    "f": "rabbit"
+   },
+   {
+    "n": 4,
+    "w": "bee",
+    "ipa": "[biː]",
+    "pos": "n.",
+    "zh": "蜜蜂",
+    "eg": {
+     "en": "The bee is small.",
+     "zh": "蜜蜂小小的。"
+    },
+    "f": "bee"
+   },
+   {
+    "n": 5,
+    "w": "bird",
+    "ipa": "[bɜːd]",
+    "pos": "n.",
+    "zh": "鸟",
+    "eg": {
+     "en": "The bird is in the tree.",
+     "zh": "鸟在树上。"
+    },
+    "f": "bird"
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "What do you see?",
+    "zh": "你（们）看见什么？"
+   },
+   {
+    "n": 2,
+    "en": "I see a panda.",
+    "zh": "我看见一只熊猫。"
+   }
+  ]
+ },
+ "2u2": {
+  "volume": "一年级下",
+  "unit": 2,
+  "title": "Listen and hear",
+  "page": "016",
+  "example": "比如：I hear a dog. / I hear a cat.",
+  "words": [
+   {
+    "n": 1,
+    "w": "listen",
+    "ipa": "[ˈlɪsn]",
+    "pos": "v.",
+    "zh": "听",
+    "eg": {
+     "en": "Listen! What is it?",
+     "zh": "听！这是什么？"
+    },
+    "f": "listen",
+    "star": true
+   },
+   {
+    "n": 2,
+    "w": "hear",
+    "ipa": "[hɪə(r)]",
+    "pos": "v.",
+    "zh": "听见",
+    "eg": {
+     "en": "I hear a dog.",
+     "zh": "我听见一只狗。"
+    },
+    "f": "hear"
+   },
+   {
+    "n": 3,
+    "w": "sheep",
+    "ipa": "[ʃiːp]",
+    "pos": "n.",
+    "zh": "绵羊（复数 sheep）",
+    "eg": {
+     "en": "The sheep is white.",
+     "zh": "绵羊是白色的。"
+    },
+    "f": "sheep"
+   },
+   {
+    "n": 4,
+    "w": "hen",
+    "ipa": "[hen]",
+    "pos": "n.",
+    "zh": "母鸡",
+    "eg": {
+     "en": "The hen is fat.",
+     "zh": "母鸡胖胖的。"
+    },
+    "f": "hen"
+   },
+   {
+    "n": 5,
+    "w": "dog",
+    "ipa": "[dɒg]",
+    "pos": "n.",
+    "zh": "狗",
+    "eg": {
+     "en": "The dog can run.",
+     "zh": "狗会跑。"
+    },
+    "f": "dog"
+   },
+   {
+    "n": 6,
+    "w": "cat",
+    "ipa": "[kæt]",
+    "pos": "n.",
+    "zh": "猫",
+    "eg": {
+     "en": "The cat is on the bed.",
+     "zh": "猫在床上。"
+    },
+    "f": "cat"
+   },
+   {
+    "n": 7,
+    "w": "home",
+    "ipa": "[həʊm]",
+    "pos": "n.",
+    "zh": "家",
+    "eg": {
+     "en": "The cat is at home.",
+     "zh": "猫在家里。"
+    },
+    "f": "home",
+    "star": true
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "What do you hear?",
+    "zh": "你（们）听见什么？"
+   },
+   {
+    "n": 2,
+    "en": "I hear a pig.",
+    "zh": "我听见一只猪（的叫声）。"
+   }
+  ]
+ },
+ "2u3": {
+  "volume": "一年级下",
+  "unit": 3,
+  "title": "Taste and smell",
+  "page": "017",
+  "example": "比如：Smell the rice. / Taste the egg.",
+  "words": [
+   {
+    "n": 1,
+    "w": "smell",
+    "ipa": "[smel]",
+    "pos": "v.",
+    "zh": "闻（……的气味）",
+    "eg": {
+     "en": "Smell the flower.",
+     "zh": "闻闻这朵花。"
+    },
+    "f": "smell"
+   },
+   {
+    "n": 2,
+    "w": "taste",
+    "ipa": "[teɪst]",
+    "pos": "v.",
+    "zh": "尝（……的味道）",
+    "eg": {
+     "en": "Taste the rice.",
+     "zh": "尝尝这米饭。"
+    },
+    "f": "taste"
+   },
+   {
+    "n": 3,
+    "w": "rice",
+    "ipa": "[raɪs]",
+    "pos": "n.",
+    "zh": "米饭",
+    "eg": {
+     "en": "I like rice.",
+     "zh": "我喜欢米饭。"
+    },
+    "f": "rice"
+   },
+   {
+    "n": 4,
+    "w": "soup",
+    "ipa": "[suːp]",
+    "pos": "n.",
+    "zh": "汤",
+    "eg": {
+     "en": "The soup is hot.",
+     "zh": "汤是热的。"
+    },
+    "f": "soup"
+   },
+   {
+    "n": 5,
+    "w": "egg",
+    "ipa": "[eg]",
+    "pos": "n.",
+    "zh": "蛋",
+    "eg": {
+     "en": "I see an egg.",
+     "zh": "我看见一个蛋。"
+    },
+    "f": "egg"
+   },
+   {
+    "n": 6,
+    "w": "noodles",
+    "ipa": "[ˈnuːdlz]",
+    "pos": "n.",
+    "zh": "面条",
+    "eg": {
+     "en": "The noodles are yummy.",
+     "zh": "面条很好吃。"
+    },
+    "f": "noodles"
+   },
+   {
+    "n": 7,
+    "w": "yummy",
+    "ipa": "[ˈjʌmɪ]",
+    "pos": "adj.",
+    "zh": "美味的",
+    "eg": {
+     "en": "The soup is yummy.",
+     "zh": "汤很美味。"
+    },
+    "f": "yummy",
+    "star": true
+   },
+   {
+    "n": 8,
+    "w": "restaurant",
+    "ipa": "[ˈrestrɒnt]",
+    "pos": "n.",
+    "zh": "餐馆",
+    "eg": {
+     "en": "We eat in a restaurant.",
+     "zh": "我们在餐馆吃饭。"
+    },
+    "f": "restaurant",
+    "star": true
+   },
+   {
+    "n": 9,
+    "w": "help",
+    "ipa": "[help]",
+    "pos": "v.",
+    "zh": "帮助",
+    "eg": {
+     "en": "Can you help me?",
+     "zh": "你能帮帮我吗？"
+    },
+    "f": "help",
+    "star": true
+   },
+   {
+    "n": 10,
+    "w": "flower",
+    "ipa": "[ˈflaʊə(r)]",
+    "pos": "n.",
+    "zh": "花",
+    "eg": {
+     "en": "The flower is red.",
+     "zh": "花是红色的。"
+    },
+    "f": "flower",
+    "star": true
+   },
+   {
+    "n": 11,
+    "w": "stand up",
+    "ipa": "",
+    "pos": "词组",
+    "zh": "站起来",
+    "eg": {
+     "en": "Stand up, please.",
+     "zh": "请站起来。"
+    },
+    "f": "stand_up",
+    "star": true
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "Smell the noodles.",
+    "zh": "闻闻这面。"
+   },
+   {
+    "n": 2,
+    "en": "Taste the soup.",
+    "zh": "尝尝这汤。"
+   },
+   {
+    "n": 3,
+    "en": "Yummy.",
+    "zh": "美味极了。"
+   }
+  ]
+ },
+ "2u4": {
+  "volume": "一年级下",
+  "unit": 4,
+  "title": "Toys I like",
+  "page": "019",
+  "example": "比如：I like my kite. / It's super.",
+  "words": [
+   {
+    "n": 1,
+    "w": "toy",
+    "ipa": "[tɔɪ]",
+    "pos": "n.",
+    "zh": "玩具",
+    "eg": {
+     "en": "I like my toy.",
+     "zh": "我喜欢我的玩具。"
+    },
+    "f": "toy",
+    "star": true
+   },
+   {
+    "n": 2,
+    "w": "like",
+    "ipa": "[laɪk]",
+    "pos": "v.",
+    "zh": "喜欢",
+    "eg": {
+     "en": "I like pandas.",
+     "zh": "我喜欢熊猫。"
+    },
+    "f": "like"
+   },
+   {
+    "n": 3,
+    "w": "ball",
+    "ipa": "[bɔːl]",
+    "pos": "n.",
+    "zh": "球",
+    "eg": {
+     "en": "The ball is big.",
+     "zh": "球很大。"
+    },
+    "f": "ball"
+   },
+   {
+    "n": 4,
+    "w": "doll",
+    "ipa": "[dɒl]",
+    "pos": "n.",
+    "zh": "玩具娃娃",
+    "eg": {
+     "en": "The doll is nice.",
+     "zh": "娃娃很好看。"
+    },
+    "f": "doll"
+   },
+   {
+    "n": 5,
+    "w": "kite",
+    "ipa": "[kaɪt]",
+    "pos": "n.",
+    "zh": "风筝",
+    "eg": {
+     "en": "My kite is in the sky.",
+     "zh": "我的风筝在天上。"
+    },
+    "f": "kite"
+   },
+   {
+    "n": 6,
+    "w": "bicycle",
+    "ipa": "[ˈbaɪsɪkl]",
+    "pos": "n.",
+    "zh": "自行车",
+    "eg": {
+     "en": "I ride my bicycle.",
+     "zh": "我骑我的自行车。"
+    },
+    "f": "bicycle"
+   },
+   {
+    "n": 7,
+    "w": "super",
+    "ipa": "[ˈsjuːpə(r)]",
+    "pos": "adj.",
+    "zh": "超级的；顶好的",
+    "eg": {
+     "en": "My toy is super.",
+     "zh": "我的玩具顶好。"
+    },
+    "f": "super",
+    "star": true
+   },
+   {
+    "n": 8,
+    "w": "toy shop",
+    "ipa": "",
+    "pos": "词组",
+    "zh": "玩具店",
+    "eg": {
+     "en": "Let's go to the toy shop.",
+     "zh": "我们去玩具店吧。"
+    },
+    "f": "toy_shop",
+    "star": true
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "I like balls.",
+    "zh": "我喜欢球。"
+   },
+   {
+    "n": 2,
+    "en": "It's nice.",
+    "zh": "它很好。"
+   }
+  ]
+ },
+ "2u5": {
+  "volume": "一年级下",
+  "unit": 5,
+  "title": "Food I like",
+  "page": "020",
+  "example": "比如：I like jelly. / One for you.",
+  "words": [
+   {
+    "n": 1,
+    "w": "food",
+    "ipa": "[fuːd]",
+    "pos": "n.",
+    "zh": "食物",
+    "eg": {
+     "en": "I like this food.",
+     "zh": "我喜欢这个食物。"
+    },
+    "f": "food",
+    "star": true
+   },
+   {
+    "n": 2,
+    "w": "sweet",
+    "ipa": "[swiːt]",
+    "pos": "n.",
+    "zh": "糖果；adj. 甜的",
+    "eg": {
+     "en": "The sweet is yummy.",
+     "zh": "糖果很好吃。"
+    },
+    "f": "sweet"
+   },
+   {
+    "n": 3,
+    "w": "jelly",
+    "ipa": "[ˈdʒelɪ]",
+    "pos": "n.",
+    "zh": "果冻",
+    "eg": {
+     "en": "I like jelly.",
+     "zh": "我喜欢果冻。"
+    },
+    "f": "jelly"
+   },
+   {
+    "n": 4,
+    "w": "biscuit",
+    "ipa": "[ˈbɪskɪt]",
+    "pos": "n.",
+    "zh": "饼干",
+    "eg": {
+     "en": "One biscuit for you.",
+     "zh": "一块饼干给你。"
+    },
+    "f": "biscuit"
+   },
+   {
+    "n": 5,
+    "w": "teatime",
+    "ipa": "[ˈtiːtaɪm]",
+    "pos": "n.",
+    "zh": "茶点时间",
+    "eg": {
+     "en": "It's teatime!",
+     "zh": "茶点时间到了！"
+    },
+    "f": "teatime",
+    "star": true
+   },
+   {
+    "n": 6,
+    "w": "for",
+    "ipa": "[fɔː(r)]",
+    "pos": "prep.",
+    "zh": "给",
+    "eg": {
+     "en": "This is for you.",
+     "zh": "这是给你的。"
+    },
+    "f": "for",
+    "star": true
+   },
+   {
+    "n": 7,
+    "w": "and",
+    "ipa": "[ænd]",
+    "pos": "conj.",
+    "zh": "和",
+    "eg": {
+     "en": "You and me.",
+     "zh": "你和我。"
+    },
+    "f": "and",
+    "star": true
+   },
+   {
+    "n": 8,
+    "w": "sorry",
+    "ipa": "[ˈsɒrɪ]",
+    "pos": "int.",
+    "zh": "对不起；抱歉",
+    "eg": {
+     "en": "Sorry, Miss Fang.",
+     "zh": "对不起，方老师。"
+    },
+    "f": "sorry",
+    "star": true
+   },
+   {
+    "n": 9,
+    "w": "very much",
+    "ipa": "",
+    "pos": "词组",
+    "zh": "非常",
+    "eg": {
+     "en": "I like milk very much.",
+     "zh": "我非常喜欢牛奶。"
+    },
+    "f": "very_much",
+    "star": true
+   },
+   {
+    "n": 10,
+    "w": "ice cream",
+    "ipa": "",
+    "pos": "词组",
+    "zh": "冰淇淋",
+    "eg": {
+     "en": "I like ice cream.",
+     "zh": "我喜欢冰淇淋。"
+    },
+    "f": "ice_cream"
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "Do you like sweets.",
+    "zh": "你（们）喜欢糖果吗？"
+   },
+   {
+    "n": 2,
+    "en": "One for you and one for me.",
+    "zh": "一个给你一个给我。"
+   },
+   {
+    "n": 3,
+    "en": "I like biscuits very much.",
+    "zh": "我非常喜欢饼干。"
+   }
+  ]
+ },
+ "2u6": {
+  "volume": "一年级下",
+  "unit": 6,
+  "title": "Drinks I like",
+  "page": "021",
+  "example": "比如：I like juice. / Happy birthday!",
+  "words": [
+   {
+    "n": 1,
+    "w": "drink",
+    "ipa": "[drɪŋk]",
+    "pos": "n.",
+    "zh": "饮料",
+    "eg": {
+     "en": "This drink is sweet.",
+     "zh": "这个饮料是甜的。"
+    },
+    "f": "drink",
+    "star": true
+   },
+   {
+    "n": 2,
+    "w": "water",
+    "ipa": "[ˈwɔːtə(r)]",
+    "pos": "n.",
+    "zh": "水",
+    "eg": {
+     "en": "I drink water.",
+     "zh": "我喝水。"
+    },
+    "f": "water"
+   },
+   {
+    "n": 3,
+    "w": "cola",
+    "ipa": "[ˈkəʊlə]",
+    "pos": "n.",
+    "zh": "可乐",
+    "eg": {
+     "en": "Cola is sweet.",
+     "zh": "可乐是甜的。"
+    },
+    "f": "cola"
+   },
+   {
+    "n": 4,
+    "w": "juice",
+    "ipa": "[dʒuːs]",
+    "pos": "n.",
+    "zh": "果汁",
+    "eg": {
+     "en": "I like juice.",
+     "zh": "我喜欢果汁。"
+    },
+    "f": "juice"
+   },
+   {
+    "n": 5,
+    "w": "milk",
+    "ipa": "[mɪlk]",
+    "pos": "n.",
+    "zh": "牛奶",
+    "eg": {
+     "en": "Milk is white.",
+     "zh": "牛奶是白色的。"
+    },
+    "f": "milk"
+   },
+   {
+    "n": 6,
+    "w": "birthday",
+    "ipa": "[ˈbɜːθdeɪ]",
+    "pos": "n.",
+    "zh": "生日",
+    "eg": {
+     "en": "Today is my birthday.",
+     "zh": "今天是我的生日。"
+    },
+    "f": "birthday",
+    "star": true
+   },
+   {
+    "n": 7,
+    "w": "party",
+    "ipa": "[ˈpɑːtɪ]",
+    "pos": "n.",
+    "zh": "聚会；派对",
+    "eg": {
+     "en": "Come to my party.",
+     "zh": "来我的派对吧。"
+    },
+    "f": "party",
+    "star": true
+   },
+   {
+    "n": 8,
+    "w": "happy",
+    "ipa": "[ˈhæpɪ]",
+    "pos": "adj.",
+    "zh": "快乐的",
+    "eg": {
+     "en": "I am happy today.",
+     "zh": "我今天很快乐。"
+    },
+    "f": "happy",
+    "star": true
+   },
+   {
+    "n": 9,
+    "w": "song",
+    "ipa": "[sɒŋ]",
+    "pos": "n.",
+    "zh": "歌曲",
+    "eg": {
+     "en": "I like this song.",
+     "zh": "我喜欢这首歌。"
+    },
+    "f": "song",
+    "star": true
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "What do you like?",
+    "zh": "你（们）喜欢什么？"
+   },
+   {
+    "n": 2,
+    "en": "Happy birthday (to you)!",
+    "zh": "（祝你）生日快乐！"
+   }
+  ]
+ },
+ "2u7": {
+  "volume": "一年级下",
+  "unit": 7,
+  "title": "Seasons",
+  "page": "022",
+  "example": "比如：Spring is green. / I like summer.",
+  "words": [
+   {
+    "n": 1,
+    "w": "season",
+    "ipa": "[ˈsiːzn]",
+    "pos": "n.",
+    "zh": "季节",
+    "eg": {
+     "en": "Which season do you like?",
+     "zh": "你喜欢哪个季节？"
+    },
+    "f": "season",
+    "star": true
+   },
+   {
+    "n": 2,
+    "w": "spring",
+    "ipa": "[sprɪŋ]",
+    "pos": "n.",
+    "zh": "春天",
+    "eg": {
+     "en": "Spring is green.",
+     "zh": "春天是绿色的。"
+    },
+    "f": "spring"
+   },
+   {
+    "n": 3,
+    "w": "summer",
+    "ipa": "[ˈsʌmə(r)]",
+    "pos": "n.",
+    "zh": "夏天",
+    "eg": {
+     "en": "Summer is hot.",
+     "zh": "夏天很热。"
+    },
+    "f": "summer"
+   },
+   {
+    "n": 4,
+    "w": "autumn",
+    "ipa": "[ˈɔːtəm]",
+    "pos": "n.",
+    "zh": "秋天",
+    "eg": {
+     "en": "Autumn is yellow.",
+     "zh": "秋天是黄色的。"
+    },
+    "f": "autumn"
+   },
+   {
+    "n": 5,
+    "w": "winter",
+    "ipa": "[ˈwɪntə(r)]",
+    "pos": "n.",
+    "zh": "冬天",
+    "eg": {
+     "en": "Winter is white.",
+     "zh": "冬天是白色的。"
+    },
+    "f": "winter"
+   },
+   {
+    "n": 6,
+    "w": "white",
+    "ipa": "[waɪt]",
+    "pos": "adj.",
+    "zh": "白色的",
+    "eg": {
+     "en": "The sheep is white.",
+     "zh": "绵羊是白色的。"
+    },
+    "f": "white"
+   },
+   {
+    "n": 7,
+    "w": "grass",
+    "ipa": "[grɑːs]",
+    "pos": "n.",
+    "zh": "草",
+    "eg": {
+     "en": "The grass is green.",
+     "zh": "草是绿色的。"
+    },
+    "f": "grass"
+   },
+   {
+    "n": 8,
+    "w": "watermelon",
+    "ipa": "[ˈwɔːtəmelən]",
+    "pos": "n.",
+    "zh": "西瓜",
+    "eg": {
+     "en": "I like watermelon.",
+     "zh": "我喜欢西瓜。"
+    },
+    "f": "watermelon"
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "Spring is green.",
+    "zh": "春天是绿色的。"
+   },
+   {
+    "n": 2,
+    "en": "Summer is red.",
+    "zh": "夏天是红色的。"
+   },
+   {
+    "n": 3,
+    "en": "Autumn is yellow.",
+    "zh": "秋天是黄色的。"
+   },
+   {
+    "n": 4,
+    "en": "Winter is white.",
+    "zh": "冬天是白色的。"
+   }
+  ]
+ },
+ "2u8": {
+  "volume": "一年级下",
+  "unit": 8,
+  "title": "Weather",
+  "page": "023",
+  "example": "比如：It's sunny. / Let's go!",
+  "words": [
+   {
+    "n": 1,
+    "w": "how",
+    "ipa": "[haʊ]",
+    "pos": "adv.",
+    "zh": "怎样；如何",
+    "eg": {
+     "en": "How are you?",
+     "zh": "你好吗？"
+    },
+    "f": "how"
+   },
+   {
+    "n": 2,
+    "w": "weather",
+    "ipa": "[ˈweðə(r)]",
+    "pos": "n.",
+    "zh": "天气",
+    "eg": {
+     "en": "The weather is nice.",
+     "zh": "天气很好。"
+    },
+    "f": "weather"
+   },
+   {
+    "n": 3,
+    "w": "cloudy",
+    "ipa": "[ˈklaʊdɪ]",
+    "pos": "adj.",
+    "zh": "多云的",
+    "eg": {
+     "en": "It's cloudy today.",
+     "zh": "今天多云。"
+    },
+    "f": "cloudy"
+   },
+   {
+    "n": 4,
+    "w": "sunny",
+    "ipa": "[ˈsʌnɪ]",
+    "pos": "adj.",
+    "zh": "阳光明媚的",
+    "eg": {
+     "en": "It's sunny today.",
+     "zh": "今天阳光明媚。"
+    },
+    "f": "sunny"
+   },
+   {
+    "n": 5,
+    "w": "rainy",
+    "ipa": "[ˈreɪnɪ]",
+    "pos": "adj.",
+    "zh": "有雨的；多雨的",
+    "eg": {
+     "en": "It's rainy. I stay at home.",
+     "zh": "下雨了，我待在家里。"
+    },
+    "f": "rainy"
+   },
+   {
+    "n": 6,
+    "w": "windy",
+    "ipa": "[ˈwɪndɪ]",
+    "pos": "adj.",
+    "zh": "有风的；多风的",
+    "eg": {
+     "en": "It's windy. My kite can fly.",
+     "zh": "有风，我的风筝能飞。"
+    },
+    "f": "windy"
+   },
+   {
+    "n": 7,
+    "w": "hot",
+    "ipa": "[hɒt]",
+    "pos": "adj.",
+    "zh": "炎热的",
+    "eg": {
+     "en": "It's hot in Dubai.",
+     "zh": "迪拜很热。"
+    },
+    "f": "hot"
+   },
+   {
+    "n": 8,
+    "w": "go",
+    "ipa": "[gəʊ]",
+    "pos": "v.",
+    "zh": "去",
+    "eg": {
+     "en": "Let's go!",
+     "zh": "我们走吧！"
+    },
+    "f": "go",
+    "star": true
+   },
+   {
+    "n": 9,
+    "w": "to",
+    "ipa": "[tuː]",
+    "pos": "prep.",
+    "zh": "到；向",
+    "eg": {
+     "en": "I go to school.",
+     "zh": "我去上学。"
+    },
+    "f": "to",
+    "star": true
+   },
+   {
+    "n": 10,
+    "w": "beach",
+    "ipa": "[biːtʃ]",
+    "pos": "n.",
+    "zh": "沙滩；海滩",
+    "eg": {
+     "en": "The beach is big.",
+     "zh": "沙滩很大。"
+    },
+    "f": "beach",
+    "star": true
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "How's the weather?",
+    "zh": "天气怎么样？"
+   },
+   {
+    "n": 2,
+    "en": "It's cloudy.",
+    "zh": "天气多云。"
+   },
+   {
+    "n": 3,
+    "en": "Let's go to the beach.",
+    "zh": "我们去沙滩吧。"
+   }
+  ]
+ },
+ "2u9": {
+  "volume": "一年级下",
+  "unit": 9,
+  "title": "Clothes",
+  "page": "024",
+  "example": "比如：I need a T-shirt. / It's new.",
+  "words": [
+   {
+    "n": 1,
+    "w": "clothes",
+    "ipa": "[kləʊðz]",
+    "pos": "n.",
+    "zh": "衣服",
+    "eg": {
+     "en": "I like my clothes.",
+     "zh": "我喜欢我的衣服。"
+    },
+    "f": "clothes",
+    "star": true
+   },
+   {
+    "n": 2,
+    "w": "need",
+    "ipa": "[niːd]",
+    "pos": "v.",
+    "zh": "需要",
+    "eg": {
+     "en": "I need water.",
+     "zh": "我需要水。"
+    },
+    "f": "need"
+   },
+   {
+    "n": 3,
+    "w": "new",
+    "ipa": "[njuː]",
+    "pos": "adj.",
+    "zh": "新的",
+    "eg": {
+     "en": "My T-shirt is new.",
+     "zh": "我的T恤衫是新的。"
+    },
+    "f": "new"
+   },
+   {
+    "n": 4,
+    "w": "T-shirt",
+    "ipa": "[ˈtiːʃɜːt]",
+    "pos": "n.",
+    "zh": "T 恤衫",
+    "eg": {
+     "en": "This T-shirt is white.",
+     "zh": "这件T恤衫是白色的。"
+    },
+    "f": "t_shirt"
+   },
+   {
+    "n": 5,
+    "w": "dress",
+    "ipa": "[dres]",
+    "pos": "n.",
+    "zh": "连衣裙",
+    "eg": {
+     "en": "The dress is nice.",
+     "zh": "这条连衣裙很好看。"
+    },
+    "f": "dress"
+   },
+   {
+    "n": 6,
+    "w": "shorts",
+    "ipa": "[ʃɔːts]",
+    "pos": "n.",
+    "zh": "短裤",
+    "eg": {
+     "en": "I need my shorts.",
+     "zh": "我需要我的短裤。"
+    },
+    "f": "shorts"
+   },
+   {
+    "n": 7,
+    "w": "blouse",
+    "ipa": "[blaʊz]",
+    "pos": "n.",
+    "zh": "女式衬衫",
+    "eg": {
+     "en": "The blouse is new.",
+     "zh": "这件衬衫是新的。"
+    },
+    "f": "blouse"
+   },
+   {
+    "n": 8,
+    "w": "don't",
+    "ipa": "[dəʊnt]",
+    "pos": "",
+    "zh": "（do 的否定形式）",
+    "eg": {
+     "en": "I don't like hot weather.",
+     "zh": "我不喜欢热天。"
+    },
+    "f": "don_t"
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "What do you need?",
+    "zh": "你（们）需要什么？"
+   },
+   {
+    "n": 2,
+    "en": "I need a new dress.",
+    "zh": "我需要一条新连衣裙。"
+   }
+  ]
+ },
+ "2u10": {
+  "volume": "一年级下",
+  "unit": 10,
+  "title": "Activities",
+  "page": "025",
+  "example": "比如：I can skip. / I play football.",
+  "words": [
+   {
+    "n": 1,
+    "w": "activity",
+    "ipa": "[ækˈtɪvətɪ]",
+    "pos": "n.",
+    "zh": "活动",
+    "eg": {
+     "en": "I like this activity.",
+     "zh": "我喜欢这个活动。"
+    },
+    "f": "activity",
+    "star": true
+   },
+   {
+    "n": 2,
+    "w": "ride",
+    "ipa": "[raɪd]",
+    "pos": "v.",
+    "zh": "骑（车）",
+    "eg": {
+     "en": "I can ride a bicycle.",
+     "zh": "我会骑自行车。"
+    },
+    "f": "ride"
+   },
+   {
+    "n": 3,
+    "w": "skip",
+    "ipa": "[skɪp]",
+    "pos": "v.",
+    "zh": "跳绳",
+    "eg": {
+     "en": "I can skip.",
+     "zh": "我会跳绳。"
+    },
+    "f": "skip"
+   },
+   {
+    "n": 4,
+    "w": "play",
+    "ipa": "[pleɪ]",
+    "pos": "v.",
+    "zh": "踢（球）；玩",
+    "eg": {
+     "en": "I play football.",
+     "zh": "我踢足球。"
+    },
+    "f": "play"
+   },
+   {
+    "n": 5,
+    "w": "fly",
+    "ipa": "[flaɪ]",
+    "pos": "v.",
+    "zh": "放（风筝）",
+    "eg": {
+     "en": "I fly my kite.",
+     "zh": "我放我的风筝。"
+    },
+    "f": "fly"
+   },
+   {
+    "n": 6,
+    "w": "playtime",
+    "ipa": "[ˈpleɪtaɪm]",
+    "pos": "n.",
+    "zh": "游戏时间",
+    "eg": {
+     "en": "It's playtime!",
+     "zh": "游戏时间到了！"
+    },
+    "f": "playtime",
+    "star": true
+   },
+   {
+    "n": 7,
+    "w": "football",
+    "ipa": "[ˈfʊtbɔːl]",
+    "pos": "n.",
+    "zh": "足球",
+    "eg": {
+     "en": "The football is new.",
+     "zh": "这个足球是新的。"
+    },
+    "f": "football",
+    "star": true
+   },
+   {
+    "n": 8,
+    "w": "rope",
+    "ipa": "[rəʊp]",
+    "pos": "n.",
+    "zh": "绳子",
+    "eg": {
+     "en": "The rope is long.",
+     "zh": "绳子很长。"
+    },
+    "f": "rope",
+    "star": true
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "What can you do?",
+    "zh": "你（们）能做什么？"
+   },
+   {
+    "n": 2,
+    "en": "What can she do?",
+    "zh": "她会做什么？"
+   }
+  ]
+ },
+ "2u11": {
+  "volume": "一年级下",
+  "unit": 11,
+  "title": "New Year's Day",
+  "page": "026",
+  "example": "比如：A gift for you. / Happy New Year!",
+  "words": [
+   {
+    "n": 1,
+    "w": "gift",
+    "ipa": "[gɪft]",
+    "pos": "n.",
+    "zh": "礼物",
+    "eg": {
+     "en": "This gift is for you.",
+     "zh": "这个礼物是给你的。"
+    },
+    "f": "gift"
+   },
+   {
+    "n": 2,
+    "w": "card",
+    "ipa": "[kɑːd]",
+    "pos": "n.",
+    "zh": "卡片",
+    "eg": {
+     "en": "I make a card.",
+     "zh": "我做一张卡片。"
+    },
+    "f": "card"
+   },
+   {
+    "n": 3,
+    "w": "firecracker",
+    "ipa": "[ˈfaɪəkrækə(r)]",
+    "pos": "n.",
+    "zh": "鞭炮；爆竹",
+    "eg": {
+     "en": "I hear the firecrackers.",
+     "zh": "我听见鞭炮声。"
+    },
+    "f": "firecracker"
+   },
+   {
+    "n": 4,
+    "w": "firework",
+    "ipa": "[ˈfaɪəwɜːk]",
+    "pos": "n.",
+    "zh": "烟花；烟火",
+    "eg": {
+     "en": "The fireworks are super.",
+     "zh": "烟花顶好看。"
+    },
+    "f": "firework"
+   },
+   {
+    "n": 5,
+    "w": "make",
+    "ipa": "[meɪk]",
+    "pos": "v.",
+    "zh": "制作",
+    "eg": {
+     "en": "I make a kite.",
+     "zh": "我做一个风筝。"
+    },
+    "f": "make",
+    "star": true
+   },
+   {
+    "n": 6,
+    "w": "write",
+    "ipa": "[raɪt]",
+    "pos": "v.",
+    "zh": "写",
+    "eg": {
+     "en": "I write a card.",
+     "zh": "我写一张卡片。"
+    },
+    "f": "write",
+    "star": true
+   },
+   {
+    "n": 7,
+    "w": "fold",
+    "ipa": "[fəʊld]",
+    "pos": "v.",
+    "zh": "折",
+    "eg": {
+     "en": "I fold the paper.",
+     "zh": "我把纸折起来。"
+    },
+    "f": "fold",
+    "star": true
+   },
+   {
+    "n": 8,
+    "w": "Miss",
+    "ipa": "[mɪs]",
+    "pos": "n.",
+    "zh": "小姐",
+    "eg": {
+     "en": "Good morning, Miss Fang.",
+     "zh": "早上好，方小姐。"
+    },
+    "f": "miss",
+    "star": true
+   },
+   {
+    "n": 9,
+    "w": "shopping",
+    "ipa": "[ˈʃɒpɪŋ]",
+    "pos": "n.",
+    "zh": "购物",
+    "eg": {
+     "en": "We go shopping.",
+     "zh": "我们去购物。"
+    },
+    "f": "shopping",
+    "star": true
+   },
+   {
+    "n": 10,
+    "w": "new year",
+    "ipa": "",
+    "pos": "词组",
+    "zh": "新年",
+    "eg": {
+     "en": "The new year is coming.",
+     "zh": "新年就要到了。"
+    },
+    "f": "new_year",
+    "star": true
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "Happy New Year (to you)!",
+    "zh": "（祝你）新年快乐！"
+   }
+  ]
+ },
+ "2u12": {
+  "volume": "一年级下",
+  "unit": 12,
+  "title": "A boy and a wolf",
+  "page": "027",
+  "example": "比如：Help! / Where's the wolf?",
+  "words": [
+   {
+    "n": 1,
+    "w": "boy",
+    "ipa": "[bɔɪ]",
+    "pos": "n.",
+    "zh": "男孩",
+    "eg": {
+     "en": "The boy can run.",
+     "zh": "男孩会跑。"
+    },
+    "f": "boy"
+   },
+   {
+    "n": 2,
+    "w": "wolf",
+    "ipa": "[wʊlf]",
+    "pos": "n.",
+    "zh": "狼（复数 wolves）",
+    "eg": {
+     "en": "The wolf is bad.",
+     "zh": "狼是坏的。"
+    },
+    "f": "wolf"
+   },
+   {
+    "n": 3,
+    "w": "farmer",
+    "ipa": "[ˈfɑːmə(r)]",
+    "pos": "n.",
+    "zh": "农夫",
+    "eg": {
+     "en": "The farmer has a dog.",
+     "zh": "农夫有一只狗。"
+    },
+    "f": "farmer"
+   },
+   {
+    "n": 4,
+    "w": "narrator",
+    "ipa": "[nəˈreɪtə(r)]",
+    "pos": "n.",
+    "zh": "旁白；叙述者",
+    "eg": {
+     "en": "The narrator tells the story.",
+     "zh": "旁白讲这个故事。"
+    },
+    "f": "narrator",
+    "star": true
+   },
+   {
+    "n": 5,
+    "w": "come",
+    "ipa": "[kʌm]",
+    "pos": "v.",
+    "zh": "来",
+    "eg": {
+     "en": "Come here!",
+     "zh": "过来！"
+    },
+    "f": "come",
+    "star": true
+   },
+   {
+    "n": 6,
+    "w": "where",
+    "ipa": "[weə(r)]",
+    "pos": "adv.",
+    "zh": "哪里",
+    "eg": {
+     "en": "Where is my cat?",
+     "zh": "我的猫在哪里？"
+    },
+    "f": "where",
+    "star": true
+   },
+   {
+    "n": 7,
+    "w": "bad",
+    "ipa": "[bæd]",
+    "pos": "adj.",
+    "zh": "坏的",
+    "eg": {
+     "en": "The wolf is bad.",
+     "zh": "狼是坏的。"
+    },
+    "f": "bad",
+    "star": true
+   },
+   {
+    "n": 8,
+    "w": "poor",
+    "ipa": "[pʊə(r)]",
+    "pos": "adj.",
+    "zh": "可怜的",
+    "eg": {
+     "en": "The poor boy is sad.",
+     "zh": "可怜的男孩很难过。"
+    },
+    "f": "poor",
+    "star": true
+   },
+   {
+    "n": 9,
+    "w": "tell",
+    "ipa": "[tel]",
+    "pos": "v.",
+    "zh": "说；告诉",
+    "eg": {
+     "en": "Tell me, please.",
+     "zh": "请告诉我。"
+    },
+    "f": "tell",
+    "star": true
+   },
+   {
+    "n": 10,
+    "w": "lie",
+    "ipa": "[laɪ]",
+    "pos": "n.",
+    "zh": "谎话；谎言",
+    "eg": {
+     "en": "Don't tell a lie.",
+     "zh": "不要说谎。"
+    },
+    "f": "lie",
+    "star": true
+   },
+   {
+    "n": 11,
+    "w": "run away",
+    "ipa": "",
+    "pos": "词组",
+    "zh": "逃跑",
+    "eg": {
+     "en": "The wolf runs away.",
+     "zh": "狼逃跑了。"
+    },
+    "f": "run_away",
+    "star": true
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "Help!",
+    "zh": "救命！"
+   },
+   {
+    "n": 2,
+    "en": "Here come the farmers.",
+    "zh": "农民们来了。"
+   },
+   {
+    "n": 3,
+    "en": "Where's the wolf?",
+    "zh": "狼在哪里？"
+   },
+   {
+    "n": 4,
+    "en": "Don't tell a lie!",
+    "zh": "不要说谎！"
+   },
+   {
+    "n": 5,
+    "en": "A poor boy.",
+    "zh": "一个可怜的男孩。"
+   }
+  ]
+ }
 };
-const TODAY = "1u11";
+
+/* 排课：从 2026-08-19 起每天一课，按书的顺序走；学完最后一课就停在最后一课。
+   要看别的课：网址后面加 ?unit=2u5 这样的钥匙（也方便复习）。 */
+const SCHEDULE = ['1u11', '2u1', '2u2', '2u3', '2u4', '2u5', '2u6', '2u7', '2u8', '2u9', '2u10', '2u11', '2u12'];
+const ANCHOR = "2026-08-19";
+function dubaiDate(){ return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Dubai'}); }
+function pickToday(){
+  const q = new URLSearchParams(location.search).get('unit');
+  if(q && UNITS[q]) return q;
+  const days = Math.max(0, Math.round((new Date(dubaiDate()) - new Date(ANCHOR)) / 86400000));
+  return SCHEDULE[Math.min(days, SCHEDULE.length - 1)];
+}
+const TODAY = pickToday();
 const U = UNITS[TODAY];
 const AUDIO_DIR = "boyuan-audio/";
 const SPK='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>';
@@ -323,11 +1973,11 @@ U.words.forEach(w=>{
   /* 听：先念单词，跟着念它的句子 */
   d.querySelector('.op-listen').onclick=(ev)=>{
     ev.stopPropagation();
-    play(AUDIO_DIR+w.w+'.mp3', d);
-    if(curAudio) curAudio.onended=()=>{ d.classList.remove('playing'); play(AUDIO_DIR+w.w+'_s.mp3', d); };
+    play(AUDIO_DIR+TODAY+'_'+w.f+'.mp3', d);
+    if(curAudio) curAudio.onended=()=>{ d.classList.remove('playing'); play(AUDIO_DIR+TODAY+'_'+w.f+'_s.mp3', d); };
   };
   const egEl=d.querySelector('.weg');
-  if(egEl) egEl.onclick=(ev)=>{ ev.stopPropagation(); play(AUDIO_DIR+w.w+'_s.mp3', d); };
+  if(egEl) egEl.onclick=(ev)=>{ ev.stopPropagation(); play(AUDIO_DIR+TODAY+'_'+w.f+'_s.mp3', d); };
   /* 已背会：点亮记一笔，攒齐了才放打卡 */
   d.querySelector('.op-mem').onclick=(ev)=>{
     ev.stopPropagation();
@@ -336,7 +1986,7 @@ U.words.forEach(w=>{
   };
   cardsEl.appendChild(d);
 });
-document.getElementById('listenAll').onclick=()=>play(U.lesson,null);
+document.getElementById('listenAll').onclick=()=>play(AUDIO_DIR+TODAY+'_lesson.mp3',null);
 
 /* ===== 已背会 + 当天打卡（照老板 8-19 截图的样子）=====
    日期一律按迪拜算；背会名单和打卡各记一条，按天分开，不清昨天的账 */
@@ -382,7 +2032,7 @@ const sentsEl=document.getElementById('sentences');
 U.sentences.forEach((s,i)=>{
   const d=document.createElement('div'); d.className='sent';
   d.innerHTML=`<div class="sp">${SPK}</div><div><div class="en">${s.en}</div><div class="cn">${s.zh}</div></div>`;
-  d.onclick=()=>play(AUDIO_DIR+'sent'+(i+1)+'.mp3',null);
+  d.onclick=()=>play(AUDIO_DIR+TODAY+'_sent'+(i+1)+'.mp3',null);
   sentsEl.appendChild(d);
 });
 
