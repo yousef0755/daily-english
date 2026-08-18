@@ -2443,17 +2443,21 @@ function renderRecite(){
   /* 老板 2026-08-16：「古诗把所有的内容都给他打开，这样如果他想多背也可以」
      ——所以古诗整首摆出来，只有古兰经还是每天两句。
      每天两句那条规矩没变，只是变成了**底线不是上限**。 */
+  /* 老板 2026-08-19：「把博远的网站里面的古兰经都打开」
+     ——跟 8-16 古诗那条同一个意思：整章都摆出来，想多背就能多背。
+     「每天两句」保留成底线：那两句照旧标出来、照旧进小考，只是不再挡住其余的经文。 */
+  let __todayLi = [];
   if(rSub==="quran" && typeof quranToday==="function"){
     const today = quranToday();
     const t=today.filter(function(x){ return x.idx===rIdx });
-    __show = t.map(function(x){ return x.li });
-    if(!__show.length){
+    __todayLi = t.map(function(x){ return x.li });
+    if(!__todayLi.length){
       const tip=document.createElement("div");
       tip.className="tip";
       tip.style.cssText="padding:18px 0;text-align:center;line-height:2";
       const t2 = rSub==="quran" ? quranToday() : poemToday();
       tip.innerHTML = t2.length
-        ? "今天要背的两句不在这一篇。<br>去 <b>"+
+        ? "今天要背的两句不在这一篇，下面整章都在，想背就背。<br>今天的两句去 <b>"+
           ((RECITE[rSub].list[t2[0].idx]||{}).name||"").split(" ")[0]+"</b>。"
         : "今天的两句都背完了。";
       box.appendChild(tip);
@@ -2464,6 +2468,14 @@ function renderRecite(){
     if(typeof ln==="object"){
       const d=document.createElement("div");
       d.style.cssText="padding:14px 0;border-bottom:1px dashed var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap";
+      if(rSub==="quran" && __todayLi.indexOf(k)>=0){
+        /* 整章都摆出来之后，今天该背的那两句得看得见，不然底线就糊了 */
+        const tg=document.createElement("span");
+        tg.textContent="今天这句";
+        tg.style.cssText="font-size:.68rem;letter-spacing:.5px;padding:2px 8px;border-radius:99px;"+
+          "background:rgba(255,212,121,.16);color:var(--gold);border:1px solid rgba(255,212,121,.3);flex:0 0 auto";
+        d.appendChild(tg);
+      }
       const row=document.createElement("div");
       row.style.cssText="display:flex;align-items:center;gap:10px";
       const ar=document.createElement("div");
