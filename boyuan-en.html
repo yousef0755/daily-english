@@ -69,7 +69,7 @@
   .card.playing .play{background:linear-gradient(155deg,var(--cyan),#2f9d95);color:#04201d;
     box-shadow:0 6px 18px rgba(90,209,200,.45)}
   .card .body{flex:1;min-width:0}
-  .card .word{font-size:23px;font-weight:700;letter-spacing:.01em;line-height:1.2;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card .word{font-size:30px;font-weight:800;letter-spacing:.01em;line-height:1.15;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .card .ipa{font-size:14px;color:var(--cyan-soft);font-family:"Times New Roman",serif;margin-top:1px}
   .card .meta{font-size:14.5px;color:var(--ink-dim);margin-top:3px}
   .card .pos{color:var(--gold-soft);font-style:italic;margin-right:6px;font-size:13px}
@@ -128,10 +128,11 @@
   /* ── 点字显隐 / 已背会 / 当天打卡（老板 8-19 截图版式）── */
   .card .hidable{transition:filter .15s}
   .card.veiled .hidable{filter:blur(9px);user-select:none}
-  .cardops{display:flex;flex-direction:column;gap:8px;margin-left:auto;flex:0 0 auto}
-  .cardops button{border:1px solid rgba(120,130,120,.4);background:transparent;
-    border-radius:12px;padding:8px 13px;font-size:13.5px;color:inherit;cursor:pointer;
-    white-space:nowrap}
+  .card{flex-wrap:wrap}
+  .cardops{display:flex;flex-direction:row;gap:10px;flex:1 0 100%;margin-top:10px;padding-left:60px}
+  .cardops button{flex:1;border:1px solid var(--card-bd);background:rgba(255,255,255,.05);
+    border-radius:12px;padding:10px 0;font-size:14px;color:var(--ink);cursor:pointer;
+    white-space:nowrap;font-weight:600}
   .cardops .op-listen{font-weight:600}
   .card.known .op-mem{background:#3d6b4f;border-color:#3d6b4f;color:#f2efe6}
   .card.known{outline:2px solid rgba(61,107,79,.55);outline-offset:-1px}
@@ -294,11 +295,12 @@ U.words.forEach(w=>{
   const d=document.createElement('div'); d.className='card';
   const readTag = w.star ? '<span class="tag-read">只认读</span>' : '';
   const egHtml = w.eg
-    ? `<div class="weg" style="margin-top:7px;padding-top:7px;border-top:1px dashed rgba(120,130,120,.35);
+    ? `<div class="weg" style="margin-top:9px;padding:8px 10px;border-left:3px solid #b08d3e;
+         background:rgba(176,141,62,.08);border-radius:6px;
          display:flex;gap:8px;align-items:flex-start;cursor:pointer">
-         <div class="sp" style="flex:0 0 auto;width:20px;opacity:.8">${SPK}</div>
-         <div><div class="en hidable" style="font-size:15px">${w.eg.en}</div>
-              <div class="cn hidable" style="font-size:12.5px;opacity:.75">${w.eg.zh}</div></div>
+         <div class="sp" style="flex:0 0 auto;width:18px;opacity:.75;margin-top:1px">${SPK}</div>
+         <div><div class="en hidable" style="font-size:13.5px">${w.eg.en}</div>
+              <div class="cn hidable" style="font-size:12px;opacity:.72">${w.eg.zh}</div></div>
        </div>`
     : '';
   d.innerHTML=`<span class="n">${w.n}</span>
