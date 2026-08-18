@@ -951,5 +951,15 @@
 "The panda is black and white.": "2fd0feb49c7e.mp3",
 "The tiger can run.": "5cd0668b58c0.mp3",
 "Is this a monkey?": "a6b0d7cfc47e.mp3",
-"No. It's a panda.": "efa36deae1a2.mp3"
+"No. It's a panda.": "efa36deae1a2.mp3",
+"quiz::monkey": "8e654fcf0ebd.mp3",
+"quiz::bear": "f7ff27bfafe2.mp3",
+"quiz::panda": "d72dce7946e5.mp3",
+"quiz::tiger": "f2e641120b20.mp3",
+"quiz::The monkey is in the tree.": "cadc8f1d8653.mp3",
+"quiz::The bear is big.": "fb6abfdd38a7.mp3",
+"quiz::The panda is black and white.": "984370ada159.mp3",
+"quiz::The tiger can run.": "e8ce9c4fcf3c.mp3",
+"quiz::Is this a monkey?": "65a4efb13e3d.mp3",
+"quiz::No. It's a panda.": "9fc4af5fb88a.mp3"
 }

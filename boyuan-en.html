@@ -124,6 +124,24 @@
   .example{font-size:13px;color:var(--ink-dim);margin-top:10px;font-style:italic}
 
   footer{text-align:center;margin-top:34px;font-size:12px;color:var(--ink-faint);opacity:.6}
+
+  /* ── 点字显隐 / 已背会 / 当天打卡（老板 8-19 截图版式）── */
+  .card .hidable{transition:filter .15s}
+  .card.veiled .hidable{filter:blur(9px);user-select:none}
+  .cardops{display:flex;flex-direction:column;gap:8px;margin-left:auto;flex:0 0 auto}
+  .cardops button{border:1px solid rgba(120,130,120,.4);background:transparent;
+    border-radius:12px;padding:8px 13px;font-size:13.5px;color:inherit;cursor:pointer;
+    white-space:nowrap}
+  .cardops .op-listen{font-weight:600}
+  .card.known .op-mem{background:#3d6b4f;border-color:#3d6b4f;color:#f2efe6}
+  .card.known{outline:2px solid rgba(61,107,79,.55);outline-offset:-1px}
+  .daydone{margin-top:26px;padding:16px;border:1px solid rgba(120,130,120,.3);
+    border-radius:16px;text-align:center}
+  .dd-hint{font-size:14px;margin-bottom:12px;opacity:.85}
+  .dd-btn{width:100%;border:0;border-radius:14px;padding:15px;font-size:16.5px;font-weight:700;
+    background:#7d928a;color:#fff;cursor:pointer}
+  .dd-btn:disabled{opacity:.45;cursor:default}
+  .dd-btn.dd-done{background:#3d6b4f;opacity:1}
   .sec-hidden{display:none}
 </style>
 </head>
@@ -170,6 +188,12 @@
       <div class="example" id="example"></div>
     </div>
   </section>
+
+  <!-- 当天完成（老板 8-19 凌晨截图定样式：底部一条，背会才点得动） -->
+  <div class="daydone" id="dayDone">
+    <div class="dd-hint" id="ddHint">四个单词都点了「已背会」，就可以打卡。(0/4)</div>
+    <button class="dd-btn" id="ddBtn" disabled>今天的单词我都会了 — 打卡</button>
+  </div>
 
   <footer>博远的英语 · 每天一课 · 一家人一起学</footer>
 </div>
@@ -273,25 +297,83 @@ U.words.forEach(w=>{
     ? `<div class="weg" style="margin-top:7px;padding-top:7px;border-top:1px dashed rgba(120,130,120,.35);
          display:flex;gap:8px;align-items:flex-start;cursor:pointer">
          <div class="sp" style="flex:0 0 auto;width:20px;opacity:.8">${SPK}</div>
-         <div><div class="en" style="font-size:15px">${w.eg.en}</div>
-              <div class="cn" style="font-size:12.5px;opacity:.75">${w.eg.zh}</div></div>
+         <div><div class="en hidable" style="font-size:15px">${w.eg.en}</div>
+              <div class="cn hidable" style="font-size:12.5px;opacity:.75">${w.eg.zh}</div></div>
        </div>`
     : '';
   d.innerHTML=`<span class="n">${w.n}</span>
     <div class="play">${SPK}</div>
     <div class="body">
-      <div class="word">${w.w}${readTag}</div>
-      <div class="ipa">${w.ipa}</div>
-      <div class="meta"><span class="pos">${w.pos}</span>${w.zh}</div>
+      <div class="word hidable">${w.w}${readTag}</div>
+      <div class="ipa hidable">${w.ipa}</div>
+      <div class="meta hidable"><span class="pos">${w.pos}</span>${w.zh}</div>
       ${egHtml}
+    </div>
+    <div class="cardops">
+      <button class="op-listen" type="button">▶ 听</button>
+      <button class="op-mem" type="button">已背会</button>
     </div>`;
-  d.onclick=()=>play(AUDIO_DIR+w.w+'.mp3', d);
-  /* 例句单独一个点击区：点例句念例句，不跟单词抢 */
+  /* 点字面：显示/隐藏（蒙住，凭记忆背；再点回来对答案）——老板 8-19 定的样式 */
+  d.querySelector('.body').onclick=(ev)=>{
+    if(ev.target.closest('.weg')) return;
+    d.classList.toggle('veiled');
+  };
+  /* 听：先念单词，跟着念它的句子 */
+  d.querySelector('.op-listen').onclick=(ev)=>{
+    ev.stopPropagation();
+    play(AUDIO_DIR+w.w+'.mp3', d);
+    if(curAudio) curAudio.onended=()=>{ d.classList.remove('playing'); play(AUDIO_DIR+w.w+'_s.mp3', d); };
+  };
   const egEl=d.querySelector('.weg');
   if(egEl) egEl.onclick=(ev)=>{ ev.stopPropagation(); play(AUDIO_DIR+w.w+'_s.mp3', d); };
+  /* 已背会：点亮记一笔，攒齐了才放打卡 */
+  d.querySelector('.op-mem').onclick=(ev)=>{
+    ev.stopPropagation();
+    d.classList.toggle('known');
+    memMark(w.w, d.classList.contains('known'));
+  };
   cardsEl.appendChild(d);
 });
 document.getElementById('listenAll').onclick=()=>play(U.lesson,null);
+
+/* ===== 已背会 + 当天打卡（照老板 8-19 截图的样子）=====
+   日期一律按迪拜算；背会名单和打卡各记一条，按天分开，不清昨天的账 */
+const dxb = new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Dubai'});
+const MEMK='boyuanEnMem_'+dxb, DONEK='boyuanEnDone_'+dxb;
+let memSet;
+try{ memSet=new Set(JSON.parse(localStorage.getItem(MEMK)||'[]')); }catch(e){ memSet=new Set(); }
+function memMark(w,on){
+  if(on) memSet.add(w); else memSet.delete(w);
+  try{ localStorage.setItem(MEMK, JSON.stringify([...memSet])); }catch(e){}
+  ddPaint();
+}
+function ddPaint(){
+  const total=U.words.length, got=[...memSet].filter(w=>U.words.some(x=>x.w===w)).length;
+  const hint=document.getElementById('ddHint'), btn=document.getElementById('ddBtn');
+  const done=localStorage.getItem(DONEK)==='1';
+  if(done){
+    hint.textContent='今天的单词全背会了。';
+    btn.textContent='今天打卡完成 ✓'; btn.disabled=true; btn.classList.add('dd-done');
+    return;
+  }
+  hint.textContent=(got<total)
+    ? `四个单词都点了「已背会」，就可以打卡。(${got}/${total})`
+    : '都背会了——点下面打卡。';
+  btn.disabled=(got<total);
+}
+document.getElementById('ddBtn').onclick=()=>{
+  try{ localStorage.setItem(DONEK,'1'); }catch(e){}
+  ddPaint();
+  sayTip('打卡完成。明天见。');
+};
+/* 恢复今天已点过的背会状态 */
+setTimeout(()=>{
+  document.querySelectorAll('#cards .card').forEach((c,i)=>{
+    const w=U.words[i];
+    if(w && memSet.has(w.w)) c.classList.add('known');
+  });
+  ddPaint();
+},0);
 
 /* 重点句 */
 const sentsEl=document.getElementById('sentences');

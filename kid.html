@@ -1146,6 +1146,13 @@ function speakRoster(text){
   if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("media/kidaudio/"+VOICE_IDX[key],key); return; }
   sysSpeak(key);
 }
+/* 小考的声按定编走 Ryan/Emily（练耳跨口音）：先找 quiz:: 那份，缺了退回普通的 */
+function speakQuiz(text){
+  if(!text)return;
+  var key="quiz::"+String(text).trim();
+  if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("media/kidaudio/"+VOICE_IDX[key],String(text).trim()); return; }
+  speakRoster(text);
+}
 /* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio。
    所以优先用 AudioContext 播；解码不了再退回老办法。 */
 var _actx=null,_asrc=null,_abuf={};
@@ -2029,7 +2036,7 @@ function ask(){
     const b=document.createElement("button");b.className="opt";b.textContent=text;
     b.onclick=()=>{
       if(i===it.a){b.classList.add("right");score++;toast("答对了 +1 ⭐");
-        if(cur==="english")speakRoster(it.q);
+        if(cur==="english")speakQuiz(it.q);
         /* 答对也念一遍，把口诀跟答案绑在一起 */
         if(cur==="math"&&it.say)speakRoster(it.say)}
       else{b.classList.add("wrong");
@@ -2047,7 +2054,7 @@ function ask(){
     ob.appendChild(b);
   });
   document.getElementById("prog").textContent="第 "+(idx+1)+" / "+list.length+" 题";
-  speakRoster(it.q);
+  (cur==="english"?speakQuiz:speakRoster)(it.q);
 }
 
 /* ================= 愿望 ================= */
@@ -3630,7 +3637,7 @@ function revRun(keys){
       };
       stage.appendChild(b);
     });
-    if(isEn && typeof speakRoster==="function")speakRoster(it.q);
+    if(isEn && typeof speakQuiz==="function")speakQuiz(it.q);
   }
   step();
 }
