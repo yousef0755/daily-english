@@ -472,6 +472,7 @@ li.here .mins b{color:var(--gold)}
   <h3>忘了来的时候，让猫叫你</h3>
   <p class="nagtip" id="nagTip">在<b>你自己的手机</b>上点你的名字。一台手机点一次就行。</p>
   <div class="nagrow" id="nagBtns"></div>
+  <p class="nagtip" id="nagWho"></p>
 </section>
 <p class="note" id="note"></p>
 
@@ -1114,6 +1115,29 @@ async function renderNagFoot(){
   nagPaintNames(box, tip, row);
 }
 
+/* 谁开着提醒、谁还没开 —— 老板 2026-08-18 在板子上点的「加」。
+   为什么值得加：六个人只有两台订上了，而这件事以前谁也看不见，
+   包括他自己。他看见的只是「怎么没人来学」。
+
+   一条实话：改服务端之前订的那几台没存名字，认不出是谁。
+   它们单独说，不算进「还没开」——否则已经订过的人会被叫去再点一次。 */
+function nagPaintWho(ps){
+  const line=document.getElementById("nagWho");
+  if(!line)return;
+  fetch(NAG_SUB_API+"/kid/who").then(r=>r.json()).then(function(d){
+    if(!d||!d.ok)return;
+    const on=new Set(d["订上的"]||[]);
+    const 没开=ps.filter(p=>!on.has(p.id)).map(p=>p.name);
+    const 认不出=d["认不出是谁的"]||0;
+    let t="";
+    if(on.size) t+="提醒开着的："+ps.filter(p=>on.has(p.id)).map(p=>p.name).join("、")+"。";
+    if(没开.length) t+=(t?" ":"")+"<b>还没开的："+没开.join("、")+"</b>——在他自己的手机上点一下名字就行。";
+    if(认不出) t+=(t?" ":"")+"另有 "+认不出+" 台手机订着，但认不出是谁（那是这个功能做好之前订的），重新点一次名字就认得出了。";
+    if(!t) t="还没有人开提醒。";
+    line.innerHTML=t;
+  }).catch(function(){ line.textContent="谁开着提醒，这会儿没查到。" });
+}
+
 /* 画六个名字。谁在自己手机上点自己的名字，这台手机就归谁。 */
 function nagPaintNames(box, tip, row){
   box.classList.remove("on");
@@ -1121,7 +1145,9 @@ function nagPaintNames(box, tip, row){
                 '忘了来的时候，Snowy 和哆米会叫你；当天做完了它们就不吭声。';
   const ps=NAG_PEOPLE.length?NAG_PEOPLE:[];
   if(!ps.length){ row.innerHTML='<span class="nagtip">名单还在连，稍等一下。</span>'; return }
-  row.innerHTML=ps.map(p=>'<button class="nagbtn" data-nm="'+p.name+'">'+p.name+'</button>').join("");
+  nagPaintWho(ps);
+  row.innerHTML=ps.map(p=>'<button class="nagbtn" data-nm="'+p.name+'" data-id="'+p.id+'">'
+                        +p.name+'</button>').join("");
   [...row.querySelectorAll(".nagbtn")].forEach(b=>{
     b.onclick=async function(){
       const nm=b.dataset.nm;
@@ -1135,7 +1161,9 @@ function nagPaintNames(box, tip, row){
         await navigator.serviceWorker.ready;
         const ns=await r.pushManager.subscribe({userVisibleOnly:true,
           applicationServerKey:b64key(NAG_KEY)});
-        const body=Object.assign({}, ns.toJSON?ns.toJSON():ns, {who:nm});
+        /* 报 id，不报中文名。服务端两种都认，但口径统一了好查。 */
+        const body=Object.assign({}, ns.toJSON?ns.toJSON():ns,
+                                 {who:(b.dataset.id||nm), name:nm});
         const res=await fetch(NAG_SUB_API+"/kid/sub",{method:"POST",
           headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
         if(!res.ok)throw new Error("sub "+res.status);
