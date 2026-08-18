@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>卷一 · 卷三 · 每天刷一組</title>
+<title>卷一 · 卷三 · 每天刷一组</title>
 <style>
-/* 這一頁的規矩：今天做一次，明天再見一次，三天後、一週後各一次。
-   見四次就記住了，中間不用硬背。所以頁面只做一件事——
-   替她決定「今天該見哪幾道」，別的都不重要。 */
+/* 这一页的规矩：今天做一次，明天再见一次，三天后、一周后各一次。
+   见四次就记住了，中间不用硬背。所以页面只做一件事——
+   替她决定「今天该见哪几道」，别的都不重要。 */
 :root{
   --bg:#f6f3ee; --card:#fff; --ink:#211f1c; --sub:#7d7568; --line:#e6e0d6;
-  --acc:#9a2740;            /* 友邦那個紅，壓暗一點，長時間看不刺眼 */
+  --acc:#9a2740;            /* 友邦那个红，压暗一点，长时间看不刺眼 */
   --ok:#2f7048; --okbg:#e8f2ec; --no:#a3523c; --nobg:#f7ece8;
 }
 @media(prefers-color-scheme:dark){:root{
@@ -68,11 +68,11 @@ footer b{color:var(--ink)}
 <body>
 <div class="wrap">
 <header>
-  <h1>卷一 · 卷三 · 每天刷一組</h1>
-  <p class="lead">同一道題見四次就記住了：今天、明天、三天後、一週後。<br>
-     這頁替你記著哪天該見哪道，你只管打開。</p>
+  <h1>卷一 · 卷三 · 每天刷一组</h1>
+  <p class="lead">同一道题见四次就记住了：今天、明天、三天后、一周后。<br>
+     这页替你记着哪天该见哪道，你只管打开。</p>
   <div class="bar">
-    <button class="pill on" data-p="0">兩卷一起</button>
+    <button class="pill on" data-p="0">两卷一起</button>
     <button class="pill" data-p="1">只做卷一</button>
     <button class="pill" data-p="3">只做卷三</button>
   </div>
@@ -82,20 +82,20 @@ footer b{color:var(--ink)}
 <div id="area"></div>
 
 <footer>
-  <b>兩句話要先說清楚：</b><br>
-  一、這些是按考試大綱整理的常考點，<b>不是你 App 裡的原題</b>。你做題時截圖發我，我一批批加進來，越加越貼近真題。<br>
-  二、凡是跟你 App 或者友邦教材說法不一樣的，<b>以它們為準</b>，並且告訴我，我改。考題會改版，我寧可你信官方的。
+  <b>两句话要先说清楚：</b><br>
+  一、这些是按考试大纲整理的常考点，<b>不是你 App 里的原题</b>。你做题时截图发我，我一批批加进来，越加越贴近真题。<br>
+  二、凡是跟你 App 或者友邦教材说法不一样的，<b>以它们为准</b>，并且告诉我，我改。考题会改版，我宁可你信官方的。
 </footer>
 </div>
 
 <script src="./questions.js"></script>
 <script>
-/* 間隔：答對了往後推，答錯了明天再見。
-   四個台階——1 天、3 天、7 天、21 天。到第四次還對，就算記住了。 */
+/* 间隔：答对了往后推，答错了明天再见。
+   四个台阶——1 天、3 天、7 天、21 天。到第四次还对，就算记住了。 */
 const STEPS=[1,3,7,21];
 const KEY="iiqe_v1";
-/* 日子按香港／迪拜算都行，這裡按本機當地日期——她人在哪台機就按哪台。
-   重點是「寫進去的」和「讀出來比的」用同一個函數。 */
+/* 日子按香港／迪拜算都行，这里按本机当地日期——她人在哪台机就按哪台。
+   重点是「写进去的」和「读出来比的」用同一个函数。 */
 function today(){const d=new Date();
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function plusDays(n){const d=new Date();d.setDate(d.getDate()+n);
@@ -118,11 +118,11 @@ function learned(){
 function paintStat(){
   const d=due().length, all=QUESTIONS.filter(q=>paper===0||q.p===paper).length;
   const show=Math.min(d,12);
-  /* 一次最多列 12 道。統計行要說實話——先前寫「今天該見 20 道」卻只列出 12 道，
-     她會以為漏了。 */
+  /* 一次最多列 12 道。统计行要说实话——先前写「今天该见 20 道」却只列出 12 道，
+     她会以为漏了。 */
   document.getElementById("stat").innerHTML=
-    "今天該見 <b>"+d+"</b> 道"+(d>show?"，先做這 <b>"+show+"</b> 道，做完刷新還有":"")
-    +" · 這一組共 <b>"+all+"</b> 道 · 已經記住 <b>"+learned()+"</b> 道";
+    "今天该见 <b>"+d+"</b> 道"+(d>show?"，先做这 <b>"+show+"</b> 道，做完刷新还有":"")
+    +" · 这一组共 <b>"+all+"</b> 道 · 已经记住 <b>"+learned()+"</b> 道";
 }
 
 function render(){
@@ -130,9 +130,9 @@ function render(){
   const area=document.getElementById("area");
   const list=due();
   if(!list.length){
-    area.innerHTML='<div class="done"><h2>今天的見完了</h2>'
-      +'<p>明天再打開，它會把該複習的挑出來。<br>今天多做無益——間隔本身就是記住的原因。</p>'
-      +'<button class="btn" id="more">我還想多做幾道</button></div>';
+    area.innerHTML='<div class="done"><h2>今天的见完了</h2>'
+      +'<p>明天再打开，它会把该复习的挑出来。<br>今天多做无益——间隔本身就是记住的原因。</p>'
+      +'<button class="btn" id="more">我还想多做几道</button></div>';
     document.getElementById("more").onclick=function(){
       const all=QUESTIONS.map((q,i)=>({q,i})).filter(x=>paper===0||x.q.p===paper);
       area.innerHTML=""; all.forEach(x=>area.appendChild(card(x,true)));
@@ -147,7 +147,7 @@ function render(){
 function card(x,extra){
   const {q,i}=x;
   const el=document.createElement("div"); el.className="q";
-  el.innerHTML='<div class="tag">卷'+(q.p===1?"一":"三")+(extra?' · 加練':'')+'</div>'
+  el.innerHTML='<div class="tag">卷'+(q.p===1?"一":"三")+(extra?' · 加练':'')+'</div>'
     +'<div class="qt">'+q.t+'</div>';
   q.o.forEach((o,k)=>{
     const b=document.createElement("button");
@@ -166,16 +166,16 @@ function answer(el,q,i,pick,extra){
     else if(k===pick) b.classList.add("pick-no");
   });
   const w=document.createElement("div"); w.className="why";
-  w.innerHTML=(pick===q.a?"<b>對了。</b> ":"<b>正解是 "+String.fromCharCode(65+q.a)+"。</b> ")+q.w;
+  w.innerHTML=(pick===q.a?"<b>对了。</b> ":"<b>正解是 "+String.fromCharCode(65+q.a)+"。</b> ")+q.w;
   el.appendChild(w);
 
-  if(extra) return;                       /* 加練不動進度，免得把節奏打亂 */
+  if(extra) return;                       /* 加练不动进度，免得把节奏打乱 */
   const s=state[i]||{step:0};
   if(pick===q.a){ s.step=Math.min(s.step+1,STEPS.length); }
-  else { s.step=0; }                      /* 沒答上就從頭來，明天再見 */
-  /* 台階要取「這一次答對之後的第幾級」，也就是 step-1。
-     先前寫成 STEPS[s.step]，第一次答對就推到 3 天後——
-     跳過了「明天再見一次」那一步，而那一步恰恰是記得住的關鍵。 */
+  else { s.step=0; }                      /* 没答上就从头来，明天再见 */
+  /* 台阶要取「这一次答对之后的第几级」，也就是 step-1。
+     先前写成 STEPS[s.step]，第一次答对就推到 3 天后——
+     跳过了「明天再见一次」那一步，而那一步恰恰是记得住的关键。 */
   s.next=plusDays(s.step<=0?1:STEPS[Math.min(s.step,STEPS.length)-1]);
   state[i]=s; save(state); paintStat();
 }
