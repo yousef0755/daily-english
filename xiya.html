@@ -116,7 +116,7 @@ footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
   };
 })();
 </script>
-<script>window.__BUILD__="e8f9cac889"</script>
+<script>window.__BUILD__="d14ff979ea"</script>
 </head>
 <body>
 <div class="wrap">
@@ -297,7 +297,10 @@ const API="https://su-family.yousef-abud.workers.dev", GOAL=15;
   }
   function report(){
     fetch(API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({who:"xiya",mins:Math.floor(sec/60),done:0,total:1,started:sec>20})
+      /* 原来这儿写死 done:0。她交了作业报 1，三十秒后这个计时器报 0 盖回去，
+         于是「今天这件做完了」永远亮不起来。问同一个地方要答案。 */
+      body:JSON.stringify({who:"xiya",mins:Math.floor(sec/60),
+        done:(logLoad().some(x=>x.d===xToday())?1:0),total:1,started:sec>20})
     }).catch(function(){});
   }
   paint();
@@ -398,6 +401,6 @@ document.getElementById("taskDone").onclick=function(){
 };
 paintTask();
 </script>
-<script src="./shared/fam-widget.js?v=e8f9cac8" data-me="xiya"></script>
+<script src="./shared/fam-widget.js?v=d14ff979" data-me="xiya"></script>
 </body>
 </html>

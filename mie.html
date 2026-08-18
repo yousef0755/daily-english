@@ -397,7 +397,7 @@ footer a{color:var(--indigo)}
   };
 })();
 </script>
-<script>window.__BUILD__="e8f9cac889"</script>
+<script>window.__BUILD__="d14ff979ea"</script>
 </head>
 <body>
 
@@ -852,7 +852,9 @@ const KEY="mieSampler";
 let S=JSON.parse(localStorage.getItem(KEY)||"null")||{topic:"free",stitches:[],days:[],last:"",lang:"both",dares:[]};
 if(!S.lang)S.lang="both";if(!S.dares)S.dares=[];
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(S));try{famPing()}catch(e){}};
-const today=()=>new Date().toISOString().slice(0,10);
+/* 日子按迪拜算。UTC 会在迪拜时间凌晨四点才换日，那四个钟头里学的会记到昨天。 */
+function dubaiToday(){return new Date(Date.now()+144e5).toISOString().slice(0,10)}
+const today=()=>dubaiToday();
 
 function markToday(){
   const t=today();
@@ -1401,7 +1403,7 @@ function famPing(){
   function report(){
     var mins=Math.floor(sec/60);
     fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({who:WHO,mins:mins,done:((typeof S!=='undefined'&&S&&S.last===new Date().toISOString().slice(0,10))?1:0),total:1,started:sec>20})
+      body:JSON.stringify({who:WHO,mins:mins,done:((typeof S!=='undefined'&&S&&S.last===dubaiToday())?1:0),total:1,started:sec>20})
     }).catch(function(){});
   }
   setInterval(function(){
@@ -1523,7 +1525,7 @@ function famPing(){
 })();
 </script>
 
-<script src="./shared/fam-widget.js?v=e8f9cac8" data-me="manya">
+<script src="./shared/fam-widget.js?v=d14ff979" data-me="manya">
 
 </script>
 </body>

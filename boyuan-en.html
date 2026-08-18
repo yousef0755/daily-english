@@ -210,16 +210,54 @@ document.getElementById('datechip').textContent =
   new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'});
 
 /* 播放 */
-let curAudio=null, curCard=null;
+let curAudio=null, curCard=null, failCount=0, tipTimer=null;
+
+/* 没响就说一声。原来这里是两个空的 catch，坏了也不出声——
+   孩子按下去没反应，只会以为是自己按得不对，一遍遍按。 */
+function sayTip(msg){
+  let el=document.getElementById('audioTip');
+  if(!el){
+    el=document.createElement('div'); el.id='audioTip';
+    el.setAttribute('role','status'); el.setAttribute('aria-live','polite');
+    el.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);'
+      +'width:max-content;max-width:86%;padding:12px 18px;border-radius:14px;z-index:99;'
+      +'background:rgba(28,34,30,.94);color:#f2efe6;font-size:15px;line-height:1.6;'
+      +'box-shadow:0 8px 28px rgba(0,0,0,.28);text-align:center;'
+      +'opacity:1;transition:opacity .18s';
+    document.body.appendChild(el);
+  }
+  el.textContent=msg;
+  /* 出现这件事不许依赖动画。
+     rAF 在后台标签页不跑；CSS 过渡在后台标签页也是冻的——
+     一旦「从透明淡进来」是唯一的显示路径，冻住就等于没提示。
+     所以它生下来就是可见的，过渡只负责淡出。 */
+  el.style.opacity='1';
+  clearTimeout(tipTimer);
+  tipTimer=setTimeout(()=>{el.style.opacity='0'}, 4200);
+}
+
+function playFailed(cardEl, au){
+  /* onerror 和 play().catch() 会为同一次失败各响一遍。
+     不挡住的话，第一次没响就直接说成「还是没响」。 */
+  if(au){ if(au.__told) return; au.__told=1; }
+  if(cardEl) cardEl.classList.remove('playing');
+  failCount++;
+  sayTip(failCount<2 ? '这个音没响。再点一次。'
+                     : '还是没响，多半是网慢了。等一会儿再点，先往下念。');
+}
+
 function play(src, cardEl){
   try{
-    if(curAudio) curAudio.pause();
+    if(curAudio){ curAudio.onerror=null; curAudio.pause(); }
     if(curCard) curCard.classList.remove('playing');
     curAudio=new Audio(src); curCard=cardEl||null;
     if(cardEl) cardEl.classList.add('playing');
-    curAudio.play().catch(()=>{});
+    const au=curAudio;
+    au.onerror=()=>playFailed(cardEl,au);          /* 文件不在、名字对不上 */
+    curAudio.play().then(()=>{failCount=0})           /* 响了就把计数清零 */
+                   .catch(()=>playFailed(cardEl,au));    /* 浏览器拦了、或者没声源 */
     curAudio.onended=()=>{ if(cardEl) cardEl.classList.remove('playing'); };
-  }catch(e){}
+  }catch(e){ playFailed(cardEl); }
 }
 
 /* STEP1 单词卡 */

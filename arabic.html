@@ -121,7 +121,7 @@ header .pill.on{
   };
 })();
 </script>
-<script>window.__BUILD__="e8f9cac889"</script>
+<script>window.__BUILD__="d14ff979ea"</script>
 </head>
 <body>
 
@@ -305,7 +305,11 @@ const KEY="dailyEnglishSu3";
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let state;
 try{state=JSON.parse(store.get(KEY)||'{"streak":0,"last":"","log":[]}');}catch(e){state={streak:0,last:"",log:[]};}
-const today=new Date().toISOString().slice(0,10);
+/* 这一行写的是 state.came 的口径。下面比对已经换成迪拜日了，
+   这里要是还按 UTC，凌晨零点到四点就会自己跟自己对不上——
+   半截改比不改更糟。 */
+function dubaiToday(){return new Date(Date.now()+144e5).toISOString().slice(0,10)}
+const today=dubaiToday();
 /* 从首屏开始只加载现代标准阿拉伯语，避免先闪出旧英语课程。 */
 const packNames=Object.keys(AR_PACKS);
 const dayIndex=Math.floor(Date.now()/86400000)%packNames.length;
@@ -625,7 +629,7 @@ if(oi&&ob){
 var FAM_API="https://su-family.yousef-abud.workers.dev", famLast="";
 function famPing(){
   try{
-    var t=new Date().toISOString().slice(0,10);
+    var t=dubaiToday();
     var done=(state&&(state.came===t||state.last===t))?1:0;
     var k=t+"|"+done; if(k===famLast)return; famLast=k;
     fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
@@ -650,7 +654,7 @@ function famPing(){
   function report(){
     var mins=Math.floor(sec/60);
     fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({who:WHO,mins:mins,done:((typeof state!=='undefined'&&state&&(state.came===new Date().toISOString().slice(0,10)))?1:0),total:1,started:sec>20})
+      body:JSON.stringify({who:WHO,mins:mins,done:((typeof state!=='undefined'&&state&&(state.came===dubaiToday()))?1:0),total:1,started:sec>20})
     }).catch(function(){});
   }
   setInterval(function(){
@@ -664,6 +668,6 @@ function famPing(){
   window.__studySec=function(){return sec};
 })();
 </script>
-<script src="./shared/fam-widget.js?v=e8f9cac8" data-me="amina"></script>
+<script src="./shared/fam-widget.js?v=d14ff979" data-me="amina"></script>
 </body>
 </html>
