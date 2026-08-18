@@ -121,7 +121,7 @@ header .pill.on{
   };
 })();
 </script>
-<script>window.__BUILD__="5e60cb46af"</script>
+<script>window.__BUILD__="3eb9884e64"</script>
 </head>
 <body>
 
@@ -368,7 +368,10 @@ function startQuiz(){
       lastResult={date:today,pack:pk,score:score,wrong:wrong.slice(0,5)};
       area.innerHTML='<div class="done-note">'+(pass?"✅ "+score+"/10 · Today is lit!":"💪 "+score+"/10 · One more try — 7 lights it up")+'</div><button class="btn-main" id="again">'+(pass?"Practice again":"Try again")+"</button>";
       if(pass&&state.last!==today){
-        const yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
+        /* 这一处我在爸爸那页改了，这页漏了。
+           state.last 存的是迪拜日，拿 UTC 的「昨天」去比，
+           迪拜凌晨那几个钟头会判成「昨天没来」，连续天数从头开始。 */
+        const yest=new Date(Date.now()+144e5-86400000).toISOString().slice(0,10);
         state.streak=(state.last===yest)?state.streak+1:1;state.last=today;
       }
       state.came=today;
@@ -668,6 +671,6 @@ function famPing(){
   window.__studySec=function(){return sec};
 })();
 </script>
-<script src="./shared/fam-widget.js?v=5e60cb46" data-me="amina"></script>
+<script src="./shared/fam-widget.js?v=3eb9884e" data-me="amina"></script>
 </body>
 </html>

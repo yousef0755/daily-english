@@ -397,7 +397,7 @@ footer a{color:var(--indigo)}
   };
 })();
 </script>
-<script>window.__BUILD__="5e60cb46af"</script>
+<script>window.__BUILD__="3eb9884e64"</script>
 </head>
 <body>
 
@@ -863,7 +863,10 @@ function markToday(){
 }
 function streak(){
   if(!S.days.length)return 0;
-  const set=new Set(S.days);let n=0;const d=new Date();
+  /* 往回数也要按迪拜日。S.days 里现在存的是迪拜日期，
+     这里要是还按 UTC 往回走，凌晨那几个钟头记下的那天就找不到——
+     写的一头换了口径、读的一头没换，连续天数会凭空断掉。 */
+  const set=new Set(S.days);let n=0;const d=new Date(Date.now()+144e5);
   for(;;){
     const k=d.toISOString().slice(0,10);
     if(set.has(k)){n++;d.setDate(d.getDate()-1)}
@@ -874,7 +877,7 @@ function streak(){
 }
 function renderDays(){
   const box=document.getElementById("days");box.innerHTML="";
-  const set=new Set(S.days);const d=new Date();d.setDate(d.getDate()-13);
+  const set=new Set(S.days);const d=new Date(Date.now()+144e5);d.setDate(d.getDate()-13);
   for(let i=0;i<14;i++){
     const el=document.createElement("div");el.className="day";
     if(set.has(d.toISOString().slice(0,10)))el.classList.add("done");
@@ -1525,7 +1528,7 @@ function famPing(){
 })();
 </script>
 
-<script src="./shared/fam-widget.js?v=5e60cb46" data-me="manya">
+<script src="./shared/fam-widget.js?v=3eb9884e" data-me="manya">
 
 </script>
 </body>
