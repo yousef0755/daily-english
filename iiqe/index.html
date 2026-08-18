@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>卷一 · 卷三 · 每天刷一組</title>
+<style>
+/* 這一頁的規矩：今天做一次，明天再見一次，三天後、一週後各一次。
+   見四次就記住了，中間不用硬背。所以頁面只做一件事——
+   替她決定「今天該見哪幾道」，別的都不重要。 */
+:root{
+  --bg:#f6f3ee; --card:#fff; --ink:#211f1c; --sub:#7d7568; --line:#e6e0d6;
+  --acc:#9a2740;            /* 友邦那個紅，壓暗一點，長時間看不刺眼 */
+  --ok:#2f7048; --okbg:#e8f2ec; --no:#a3523c; --nobg:#f7ece8;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#181715; --card:#232120; --ink:#ece7df; --sub:#948c80; --line:#332f2b;
+  --acc:#d9758c; --ok:#6cba8b; --okbg:#1e2b24; --no:#d99177; --nobg:#2c2320;
+}}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);
+  font:16px/1.7 -apple-system,"PingFang HK","PingFang SC",sans-serif;
+  padding:22px 15px calc(48px + env(safe-area-inset-bottom))}
+.wrap{max-width:600px;margin:0 auto}
+
+header{margin-bottom:20px}
+h1{font:600 21px/1.35 "PingFang HK",serif;letter-spacing:.5px}
+.lead{color:var(--sub);font-size:13.5px;margin-top:6px}
+.bar{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--sub);
+  border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer}
+.pill.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:13px 15px;margin:16px 0;font-size:13.5px;color:var(--sub);line-height:1.75}
+.stat b{color:var(--ink)}
+
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:19px 17px;margin-bottom:15px}
+.tag{font-size:11.5px;color:var(--acc);letter-spacing:1.5px;font-weight:600}
+.qt{margin:9px 0 15px;font-size:16.5px;line-height:1.72;font-weight:500}
+.opt{display:block;width:100%;text-align:right;direction:ltr;
+  border:1px solid var(--line);background:transparent;color:var(--ink);
+  border-radius:11px;padding:12px 14px;margin-bottom:9px;font-size:15px;
+  line-height:1.55;cursor:pointer;text-align:left;font-family:inherit}
+.opt:active{opacity:.7}
+.opt.pick-ok{background:var(--okbg);border-color:var(--ok);color:var(--ok);font-weight:600}
+.opt.pick-no{background:var(--nobg);border-color:var(--no);color:var(--no)}
+.opt.show-ok{border-color:var(--ok)}
+.opt:disabled{cursor:default}
+.why{margin-top:12px;padding:12px 14px;border-left:3px solid var(--acc);
+  background:rgba(154,39,64,.05);border-radius:0 10px 10px 0;
+  font-size:14px;line-height:1.75;color:var(--ink)}
+.why b{color:var(--acc)}
+
+.done{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:26px 18px;text-align:center}
+.done h2{font-size:19px;margin-bottom:10px}
+.done p{color:var(--sub);font-size:14px;line-height:1.8}
+.btn{display:inline-block;margin-top:16px;background:var(--acc);color:#fff;border:0;
+  border-radius:11px;padding:12px 22px;font-size:15px;font-weight:600;
+  cursor:pointer;font-family:inherit}
+
+footer{margin-top:26px;color:var(--sub);font-size:12.5px;line-height:1.85}
+footer b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>卷一 · 卷三 · 每天刷一組</h1>
+  <p class="lead">同一道題見四次就記住了：今天、明天、三天後、一週後。<br>
+     這頁替你記著哪天該見哪道，你只管打開。</p>
+  <div class="bar">
+    <button class="pill on" data-p="0">兩卷一起</button>
+    <button class="pill" data-p="1">只做卷一</button>
+    <button class="pill" data-p="3">只做卷三</button>
+  </div>
+</header>
+
+<div class="stat" id="stat"></div>
+<div id="area"></div>
+
+<footer>
+  <b>兩句話要先說清楚：</b><br>
+  一、這些是按考試大綱整理的常考點，<b>不是你 App 裡的原題</b>。你做題時截圖發我，我一批批加進來，越加越貼近真題。<br>
+  二、凡是跟你 App 或者友邦教材說法不一樣的，<b>以它們為準</b>，並且告訴我，我改。考題會改版，我寧可你信官方的。
+</footer>
+</div>
+
+<script src="./questions.js"></script>
+<script>
+/* 間隔：答對了往後推，答錯了明天再見。
+   四個台階——1 天、3 天、7 天、21 天。到第四次還對，就算記住了。 */
+const STEPS=[1,3,7,21];
+const KEY="iiqe_v1";
+/* 日子按香港／迪拜算都行，這裡按本機當地日期——她人在哪台機就按哪台。
+   重點是「寫進去的」和「讀出來比的」用同一個函數。 */
+function today(){const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function plusDays(n){const d=new Date();d.setDate(d.getDate()+n);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return {}}}
+function save(s){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+
+let paper=0, state=load();
+
+function due(){
+  const t=today();
+  return QUESTIONS.map((q,i)=>({q,i}))
+    .filter(x=>paper===0||x.q.p===paper)
+    .filter(x=>{const s=state[x.i]; return !s || !s.next || s.next<=t});
+}
+function learned(){
+  return Object.values(state).filter(s=>s.step>=STEPS.length).length;
+}
+
+function paintStat(){
+  const d=due().length, all=QUESTIONS.filter(q=>paper===0||q.p===paper).length;
+  const show=Math.min(d,12);
+  /* 一次最多列 12 道。統計行要說實話——先前寫「今天該見 20 道」卻只列出 12 道，
+     她會以為漏了。 */
+  document.getElementById("stat").innerHTML=
+    "今天該見 <b>"+d+"</b> 道"+(d>show?"，先做這 <b>"+show+"</b> 道，做完刷新還有":"")
+    +" · 這一組共 <b>"+all+"</b> 道 · 已經記住 <b>"+learned()+"</b> 道";
+}
+
+function render(){
+  paintStat();
+  const area=document.getElementById("area");
+  const list=due();
+  if(!list.length){
+    area.innerHTML='<div class="done"><h2>今天的見完了</h2>'
+      +'<p>明天再打開，它會把該複習的挑出來。<br>今天多做無益——間隔本身就是記住的原因。</p>'
+      +'<button class="btn" id="more">我還想多做幾道</button></div>';
+    document.getElementById("more").onclick=function(){
+      const all=QUESTIONS.map((q,i)=>({q,i})).filter(x=>paper===0||x.q.p===paper);
+      area.innerHTML=""; all.forEach(x=>area.appendChild(card(x,true)));
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+    return;
+  }
+  area.innerHTML="";
+  list.slice(0,12).forEach(x=>area.appendChild(card(x,false)));
+}
+
+function card(x,extra){
+  const {q,i}=x;
+  const el=document.createElement("div"); el.className="q";
+  el.innerHTML='<div class="tag">卷'+(q.p===1?"一":"三")+(extra?' · 加練':'')+'</div>'
+    +'<div class="qt">'+q.t+'</div>';
+  q.o.forEach((o,k)=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.textContent=String.fromCharCode(65+k)+"　"+o;
+    b.onclick=function(){ answer(el,q,i,k,extra) };
+    el.appendChild(b);
+  });
+  return el;
+}
+
+function answer(el,q,i,pick,extra){
+  const btns=[...el.querySelectorAll(".opt")];
+  btns.forEach((b,k)=>{
+    b.disabled=true;
+    if(k===q.a) b.classList.add(k===pick?"pick-ok":"show-ok");
+    else if(k===pick) b.classList.add("pick-no");
+  });
+  const w=document.createElement("div"); w.className="why";
+  w.innerHTML=(pick===q.a?"<b>對了。</b> ":"<b>正解是 "+String.fromCharCode(65+q.a)+"。</b> ")+q.w;
+  el.appendChild(w);
+
+  if(extra) return;                       /* 加練不動進度，免得把節奏打亂 */
+  const s=state[i]||{step:0};
+  if(pick===q.a){ s.step=Math.min(s.step+1,STEPS.length); }
+  else { s.step=0; }                      /* 沒答上就從頭來，明天再見 */
+  /* 台階要取「這一次答對之後的第幾級」，也就是 step-1。
+     先前寫成 STEPS[s.step]，第一次答對就推到 3 天後——
+     跳過了「明天再見一次」那一步，而那一步恰恰是記得住的關鍵。 */
+  s.next=plusDays(s.step<=0?1:STEPS[Math.min(s.step,STEPS.length)-1]);
+  state[i]=s; save(state); paintStat();
+}
+
+document.querySelectorAll(".pill").forEach(b=>{
+  b.onclick=function(){
+    document.querySelectorAll(".pill").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); paper=+b.dataset.p; render();
+    window.scrollTo({top:0,behavior:"smooth"});
+  };
+});
+render();
+</script>
+</body>
+</html>
