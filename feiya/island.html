@@ -45,6 +45,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 /* 海面小鱼泡泡 */
 .fish{position:absolute;font-size:16px;z-index:2;opacity:0;animation:pop 6s ease-in-out infinite}
 @keyframes pop{0%,70%{opacity:0;transform:translateY(6px)}80%{opacity:1;transform:translateY(0)}95%{opacity:0;transform:translateY(-4px)}}
+@keyframes qpop{0%{opacity:0;transform:scale(.85)}100%{opacity:1;transform:scale(1)}}
 /* 岛体 */
 #isle{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);width:min(88vw,420px);height:200px;z-index:5}
 .sandban{position:absolute;bottom:-10px;left:6%;right:6%;height:44px;background:var(--sand);border-radius:50%}
@@ -515,7 +516,7 @@ const QIAN=[
 function chouQian(){
   const q=QIAN[Math.floor(Math.random()*QIAN.length)];
   document.getElementById("qianOut").innerHTML=
-    '<div class="zhcard" style="margin-top:10px;animation:pop .3s ease"><h3>'+q[0]+'</h3><div class="ln" style="font-size:14px">'+q[1]+'</div></div>';
+    '<div class="zhcard" style="margin-top:10px;animation:qpop .3s ease"><h3>'+q[0]+'</h3><div class="ln" style="font-size:14px">'+q[1]+'</div></div>';
   say(yuguiC,"哇，"+q[0]+"！");
 }
 
