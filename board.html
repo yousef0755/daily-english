@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b0d">
+<title>今晚的活</title>
+<style>
+:root{
+  --bg:#070b0d; --card:#101a1f; --line:rgba(255,255,255,.08);
+  --ink:#eef4f2; --dim:#8b9a97; --gold:#d9b26a; --gold-soft:#f0dcae;
+  --ok:#4ea87a; --wait:#c59a4d; --stuck:#c25b3f;
+  --serif:"Iowan Old Style",Georgia,serif;
+  --sans:Inter,ui-sans-serif,-apple-system,"PingFang SC",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);padding:0 0 120px;
+  background-image:radial-gradient(80% 50% at 80% -6%,rgba(217,178,106,.09),transparent 60%)}
+.wrap{max-width:620px;margin:0 auto;padding:0 16px}
+.top{padding:20px 0 8px}
+.top h1{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:.5px}
+.top .d{margin-top:5px;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+
+h2.owner{margin:24px 0 10px;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;
+  color:var(--gold);font-weight:700}
+.item{border:1px solid var(--line);border-radius:15px;background:var(--card);
+  padding:14px 15px;margin-bottom:10px}
+.item.done{opacity:.72}
+.txt{font-size:15px;line-height:1.6}
+.tag{display:inline-block;margin-top:8px;font-size:11px;padding:3px 9px;border-radius:99px;
+  border:1px solid transparent}
+.t-done{background:rgba(78,168,122,.14);color:var(--ok);border-color:rgba(78,168,122,.3)}
+.t-doing{background:rgba(217,178,106,.12);color:var(--gold-soft);border-color:rgba(217,178,106,.28)}
+.t-wait{background:rgba(197,154,77,.12);color:var(--wait);border-color:rgba(197,154,77,.3)}
+.t-stuck{background:rgba(194,91,63,.14);color:var(--stuck);border-color:rgba(194,91,63,.32)}
+
+.score{margin-top:11px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.score span{font-size:11px;color:var(--dim);margin-right:2px}
+.dot{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--dim);font-size:13px;font-weight:700;
+  display:grid;place-items:center;cursor:pointer;font-variant-numeric:tabular-nums}
+.dot.on{background:var(--gold);color:#20170a;border-color:transparent}
+textarea{width:100%;margin-top:9px;min-height:56px;resize:vertical;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:11px;
+  color:var(--ink);font-family:inherit;font-size:13.5px;line-height:1.6;padding:10px 12px}
+textarea::placeholder{color:#5f6d6a}
+.saved{margin-top:7px;font-size:11.5px;color:var(--ok);display:none}
+.saved.show{display:block}
+.failed{margin-top:7px;font-size:11.5px;color:var(--stuck);display:none}
+.failed.show{display:block}
+
+.overall{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+.overall h2{font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--dim);
+  font-weight:700;margin-bottom:10px}
+
+/* 提交条：钉在底部，永远够得着——上次把导出放页面最底，他找不到 */
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(7,11,13,.4),rgba(7,11,13,.96) 38%);backdrop-filter:blur(10px)}
+.bar .inner{max-width:620px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.submit{flex:1;border:0;border-radius:14px;padding:15px;font-family:var(--sans);
+  font-size:15px;font-weight:700;cursor:pointer;
+  background:linear-gradient(135deg,#c9a25c,#e6cf9b);color:#20170a}
+.submit:disabled{background:rgba(255,255,255,.06);color:var(--dim)}
+.receipt{font-size:12px;color:var(--dim);white-space:nowrap;min-width:96px;text-align:right}
+.receipt b{color:var(--gold-soft)}
+footer{margin-top:22px;text-align:center;font-size:10.5px;color:#5f6d6a;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>今晚的活</h1>
+    <div class="d" id="date">…</div>
+  </div>
+  <div id="board"></div>
+
+  <div class="overall">
+    <h2>总的说一句</h2>
+    <textarea id="overall" placeholder="这一天我们干得怎么样，直接说。"></textarea>
+    <div class="saved" id="overallSaved">已收到</div>
+  </div>
+
+  <footer>
+    打分和点评点了就存，不用等提交；下面那个键是给你一次性核对用的。<br>
+    <span id="stamp"></span>
+  </footer>
+</div>
+
+<div class="bar"><div class="inner">
+  <button class="submit" id="submit">提交</button>
+  <div class="receipt" id="receipt">还没提交</div>
+</div></div>
+
+<script>
+/* 老板 2026-08-19：「下次你们俩商量完晚上给我一个网页，待办事项给我，我来打分并且对你们的工作点评」
+   —— 页面我做（惊蛰），接口启明做。两条硬要求写在前面：
+   1. 他点完必须看得见结果落到了哪儿。今天认人页两版都栽在这儿：他点了不知道有没有传过来，
+      只能回头问我。所以每条打完分当场存、当场回执，最后再给一个总的「已收到 N 条」。
+   2. 提交键钉在屏幕底部，不放在页面最下面——上一次导出框藏在页尾，他找不到。 */
+const API = "https://su-family.yousef-abud.workers.dev";
+const $ = id => document.getElementById(id);
+/* 状态两头都认：我这边写英文键，启明的接口回的是中文字面。
+   口径不一致的时候不要求对方改，两边都收，谁先写都不会掉进默认值里。 */
+const STATUS = {
+  done:  ["t-done",  "已完成"],
+  doing: ["t-doing", "在办"],
+  wait:  ["t-wait",  "等你点头"],
+  stuck: ["t-stuck", "卡住了"],
+  "已完成":["t-done","已完成"], "在办":["t-doing","在办"],
+  "等他点头":["t-wait","等你点头"], "等你点头":["t-wait","等你点头"],
+  "卡住":["t-stuck","卡住了"], "卡住了":["t-stuck","卡住了"]
+};
+let ITEMS = [], SCORES = {};
+
+function dubaiDate(){
+  return new Date(Date.now()+4*3600*1000).toISOString().slice(0,10);
+}
+
+async function save(id, score, comment){
+  const r = await fetch(API+"/review/score",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id, score, comment})});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  const j = await r.json();
+  if(!j.ok) throw new Error("接口说没存上");
+  return j;
+}
+
+function render(){
+  const box = $("board"); box.innerHTML = "";
+  const owners = [...new Set(ITEMS.map(i=>i.owner))];
+  owners.forEach(who=>{
+    const h = document.createElement("h2"); h.className="owner"; h.textContent = who;
+    box.appendChild(h);
+    ITEMS.filter(i=>i.owner===who).forEach(it=>{
+      const prev = SCORES[it.id] || {};
+      const el = document.createElement("div");
+      el.className = "item" + (it.status==="done" ? " done" : "");
+      const st = STATUS[it.status] || STATUS.doing;
+      el.innerHTML =
+        `<div class="txt">${it.txt}</div>
+         <span class="tag ${st[0]}">${st[1]}</span>
+         <div class="score"><span>打分</span>${[1,2,3,4,5].map(n=>
+           `<div class="dot${prev.score===n?" on":""}" data-n="${n}">${n}</div>`).join("")}</div>
+         <textarea placeholder="想说什么直接写，不写也行">${prev.comment||""}</textarea>
+         <div class="saved">已存下</div>
+         <div class="failed">没存上，我这边会看到，等下再点一次</div>`;
+      const dots = el.querySelectorAll(".dot");
+      const ta = el.querySelector("textarea");
+      const okLine = el.querySelector(".saved"), badLine = el.querySelector(".failed");
+      const push = async () => {
+        const n = [...dots].findIndex(d=>d.classList.contains("on")) + 1;
+        try{
+          await save(it.id, n||null, ta.value.trim());
+          SCORES[it.id] = {score:n||null, comment:ta.value.trim()};
+          okLine.classList.add("show"); badLine.classList.remove("show");
+          setTimeout(()=>okLine.classList.remove("show"), 1600);
+          countUp();
+        }catch(e){ badLine.classList.add("show"); okLine.classList.remove("show"); }
+      };
+      dots.forEach(d=>d.addEventListener("click",()=>{
+        dots.forEach(x=>x.classList.remove("on")); d.classList.add("on"); push();
+      }));
+      let timer=null;
+      ta.addEventListener("input",()=>{ clearTimeout(timer); timer=setTimeout(push, 900); });
+      box.appendChild(el);
+    });
+  });
+  countUp();
+}
+
+function countUp(){
+  const n = Object.values(SCORES).filter(s=>s && (s.score||s.comment)).length;
+  $("receipt").innerHTML = n ? `已收到 <b>${n}</b> 条` : "还没打分";
+}
+
+$("submit").addEventListener("click", async ()=>{
+  const btn = $("submit"); btn.disabled = true; btn.textContent = "在存…";
+  try{
+    const txt = $("overall").value.trim();
+    if(txt){
+      const r = await fetch(API+"/review/overall",{method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({who:"boss", comment:txt})});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      $("overallSaved").classList.add("show");
+    }
+    const n = Object.values(SCORES).filter(s=>s && (s.score||s.comment)).length;
+    btn.textContent = "已收到 " + n + " 条 ✓";
+    $("receipt").innerHTML = `我们看得见了`;
+  }catch(e){
+    btn.disabled = false; btn.textContent = "没存上，再点一次";
+  }
+});
+
+fetch(API+"/review/board")
+  .then(r=>r.json())
+  .then(d=>{
+    ITEMS = d.items || [];
+    SCORES = d.scores || {};
+    $("date").textContent = (d.date || dubaiDate()) + "　共 " + ITEMS.length + " 条";
+    /* overall 接口回的是对象（{who:comment}），不是字符串——直接塞会显示 [object Object] */
+    const ov = d.overall;
+    if(typeof ov === "string") $("overall").value = ov;
+    else if(ov && typeof ov === "object"){
+      const first = Object.values(ov).find(v=>typeof v === "string");
+      if(first) $("overall").value = first;
+    }
+    if(!ITEMS.length){
+      $("board").innerHTML = '<div class="item"><div class="txt">今天还没报清单。'
+        + '我们碰完就填进来，你刷新就有。</div></div>';
+    } else render();
+    $("stamp").textContent = "清单由启明和惊蛰各报各的";
+  })
+  .catch(e=>{
+    $("board").innerHTML = '<div class="item"><div class="txt">清单没拉下来（'
+      + e + '）。这是我们的问题，不是你点错了。</div></div>';
+  });
+</script>
+</body>
+</html>
