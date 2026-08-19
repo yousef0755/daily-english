@@ -55,50 +55,80 @@ h1{font-size:22px;margin-bottom:2px}
   <div class="stat"><b id="streak">0</b><span>连续天数</span></div>
 </div>
 <div id="months"></div>
-<div class="tip">打卡记录存在你手机里，换浏览器会清零 · 坚持住，Nailed it!</div>
+<div class="tip">记录存在家里的服务器上，换手机换浏览器都在 · 坚持住，Nailed it!</div>
 </div>
 <script>
+/* 2026-08-19 改造：账本搬到服务器（老板令「只要不要再丢就好」）。
+   起因：这页原来只存手机本地，她换个浏览器打开，五天记录看着全没了，
+   半夜哭着找爸爸。其实账一直在家庭榜的服务器上（她=榜上的曼雅）。
+   现在：日历从服务器读；点今天=正经打卡上榜；本地那份只做断网时的影子。 */
 const KEY='mie_checkin';
+const API='https://su-family.yousef-abud.workers.dev';
+const WHO='manya';
 let data={};
 try{data=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
 const now=new Date();
 const WDS=['一','二','三','四','五','六','日'];
 function dkey(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')}
+function todayKey(){return dkey(now.getFullYear(),now.getMonth(),now.getDate())}
+
 function build(){
   const box=document.getElementById('months');box.innerHTML='';
-  for(let off=0;off>=0;off--){
-    const y=now.getFullYear(),m=now.getMonth()-off;
-    const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate();
-    const mv=document.createElement('div');mv.className='month';
-    mv.innerHTML='<div class="mtitle">'+first.getFullYear()+'年'+(first.getMonth()+1)+'月</div>';
-    const g=document.createElement('div');g.className='grid';
-    WDS.forEach(w=>{const e=document.createElement('div');e.className='wd';e.textContent=w;g.appendChild(e)});
-    let lead=(first.getDay()+6)%7;
-    for(let i=0;i<lead;i++){const e=document.createElement('div');e.className='day blank';g.appendChild(e)}
-    for(let d=1;d<=days;d++){
-      const e=document.createElement('div');e.className='day';e.textContent=d;
-      const k=dkey(first.getFullYear(),first.getMonth(),d);
-      const dt=new Date(first.getFullYear(),first.getMonth(),d);
-      const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-      if(dt.getTime()===today.getTime())e.classList.add('today');
-      if(dt>today)e.classList.add('future');
-      if(data[k])e.classList.add('done');
-      if(dt<=today)e.onclick=()=>{data[k]=!data[k];if(!data[k])delete data[k];localStorage.setItem(KEY,JSON.stringify(data));build()};
-      g.appendChild(e);
-    }
-    mv.appendChild(g);box.appendChild(mv);
+  const y=now.getFullYear(),m=now.getMonth();
+  const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate();
+  const mv=document.createElement('div');mv.className='month';
+  mv.innerHTML='<div class="mtitle">'+first.getFullYear()+'年'+(first.getMonth()+1)+'月</div>';
+  const g=document.createElement('div');g.className='grid';
+  WDS.forEach(w=>{const e=document.createElement('div');e.className='wd';e.textContent=w;g.appendChild(e)});
+  let lead=(first.getDay()+6)%7;
+  for(let i=0;i<lead;i++){const e=document.createElement('div');e.className='day blank';g.appendChild(e)}
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  for(let d=1;d<=days;d++){
+    const e=document.createElement('div');e.className='day';e.textContent=d;
+    const k=dkey(y,m,d);
+    const dt=new Date(y,m,d);
+    if(dt.getTime()===today.getTime())e.classList.add('today');
+    if(dt>today)e.classList.add('future');
+    if(data[k])e.classList.add('done');
+    /* 只有「今天」可以点——打卡是打今天的卡，不是涂过去的格子 */
+    if(dt.getTime()===today.getTime()&&!data[k]) e.onclick=checkinToday;
+    g.appendChild(e);
   }
+  mv.appendChild(g);box.appendChild(mv);
   const keys=Object.keys(data).filter(k=>data[k]).sort();
   document.getElementById('total').textContent=keys.length;
-  let s=0;const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  let s=0;
   for(let i=0;;i++){
-    const d=new Date(t);d.setDate(t.getDate()-i);
+    const d=new Date(today);d.setDate(today.getDate()-i);
     const k=dkey(d.getFullYear(),d.getMonth(),d.getDate());
     if(data[k])s++;else{if(i===0)continue;break}
   }
   document.getElementById('streak').textContent=s;
 }
+
+function checkinToday(){
+  const k=todayKey();
+  data[k]=true;
+  try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}
+  build();
+  fetch(API+'/fam/ping',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({who:WHO,done:1,total:1,started:true})})
+    .catch(function(){/* 断网也不吓人：本地已记，下次打开会跟服务器对齐 */});
+}
+
+/* 先画本地的（秒开），服务器回来后以服务器为准重画 */
 build();
-</script>
+fetch(API+'/fam/history?who='+WHO).then(r=>r.json()).then(j=>{
+  if(!j||!j.ok||!j.days)return;
+  const merged={};
+  Object.keys(j.days).forEach(k=>{if(j.days[k].done>0)merged[k]=true});
+  /* 今天如果只在本地（刚点了还没同步上），别丢 */
+  const tk=todayKey();
+  if(data[tk])merged[tk]=true;
+  data=merged;
+  try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}
+  build();
+}).catch(function(){});
+</script></script>
 </body>
 </html>
