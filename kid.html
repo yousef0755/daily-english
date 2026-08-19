@@ -2500,7 +2500,26 @@ function renderRecite(){
      数据源和打卡账目都不换：还是 RECITE.english 的行、还是 makeBhBtn 记账——
      只是把「word — 中文」的行画成大词卡，紧跟着的句子行并进卡里当例句框，
      一个「已背会」同时把词和句两行的账都记上。 */
-  if(rSub==="english"){ renderEnglishCards(box, item); if(item.hadith){} setTimeout(function(){},0); return; }
+  if(rSub==="english"){
+    /* 整课官方原声（春如金卷配套MP3）放最上面；逐词点读仍是定编神经语音 */
+    (function(){
+      var keys=["1u11","1u12","2u1","2u2","2u3","2u4","2u5","2u6","2u7","2u8","2u9","2u10","2u11","2u12"];
+      var k=keys[rIdx]||keys[0];
+      var btn=document.createElement("button");
+      btn.type="button";
+      btn.style.cssText="width:100%;margin-bottom:12px;padding:12px;border-radius:14px;border:1px solid rgba(90,209,200,.35);background:rgba(90,209,200,.10);color:var(--cream);font-size:.95rem;font-weight:600;cursor:pointer;font-family:inherit";
+      btn.textContent="▶ 听整课原声（跟书配套的录音）";
+      var au=null;
+      btn.onclick=function(){
+        try{ if(au){au.pause();au=null;btn.textContent="▶ 听整课原声（跟书配套的录音）";return} }catch(e){}
+        au=new Audio("boyuan-audio/official/"+k+".mp3");
+        au.play().then(function(){btn.textContent="⏸ 在放原声（再点一下停）"})
+                 .catch(function(){if(typeof toast==="function")toast("放不出来，跟我说一声")});
+        au.onended=function(){btn.textContent="▶ 听整课原声（跟书配套的录音）";au=null};
+      };
+      box.appendChild(btn);
+    })();
+    renderEnglishCards(box, item); return; }
   /* 成语：要念的是成语本身 */
   if(rSub==="idiom"){
     const word=(item.name||"").split(/\s{2,}/)[0].trim();

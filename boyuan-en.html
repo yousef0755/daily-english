@@ -2183,7 +2183,9 @@ U.words.forEach(w=>{
   };
   cardsEl.appendChild(d);
 });
-document.getElementById('listenAll').onclick=()=>play(AUDIO_DIR+TODAY+'_lesson.mp3',null);
+/* 整课=《春如金卷》官方原声（老板8-19：「那个就是所有课件的声音」，百度云下的配套MP3）。
+   逐词逐句的点读还是定编神经语音——原声是一课一条，拆不开。 */
+document.getElementById('listenAll').onclick=()=>play(AUDIO_DIR+'official/'+TODAY+'.mp3',null);
 
 /* ===== 已背会 + 当天打卡（照老板 8-19 截图的样子）=====
    日期一律按迪拜算；背会名单和打卡各记一条，按天分开，不清昨天的账 */
