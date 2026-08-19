@@ -442,7 +442,7 @@ body{
   border-bottom:1px solid rgba(216,179,102,.22);
 }
 .site-header:before,.site-header:after{opacity:.35}
-.card,.donebox,.phrase,.quiz-q,.coach-note{
+.card,.donebox,.quiz-q,.coach-note{
   background:var(--card);
   border:1px solid var(--line);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
@@ -481,6 +481,9 @@ input,textarea{background:rgba(8,14,24,.8);color:var(--ink);border:1px solid var
 .pill{background:rgba(150,182,222,.09)!important;color:var(--ink)!important;border:1px solid var(--line)!important}
 .pill.on{background:linear-gradient(135deg,#e3c07a,#c99a45)!important;color:#241a05!important;border-color:transparent!important;box-shadow:0 6px 20px rgba(216,179,102,.3)}
 .more-pill{background:rgba(150,182,222,.09)!important;color:var(--ink)!important;border:1px solid var(--line)!important}
+/* 句子的显/隐两态在深空底上重定色 */
+.phrase.shown{color:var(--ink)!important;text-shadow:none!important}
+.phrase:not(.shown){color:transparent!important;text-shadow:0 0 10px rgba(196,219,243,.55)!important}
 </style>
 <script>
 /* 本机预览一律不往共用的榜上报打卡。
