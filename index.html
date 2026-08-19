@@ -398,21 +398,13 @@ header .pill.on{
 }   /* ← 这个收尾括号上一版被我切掉了，浏览器容错才没出事，补回来 */
 </style>
 <style id="deepspace">
-/* ═══ 深空高级风 2026-08-19 ·老板点名重做· 只覆盖观感，不动结构和逻辑 ═══ */
+/* ═══ 深空高级风 2026-08-19 · 暗宇宙页面 + 象牙内容卡（卡内用变量作用域还原浅色体系，互不打架） ═══ */
 :root{
   --canvas:#070d16;
-  --canvas-2:#0b1420;
   --ink:#e8edf4;
   --muted:#8b96a6;
   --line:rgba(150,182,222,.14);
-  --green:#2ea882;
-  --green-deep:#0a2033;
-  --green-soft:rgba(46,168,130,.16);
   --gold:#d8b366;
-  --gold-soft:rgba(216,179,102,.28);
-  --card:rgba(15,24,38,.82);
-  --good:#3dbb8f;
-  --warn:#e08b5a;
   --shadow-sm:0 10px 30px rgba(0,0,0,.35);
   --shadow-lg:0 28px 80px rgba(0,0,0,.55);
 }
@@ -442,48 +434,24 @@ body{
   border-bottom:1px solid rgba(216,179,102,.22);
 }
 .site-header:before,.site-header:after{opacity:.35}
-.card,.donebox,.quiz-q,.coach-note{
-  background:var(--card);
-  border:1px solid var(--line);
-  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-}
-.btn-main{
-  background:linear-gradient(135deg,#e3c07a 0%,#c99a45 100%);
-  color:#241a05;
-  border:0;
-  box-shadow:0 10px 32px rgba(216,179,102,.28);
-  text-shadow:none;
-}
-.btn-main:active{transform:translateY(1px)}
-.pill,.mode-tabs button,.language-toggle button{
-  background:rgba(150,182,222,.08);
+/* 内容卡：象牙面，卡内变量还原原浅色体系 → 卡里所有旧样式原样成立 */
+.card,.donebox,.lesson-toolbar,.quiz-q,.coach-note,#keyCard,.feedback-drawer{
+  --canvas:#f3f0e8;--ink:#16241f;--muted:#6d746f;
+  --line:rgba(24,65,52,.12);--green:#1d5b48;--green-deep:#0d3027;
+  --green-soft:#dfeae4;--gold:#c59a4d;--gold-soft:#ead8ad;
+  --card:rgba(255,255,252,.88);--good:#287652;--warn:#a75933;
+  background:rgba(250,248,241,.96);
   color:var(--ink);
-  border:1px solid var(--line);
+  border:1px solid rgba(216,179,102,.25);
+  box-shadow:0 18px 50px rgba(0,0,0,.45);
 }
-.pill.on,.pill[aria-pressed="true"],.mode-tabs button.on,.mode-tabs button[aria-selected="true"],.language-toggle button.on{
-  background:linear-gradient(135deg,rgba(216,179,102,.95),rgba(201,154,69,.95));
-  color:#241a05;
-  border-color:transparent;
-  box-shadow:0 6px 20px rgba(216,179,102,.3);
-}
-.quiz-opt{background:rgba(150,182,222,.07);border:1px solid var(--line);color:var(--ink)}
-.quiz-opt:hover{border-color:rgba(216,179,102,.5)}
-a{color:#e3c07a}
+/* 卡外的钮与文字（深底上） */
+main > .mode-tabs .pill{background:rgba(150,182,222,.10);color:#e8edf4;border:1px solid rgba(150,182,222,.16)}
+main > .mode-tabs .pill.on{background:linear-gradient(135deg,#e3c07a,#c99a45);color:#241a05;border-color:transparent;box-shadow:0 6px 20px rgba(216,179,102,.3)}
+.listen-tip{color:#aeb9c9}
 .eyebrow{color:var(--gold);letter-spacing:.14em}
-.hint,.listen-tip,.done-note,.db-tip{color:var(--muted)}
-input,textarea{background:rgba(8,14,24,.8);color:var(--ink);border:1px solid var(--line)}
-#keyCard{background:#0c1522;color:var(--ink);border:1px solid var(--line)}
-#usageBar{background:rgba(150,182,222,.12)}
+a.famlink,.famlink{color:#e3c07a}
 ::selection{background:rgba(216,179,102,.35)}
-/* 补三处对比度：今日课卡、轨道钮、换题钮 */
-.lesson-toolbar{background:var(--card)!important;border:1px solid var(--line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.lesson-toolbar .lesson-topline,.lesson-toolbar .lesson-title{color:var(--ink)}
-.pill{background:rgba(150,182,222,.09)!important;color:var(--ink)!important;border:1px solid var(--line)!important}
-.pill.on{background:linear-gradient(135deg,#e3c07a,#c99a45)!important;color:#241a05!important;border-color:transparent!important;box-shadow:0 6px 20px rgba(216,179,102,.3)}
-.more-pill{background:rgba(150,182,222,.09)!important;color:var(--ink)!important;border:1px solid var(--line)!important}
-/* 句子的显/隐两态在深空底上重定色 */
-.phrase.shown{color:var(--ink)!important;text-shadow:none!important}
-.phrase:not(.shown){color:transparent!important;text-shadow:0 0 10px rgba(196,219,243,.55)!important}
 </style>
 <script>
 /* 本机预览一律不往共用的榜上报打卡。
