@@ -320,11 +320,19 @@ let W,H,dpr;
 function fit(){dpr=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
 fit();addEventListener("resize",fit);
 /* 深色系光谱：配他的金色卡——蓝夜→靛→紫→暗青→古铜 */
-const STOPS=[[220,42,24],[235,38,22],[258,36,26],[248,40,23],[266,32,26],[240,36,22],[40,42,28],[36,46,24]];
+const STOPS=[[220,34,42],[235,30,40],[258,28,44],[248,32,41],[266,26,44],[240,28,40],[40,36,46],[36,40,42]];
 function palette(t){const n=STOPS.length-1,x=t*n,i=Math.min(n-1,Math.floor(x)),f=x-i;
   const a=STOPS[i],b=STOPS[i+1];let dh=b[0]-a[0];if(dh>180)dh-=360;if(dh<-180)dh+=360;
   return [a[0]+dh*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f];}
 let mx=innerWidth*.5,my=innerHeight*.35,tx=mx,ty=my;
+/* 流星：右上进，左下出，拖尾渐隐 */
+const meteors=[];
+function spawnMeteor(){
+  const sx=W*(.3+Math.random()*.8), sy=-40-Math.random()*H*.2;
+  const ang=Math.PI*(0.72+Math.random()*0.10);   /* 偏左下 */
+  const sp=(H+W)*(.010+Math.random()*.006);
+  meteors.push({x:sx,y:sy,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,life:1,len:90+Math.random()*110});
+}
 addEventListener("pointermove",e=>{tx=e.clientX;ty=e.clientY},{passive:true});
 addEventListener("touchmove",e=>{const t=e.touches[0];if(t){tx=t.clientX;ty=t.clientY}},{passive:true});
 addEventListener("click",e=>{
@@ -336,7 +344,7 @@ addEventListener("click",e=>{
 function draw(ts){
   const t=ts/1000;
   mx+=(tx-mx)*.08;my+=(ty-my)*.08;
-  const N=Math.max(48,Math.round(W/16)),bw=W/N;
+  const N=Math.max(26,Math.round(W/34)),bw=W/N;
   for(let i=0;i<N;i++){
     const u=i/(N-1);
     const drift=(Math.sin(t*.18+i*.35)+1)/2;
@@ -344,7 +352,7 @@ function draw(ts){
     h=(h+((i*7919)%13)-6+360)%360;l+=((i*104729)%5)-2;
     const dx=Math.abs((i+.5)*bw-mx)/(W*.15);
     const glow=Math.exp(-dx*dx)*22;
-    const li=Math.min(60,l+drift*4+glow);
+    const li=Math.min(74,l+drift*4+glow);
     const g=ctx.createLinearGradient(0,0,0,H);
     const yF=Math.max(.05,Math.min(.95,my/H));
     g.addColorStop(0,`hsl(${h} ${s}% ${Math.max(8,li-10)}%)`);
@@ -354,11 +362,27 @@ function draw(ts){
     ctx.fillStyle=`hsla(0 0% 100% / ${.04+glow*.005})`;
     ctx.fillRect(i*bw,0,1,H);
   }
+  /* 流星层 */
+  if(Math.random()<0.012&&meteors.length<3)spawnMeteor();
+  for(let k=meteors.length-1;k>=0;k--){
+    const m=meteors[k];
+    m.x+=m.vx;m.y+=m.vy;m.life-=0.012;
+    if(m.life<=0||m.x<-200||m.y>H+200){meteors.splice(k,1);continue}
+    const hx=m.x,hy=m.y,txl=m.x-m.vx*(m.len/Math.hypot(m.vx,m.vy)),tyl=m.y-m.vy*(m.len/Math.hypot(m.vx,m.vy));
+    const mg=ctx.createLinearGradient(hx,hy,txl,tyl);
+    mg.addColorStop(0,`rgba(255,255,255,${.85*m.life})`);
+    mg.addColorStop(.4,`rgba(210,225,255,${.35*m.life})`);
+    mg.addColorStop(1,"rgba(210,225,255,0)");
+    ctx.strokeStyle=mg;ctx.lineWidth=2.2;ctx.lineCap="round";
+    ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(txl,tyl);ctx.stroke();
+    ctx.fillStyle=`rgba(255,255,255,${.9*m.life})`;
+    ctx.beginPath();ctx.arc(hx,hy,2.4,0,7);ctx.fill();
+  }
   const vg=ctx.createLinearGradient(0,0,0,H);
-  vg.addColorStop(0,"rgba(4,6,12,.55)");
+  vg.addColorStop(0,"rgba(8,10,18,.38)");
   vg.addColorStop(.28,"rgba(4,6,12,0)");
   vg.addColorStop(.72,"rgba(4,6,12,0)");
-  vg.addColorStop(1,"rgba(4,6,12,.6)");
+  vg.addColorStop(1,"rgba(8,10,18,.42)");
   ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
   requestAnimationFrame(draw);
 }
