@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b0d">
+<title>Five Minutes</title>
+<style>
+:root{
+  --bg:#070b0d; --bg2:#0c1317; --card:#101a1f; --line:rgba(255,255,255,.08);
+  --ink:#eef4f2; --dim:#8b9a97; --gold:#d9b26a; --gold-soft:#f0dcae;
+  --green:#3f9f7f;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --ar:"Geeza Pro","Al Bayan","Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--sans);
+  min-height:100vh; padding:0 0 60px;
+  background-image:
+    radial-gradient(90% 60% at 78% -8%, rgba(217,178,106,.10), transparent 62%),
+    radial-gradient(70% 50% at 8% 4%, rgba(63,159,127,.09), transparent 60%);
+  background-attachment:fixed;
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+
+/* 顶：一条，不占地方 */
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;gap:12px}
+.brand{font-family:var(--serif);font-size:18px;letter-spacing:.4px}
+.brand small{display:block;font-family:var(--sans);font-size:9.5px;letter-spacing:1.8px;
+  color:var(--dim);text-transform:uppercase;margin-top:3px}
+.streak{
+  flex:0 0 auto;border:1px solid rgba(217,178,106,.30);border-radius:999px;
+  padding:7px 13px;background:rgba(217,178,106,.08);color:var(--gold-soft);
+  font-size:12px;font-weight:650;white-space:nowrap
+}
+
+/* 今天这一件 */
+.today{
+  border:1px solid var(--line);border-radius:20px;padding:18px 18px 16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+  box-shadow:0 20px 50px rgba(0,0,0,.35)
+}
+.kicker{font-size:9.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.today h1{font-family:var(--serif);font-weight:400;font-size:23px;line-height:1.3}
+.today .sub{margin-top:6px;font-size:12.5px;line-height:1.65;color:var(--dim)}
+.meta{margin-top:12px;font-size:11px;color:var(--dim);display:flex;gap:14px;flex-wrap:wrap}
+.meta b{color:var(--gold-soft);font-weight:600}
+
+/* 一行一句 */
+.lines{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.line{
+  border:1px solid var(--line);border-radius:15px;background:var(--card);
+  padding:13px 14px;display:flex;gap:11px;align-items:flex-start;cursor:pointer;
+  transition:border-color .16s,background .16s
+}
+.line.open{border-color:rgba(217,178,106,.34);background:#121e24}
+.n{flex:0 0 auto;width:20px;height:20px;border-radius:50%;margin-top:3px;
+  background:rgba(217,178,106,.13);color:var(--gold);font-size:10.5px;font-weight:700;
+  display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.body{flex:1;min-width:0}
+.ar{font-family:var(--ar);font-size:21px;line-height:2.05;direction:rtl;text-align:right}
+.en-main{font-size:16px;line-height:1.55;font-family:var(--serif)}
+.tr{margin-top:7px;font-size:13px;line-height:1.6;color:var(--dim);display:none}
+.tr[dir="rtl"]{font-family:var(--ar);font-size:16px;line-height:1.9;text-align:right}
+.line.open .tr{display:block}
+.note{margin-top:6px;font-size:11.5px;line-height:1.6;color:#7d8c89;display:none}
+.line.open .note{display:block}
+.play{flex:0 0 auto;width:32px;height:32px;border-radius:10px;margin-top:1px;
+  border:1px solid rgba(217,178,106,.32);background:rgba(217,178,106,.09);
+  color:var(--gold-soft);display:grid;place-items:center;font-size:11px;cursor:pointer}
+.play:active{background:rgba(217,178,106,.2)}
+.tap-hint{margin:10px 2px 0;font-size:11px;color:var(--dim)}
+
+/* 过关 */
+.done{
+  margin-top:16px;width:100%;border:0;border-radius:15px;padding:15px;
+  background:linear-gradient(135deg,#c9a25c,#e6cf9b);color:#20170a;
+  font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;
+  box-shadow:0 12px 30px rgba(201,162,92,.22)}
+.done:disabled{background:rgba(255,255,255,.06);color:var(--dim);box-shadow:none}
+
+/* 四条轨道，收在下面 */
+.tracks{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+.tracks h2{font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);
+  font-weight:600;margin-bottom:11px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);
+  border-radius:999px;padding:9px 15px;font-size:13px;cursor:pointer;opacity:.78
+}
+.chip:hover{opacity:1}
+.chip.on{background:var(--gold);color:#20170a;border-color:transparent;opacity:1;font-weight:650}
+.chapter-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.ch{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--dim);
+  border-radius:9px;padding:5px 9px;font-size:12px;cursor:pointer;font-variant-numeric:tabular-nums}
+.ch.on{background:rgba(217,178,106,.16);color:var(--gold-soft);border-color:rgba(217,178,106,.3)}
+footer{margin-top:24px;text-align:center;font-size:10.5px;color:#5f6d6a;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">Five Minutes<small>one thing a day</small></div>
+    <div class="streak" id="streak">🔥 Day 1 · starts today</div>
+  </div>
+
+  <section class="today">
+    <div class="kicker" id="kicker">Today</div>
+    <h1 id="title">…</h1>
+    <p class="sub" id="sub"></p>
+    <div class="meta" id="meta"></div>
+  </section>
+
+  <div class="tap-hint" id="hint">Tap a line for the translation. Tap ▶ to hear it.</div>
+  <div class="lines" id="lines"></div>
+
+  <button class="done" id="done">Done for today</button>
+
+  <div class="tracks">
+    <h2>Tracks</h2>
+    <div class="row" id="tracks"></div>
+    <div class="chapter-row" id="chapters"></div>
+  </div>
+
+  <footer>
+    Quran recitation: Husary (Mu‘allim) · text and English from quran-uthmani / Sahih International<br>
+    <span id="stamp"></span>
+  </footer>
+</div>
+
+<script>
+/* ── 老板 2026-08-19 定的四条轨道 ──────────────────────────────
+   1 古兰背诵：从第 92 章 الليل「وَٱلَّيْلِ إِذَا يَغْشَىٰ」往前背
+   2 阿拉伯语会议 · 带英语翻译
+   3 英语演讲 · 带阿拉伯语翻译
+   4 阿拉伯语诗歌 · 带英语诗歌翻译
+   原话：「不要管我之前的设计，你重新帮我设计」
+   界面英文照他 8-15 的口径；经文一律真人诵读，不用合成音。 */
+
+const TRACKS = [
+  {id:"quran",  label:"Quran",   kicker:"Today · Quran",   dir:"rtl"},
+  {id:"meeting",label:"Meeting", kicker:"Today · Meeting Arabic", dir:"rtl"},
+  {id:"speech", label:"Speech",  kicker:"Today · English speaking", dir:"ltr"},
+  {id:"poetry", label:"Poetry",  kicker:"Today · Arabic poetry", dir:"rtl"}
+];
+
+let DATA = {quran:[], meeting:[], speech:[], poetry:[]};
+let VOICE = {};           /* 文本 → mp3 */
+let cur = {track:"quran", idx:0};
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k,v) }catch(e){} }
+};
+
+/* 连续天数沿用旧站那把钥匙，换页不清零 */
+const KEY = "fiveMinutes";
+let state = {streak:0,last:"",done:{}};
+try{ state = Object.assign(state, JSON.parse(store.get(KEY)||"{}")) }catch(e){}
+
+function dubaiToday(){
+  const d = new Date(Date.now() + 4*3600*1000);   /* 本机时区＝迪拜，仍按迪拜日界线算 */
+  return d.toISOString().slice(0,10);
+}
+function renderStreak(){
+  const n = state.streak|0;
+  $("streak").textContent = n>0
+    ? "🔥 Day "+n+(state.last===dubaiToday()?" · today is lit":"")
+    : "🔥 Day 1 · starts today";
+}
+
+function speak(text){
+  const f = VOICE[text];
+  if(f){ playBuf("media/kidaudio/"+f); return; }
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = /[؀-ۿ]/.test(text) ? "ar-SA" : "en-US";
+    u.rate = .88; speechSynthesis.speak(u);
+  }catch(e){}
+}
+/* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio——这条坑旧站踩过，照搬 */
+let actx=null, asrc=null, cache={};
+function playBuf(url){
+  try{
+    if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==="suspended") actx.resume();
+  }catch(e){ const a=new Audio(url); a.play().catch(()=>{}); return }
+  try{ if(asrc) asrc.stop() }catch(e){}
+  const go = buf => { const s=actx.createBufferSource(); s.buffer=buf;
+    s.connect(actx.destination); s.start(0); asrc=s; };
+  if(cache[url]) return go(cache[url]);
+  fetch(url).then(r=>r.arrayBuffer()).then(b=>actx.decodeAudioData(b))
+    .then(buf=>{ cache[url]=buf; go(buf) })
+    .catch(()=>{ const a=new Audio(url); a.play().catch(()=>{}) });
+}
+
+/* 背诵是往前走的，不是每天随机换一章：
+   老板 8-19 说「从 وَٱلَّيْلِ إِذَا يَغْشَىٰ 往前背」——那就从 92 开始，
+   他按「Done」才前进一章，中途换章也记得住。别的轨道才按天轮。 */
+function todayIndex(list){
+  if(!list.length) return 0;
+  if(cur.track==="quran"){
+    const at = parseInt(store.get("quranAt")||"0",10);
+    return Math.max(0, Math.min(at, list.length-1));
+  }
+  const day = Math.floor((Date.now()+4*3600*1000)/86400000);
+  return day % list.length;
+}
+
+function render(){
+  const t = TRACKS.find(x=>x.id===cur.track);
+  const list = DATA[cur.track] || [];
+  if(!list.length){
+    $("title").textContent = "Loading…"; $("lines").innerHTML=""; return;
+  }
+  const item = list[Math.min(cur.idx, list.length-1)];
+  $("kicker").textContent = t.kicker;
+  $("title").textContent = item.title || "";
+  $("sub").textContent = item.sub || "";
+  $("meta").innerHTML = (item.meta||[]).map(m=>"<span>"+m+"</span>").join("");
+
+  const box = $("lines"); box.innerHTML="";
+  (item.lines||[]).forEach((L,i)=>{
+    const el = document.createElement("div"); el.className="line";
+    const isAr = t.dir==="rtl";
+    const main = isAr ? `<div class="ar">${L.a}</div>` : `<div class="en-main">${L.a}</div>`;
+    const trDir = isAr ? "" : ' dir="rtl"';
+    el.innerHTML =
+      `<div class="n">${String(i+1).padStart(2,"0")}</div>
+       <div class="body">${main}
+         <div class="tr"${trDir}>${L.b||""}</div>
+         ${L.note?`<div class="note">${L.note}</div>`:""}
+       </div>
+       <button class="play" aria-label="listen">▶</button>`;
+    el.addEventListener("click", e=>{
+      if(e.target.closest(".play")){ speak(L.a); return }
+      el.classList.toggle("open");
+    });
+    box.appendChild(el);
+  });
+
+  const dk = cur.track+"|"+cur.idx+"|"+dubaiToday();
+  const done = !!state.done[dk];
+  $("done").disabled = done;
+  $("done").textContent = done ? "Done today ✓" : "Done for today";
+  renderChapters(list);
+}
+
+function renderTracks(){
+  $("tracks").innerHTML = "";
+  TRACKS.forEach(t=>{
+    const b=document.createElement("div");
+    b.className="chip"+(t.id===cur.track?" on":"");
+    b.textContent=t.label;
+    b.onclick=()=>{ cur.track=t.id; cur.idx=todayIndex(DATA[t.id]||[]); renderTracks(); render();
+      window.scrollTo({top:0,behavior:"smooth"}) };
+    $("tracks").appendChild(b);
+  });
+}
+function renderChapters(list){
+  const box=$("chapters"); box.innerHTML="";
+  if(list.length<2) return;
+  list.forEach((it,i)=>{
+    const b=document.createElement("div");
+    b.className="ch"+(i===cur.idx?" on":"");
+    b.textContent=it.short||String(i+1);
+    b.onclick=()=>{ cur.idx=i; if(cur.track==="quran") store.set("quranAt",String(i)); render() };
+    box.appendChild(b);
+  });
+}
+
+$("done").addEventListener("click",()=>{
+  const today=dubaiToday();
+  state.done[cur.track+"|"+cur.idx+"|"+today]=1;
+  if(state.last!==today){
+    const y=new Date(Date.now()+4*3600*1000-86400000).toISOString().slice(0,10);
+    state.streak = (state.last===y) ? (state.streak|0)+1 : 1;
+    state.last = today;
+  }
+  store.set(KEY, JSON.stringify(state));
+  if(cur.track==="quran"){           /* 背完这一章，明天从下一章接着走 */
+    const next = Math.min(cur.idx+1, (DATA.quran||[]).length-1);
+    store.set("quranAt", String(next));
+  }
+  renderStreak(); render();
+});
+
+Promise.all([
+  fetch("data/five-content.json?v="+Date.now()).then(r=>r.json()).catch(()=>({})),
+  fetch("media/kidaudio/index.json").then(r=>r.json()).catch(()=>({}))
+]).then(([content, voice])=>{
+  DATA = Object.assign(DATA, content);
+  VOICE = voice||{};
+  cur.idx = todayIndex(DATA[cur.track]||[]);
+  renderTracks(); renderStreak(); render();
+  $("stamp").textContent = "content build " + (content.__built||"—");
+});
+</script>
+</body>
+</html>
