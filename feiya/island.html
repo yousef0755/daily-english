@@ -67,19 +67,19 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 #weed .tg{font-size:9.5px;background:#fff;border-radius:8px;padding:2px 7px;
   box-shadow:0 2px 8px rgba(0,0,0,.12);color:#b08d3e;white-space:nowrap}
 /* ── 猫 ── */
-.cat{position:absolute;width:76px;z-index:10;cursor:grab;transition:left 2.6s ease-in-out,bottom 2.6s ease-in-out;touch-action:none}
+.cat{position:fixed;width:54px;z-index:10;cursor:grab;transition:left 2.6s ease-in-out,bottom 2.6s ease-in-out;touch-action:none}
 .cat.drag{transition:none;cursor:grabbing;z-index:20}
 .cat.flip svg{transform:scaleX(-1)}
 .cat .zzz{position:absolute;top:-14px;right:-4px;font-size:13px;display:none}
 .cat.sleep .zzz{display:block;animation:zz 2s ease-in-out infinite}
 .cat.sleep svg{filter:brightness(.94)}
 @keyframes zz{0%,100%{opacity:.4;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
-.speech{position:absolute;background:#fff;border-radius:12px;padding:6px 10px;font-size:12px;color:var(--ink);
+.speech{position:fixed;background:#fff;border-radius:12px;padding:6px 10px;font-size:12px;color:var(--ink);
   box-shadow:0 4px 12px rgba(212,86,143,.22);white-space:nowrap;z-index:21;
   transition:left 2.6s ease-in-out,bottom 2.6s ease-in-out;opacity:0;pointer-events:none}
 .speech.show{opacity:1}
 .speech:after{content:"";position:absolute;bottom:-6px;left:16px;border:6px solid transparent;border-top-color:#fff;border-bottom:0}
-.heart{position:absolute;font-size:15px;z-index:22;pointer-events:none;animation:rise 1.2s ease-out forwards}
+.heart{position:fixed;font-size:15px;z-index:22;pointer-events:none;animation:rise 1.2s ease-out forwards}
 @keyframes rise{from{opacity:1;transform:translateY(0) scale(.8)}to{opacity:0;transform:translateY(-46px) scale(1.25)}}
 /* 种植输入 */
 #plantbar{position:absolute;left:50%;transform:translateX(-50%);bottom:64px;z-index:30;
@@ -253,6 +253,10 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       <div id="zhPoem" class="zhcard"></div>
       <div id="zhIdiom" class="zhcard"></div>
       <div id="zhDone" style="text-align:center;margin-top:14px"></div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="zh-listen" style="border:0;border-radius:12px;padding:10px 20px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer" onclick="chouQian()">🎐 抽一支幸运签</button>
+        <div id="qianOut"></div>
+      </div>
     </div>
   </section>
   <section class="page lang l-ko"><button class="backhome" onclick="goHome()">← 回小岛</button>
@@ -370,13 +374,16 @@ function place(c,x,y,instant){
   c.x=x;c.y=y;
   if(instant){c.el.style.transition="none";c.sp.style.transition="none"}
   c.el.style.left=x+"px";c.el.style.bottom=y+"px";
-  c.sp.style.left=(x+6)+"px";c.sp.style.bottom=(y+84)+"px";
+  c.sp.style.left=(x+4)+"px";c.sp.style.bottom=(y+62)+"px";
   if(instant){void c.el.offsetWidth;c.el.style.transition="";c.sp.style.transition=""}
 }
 function bounds(){
   const r=document.getElementById("isle").getBoundingClientRect();
-  const H=window.innerHeight;
-  return {x0:r.left+8,x1:r.right-84,y0:H-r.bottom+18,y1:H-r.bottom+96};
+  const W=window.innerWidth,H=window.innerHeight;
+  if(r.right>60&&r.left<W-60)
+    return {x0:r.left+8,x1:r.right-62,y0:H-r.bottom+18,y1:H-r.bottom+96};
+  /* 不在小岛页：整个屏幕下沿都是游乐场 */
+  return {x0:10,x1:W-62,y0:14,y1:104};
 }
 function wander(c){
   if(c.away||c.sleep||c.el.classList.contains("drag"))return;
@@ -443,8 +450,8 @@ function pet(c){
   const k="pet_"+c.id;S[k]=(S[k]||0)+1;save();
   for(let i=0;i<3;i++){
     const h=document.createElement("span");h.className="heart";h.textContent=["💗","💕","😽"][i%3];
-    h.style.left=(c.x+18+i*16)+"px";h.style.bottom=(c.y+70)+"px";
-    document.getElementById("pgIsland").appendChild(h);
+    h.style.left=(c.x+10+i*13)+"px";h.style.bottom=(c.y+50)+"px";
+    document.body.appendChild(h);
     setTimeout(()=>h.remove(),1300);
   }
   const L=LINES[c.id].pet;say(c,L[Math.floor(Math.random()*L.length)]);
@@ -491,6 +498,26 @@ function comeBack(){
   setTimeout(()=>say(snowyC,LINES.snowy.return),1500);
 }
 bindCat(duomiC,snowyC);bindCat(snowyC,duomiC);bindCat(yuguiC,snowyC);
+
+/* 中文页设施：幸运签筒 */
+const QIAN=[
+ ["上上签","「春风得意马蹄疾」——今天背什么都顺！"],
+ ["元气签","「千里之行，始于足下」——先背一句就赢了一半"],
+ ["甜甜签","哆咪偷偷说：其实你挺厉害的。（别告诉他我说的）"],
+ ["云朵签","玉桂狗飘过来：今天的努力是甜甜圈味的！"],
+ ["雪白签","Snowy 说：你念诗的声音最好听！"],
+ ["聪明签","「温故而知新」——回头看一眼昨天的，你会吓到自己"],
+ ["勇气签","「会当凌绝顶，一览众山小」——难的先啃一小口"],
+ ["好运签","「柳暗花明又一村」——卡住的地方明天就通"],
+ ["星星签","「危楼高百尺，手可摘星辰」——梦要大胆做"],
+ ["加油签","「少壮不努力，老大徒伤悲」——但今天努力了就不怕！"]
+];
+function chouQian(){
+  const q=QIAN[Math.floor(Math.random()*QIAN.length)];
+  document.getElementById("qianOut").innerHTML=
+    '<div class="zhcard" style="margin-top:10px;animation:pop .3s ease"><h3>'+q[0]+'</h3><div class="ln" style="font-size:14px">'+q[1]+'</div></div>';
+  say(yuguiC,"哇，"+q[0]+"！");
+}
 
 /* 滑页圆点 */
 const pager=document.getElementById("pager");
