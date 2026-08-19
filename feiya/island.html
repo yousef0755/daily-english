@@ -102,6 +102,21 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 .l-ar{background:linear-gradient(165deg,#eafaf1,#cdeeda)}
 .l-en{background:linear-gradient(165deg,#fff7e0,#ffe9ae)}
 .l-zh{background:linear-gradient(165deg,#efe9ff,#d8c9f5)}
+.zhcard{background:rgba(255,255,255,.92);border-radius:18px;padding:16px;margin-top:12px;
+  box-shadow:0 6px 20px rgba(120,90,180,.15)}
+.zhcard h3{font-size:17px;color:#6b4a9e}
+.zhcard .au{font-size:11.5px;color:#a58fc9;margin-bottom:8px}
+.zhcard .ln{font-size:17px;line-height:2;letter-spacing:.05em}
+.zhcard .mean{font-size:12.5px;color:#8a76a8;margin-top:8px;background:#f5f0ff;border-radius:10px;padding:8px 10px}
+.zhcard .use{font-size:12px;color:#a58fc9;margin-top:6px}
+.zhbtns{display:flex;gap:10px;margin-top:12px}
+.zhbtns button{flex:1;border:0;border-radius:12px;padding:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+.zh-listen{background:#e6dcff;color:#5b4694}
+.zh-got{background:#c8b8f0;color:#fff}
+.zh-got.on{background:#8a6cd9}
+.zh-done-btn{border:0;border-radius:14px;padding:13px 22px;font-size:15px;font-weight:800;font-family:inherit;
+  background:#8a6cd9;color:#fff;cursor:pointer}
+.zh-done-btn:disabled{opacity:.45}
 .l-ko{background:linear-gradient(165deg,#ffe9f3,#ffd3e6)}
 .backhome{position:absolute;top:16px;left:16px;background:rgba(255,255,255,.9);border:0;border-radius:999px;
   padding:7px 14px;font-size:13px;font-family:inherit;color:var(--deep);font-weight:700;cursor:pointer;
@@ -202,8 +217,19 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <span class="big">🗝️</span><h2>阿拉伯语</h2><p>古兰经（真人诵读）· 圣训 · 单词<br><br>🚧 小林施工中，很快开门</p></section>
   <section class="page lang l-en"><button class="backhome" onclick="goHome()">← 回小岛</button>
     <span class="big">🩰</span><h2>英语</h2><p>单词 · 句子 · 语音<br><br>🚧 小林施工中，很快开门</p></section>
-  <section class="page lang l-zh"><button class="backhome" onclick="goHome()">← 回小岛</button>
-    <span class="big">🧸</span><h2>中文</h2><p>古诗 · 成语（照旧）<br><br>🚧 小林施工中，很快开门</p></section>
+  <section class="page l-zh" id="pgZh" style="overflow-y:auto;padding:64px 18px 40px">
+    <button class="backhome" onclick="goHome()">← 回小岛</button>
+    <div style="max-width:420px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:6px">
+        <span style="font-size:30px">🧸</span>
+        <h2 style="font-size:21px;color:var(--deep)">中文 · 今天一诗一成语</h2>
+        <div id="zhCats" style="font-size:12px;color:#a97b95;margin-top:3px"></div>
+      </div>
+      <div id="zhPoem" class="zhcard"></div>
+      <div id="zhIdiom" class="zhcard"></div>
+      <div id="zhDone" style="text-align:center;margin-top:14px"></div>
+    </div>
+  </section>
   <section class="page lang l-ko"><button class="backhome" onclick="goHome()">← 回小岛</button>
     <span class="big">🎀</span><h2>한국어 韩语</h2><p>日常聊天 · 单词 · 发音<br><br>🚧 小林施工中，很快开门</p></section>
 </div>
@@ -438,6 +464,101 @@ pager.addEventListener("scroll",()=>{
   document.querySelectorAll(".dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
 },{passive:true});
 function goHome(){pager.scrollTo({left:0,behavior:"smooth"})}
+
+/* ═══ 中文页：她自己的诗集成语库（与 feiya/index.html 同一份），晓晓配音 ═══ */
+const POEMS=[
+{t:"静夜思",a:"李白 · 唐",l:["床前明月光，疑是地上霜。","举头望明月，低头思故乡。"],m:"深夜看见月光想起家乡。",u:"在外地想家的晚上，抬头看到月亮，就是这首诗的心情。"},
+{t:"春晓",a:"孟浩然 · 唐",l:["春眠不觉晓，处处闻啼鸟。","夜来风雨声，花落知多少。"],m:"春天睡得沉，醒来听见鸟叫，想起夜里的风雨。",u:"春天赖床听见窗外鸟叫时，可以来一句「春眠不觉晓」。"},
+{t:"登鹳雀楼",a:"王之涣 · 唐",l:["白日依山尽，黄河入海流。","欲穷千里目，更上一层楼。"],m:"想看得更远，就要站得更高。",u:"鼓励自己或朋友再进一步时：「欲穷千里目，更上一层楼」。"},
+{t:"相思",a:"王维 · 唐",l:["红豆生南国，春来发几枝。","愿君多采撷，此物最相思。"],m:"借红豆寄托思念。",u:"送朋友红豆或纪念小物时，配这句最有心意。"},
+{t:"悯农",a:"李绅 · 唐",l:["锄禾日当午，汗滴禾下土。","谁知盘中餐，粒粒皆辛苦。"],m:"粮食来之不易。",u:"提醒自己别浪费食物，光盘的时候想起它。"},
+{t:"咏鹅",a:"骆宾王 · 唐",l:["鹅，鹅，鹅，曲项向天歌。","白毛浮绿水，红掌拨清波。"],m:"七岁写的咏鹅诗，画面感十足。",u:"公园看到鹅或鸭子，随口就能背，气氛立刻可爱。"},
+{t:"江雪",a:"柳宗元 · 唐",l:["千山鸟飞绝，万径人踪灭。","孤舟蓑笠翁，独钓寒江雪。"],m:"天地寂静，一人独钓，孤而不冷的境界。",u:"一个人也把事情做得认真漂亮时，就是「独钓寒江雪」的劲头。"},
+{t:"寻隐者不遇",a:"贾岛 · 唐",l:["松下问童子，言师采药去。","只在此山中，云深不知处。"],m:"找人未遇，只知在山中云深处。",u:"朋友问你人在哪、事情进展如何还说不准时：「云深不知处」。"},
+{t:"清明",a:"杜牧 · 唐",l:["清明时节雨纷纷，路上行人欲断魂。","借问酒家何处有？牧童遥指杏花村。"],m:"清明细雨中的行路与问询。",u:"清明前后下小雨，这句几乎是标配。"},
+{t:"山行",a:"杜牧 · 唐",l:["远上寒山石径斜，白云生处有人家。","停车坐爱枫林晚，霜叶红于二月花。"],m:"秋天的枫叶比春花还红。",u:"秋游看红叶拍照，配文就用「霜叶红于二月花」。"},
+{t:"枫桥夜泊",a:"张继 · 唐",l:["月落乌啼霜满天，江枫渔火对愁眠。","姑苏城外寒山寺，夜半钟声到客船。"],m:"旅途夜泊的清冷与钟声。",u:"夜里失眠听见远处声音，就懂什么叫「夜半钟声到客船」。"},
+{t:"望庐山瀑布",a:"李白 · 唐",l:["日照香炉生紫烟，遥看瀑布挂前川。","飞流直下三千尺，疑是银河落九天。"],m:"瀑布壮观如银河落下。",u:"看到瀑布或大场面，「飞流直下三千尺」脱口而出最提气。"},
+{t:"早发白帝城",a:"李白 · 唐",l:["朝辞白帝彩云间，千里江陵一日还。","两岸猿声啼不住，轻舟已过万重山。"],m:"顺风顺水，一日千里。",u:"事情办得特别顺、难关一口气全过时：「轻舟已过万重山」。"},
+{t:"黄鹤楼送孟浩然之广陵",a:"李白 · 唐",l:["故人西辞黄鹤楼，烟花三月下扬州。","孤帆远影碧空尽，唯见长江天际流。"],m:"送别友人，目送到帆影消失。",u:"送朋友远行，机场目送时就是「孤帆远影碧空尽」。"},
+{t:"九月九日忆山东兄弟",a:"王维 · 唐",l:["独在异乡为异客，每逢佳节倍思亲。","遥知兄弟登高处，遍插茱萸少一人。"],m:"过节时最想家。",u:"在国外过春节中秋，发家人群就配「每逢佳节倍思亲」。"},
+{t:"泊船瓜洲",a:"王安石 · 宋",l:["京口瓜洲一水间，钟山只隔数重山。","春风又绿江南岸，明月何时照我还？"],m:"一个「绿」字写活了春天，又问归期。",u:"春天来了、又想回家，两种心情一句全有。"},
+{t:"题西林壁",a:"苏轼 · 宋",l:["横看成岭侧成峰，远近高低各不同。","不识庐山真面目，只缘身在此山中。"],m:"身在局中反而看不清全貌。",u:"劝人跳出问题看问题：「不识庐山真面目，只缘身在此山中」。"},
+{t:"小池",a:"杨万里 · 宋",l:["泉眼无声惜细流，树阴照水爱晴柔。","小荷才露尖尖角，早有蜻蜓立上头。"],m:"初夏小池的灵动一瞬。",u:"夸小朋友或新人刚崭露头角：「小荷才露尖尖角」。"},
+{t:"晓出净慈寺送林子方",a:"杨万里 · 宋",l:["毕竟西湖六月中，风光不与四时同。","接天莲叶无穷碧，映日荷花别样红。"],m:"六月西湖的荷花盛景。",u:"夏天看到成片荷花，就是「映日荷花别样红」。"},
+{t:"绝句",a:"杜甫 · 唐",l:["两个黄鹂鸣翠柳，一行白鹭上青天。","窗含西岭千秋雪，门泊东吴万里船。"],m:"一扇窗里装下四幅画。",u:"窗景很美的时候，说「窗含西岭千秋雪」瞬间高级。"},
+{t:"游子吟",a:"孟郊 · 唐",l:["慈母手中线，游子身上衣。","临行密密缝，意恐迟迟归。","谁言寸草心，报得三春晖。"],m:"母爱如春晖，难以回报。",u:"母亲节或想妈妈的时候，最深的一句就是「谁言寸草心，报得三春晖」。"},
+{t:"竹石",a:"郑燮 · 清",l:["咬定青山不放松，立根原在破岩中。","千磨万击还坚劲，任尔东西南北风。"],m:"竹子扎根岩缝，任风吹打不动摇。",u:"给自己打气坚持到底：「千磨万击还坚劲」。"},
+{t:"石灰吟",a:"于谦 · 明",l:["千锤万凿出深山，烈火焚烧若等闲。","粉骨碎身浑不怕，要留清白在人间。"],m:"历尽磨难也要保持清白。",u:"表达做人有底线、不怕吃苦：「要留清白在人间」。"},
+{t:"元日",a:"王安石 · 宋",l:["爆竹声中一岁除，春风送暖入屠苏。","千门万户曈曈日，总把新桃换旧符。"],m:"过年辞旧迎新的热闹。",u:"春节发祝福，配「总把新桃换旧符」应景又有文化。"}
+];
+const IDIOMS=[
+{w:"画龙点睛",s:"在关键处加上精妙一笔，让整体活起来。",e:"报告最后加了一页数据总结，画龙点睛，老师当场表扬。"},
+{w:"亡羊补牢",s:"出了问题及时补救，还不算晚。",e:"这次考砸了没关系，现在开始补弱科，亡羊补牢，为时未晚。"},
+{w:"井底之蛙",s:"眼界狭小、见识有限的人。",e:"多出去走走看看，别做井底之蛙。"},
+{w:"闻鸡起舞",s:"听到鸡叫就起来练剑，形容勤奋自律。",e:"她每天六点起来背单词，真是闻鸡起舞的劲头。"},
+{w:"卧薪尝胆",s:"刻苦自励，发愤图强。",e:"这学期他卧薪尝胆，从年级中游冲到了前十。"},
+{w:"滥竽充数",s:"没本事的人混在行家里凑数。",e:"小组作业别滥竽充数，每个人都得真出力。"},
+{w:"掩耳盗铃",s:"自己骗自己，明明瞒不住却硬要瞒。",e:"作业没写完还把本子藏起来，这不是掩耳盗铃嘛。"},
+{w:"刻舟求剑",s:"用老办法应对已经变化的情况。",e:"用三年前的攻略来今天的迪拜旅游，纯属刻舟求剑。"},
+{w:"守株待兔",s:"不主动努力，指望好运重来。",e:"机会要自己找，坐在家里守株待兔可等不来。"},
+{w:"自相矛盾",s:"自己的言行前后冲突。",e:"他一边说要早睡一边熬夜刷手机，自相矛盾。"},
+{w:"塞翁失马",s:"坏事可能变好事，祸福难料。",e:"航班取消反而躲过了大暴雨，真是塞翁失马，焉知非福。"},
+{w:"杯弓蛇影",s:"疑神疑鬼，自己吓自己。",e:"消息没回就担心朋友生气，纯属杯弓蛇影。"},
+{w:"对牛弹琴",s:"对不懂的人讲深道理，白费力气。",e:"跟完全不追剧的人聊剧情彩蛋，属于对牛弹琴。"},
+{w:"狐假虎威",s:"借别人的势力吓唬人。",e:"他仗着班长的名头指挥同学，有点狐假虎威。"},
+{w:"画蛇添足",s:"多此一举，反而坏事。",e:"作文已经收尾了又硬加两段，画蛇添足反而扣分。"},
+{w:"东施效颦",s:"盲目模仿别人，效果适得其反。",e:"照搬别人的穿搭不看自己风格，容易东施效颦。"},
+{w:"邯郸学步",s:"模仿别人不成，反而丢了自己的本领。",e:"学了一堆新方法却把基本功丢了，成了邯郸学步。"},
+{w:"叶公好龙",s:"嘴上喜欢，真来了却害怕，并非真爱好。",e:"天天说想养猫，真让他铲屎又嫌麻烦，叶公好龙。"},
+{w:"愚公移山",s:"下定决心，坚持不懈地做难事。",e:"单词一天背五十个，一年就是一万八，这就是愚公移山。"},
+{w:"破釜沉舟",s:"断掉退路，下决心拼到底。",e:"考前一个月他卸载了所有游戏，破釜沉舟。"},
+{w:"负荆请罪",s:"主动认错道歉。",e:"昨天误会了同桌，今天带奶茶负荆请罪去了。"},
+{w:"三顾茅庐",s:"诚心诚意地一再邀请。",e:"社团为请学姐回来指导，三顾茅庐才请动。"},
+{w:"望梅止渴",s:"用想象安慰自己，暂解眼前之急。",e:"减肥的人看美食视频过瘾，算是望梅止渴。"},
+{w:"锦上添花",s:"好上加好。",e:"演讲本来就稳，配上漂亮的PPT更是锦上添花。"}
+];
+const zhDay=Math.floor(Date.now()/86400000);
+const zpi=zhDay%POEMS.length, zii=zhDay%IDIOMS.length;
+let zhAu=null;
+function zhPlay(src,btn){
+  try{if(zhAu){zhAu.pause()}}catch(e){}
+  zhAu=new Audio(src);
+  zhAu.play().catch(()=>{btn&&(btn.textContent="放不出来，跟小林说")});
+}
+function zhState(){try{return JSON.parse(localStorage.getItem("feiyaZh_"+dxb())||"{}")}catch(e){return{}}}
+function zhSave(st){try{localStorage.setItem("feiyaZh_"+dxb(),JSON.stringify(st))}catch(e){}}
+function renderZh(){
+  const P=POEMS[zpi], I=IDIOMS[zii], st=zhState();
+  document.getElementById("zhCats").textContent="哆咪：背了再玩。　Snowy：我给你鼓掌！";
+  document.getElementById("zhPoem").innerHTML=
+    '<h3>'+P.t+'</h3><div class="au">'+P.a+'</div>'
+    +P.l.map(x=>'<div class="ln">'+x+'</div>').join("")
+    +'<div class="mean">💡 '+P.m+'</div><div class="use">🗣️ '+P.u+'</div>'
+    +'<div class="zhbtns"><button class="zh-listen" onclick="zhPlay(\'audio/p'+zpi+'.mp3\',this)">🔊 听晓晓读</button>'
+    +'<button class="zh-got'+(st.p?" on":"")+'" onclick="zhGot(\'p\',this)">'+(st.p?"背会啦 ✓":"我背会了")+'</button></div>';
+  document.getElementById("zhIdiom").innerHTML=
+    '<h3>'+I.w+'</h3><div class="mean">💡 '+I.s+'</div><div class="use">🗣️ '+I.e+'</div>'
+    +'<div class="zhbtns"><button class="zh-listen" onclick="zhPlay(\'audio/i'+zii+'.mp3\',this)">🔊 听晓晓讲</button>'
+    +'<button class="zh-got'+(st.i?" on":"")+'" onclick="zhGot(\'i\',this)">'+(st.i?"学会啦 ✓":"我学会了")+'</button></div>';
+  const both=st.p&&st.i, done=st.done;
+  document.getElementById("zhDone").innerHTML=
+    done?'<div style="font-size:14px;color:#6b4a9e;font-weight:700">今天的中文完成啦 🎉 +2🪙 去小岛种一棵纪念它！</div>'
+    :'<button class="zh-done-btn" '+(both?"":"disabled")+' onclick="zhFinish()">'+(both?"完成今天的中文 🧸":"两样都点了才能完成")+'</button>';
+}
+function zhGot(k,btn){const st=zhState();st[k]=!st[k];zhSave(st);renderZh();}
+function zhFinish(){
+  const st=zhState();if(st.done)return;st.done=1;zhSave(st);
+  S.coins+=2;save();document.getElementById("coins").textContent=S.coins;
+  renderZh();
+  /* 上家庭榜：她要的「su home 表扬」走这条 */
+  try{fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({who:"feiya",done:1,total:1,started:true})}).catch(()=>{})}catch(e){}
+  say(snowyC,"中文过啦！我就知道你行！！");
+  setTimeout(()=>say(duomiC,"……还行。明天继续。"),1800);
+}
+renderZh();
 </script>
 </body>
 </html>
