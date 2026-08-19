@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0d3027">
+<meta name="theme-color" content="#070d16">
 <meta name="description" content="现代标准阿拉伯语每日听说课堂，统一使用标准阿语神经发音。">
 <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
 <title>每天五分钟 · 英语 阿语 演讲 交谈 分寸</title>
@@ -396,6 +396,85 @@ header .pill.on{
   /* 收紧之后这句会被下面那张卡压住、切掉半行——被切的字比没有还难看，手机上收起来，桌面照旧。 */
   #heroSub{display:none}
 }   /* ← 这个收尾括号上一版被我切掉了，浏览器容错才没出事，补回来 */
+</style>
+<style id="deepspace">
+/* ═══ 深空高级风 2026-08-19 ·老板点名重做· 只覆盖观感，不动结构和逻辑 ═══ */
+:root{
+  --canvas:#070d16;
+  --canvas-2:#0b1420;
+  --ink:#e8edf4;
+  --muted:#8b96a6;
+  --line:rgba(150,182,222,.14);
+  --green:#2ea882;
+  --green-deep:#0a2033;
+  --green-soft:rgba(46,168,130,.16);
+  --gold:#d8b366;
+  --gold-soft:rgba(216,179,102,.28);
+  --card:rgba(15,24,38,.82);
+  --good:#3dbb8f;
+  --warn:#e08b5a;
+  --shadow-sm:0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 28px 80px rgba(0,0,0,.55);
+}
+body{
+  background:
+    radial-gradient(1.5px 1.5px at 12% 18%,rgba(255,255,255,.35),transparent 2px),
+    radial-gradient(1px 1px at 34% 64%,rgba(255,255,255,.22),transparent 2px),
+    radial-gradient(1.5px 1.5px at 58% 30%,rgba(255,255,255,.30),transparent 2px),
+    radial-gradient(1px 1px at 76% 74%,rgba(255,255,255,.20),transparent 2px),
+    radial-gradient(1.5px 1.5px at 90% 12%,rgba(255,255,255,.28),transparent 2px),
+    radial-gradient(1px 1px at 22% 88%,rgba(255,255,255,.18),transparent 2px),
+    radial-gradient(circle at 85% 0%,rgba(216,179,102,.10),transparent 30rem),
+    radial-gradient(circle at 0% 42%,rgba(46,168,130,.09),transparent 34rem),
+    linear-gradient(180deg,#060b13 0%,#0a1220 60%,#0b1523 100%);
+  color:var(--ink);
+}
+.site-header{
+  color:#eef2f8;
+  background:
+    radial-gradient(1.5px 1.5px at 18% 30%,rgba(255,255,255,.5),transparent 2px),
+    radial-gradient(1px 1px at 66% 18%,rgba(255,255,255,.4),transparent 2px),
+    radial-gradient(1.5px 1.5px at 84% 62%,rgba(255,255,255,.35),transparent 2px),
+    radial-gradient(1px 1px at 40% 76%,rgba(255,255,255,.3),transparent 2px),
+    radial-gradient(circle at 82% 6%,rgba(216,179,102,.22),transparent 22rem),
+    radial-gradient(circle at 10% 90%,rgba(46,168,130,.18),transparent 26rem),
+    linear-gradient(150deg,#04070d 0%,#081120 55%,#0b1a2c 100%);
+  border-bottom:1px solid rgba(216,179,102,.22);
+}
+.site-header:before,.site-header:after{opacity:.35}
+.card,.donebox,.phrase,.quiz-q,.coach-note{
+  background:var(--card);
+  border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+}
+.btn-main{
+  background:linear-gradient(135deg,#e3c07a 0%,#c99a45 100%);
+  color:#241a05;
+  border:0;
+  box-shadow:0 10px 32px rgba(216,179,102,.28);
+  text-shadow:none;
+}
+.btn-main:active{transform:translateY(1px)}
+.pill,.mode-tabs button,.language-toggle button{
+  background:rgba(150,182,222,.08);
+  color:var(--ink);
+  border:1px solid var(--line);
+}
+.pill.on,.pill[aria-pressed="true"],.mode-tabs button.on,.mode-tabs button[aria-selected="true"],.language-toggle button.on{
+  background:linear-gradient(135deg,rgba(216,179,102,.95),rgba(201,154,69,.95));
+  color:#241a05;
+  border-color:transparent;
+  box-shadow:0 6px 20px rgba(216,179,102,.3);
+}
+.quiz-opt{background:rgba(150,182,222,.07);border:1px solid var(--line);color:var(--ink)}
+.quiz-opt:hover{border-color:rgba(216,179,102,.5)}
+a{color:#e3c07a}
+.eyebrow{color:var(--gold);letter-spacing:.14em}
+.hint,.listen-tip,.done-note,.db-tip{color:var(--muted)}
+input,textarea{background:rgba(8,14,24,.8);color:var(--ink);border:1px solid var(--line)}
+#keyCard{background:#0c1522;color:var(--ink);border:1px solid var(--line)}
+#usageBar{background:rgba(150,182,222,.12)}
+::selection{background:rgba(216,179,102,.35)}
 </style>
 <script>
 /* 本机预览一律不往共用的榜上报打卡。
