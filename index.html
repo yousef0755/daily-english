@@ -76,6 +76,14 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid rgba(
 .mode-tabs .pill{color:rgba(248,244,233,.76);border-color:rgba(234,216,173,.2);background:rgba(255,255,255,.055);box-shadow:none;white-space:nowrap}
 .mode-tabs .pill:hover{color:#fff;background:rgba(255,255,255,.1)}
 .mode-tabs .pill.on{color:var(--green-deep);background:#f3e6c6;border-color:#f3e6c6;box-shadow:0 8px 22px rgba(0,0,0,.16)}
+/* 惊蛰 8-19：轨道条从深色页头挪到浅色正文之后，原来那套「浅字配深底」在这儿看不清了。
+   只给挪下去的这一份换配色，页头里别处若还用 .mode-tabs 不受影响。 */
+main > .mode-tabs{margin:14px 0 4px;padding:0 2px 6px}
+main > .mode-tabs .pill{color:var(--ink,#16241f);opacity:.72;background:rgba(255,255,252,.72);
+  border-color:rgba(24,65,52,.14);box-shadow:0 4px 14px rgba(19,48,39,.05)}
+main > .mode-tabs .pill:hover{opacity:1;background:#fffdf8;color:var(--ink,#16241f)}
+main > .mode-tabs .pill.on{opacity:1;color:#f6f4ec;background:var(--green-deep,#0d3027);
+  border-color:transparent;box-shadow:0 8px 20px rgba(13,48,39,.18)}
 
 main{position:relative;z-index:2;width:calc(100% - 28px);max-width:820px;margin:-48px auto 0;padding-bottom:64px}
 .lesson-toolbar{padding:22px;border:1px solid rgba(255,255,255,.78);border-radius:24px;background:rgba(255,255,252,.9);box-shadow:var(--shadow-lg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
@@ -419,13 +427,6 @@ header .pill.on{
       <h2 class="oneline">Five minutes a day. Be someone better.</h2>
       <p id="heroSub">One thing today. When you finish, the family sees it on the board.</p>
     </div>
-    <nav class="mode-tabs" aria-label="Learning mode">
-      <button class="pill" id="modeEn">English</button>
-      <button class="pill on" id="modeAr">Arabic</button>
-      <button class="pill" id="modeSpeech">Speaking</button>
-      <button class="pill" id="modeChat">Small talk</button>
-      <button class="pill" id="modeComm">Tact</button>
-    </nav>
   </div>
 </header>
 <main>
@@ -438,6 +439,16 @@ header .pill.on{
     </div>
     <div class="pill-row" id="pills"></div>
   </section>
+  <!-- 惊蛰 8-19：五条轨道从首屏顶上挪到今天这一件的下面。
+       打开先看见今天要干的那一件，想换轨再往下点。 -->
+  <nav class="mode-tabs" aria-label="Learning mode">
+      <button class="pill" id="modeEn">English</button>
+      <button class="pill on" id="modeAr">Arabic</button>
+      <button class="pill" id="modeSpeech">Speaking</button>
+      <button class="pill" id="modeChat">Small talk</button>
+      <button class="pill" id="modeComm">Tact</button>
+    </nav>
+
   <div class="listen-tip">
     <span class="listen-tip-icon" aria-hidden="true">◖</span>
     <p class="hint">先听标准阿语神经发音，再点开句子和中文意思。</p>
@@ -611,7 +622,7 @@ function play(pack,i,kind,fallback,clean){
   player.onerror=()=>{sysSpeak(key||fallback)};
   player.play().catch(()=>{sysSpeak(key||fallback)});
 }
-function renderStreak(){try{famPing()}catch(e){}document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
+function renderStreak(){try{famPing()}catch(e){}var _n=state.streak|0;document.getElementById("streak").textContent = _n>0 ? "🔥 Day "+_n+(state.last===today?" · today is lit":"") : "🔥 Day 1 · starts today"; /* 惊蛰 8-19：原来没开张时写「0-day streak」，一打开先看见自己没坚持。    段位规矩不变，只是不把 0 摆在脸上。 */}
 /* 老板 2026-08-15 发截图说「这里太乱了」——十一个包平铺成一堵墙，中英混排还换行。
    改成只留今天那一个，其余收进「换个题目」。分组是按用的场合分的，不是按语言。 */
 const PACK_GROUP=[
