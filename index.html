@@ -345,7 +345,7 @@ let mx=innerWidth*.5,my=innerHeight*.35,tx=mx,ty=my;
 const stars=[],dust=[];
 function seedStars(){
   stars.length=0;
-  const n=Math.round(W*H/9000);
+  const n=Math.round(W*H/4200);
   for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:.5+Math.random()*1.3,
     ph:Math.random()*7,sp:.4+Math.random()*1.2,drift:.02+Math.random()*.05});
 }
@@ -381,31 +381,28 @@ addEventListener("click",e=>{
 function draw(ts){
   const t=ts/1000;
   mx+=(tx-mx)*.08;my+=(ty-my)*.08;
-  const N=Math.max(26,Math.round(W/34)),bw=W/N;
-  for(let i=0;i<N;i++){
-    const u=i/(N-1);
-    const drift=(Math.sin(t*.18+i*.35)+1)/2;
-    let [h,s,l]=palette((u+Math.sin(t*.05)*.04+1)%1);
-    h=(h+((i*7919)%13)-6+360)%360;l+=((i*104729)%5)-2;
-    const dx=Math.abs((i+.5)*bw-mx)/(W*.15);
-    const glow=Math.exp(-dx*dx)*22;
-    const li=Math.min(74,l+drift*4+glow);
-    const g=ctx.createLinearGradient(0,0,0,H);
-    const yF=Math.max(.05,Math.min(.95,my/H));
-    g.addColorStop(0,`hsl(${h} ${s}% ${Math.max(8,li-10)}%)`);
-    g.addColorStop(yF,`hsl(${h} ${s+6}% ${li}%)`);
-    g.addColorStop(1,`hsl(${(h+24)%360} ${s}% ${Math.max(10,li-6)}%)`);
-    ctx.fillStyle=g;ctx.fillRect(i*bw-.5,0,bw+1,H);
-    ctx.fillStyle=`hsla(0 0% 100% / ${.04+glow*.005})`;
-    ctx.fillRect(i*bw,0,1,H);
-  }
+  /* 夜空底：深蓝黑渐变 */
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,"#03060d");
+  bg.addColorStop(.45,"#071021");
+  bg.addColorStop(1,"#050a16");
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  /* 两团星云缓慢呼吸，跟着光标轻轻挪 */
+  const nx1=W*.72+Math.sin(t*.045)*W*.05+(mx-W/2)*.05, ny1=H*.24+Math.cos(t*.05)*H*.03;
+  const g1=ctx.createRadialGradient(nx1,ny1,0,nx1,ny1,W*.55);
+  g1.addColorStop(0,"rgba(80,125,200,.13)");g1.addColorStop(.5,"rgba(80,125,200,.05)");g1.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
+  const nx2=W*.2+Math.cos(t*.04)*W*.05+(mx-W/2)*.03, ny2=H*.72+Math.sin(t*.06)*H*.03;
+  const g2=ctx.createRadialGradient(nx2,ny2,0,nx2,ny2,W*.5);
+  g2.addColorStop(0,"rgba(216,179,102,.09)");g2.addColorStop(.5,"rgba(150,110,200,.05)");g2.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
   /* 星辰层：常驻星闪烁，靠近光标的更亮 */
   for(const s of stars){
     s.x+=s.drift; if(s.x>W+4)s.x=-4;
     const tw=(Math.sin(t*s.sp+s.ph)+1)/2;
     const d=Math.hypot(s.x-mx,s.y-my);
     const near=Math.exp(-(d*d)/(2*160*160));
-    const a=.10+tw*.25+near*.55;
+    const a=.16+tw*.34+near*.5;
     ctx.fillStyle=`rgba(255,255,255,${Math.min(.9,a)})`;
     ctx.beginPath();ctx.arc(s.x,s.y,s.r+near*.8,0,7);ctx.fill();
   }
