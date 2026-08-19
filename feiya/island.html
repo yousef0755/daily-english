@@ -70,6 +70,9 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 /* ── 猫 ── */
 .cat{position:fixed;width:54px;z-index:10;cursor:grab;transition:left 2.6s ease-in-out,bottom 2.6s ease-in-out;touch-action:none}
 .cat.drag{transition:none;cursor:grabbing;z-index:20}
+.cat .pose-hang{display:none}
+.cat.drag .pose-hang{display:block}
+.cat.drag .pose-normal{display:none}
 .cat.flip svg{transform:scaleX(-1)}
 .cat .zzz{position:absolute;top:-14px;right:-4px;font-size:13px;display:none}
 .cat.sleep .zzz{display:block;animation:zz 2s ease-in-out infinite}
@@ -221,6 +224,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <div class="cat" id="duomi">
       <span class="zzz">💤</span>
       <svg viewBox="0 0 100 100">
+      <g class="pose-normal">
         <path d="M66 88 Q82 88 80 74" stroke="#38333f" stroke-width="5.2" fill="none" stroke-linecap="round"/>
         <path d="M14 26 Q13 8 22 6 Q30 5 34 18 Z" fill="#4a4550" stroke="#38333f" stroke-width="2.6" stroke-linejoin="round"/>
         <path d="M86 26 Q87 8 78 6 Q70 5 66 18 Z" fill="#4a4550" stroke="#38333f" stroke-width="2.6" stroke-linejoin="round"/>
@@ -240,6 +244,20 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
         <path d="M44 90 q-2 4 2.5 3.6 M56 90 q2 4 -2.5 3.6" stroke="#38333f" stroke-width="2" fill="none" stroke-linecap="round"/>
         <path d="M42 79 q-3 6 3 6 q3 0 2.6 -4 M58 79 q3 6 -3 6 q-3 0 -2.6 -4" stroke="#38333f" stroke-width="2" fill="none" stroke-linecap="round"/>
         <ellipse cx="50" cy="87" rx="8" ry="5" fill="#fff"/>
+      </g>
+      <g class="pose-hang">
+        <path d="M34 12 Q33 2 39 1.5 Q44 1 46 8 Z" fill="#4a4550" stroke="#38333f" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M66 12 Q67 2 61 1.5 Q56 1 54 8 Z" fill="#4a4550" stroke="#38333f" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M63.0 62.0 Q64.8 64.4 62.7 66.4 Q63.4 68.8 61.9 70.5 Q62.1 73.0 60.5 74.3 Q61.1 77.3 58.7 77.6 Q58.3 79.9 56.5 80.2 Q55.7 82.1 54.0 82.0 Q53.0 84.0 51.4 82.9 Q50.0 84.2 48.6 82.9 Q46.9 84.3 46.0 82.0 Q44.2 82.2 43.5 80.2 Q41.2 80.5 41.3 77.6 Q39.4 76.9 39.5 74.3 Q37.4 73.2 38.1 70.5 Q35.9 69.1 37.3 66.4 Q35.5 64.4 37.0 62.0 Q35.2 59.6 37.3 57.6 Q36.1 55.0 38.1 53.5 Q37.9 51.0 39.5 49.7 Q39.0 46.8 41.3 46.4 Q41.5 43.8 43.5 43.8 Q44.2 41.7 46.0 42.0 Q47.1 40.4 48.6 41.1 Q50.0 39.3 51.4 41.1 Q53.0 40.0 54.0 42.0 Q56.0 41.2 56.5 43.8 Q58.6 43.7 58.7 46.4 Q61.1 46.7 60.5 49.7 Q62.6 50.8 61.9 53.5 Q63.9 55.0 62.7 57.6 Q64.5 59.6 63.0 62.0 Z" fill="#4a4550" stroke="#38333f" stroke-width="2.4"/>
+        <path d="M40 80 L38 93 M47 82 L46 95 M53 82 L54 95 M60 80 L62 93" stroke="#38333f" stroke-width="4" stroke-linecap="round"/>
+        <path d="M62 72 Q76 78 74 90" stroke="#38333f" stroke-width="4.4" fill="none" stroke-linecap="round"/>
+        <path d="M79.0 26.0 Q79.9 27.8 78.6 29.3 Q79.5 31.3 77.3 32.5 Q77.7 34.7 75.1 35.5 Q74.9 37.7 72.2 38.2 Q71.3 40.2 68.6 40.6 Q67.6 43.0 64.5 42.5 Q63.0 44.8 59.9 43.9 Q57.9 45.7 55.0 44.7 Q52.6 46.4 50.0 45.0 Q47.4 46.1 45.0 44.7 Q42.3 45.3 40.1 43.9 Q37.2 44.4 35.5 42.5 Q32.5 42.8 31.4 40.6 Q28.8 40.1 27.8 38.2 Q24.9 37.9 24.9 35.5 Q22.7 34.5 22.7 32.5 Q20.9 31.2 21.4 29.3 Q20.2 27.7 21.0 26.0 Q19.2 24.2 21.4 22.7 Q20.4 20.7 22.7 19.5 Q22.1 17.2 24.9 16.5 Q25.0 14.2 27.8 13.8 Q28.8 11.9 31.4 11.4 Q32.7 9.4 35.5 9.5 Q37.2 7.5 40.1 8.1 Q42.2 6.6 45.0 7.3 Q47.3 5.2 50.0 7.0 Q52.6 5.8 55.0 7.3 Q57.8 6.6 59.9 8.1 Q63.0 7.2 64.5 9.5 Q67.2 9.6 68.6 11.4 Q71.8 11.3 72.2 13.8 Q74.9 14.3 75.1 16.5 Q77.6 17.3 77.3 19.5 Q79.2 20.8 78.6 22.7 Q80.3 24.2 79.0 26.0 Z" fill="#4a4550" stroke="#38333f" stroke-width="2.4"/>
+        <ellipse cx="50" cy="38" rx="12" ry="7" fill="#fff"/>
+        <path d="M36 26 L42 29 L36 32 M64 26 L58 29 L64 32" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M46 38 Q48 40 50 38 Q52 40 54 38" stroke="#4a4550" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <ellipse cx="26" cy="34" rx="5" ry="3.6" fill="#ff9fc0" opacity=".65"/><ellipse cx="74" cy="34" rx="5" ry="3.6" fill="#ff9fc0" opacity=".65"/>
+        
+      </g>
       </svg>
     </div>
     <div class="speech" id="sp-duomi"></div>
@@ -247,6 +265,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <div class="cat" id="snowy">
       <span class="zzz">💤</span>
       <svg viewBox="0 0 100 100">
+      <g class="pose-normal">
         <path d="M34 88 Q18 88 20 74" stroke="#c9a86b" stroke-width="5.2" fill="none" stroke-linecap="round"/>
         <path d="M14 26 Q13 8 22 6 Q30 5 34 18 Z" fill="#fff3d4" stroke="#c9a86b" stroke-width="2.6" stroke-linejoin="round"/>
         <path d="M86 26 Q87 8 78 6 Q70 5 66 18 Z" fill="#fff3d4" stroke="#c9a86b" stroke-width="2.6" stroke-linejoin="round"/>
@@ -264,6 +283,21 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
         <path d="M44 90 q-2 4 2.5 3.6 M56 90 q2 4 -2.5 3.6" stroke="#c9a86b" stroke-width="2" fill="none" stroke-linecap="round"/>
         <path d="M42 79 q-3 6 3 6 q3 0 2.6 -4 M58 79 q3 6 -3 6 q-3 0 -2.6 -4" stroke="#c9a86b" stroke-width="2" fill="none" stroke-linecap="round"/>
         
+      </g>
+      <g class="pose-hang">
+        <path d="M34 12 Q33 2 39 1.5 Q44 1 46 8 Z" fill="#fff3d4" stroke="#c9a86b" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M66 12 Q67 2 61 1.5 Q56 1 54 8 Z" fill="#fff3d4" stroke="#c9a86b" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M63.0 62.0 Q64.8 64.4 62.7 66.4 Q63.4 68.8 61.9 70.5 Q62.1 73.0 60.5 74.3 Q61.1 77.3 58.7 77.6 Q58.3 79.9 56.5 80.2 Q55.7 82.1 54.0 82.0 Q53.0 84.0 51.4 82.9 Q50.0 84.2 48.6 82.9 Q46.9 84.3 46.0 82.0 Q44.2 82.2 43.5 80.2 Q41.2 80.5 41.3 77.6 Q39.4 76.9 39.5 74.3 Q37.4 73.2 38.1 70.5 Q35.9 69.1 37.3 66.4 Q35.5 64.4 37.0 62.0 Q35.2 59.6 37.3 57.6 Q36.1 55.0 38.1 53.5 Q37.9 51.0 39.5 49.7 Q39.0 46.8 41.3 46.4 Q41.5 43.8 43.5 43.8 Q44.2 41.7 46.0 42.0 Q47.1 40.4 48.6 41.1 Q50.0 39.3 51.4 41.1 Q53.0 40.0 54.0 42.0 Q56.0 41.2 56.5 43.8 Q58.6 43.7 58.7 46.4 Q61.1 46.7 60.5 49.7 Q62.6 50.8 61.9 53.5 Q63.9 55.0 62.7 57.6 Q64.5 59.6 63.0 62.0 Z" fill="#fff3d4" stroke="#c9a86b" stroke-width="2.4"/>
+        <path d="M40 80 L38 93 M47 82 L46 95 M53 82 L54 95 M60 80 L62 93" stroke="#c9a86b" stroke-width="4" stroke-linecap="round"/>
+        <path d="M62 72 Q76 78 74 90" stroke="#c9a86b" stroke-width="4.4" fill="none" stroke-linecap="round"/>
+        <path d="M79.0 26.0 Q79.9 27.8 78.6 29.3 Q79.5 31.3 77.3 32.5 Q77.7 34.7 75.1 35.5 Q74.9 37.7 72.2 38.2 Q71.3 40.2 68.6 40.6 Q67.6 43.0 64.5 42.5 Q63.0 44.8 59.9 43.9 Q57.9 45.7 55.0 44.7 Q52.6 46.4 50.0 45.0 Q47.4 46.1 45.0 44.7 Q42.3 45.3 40.1 43.9 Q37.2 44.4 35.5 42.5 Q32.5 42.8 31.4 40.6 Q28.8 40.1 27.8 38.2 Q24.9 37.9 24.9 35.5 Q22.7 34.5 22.7 32.5 Q20.9 31.2 21.4 29.3 Q20.2 27.7 21.0 26.0 Q19.2 24.2 21.4 22.7 Q20.4 20.7 22.7 19.5 Q22.1 17.2 24.9 16.5 Q25.0 14.2 27.8 13.8 Q28.8 11.9 31.4 11.4 Q32.7 9.4 35.5 9.5 Q37.2 7.5 40.1 8.1 Q42.2 6.6 45.0 7.3 Q47.3 5.2 50.0 7.0 Q52.6 5.8 55.0 7.3 Q57.8 6.6 59.9 8.1 Q63.0 7.2 64.5 9.5 Q67.2 9.6 68.6 11.4 Q71.8 11.3 72.2 13.8 Q74.9 14.3 75.1 16.5 Q77.6 17.3 77.3 19.5 Q79.2 20.8 78.6 22.7 Q80.3 24.2 79.0 26.0 Z" fill="#fff3d4" stroke="#c9a86b" stroke-width="2.4"/>
+        <path d="M36 26 L42 29 L36 32 M64 26 L58 29 L64 32" stroke="#6b5340" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M46 36 Q48 38 50 36 Q52 38 54 36" stroke="#c9926b" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <ellipse cx="26" cy="33" rx="5" ry="3.6" fill="#ffb0c9" opacity=".8"/><ellipse cx="74" cy="33" rx="5" ry="3.6" fill="#ffb0c9" opacity=".8"/>
+        <path d="M50 48 L43 43.5 L43 52.5 Z M50 48 L57 43.5 L57 52.5 Z" fill="#f7a8c6" stroke="#dd7ba6" stroke-width="1.4" stroke-linejoin="round"/>
+        <circle cx="50" cy="48" r="2.6" fill="#f7a8c6" stroke="#dd7ba6" stroke-width="1.4"/>
+        
+      </g>
       </svg>
     </div>
     <div class="speech" id="sp-snowy"></div>
@@ -271,6 +305,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <div class="cat" id="yugui">
       <span class="zzz">💤</span>
       <svg viewBox="0 0 100 100">
+      <g class="pose-normal">
         <ellipse cx="50" cy="8" rx="12" ry="3.4" fill="none" stroke="#f0dc94" stroke-width="2.2"/>
         <path d="M50 1.5 v-1 M40 3 l-1.5 -2 M60 3 l1.5 -2" stroke="#f0dc94" stroke-width="1.6" stroke-linecap="round"/>
         <path d="M35 18 Q12 14 6 34 Q1 52 12 58 Q22 62 26 46 Q29 30 42 24 Z" fill="#fffdfa" stroke="#e2cbb0" stroke-width="2.6" stroke-linejoin="round"/>
@@ -284,6 +319,18 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
         <path d="M46 50 q2 2.6 4 0 q2 2.6 4 0" stroke="#c9a37e" stroke-width="2" fill="none" stroke-linecap="round"/>
         <circle cx="28" cy="50" r="4.4" fill="#ffd4e2" opacity=".85"/><circle cx="72" cy="50" r="4.4" fill="#ffd4e2" opacity=".85"/>
         <path d="M42 92 q-1.5 3.5 2.5 3 M58 92 q1.5 3.5 -2.5 3" stroke="#e2cbb0" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="pose-hang">
+        <ellipse cx="50" cy="4.5" rx="10" ry="2.8" fill="none" stroke="#f0dc94" stroke-width="2"/>
+        <path d="M30 16 Q14 22 15 46 Q16 60 26 57 Q32 54 33 34 Z" fill="#fffdfa" stroke="#e2cbb0" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M70 16 Q86 22 85 46 Q84 60 74 57 Q68 54 67 34 Z" fill="#fffdfa" stroke="#e2cbb0" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M63.0 62.0 Q64.8 64.4 62.7 66.4 Q63.4 68.8 61.9 70.5 Q62.1 73.0 60.5 74.3 Q61.1 77.3 58.7 77.6 Q58.3 79.9 56.5 80.2 Q55.7 82.1 54.0 82.0 Q53.0 84.0 51.4 82.9 Q50.0 84.2 48.6 82.9 Q46.9 84.3 46.0 82.0 Q44.2 82.2 43.5 80.2 Q41.2 80.5 41.3 77.6 Q39.4 76.9 39.5 74.3 Q37.4 73.2 38.1 70.5 Q35.9 69.1 37.3 66.4 Q35.5 64.4 37.0 62.0 Q35.2 59.6 37.3 57.6 Q36.1 55.0 38.1 53.5 Q37.9 51.0 39.5 49.7 Q39.0 46.8 41.3 46.4 Q41.5 43.8 43.5 43.8 Q44.2 41.7 46.0 42.0 Q47.1 40.4 48.6 41.1 Q50.0 39.3 51.4 41.1 Q53.0 40.0 54.0 42.0 Q56.0 41.2 56.5 43.8 Q58.6 43.7 58.7 46.4 Q61.1 46.7 60.5 49.7 Q62.6 50.8 61.9 53.5 Q63.9 55.0 62.7 57.6 Q64.5 59.6 63.0 62.0 Z" fill="#fffdfa" stroke="#e2cbb0" stroke-width="2.4"/>
+        <path d="M40 80 L38 93 M47 82 L46 95 M53 82 L54 95 M60 80 L62 93" stroke="#e2cbb0" stroke-width="4" stroke-linecap="round"/>
+        <ellipse cx="50" cy="26" rx="26" ry="18" fill="#fffdfa" stroke="#e2cbb0" stroke-width="2.4"/>
+        <path d="M36 26 L42 29 L36 32 M64 26 L58 29 L64 32" stroke="#6fb0e8" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M46 37 q2 2.4 4 0 q2 2.4 4 0" stroke="#c9a37e" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <circle cx="28" cy="34" r="3.8" fill="#ffd4e2" opacity=".85"/><circle cx="72" cy="34" r="3.8" fill="#ffd4e2" opacity=".85"/>
+      </g>
       </svg>
     </div>
     <div class="speech" id="sp-yugui"></div>
