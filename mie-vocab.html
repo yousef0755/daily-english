@@ -160,6 +160,7 @@ var learned=JSON.parse(localStorage.getItem(LK)||"[]");
     if(cb.checked && i<0) learned.push(cb.dataset.k);
     if(!cb.checked && i>=0) learned.splice(i,1);
     localStorage.setItem(LK,JSON.stringify(learned));
+    try{vsync()}catch(e){}
   });
 });
 
@@ -199,6 +200,7 @@ document.addEventListener("click",function(e){
   if(e.target.closest(".del")){
     gone.push(li.dataset.w);
     localStorage.setItem(K,JSON.stringify(gone));
+    try{vsync()}catch(e){}
     apply(); return;
   }
   if(e.target.closest(".say")){ say(li); return; }
@@ -206,4 +208,22 @@ document.addEventListener("click",function(e){
   z.classList.add("show"); setTimeout(function(){z.classList.remove("show")},1500);
 });
 apply();
+
+// 生词本的勾选和删除也上服务器，换手机不丢
+var MIE_API="https://su-family.yousef-abud.workers.dev/mie/data";
+function vsync(){try{fetch(MIE_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({learned:learned,gone:gone})}).catch(function(){})}catch(e){}}
+fetch(MIE_API).then(function(r){return r.json()}).then(function(d){
+  var ch=false;
+  (d.learned||[]).forEach(function(k){if(learned.indexOf(k)<0){learned.push(k);ch=true}});
+  (d.gone||[]).forEach(function(k){if(gone.indexOf(k)<0){gone.push(k);ch=true}});
+  if(ch){
+    localStorage.setItem(LK,JSON.stringify(learned));
+    localStorage.setItem(K,JSON.stringify(gone));
+    [].forEach.call(document.querySelectorAll(".ok input"),function(cb){
+      if(learned.indexOf(cb.dataset.k)>=0){cb.checked=true;cb.closest("li").classList.add("learned")}
+    });
+    apply();
+  }
+  vsync();
+}).catch(function(){});
 </script></body></html>

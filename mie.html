@@ -851,7 +851,7 @@ const DARES=[
 const KEY="mieSampler";
 let S=JSON.parse(localStorage.getItem(KEY)||"null")||{topic:"free",stitches:[],days:[],last:"",lang:"both",dares:[]};
 if(!S.lang)S.lang="both";if(!S.dares)S.dares=[];
-const save=()=>{localStorage.setItem(KEY,JSON.stringify(S));try{famPing()}catch(e){}};
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(S));try{famPing()}catch(e){};try{mieSyncUp()}catch(e){}};
 
 /* 2026-08-19：连续天数从服务器把账接回来（跟打卡日历同一病同一药）。
    她换了浏览器，本地 mieSampler 里的日子就没了，看着像连击清零——
@@ -921,6 +921,29 @@ function renderStitches(){
     const li=document.createElement("li");li.textContent=t;ul.appendChild(li);
   });
 }
+
+/* ── 学习资料上服务器：错句和挑战不再只活在一台手机里（打卡同病同药）── */
+const MIE_API="https://su-family.yousef-abud.workers.dev/mie/data";
+let mieSyncT=null;
+function mieSyncUp(){
+  clearTimeout(mieSyncT);
+  mieSyncT=setTimeout(()=>{
+    try{fetch(MIE_API,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({stitches:S.stitches,dares:S.dares})}).catch(()=>{})}catch(e){}
+  },1200);
+}
+(function(){
+  try{
+    fetch(MIE_API).then(r=>r.json()).then(d=>{
+      let changed=false;
+      (d.stitches||[]).forEach(s=>{if(typeof s==="string"&&S.stitches.indexOf(s)<0){S.stitches.push(s);changed=true}});
+      (d.dares||[]).forEach(s=>{if(typeof s==="string"&&S.dares.indexOf(s)<0){S.dares.push(s);changed=true}});
+      if(changed){localStorage.setItem(KEY,JSON.stringify(S));try{renderStitches()}catch(e){}}
+      mieSyncUp();   /* 这台机器上有的，也传上去存好 */
+    }).catch(()=>{});
+  }catch(e){}
+})();
+
 function renderSpools(){
   const box=document.getElementById("spools");box.innerHTML="";
   TOPICS.forEach(t=>{
