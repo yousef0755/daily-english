@@ -310,7 +310,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <div id="shopPanel" onclick="if(event.target===this)this.classList.remove('on')">
       <div class="shopcard">
         <h3>🛍️ 小卖部 · 给它们穿衣服</h3>
-        <div style="text-align:center;font-size:12px;color:#b98aa5;margin:4px 0 6px">金币学习赚：每学完一门 +2🪙</div>
+        <div style="text-align:center;font-size:12px;color:#b98aa5;margin:4px 0 6px">金币学习赚：每学完一门 +2🪙 · 买完自动穿上，点 哆/S/玉 换人</div>
         <div id="shopList"></div>
         <div style="text-align:center;margin-top:10px"><button onclick="document.getElementById('shopPanel').classList.remove('on')" style="border:0;border-radius:12px;background:#e0679a;color:#fff;padding:9px 22px;font-size:14px;font-family:inherit;cursor:pointer">关门啦</button></div>
       </div>
@@ -954,9 +954,15 @@ function buyAcc(id){
   const it=SHOP.find(s=>s.id===id);
   if(S.acc.owned[id])return;
   if(S.coins<it.pr){say(yuguiC,"金币不够啦，去学一课就有了！");return}
-  S.coins-=it.pr;S.acc.owned[id]=1;save();
+  S.coins-=it.pr;S.acc.owned[id]=1;
+  /* 买完立刻穿上（随机一只），再点 哆/S/玉 可以换人 */
+  const cats=["duomi","snowy","yugui"];
+  const lucky=cats[Math.floor(Math.random()*cats.length)];
+  S.acc.wear[lucky][it.slot]=id;save();
   document.getElementById("coins").textContent=S.coins;
-  renderShop();say(snowyC,"买到"+it.nm+"啦！给谁穿？");
+  applyAcc();renderShop();
+  const names={duomi:"哆咪",snowy:"Snowy",yugui:"玉桂狗"};
+  say(snowyC,it.nm+"给"+names[lucky]+"穿上啦！点 哆/S/玉 能换人");
 }
 function wearAcc(id,cat){
   const it=SHOP.find(s=>s.id===id);
@@ -1229,9 +1235,15 @@ function buyAcc(id){
   const it=SHOP.find(s=>s.id===id);
   if(S.acc.owned[id])return;
   if(S.coins<it.pr){say(yuguiC,"金币不够啦，去学一课就有了！");return}
-  S.coins-=it.pr;S.acc.owned[id]=1;save();
+  S.coins-=it.pr;S.acc.owned[id]=1;
+  /* 买完立刻穿上（随机一只），再点 哆/S/玉 可以换人 */
+  const cats=["duomi","snowy","yugui"];
+  const lucky=cats[Math.floor(Math.random()*cats.length)];
+  S.acc.wear[lucky][it.slot]=id;save();
   document.getElementById("coins").textContent=S.coins;
-  renderShop();say(snowyC,"买到"+it.nm+"啦！给谁穿？");
+  applyAcc();renderShop();
+  const names={duomi:"哆咪",snowy:"Snowy",yugui:"玉桂狗"};
+  say(snowyC,it.nm+"给"+names[lucky]+"穿上啦！点 哆/S/玉 能换人");
 }
 function wearAcc(id,cat){
   const it=SHOP.find(s=>s.id===id);
