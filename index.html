@@ -67,7 +67,9 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid rgba(
 .brand-copy h1{font-family:var(--serif);font-size:1.24rem;font-weight:600;letter-spacing:.02em;line-height:1.15}
 .brand-copy .sub{margin-top:3px;color:rgba(248,244,233,.58);font-size:.7rem;letter-spacing:.11em;text-transform:uppercase}
 .streak{flex:0 0 auto;border:1px solid rgba(234,216,173,.34);border-radius:999px;padding:8px 13px;background:rgba(255,255,255,.06);color:#f2dfb2;font-size:.77rem;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-.hero-copy{margin:38px 0 28px;max-width:680px}
+.hero-copy{margin:22px 0 18px;max-width:680px}
+
+}
 .eyebrow{color:var(--gold-soft);font-size:.7rem;font-weight:750;letter-spacing:.16em;text-transform:uppercase}
 .hero-copy h2{margin-top:8px;font-family:var(--serif);font-size:clamp(2rem,5.6vw,3.8rem);font-weight:500;line-height:1.02;letter-spacing:-.035em;text-wrap:balance}
 .hero-copy p:last-child{max-width:570px;margin-top:13px;color:rgba(248,244,233,.66);font-size:.94rem;line-height:1.65}
@@ -383,6 +385,17 @@ header .pill.on{
 .donebox .btn-main{width:100%}
 .donebox .btn-main:disabled{opacity:.45}
 .donebox.done{border-color:rgba(126,214,178,.5)}
+
+/* 惊蛰 8-19：老板说打开看不出变化。查下来一半原因是首屏太空——
+   大标题吃掉半屏，今天要干的那张卡要滑一下才露头。手机上收紧，
+   桌面上维持原来的气派（>640px 不动）。*/
+@media (max-width:640px){
+  .hero-copy{margin:14px 0 6px}
+  .hero-copy h2{font-size:clamp(1.6rem,7.4vw,2.2rem);line-height:1.08}
+  .site-header{padding-bottom:58px}   /* 下面那张卡是往上压的，标题得留够位置，不然「Be someone better.」被切一半 */
+  /* 收紧之后这句会被下面那张卡压住、切掉半行——被切的字比没有还难看，手机上收起来，桌面照旧。 */
+  #heroSub{display:none}
+}   /* ← 这个收尾括号上一版被我切掉了，浏览器容错才没出事，补回来 */
 </style>
 <script>
 /* 本机预览一律不往共用的榜上报打卡。
@@ -420,7 +433,7 @@ header .pill.on{
           <div class="sub" id="brandSub">Five tracks · one thing a day</div>
         </div>
       </div>
-      <div class="streak" id="streak">🔥 0-day streak</div>
+      <div class="streak" id="streak">🔥 Day 1 · starts today</div>
     </div>
     <div class="hero-copy">
       <p class="eyebrow">اِسْتَمِعْ · لَاحِظْ · تَكَلَّمْ</p>
