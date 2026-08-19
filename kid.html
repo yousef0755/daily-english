@@ -2316,6 +2316,96 @@ btn.onclick=tGo;
 
 /* ===== 读背练习 ===== */
 let rSub=null,rIdx=0,rHidden=false;
+
+/* ── 英语词卡（8-19 从 boyuan-en 搬来的样式；BOYUAN_DICT 只补音标显示）── */
+const BOYUAN_DICT={"monkey": {"ipa": "[ˈmʌŋkɪ]", "pos": "n."}, "bear": {"ipa": "[beə(r)]", "pos": "n."}, "panda": {"ipa": "[ˈpændə]", "pos": "n."}, "tiger": {"ipa": "[ˈtaɪgə(r)]", "pos": "n."}, "colour": {"ipa": "[ˈkʌlə(r)]", "pos": "n."}, "kite": {"ipa": "[kaɪt]", "pos": "n."}, "where": {"ipa": "[weə(r)]", "pos": "adv."}, "in": {"ipa": "[ɪn]", "pos": "prep."}, "tree": {"ipa": "[triː]", "pos": "n."}, "yellow": {"ipa": "[ˈjeləʊ]", "pos": "adj."}, "red": {"ipa": "[red]", "pos": "adj."}, "blue": {"ipa": "[bluː]", "pos": "adj."}, "green": {"ipa": "[griːn]", "pos": "adj."}, "small": {"ipa": "[smɔːl]", "pos": "adj."}, "go": {"ipa": "[gəʊ]", "pos": "v."}, "big": {"ipa": "[bɪg]", "pos": "adj."}, "see": {"ipa": "[siː]", "pos": "v."}, "frog": {"ipa": "[frɒg]", "pos": "n."}, "rabbit": {"ipa": "[ˈræbɪt]", "pos": "n."}, "bee": {"ipa": "[biː]", "pos": "n."}, "bird": {"ipa": "[bɜːd]", "pos": "n."}, "listen": {"ipa": "[ˈlɪsn]", "pos": "v."}, "hear": {"ipa": "[hɪə(r)]", "pos": "v."}, "sheep": {"ipa": "[ʃiːp]", "pos": "n."}, "hen": {"ipa": "[hen]", "pos": "n."}, "dog": {"ipa": "[dɒg]", "pos": "n."}, "cat": {"ipa": "[kæt]", "pos": "n."}, "home": {"ipa": "[həʊm]", "pos": "n."}, "smell": {"ipa": "[smel]", "pos": "v."}, "taste": {"ipa": "[teɪst]", "pos": "v."}, "rice": {"ipa": "[raɪs]", "pos": "n."}, "soup": {"ipa": "[suːp]", "pos": "n."}, "egg": {"ipa": "[eg]", "pos": "n."}, "noodles": {"ipa": "[ˈnuːdlz]", "pos": "n."}, "yummy": {"ipa": "[ˈjʌmɪ]", "pos": "adj."}, "restaurant": {"ipa": "[ˈrestrɒnt]", "pos": "n."}, "help": {"ipa": "[help]", "pos": "v."}, "flower": {"ipa": "[ˈflaʊə(r)]", "pos": "n."}, "toy": {"ipa": "[tɔɪ]", "pos": "n."}, "like": {"ipa": "[laɪk]", "pos": "v."}, "ball": {"ipa": "[bɔːl]", "pos": "n."}, "doll": {"ipa": "[dɒl]", "pos": "n."}, "bicycle": {"ipa": "[ˈbaɪsɪkl]", "pos": "n."}, "super": {"ipa": "[ˈsjuːpə(r)]", "pos": "adj."}, "food": {"ipa": "[fuːd]", "pos": "n."}, "sweet": {"ipa": "[swiːt]", "pos": "n."}, "jelly": {"ipa": "[ˈdʒelɪ]", "pos": "n."}, "biscuit": {"ipa": "[ˈbɪskɪt]", "pos": "n."}, "teatime": {"ipa": "[ˈtiːtaɪm]", "pos": "n."}, "for": {"ipa": "[fɔː(r)]", "pos": "prep."}, "and": {"ipa": "[ænd]", "pos": "conj."}, "sorry": {"ipa": "[ˈsɒrɪ]", "pos": "int."}, "drink": {"ipa": "[drɪŋk]", "pos": "n."}, "water": {"ipa": "[ˈwɔːtə(r)]", "pos": "n."}, "cola": {"ipa": "[ˈkəʊlə]", "pos": "n."}, "juice": {"ipa": "[dʒuːs]", "pos": "n."}, "milk": {"ipa": "[mɪlk]", "pos": "n."}, "birthday": {"ipa": "[ˈbɜːθdeɪ]", "pos": "n."}, "party": {"ipa": "[ˈpɑːtɪ]", "pos": "n."}, "happy": {"ipa": "[ˈhæpɪ]", "pos": "adj."}, "song": {"ipa": "[sɒŋ]", "pos": "n."}, "season": {"ipa": "[ˈsiːzn]", "pos": "n."}, "spring": {"ipa": "[sprɪŋ]", "pos": "n."}, "summer": {"ipa": "[ˈsʌmə(r)]", "pos": "n."}, "autumn": {"ipa": "[ˈɔːtəm]", "pos": "n."}, "winter": {"ipa": "[ˈwɪntə(r)]", "pos": "n."}, "white": {"ipa": "[waɪt]", "pos": "adj."}, "grass": {"ipa": "[grɑːs]", "pos": "n."}, "watermelon": {"ipa": "[ˈwɔːtəmelən]", "pos": "n."}, "how": {"ipa": "[haʊ]", "pos": "adv."}, "weather": {"ipa": "[ˈweðə(r)]", "pos": "n."}, "cloudy": {"ipa": "[ˈklaʊdɪ]", "pos": "adj."}, "sunny": {"ipa": "[ˈsʌnɪ]", "pos": "adj."}, "rainy": {"ipa": "[ˈreɪnɪ]", "pos": "adj."}, "windy": {"ipa": "[ˈwɪndɪ]", "pos": "adj."}, "hot": {"ipa": "[hɒt]", "pos": "adj."}, "to": {"ipa": "[tuː]", "pos": "prep."}, "beach": {"ipa": "[biːtʃ]", "pos": "n."}, "clothes": {"ipa": "[kləʊðz]", "pos": "n."}, "need": {"ipa": "[niːd]", "pos": "v."}, "new": {"ipa": "[njuː]", "pos": "adj."}, "T-shirt": {"ipa": "[ˈtiːʃɜːt]", "pos": "n."}, "dress": {"ipa": "[dres]", "pos": "n."}, "shorts": {"ipa": "[ʃɔːts]", "pos": "n."}, "blouse": {"ipa": "[blaʊz]", "pos": "n."}, "don't": {"ipa": "[dəʊnt]", "pos": ""}, "activity": {"ipa": "[ækˈtɪvətɪ]", "pos": "n."}, "ride": {"ipa": "[raɪd]", "pos": "v."}, "skip": {"ipa": "[skɪp]", "pos": "v."}, "play": {"ipa": "[pleɪ]", "pos": "v."}, "fly": {"ipa": "[flaɪ]", "pos": "v."}, "playtime": {"ipa": "[ˈpleɪtaɪm]", "pos": "n."}, "football": {"ipa": "[ˈfʊtbɔːl]", "pos": "n."}, "rope": {"ipa": "[rəʊp]", "pos": "n."}, "gift": {"ipa": "[gɪft]", "pos": "n."}, "card": {"ipa": "[kɑːd]", "pos": "n."}, "firecracker": {"ipa": "[ˈfaɪəkrækə(r)]", "pos": "n."}, "firework": {"ipa": "[ˈfaɪəwɜːk]", "pos": "n."}, "make": {"ipa": "[meɪk]", "pos": "v."}, "write": {"ipa": "[raɪt]", "pos": "v."}, "fold": {"ipa": "[fəʊld]", "pos": "v."}, "Miss": {"ipa": "[mɪs]", "pos": "n."}, "shopping": {"ipa": "[ˈʃɒpɪŋ]", "pos": "n."}, "boy": {"ipa": "[bɔɪ]", "pos": "n."}, "wolf": {"ipa": "[wʊlf]", "pos": "n."}, "farmer": {"ipa": "[ˈfɑːmə(r)]", "pos": "n."}, "narrator": {"ipa": "[nəˈreɪtə(r)]", "pos": "n."}, "come": {"ipa": "[kʌm]", "pos": "v."}, "bad": {"ipa": "[bæd]", "pos": "adj."}, "poor": {"ipa": "[pʊə(r)]", "pos": "adj."}, "tell": {"ipa": "[tel]", "pos": "v."}, "lie": {"ipa": "[laɪ]", "pos": "n."}};
+function renderEnglishCards(box, item){
+  const enOf=function(ln){ return String(ln||"").replace(/\s*—.*$/,"").trim() };
+  const zhOf=function(ln){ const i=String(ln||"").indexOf("—"); return i<0?"":String(ln).slice(i+1).trim() };
+  const isWord=function(ln){ const e=enOf(ln); return !/[.?!]/.test(e) };
+  const mkListen=function(text){
+    const b=document.createElement("button");
+    b.className="rbtn inline listen"; b.type="button";
+    b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg> 听';
+    b.onclick=function(ev){ ev.stopPropagation(); if(typeof speakRoster==="function")speakRoster(text) };
+    return b;
+  };
+  let k=0;
+  while(k<item.lines.length){
+    const ln=item.lines[k];
+    if(typeof ln!=="string"){ k++; continue }
+    const card=document.createElement("div");
+    card.style.cssText="background:rgba(243,239,226,.05);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin-bottom:12px";
+    if(isWord(ln)){
+      const w=enOf(ln), zh=zhOf(ln), di=BOYUAN_DICT[w]||{};
+      const li1=k, hasSent=(k+1<item.lines.length)&&!isWord(item.lines[k+1]);
+      const li2=hasSent?k+1:-1;
+      const top=document.createElement("div");
+      top.style.cssText="display:flex;align-items:flex-start;gap:10px";
+      const body=document.createElement("div"); body.style.cssText="flex:1;min-width:0";
+      const wEl=document.createElement("div");
+      wEl.style.cssText="font-size:1.8rem;font-weight:800;line-height:1.2";
+      wEl.textContent=w;
+      const ipaEl=document.createElement("div");
+      ipaEl.style.cssText="font-size:.85rem;color:var(--muted);font-family:Georgia,serif";
+      ipaEl.textContent=di.ipa||"";
+      const zhEl=document.createElement("div");
+      zhEl.style.cssText="font-size:.95rem;color:var(--cream);margin-top:3px";
+      zhEl.textContent=(di.pos?di.pos+" ":"")+zh;
+      [wEl,ipaEl,zhEl].forEach(function(e){
+        if(rHidden){ e.classList.add("veil"); e.onclick=function(){e.classList.add("off")} }
+      });
+      body.appendChild(wEl); if(di.ipa)body.appendChild(ipaEl); body.appendChild(zhEl);
+      top.appendChild(body);
+      card.appendChild(top);
+      if(hasSent){
+        const s=item.lines[li2];
+        const eg=document.createElement("div");
+        eg.style.cssText="margin-top:10px;padding:9px 11px;border-left:3px solid var(--gold);background:rgba(255,212,121,.07);border-radius:8px";
+        const egEn=document.createElement("div"); egEn.style.cssText="font-size:.95rem"; egEn.textContent=enOf(s);
+        const egZh=document.createElement("div"); egZh.style.cssText="font-size:.8rem;color:var(--muted);margin-top:2px"; egZh.textContent=zhOf(s);
+        [egEn,egZh].forEach(function(e){ if(rHidden){ e.classList.add("veil"); e.onclick=function(){e.classList.add("off")} } });
+        eg.appendChild(egEn); eg.appendChild(egZh);
+        eg.style.cursor="pointer";
+        eg.onclick=function(ev){ if(!rHidden){ ev.stopPropagation(); if(typeof speakRoster==="function")speakRoster(enOf(s)) } };
+        card.appendChild(eg);
+      }
+      const ops=document.createElement("div");
+      ops.style.cssText="display:flex;gap:10px;margin-top:12px";
+      const lb=mkListen(w);
+      /* 听：念词，接着念它的句子——跟 boyuan-en 一致 */
+      if(hasSent){ lb.onclick=function(ev){ ev.stopPropagation();
+        if(typeof speakRoster==="function"){ speakRoster(w);
+          setTimeout(function(){ speakRoster(enOf(item.lines[li2])) }, 1400); } } }
+      ops.appendChild(lb);
+      const bh=makeBhBtn(rSub,rIdx,li1, function(){ afterMark(rSub) });
+      if(li2>=0){
+        /* 一个键记两行账：词和它的句子一起算背会 */
+        const orig=bh.onclick;
+        bh.onclick=function(ev){ bhSet(rSub,rIdx,li2,true); if(orig)orig.call(this,ev); };
+      }
+      ops.appendChild(bh);
+      card.appendChild(ops);
+      k = hasSent ? k+2 : k+1;
+    }else{
+      /* 独立重点句：一行一卡，句子做主角 */
+      const row=document.createElement("div");
+      row.style.cssText="display:flex;align-items:center;gap:10px";
+      const body=document.createElement("div"); body.style.cssText="flex:1;min-width:0";
+      const en=document.createElement("div"); en.style.cssText="font-size:1.05rem;font-weight:600"; en.textContent=enOf(ln);
+      const zh=document.createElement("div"); zh.style.cssText="font-size:.82rem;color:var(--muted);margin-top:2px"; zh.textContent=zhOf(ln);
+      [en,zh].forEach(function(e){ if(rHidden){ e.classList.add("veil"); e.onclick=function(){e.classList.add("off")} } });
+      body.appendChild(en); body.appendChild(zh);
+      row.appendChild(body);
+      row.appendChild(mkListen(enOf(ln)));
+      row.appendChild(makeBhBtn(rSub,rIdx,k, function(){ afterMark(rSub) }));
+      card.appendChild(row);
+      k++;
+    }
+    box.appendChild(card);
+  }
+}
+
 function openRecite(sub){
   rSub=sub;rHidden=false;
   const pack=RECITE[sub];
@@ -2375,6 +2465,11 @@ function renderRecite(){
       pack.title+" · 今天第 "+(pos+1)+"/"+IDIOM_PER_DAY+" 个 · "+item.name.split(/\s{2,}/)[0];
   }
   const box=document.getElementById("rLines");box.innerHTML="";
+  /* 英语画成 boyuan-en 那套词卡（老板 8-19：「做到这个网页里，风格就按你现在做的挺好的」）。
+     数据源和打卡账目都不换：还是 RECITE.english 的行、还是 makeBhBtn 记账——
+     只是把「word — 中文」的行画成大词卡，紧跟着的句子行并进卡里当例句框，
+     一个「已背会」同时把词和句两行的账都记上。 */
+  if(rSub==="english"){ renderEnglishCards(box, item); if(item.hadith){} setTimeout(function(){},0); return; }
   /* 成语：要念的是成语本身 */
   if(rSub==="idiom"){
     const word=(item.name||"").split(/\s{2,}/)[0].trim();
