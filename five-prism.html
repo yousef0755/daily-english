@@ -363,7 +363,7 @@ function draw(ts){
     ctx.fillRect(i*bw,0,1,H);
   }
   /* 流星层 */
-  if(Math.random()<0.012&&meteors.length<3)spawnMeteor();
+  if(Math.random()<0.022&&meteors.length<3)spawnMeteor();
   for(let k=meteors.length-1;k>=0;k--){
     const m=meteors[k];
     m.x+=m.vx;m.y+=m.vy;m.life-=0.012;
@@ -373,7 +373,7 @@ function draw(ts){
     mg.addColorStop(0,`rgba(255,255,255,${.85*m.life})`);
     mg.addColorStop(.4,`rgba(210,225,255,${.35*m.life})`);
     mg.addColorStop(1,"rgba(210,225,255,0)");
-    ctx.strokeStyle=mg;ctx.lineWidth=2.2;ctx.lineCap="round";
+    ctx.strokeStyle=mg;ctx.lineWidth=2.8;ctx.lineCap="round";
     ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(txl,tyl);ctx.stroke();
     ctx.fillStyle=`rgba(255,255,255,${.9*m.life})`;
     ctx.beginPath();ctx.arc(hx,hy,2.4,0,7);ctx.fill();
