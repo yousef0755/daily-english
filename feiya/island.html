@@ -488,7 +488,7 @@ function say(c,txt,ms){
   place(yuguiC,(b.x0+b.x1)/2,b.y0+52,true);
 })();
 setInterval(()=>{wander(duomiC);
-  if(!snowyC.away&&!snowyC.sleep&&!duomiC.away&&Math.random()<.65){
+  if(!snowyC.away&&!snowyC.sleep&&!duomiC.away&&duoSnowyPage===curPage&&Math.random()<.65){
     const b=bounds();
     const fx=Math.min(b.x1,Math.max(b.x0,duomiC.x+(Math.random()<.5?-58:58)));
     snowyC.el.classList.toggle("flip",fx<snowyC.x);
@@ -578,13 +578,14 @@ function leave(c){
   setTimeout(()=>c.sp.classList.remove("show"),800);
 }
 function comeBack(){
-  awayAt=0;
+  awayAt=0;duoSnowyPage=curPage;
   const b=bounds();
   [duomiC,snowyC].forEach((c,i)=>{
     if(!c.away)return;
     c.away=false;c.el.classList.remove("flip");
     place(c,b.x0+40+i*120,b.y0+28);
   });
+  updateVis();
   say(duomiC,LINES.duomi.return);
   setTimeout(()=>say(snowyC,LINES.snowy.return),1500);
 }
@@ -613,14 +614,37 @@ function chouQian(){
 /* 滑页圆点 */
 const pager=document.getElementById("pager");
 let curPage=0;
+/* 哆咪和Snowy关系最好，结伴住在某一页；玉桂狗最粘霏雅，一直跟着她 */
+let duoSnowyPage=0;
+function updateVis(){
+  [duomiC,snowyC].forEach(c=>{
+    const show=(duoSnowyPage===curPage&&!c.away);
+    c.el.style.display=show?"":"none";
+    if(!show)c.sp.classList.remove("show");
+  });
+}
 pager.addEventListener("scroll",()=>{
   const i=Math.round(pager.scrollLeft/pager.clientWidth);
-  if(i!==curPage){curPage=i;
-    /* 离场的其实是跑到别的页面玩了——翻页就找到它们 */
+  if(i!==curPage){
+    const found=(i===duoSnowyPage&&curPage!==duoSnowyPage);
+    curPage=i;
     if(awayAt&&Date.now()-awayAt>6000)comeBack();
+    updateVis();
+    if(found&&!snowyC.away)setTimeout(()=>say(snowyC,"你找到我们啦！"),900);
   }
   document.querySelectorAll(".dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
 },{passive:true});
+/* 哥妹俩隔一阵子结伴搬去别的页面玩 */
+setInterval(()=>{
+  if(Math.random()<.4&&!duomiC.away&&!snowyC.away&&!swinging){
+    const np=Math.floor(Math.random()*5);
+    if(np===duoSnowyPage)return;
+    if(duoSnowyPage===curPage){
+      say(duomiC,"走，妹，换个地方。");
+      setTimeout(()=>{duoSnowyPage=np;updateVis()},2200);
+    }else{duoSnowyPage=np;updateVis()}
+  }
+},150000);
 function goHome(){pager.scrollTo({left:0,behavior:"smooth"})}
 
 /* ═══ 中文页：她自己的诗集成语库（与 feiya/index.html 同一份），晓晓配音 ═══ */
@@ -794,9 +818,15 @@ function renderAr(){
 function arFinish(){
   const st=arState();if(st.done)return;st.done=1;arSave(st);
   S.coins+=2;save();document.getElementById("coins").textContent=S.coins;
-  renderAr();
+  updateVis();renderAr();
 
 /* ═══ 秋千 + 各页随机表演 ═══ */
+function visCats(){
+  const arr=[];
+  if(duoSnowyPage===curPage){if(!duomiC.away)arr.push(duomiC);if(!snowyC.away)arr.push(snowyC)}
+  if(!yuguiC.away)arr.push(yuguiC);
+  return arr;
+}
 let swinging=false;
 function swingTime(c){
   if(swinging||c.away||c.el.classList.contains("drag"))return;
@@ -809,7 +839,7 @@ function swingTime(c){
     c._pp=c.el.parentNode;
     c.el.style.transition="none";c.el.style.left="21px";c.el.style.bottom="30px";
     sb.appendChild(c.el);sb.style.display="block";sb.classList.add("go");
-    if(c===duomiC&&!snowyC.away){
+    if(c===duomiC&&!snowyC.away&&duoSnowyPage===curPage){
       const b=bounds();
       place(snowyC,Math.min(b.x1,Math.max(b.x0,sx+80)),b.y0+10);
       setTimeout(()=>say(snowyC,"哥你好帅！！"),1800);
@@ -832,12 +862,17 @@ function shiTime(){
   if(mr.bottom<0||mr.top>window.innerHeight)return;
   const py=Math.max(8,window.innerHeight-mr.top-46);
   const xs=[mr.left+18,mr.left+62,mr.left+106];
-  const cats=[duomiC,snowyC,yuguiC].filter(c=>!c.away);
+  const cats=visCats();
   cats.forEach((c,i)=>{c.sleep=false;c.el.classList.remove("sleep","flip");place(c,xs[i]||mr.left+40,py)});
   const P=POEMS[zpi];
-  setTimeout(()=>say(duomiC,"咳咳——"+P.l[0].slice(0,P.l[0].indexOf("，")>0?P.l[0].indexOf("，"):8)),2900);
-  setTimeout(()=>say(snowyC,P.l[0].slice(P.l[0].indexOf("，")+1)||"（鼓掌）"),5200);
-  setTimeout(()=>say(yuguiC,"好诗好诗！（其实没听懂）"),7400);
+  const here=duoSnowyPage===curPage;
+  if(here){
+    setTimeout(()=>say(duomiC,"咳咳——"+P.l[0].slice(0,P.l[0].indexOf("，")>0?P.l[0].indexOf("，"):8)),2900);
+    setTimeout(()=>say(snowyC,P.l[0].slice(P.l[0].indexOf("，")+1)||"（鼓掌）"),5200);
+    setTimeout(()=>say(yuguiC,"好诗好诗！（其实没听懂）"),7400);
+  }else{
+    setTimeout(()=>say(yuguiC,"我念给你听："+P.l[0]),2900);
+  }
   setTimeout(()=>{
     const o=document.getElementById("shiOut");
     if(o){o.innerHTML='<div class="zhcard" style="margin-top:10px;animation:qpop .3s ease;transform:rotate(-1.2deg)"><h3>'+P.t+' 🖌️</h3><div class="ln" style="font-style:italic">'+P.l.join("<br>")+'</div><div class="use">——哆咪 挥爪题于小山之巅 💦</div></div>'}
@@ -846,7 +881,7 @@ function shiTime(){
 /* 随机刷新：它们自己会去玩各页的设施 */
 setInterval(()=>{
   const r=Math.random();
-  const alive=[duomiC,snowyC,yuguiC].filter(c=>!c.away&&!c.sleep);
+  const alive=visCats().filter(c=>!c.sleep);
   if(!alive.length)return;
   const c=alive[Math.floor(Math.random()*alive.length)];
   if(r<.45)swingTime(c);
@@ -863,7 +898,7 @@ function prayTime(){
   const mr=document.getElementById("mosque").getBoundingClientRect();
   const by=Math.max(8,window.innerHeight-mr.bottom-60);
   const xs=[mr.left-4,mr.left+56,mr.left+116];
-  const cats=[duomiC,snowyC,yuguiC].filter(c=>!c.away);
+  const cats=visCats();
   cats.forEach((c,i)=>{c.sleep=false;c.el.classList.remove("sleep","flip");place(c,xs[i]||mr.left+56,by)});
   setTimeout(()=>{
     say(duomiC,"اللهُ أَكْبَر");
@@ -876,9 +911,15 @@ function prayTime(){
     },1100);
   },2800);
 }
-renderAr();
+updateVis();renderAr();
 
 /* ═══ 秋千 + 各页随机表演 ═══ */
+function visCats(){
+  const arr=[];
+  if(duoSnowyPage===curPage){if(!duomiC.away)arr.push(duomiC);if(!snowyC.away)arr.push(snowyC)}
+  if(!yuguiC.away)arr.push(yuguiC);
+  return arr;
+}
 let swinging=false;
 function swingTime(c){
   if(swinging||c.away||c.el.classList.contains("drag"))return;
@@ -891,7 +932,7 @@ function swingTime(c){
     c._pp=c.el.parentNode;
     c.el.style.transition="none";c.el.style.left="21px";c.el.style.bottom="30px";
     sb.appendChild(c.el);sb.style.display="block";sb.classList.add("go");
-    if(c===duomiC&&!snowyC.away){
+    if(c===duomiC&&!snowyC.away&&duoSnowyPage===curPage){
       const b=bounds();
       place(snowyC,Math.min(b.x1,Math.max(b.x0,sx+80)),b.y0+10);
       setTimeout(()=>say(snowyC,"哥你好帅！！"),1800);
@@ -914,12 +955,17 @@ function shiTime(){
   if(mr.bottom<0||mr.top>window.innerHeight)return;
   const py=Math.max(8,window.innerHeight-mr.top-46);
   const xs=[mr.left+18,mr.left+62,mr.left+106];
-  const cats=[duomiC,snowyC,yuguiC].filter(c=>!c.away);
+  const cats=visCats();
   cats.forEach((c,i)=>{c.sleep=false;c.el.classList.remove("sleep","flip");place(c,xs[i]||mr.left+40,py)});
   const P=POEMS[zpi];
-  setTimeout(()=>say(duomiC,"咳咳——"+P.l[0].slice(0,P.l[0].indexOf("，")>0?P.l[0].indexOf("，"):8)),2900);
-  setTimeout(()=>say(snowyC,P.l[0].slice(P.l[0].indexOf("，")+1)||"（鼓掌）"),5200);
-  setTimeout(()=>say(yuguiC,"好诗好诗！（其实没听懂）"),7400);
+  const here=duoSnowyPage===curPage;
+  if(here){
+    setTimeout(()=>say(duomiC,"咳咳——"+P.l[0].slice(0,P.l[0].indexOf("，")>0?P.l[0].indexOf("，"):8)),2900);
+    setTimeout(()=>say(snowyC,P.l[0].slice(P.l[0].indexOf("，")+1)||"（鼓掌）"),5200);
+    setTimeout(()=>say(yuguiC,"好诗好诗！（其实没听懂）"),7400);
+  }else{
+    setTimeout(()=>say(yuguiC,"我念给你听："+P.l[0]),2900);
+  }
   setTimeout(()=>{
     const o=document.getElementById("shiOut");
     if(o){o.innerHTML='<div class="zhcard" style="margin-top:10px;animation:qpop .3s ease;transform:rotate(-1.2deg)"><h3>'+P.t+' 🖌️</h3><div class="ln" style="font-style:italic">'+P.l.join("<br>")+'</div><div class="use">——哆咪 挥爪题于小山之巅 💦</div></div>'}
@@ -928,7 +974,7 @@ function shiTime(){
 /* 随机刷新：它们自己会去玩各页的设施 */
 setInterval(()=>{
   const r=Math.random();
-  const alive=[duomiC,snowyC,yuguiC].filter(c=>!c.away&&!c.sleep);
+  const alive=visCats().filter(c=>!c.sleep);
   if(!alive.length)return;
   const c=alive[Math.floor(Math.random()*alive.length)];
   if(r<.45)swingTime(c);
