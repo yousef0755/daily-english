@@ -946,7 +946,7 @@ function applyAcc(){
     const w=S.acc.wear[id]||{};
     c.el.querySelectorAll(".acci").forEach(g=>{
       const it=SHOP.find(s=>s.id===g.dataset.item);
-      g.style.display=(it&&w[it.slot]===it.id)?"":"none";
+      g.style.display=(it&&w[it.slot]===it.id)?"inline":"none";
     });
   });
 }
@@ -1227,7 +1227,7 @@ function applyAcc(){
     const w=S.acc.wear[id]||{};
     c.el.querySelectorAll(".acci").forEach(g=>{
       const it=SHOP.find(s=>s.id===g.dataset.item);
-      g.style.display=(it&&w[it.slot]===it.id)?"":"none";
+      g.style.display=(it&&w[it.slot]===it.id)?"inline":"none";
     });
   });
 }
