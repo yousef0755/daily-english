@@ -201,6 +201,21 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 .gubuy{background:#ffd9c4;color:#b0603f}.gusell{background:#d9f0e3;color:#2e7d54}
 .gubtn:disabled{opacity:.35}
 .guspark{width:74px;height:26px}
+.l-chat{background:
+  radial-gradient(rgba(255,255,255,.75) 1.5px, transparent 1.6px),
+  linear-gradient(178deg,#fde5ec 0%,#fdeef2 55%,#f0f7ec 100%);
+  background-size:26px 26px,100% 100%}
+.chatwrap{max-width:420px;margin:0 auto;display:flex;flex-direction:column;height:calc(100vh - 120px)}
+.chatlog{flex:1;overflow-y:auto;padding:6px 2px;display:flex;flex-direction:column;gap:9px}
+.bub{max-width:78%;padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.bub.me{align-self:flex-end;background:linear-gradient(135deg,#f8b8cd,#f2a0be);color:#7c3a55;border-bottom-right-radius:5px}
+.bub.gui{align-self:flex-start;background:rgba(255,255,255,.94);color:#6a5a62;border:1px solid #f3d9e2;border-bottom-left-radius:5px;box-shadow:0 3px 12px rgba(210,140,170,.12)}
+.bub.gui::before{content:"☁️ ";opacity:.8}
+.chatbar{display:flex;gap:8px;padding:10px 0 4px}
+.chatbar input{flex:1;border:1px solid #f0cdd9;border-radius:999px;padding:11px 16px;font:inherit;font-size:14px;background:rgba(255,255,255,.95);color:#6a4a58;outline:none}
+.chatbar button{border:0;border-radius:999px;padding:11px 20px;background:#ef86ac;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.chatbar button:disabled{opacity:.5}
+.typing{align-self:flex-start;font-size:12px;color:#c993a9;padding:2px 8px}
 </style>
 </head>
 <body>
@@ -346,8 +361,8 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       <input id="seed" placeholder="想种什么？打出来就能种（树/花/星星…）" maxlength="8">
       <button id="sow">种下去</button>
     </div>
-    <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="hint">← 左右滑：小岛 · 🇦🇪عربي mode · 🇬🇧Eng.exe · 🇨🇳中文加载中… · 🇰🇷한글.zip · 📈股市.beta →</div>
+    <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="hint">← 左右滑：小岛 · 🇦🇪عربي mode · 🇬🇧Eng.exe · 🇨🇳中文加载中… · 🇰🇷한글.zip · 📈股市.beta · 💬玉桂狗.chat →</div>
   </section>
 
   <!-- 语言页（先立牌坊，课一门门装） -->
@@ -489,6 +504,21 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       </div>
     </div>
   </section>
+  <section class="page l-chat" id="pgChat" style="overflow-y:hidden;padding:56px 18px 12px">
+    <button class="backhome" onclick="goHome()">← 回小岛</button>
+    <div class="chatwrap">
+      <div style="text-align:center;margin-bottom:4px">
+        <h2 style="font-size:20px;color:#ef86ac">💬 玉桂狗.chat</h2>
+        <div style="font-size:11.5px;color:#d3a4b8">想聊什么都可以 · 它最想知道你今天心情怎么样</div>
+      </div>
+      <div class="chatlog" id="chatLog"></div>
+      <div class="chatbar">
+        <input id="chatIn" placeholder="跟玉桂狗说点什么…" maxlength="500" autocomplete="off">
+        <button id="chatSend">发送</button>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <div id="quiz"><div class="box"><h3 id="qTitle"></h3><div id="qOpts"></div></div></div>
@@ -786,8 +816,8 @@ pager.addEventListener("scroll",()=>{
 /* 哥妹俩隔一阵子结伴搬去别的页面玩 */
 setInterval(()=>{
   if(Math.random()<.65&&!duomiC.away&&!snowyC.away&&!swinging){
-    let np=Math.floor(Math.random()*5);
-    if(np===duoSnowyPage)np=(np+1+Math.floor(Math.random()*4))%5;
+    let np=Math.floor(Math.random()*7);
+    if(np===duoSnowyPage)np=(np+1+Math.floor(Math.random()*6))%7;
     if(duoSnowyPage===curPage){
       say(duomiC,"走，妹，换个地方。");
       setTimeout(()=>{duoSnowyPage=np;updateVis()},2200);
@@ -1205,11 +1235,11 @@ setInterval(()=>{
   else if(curPage===3&&r<.75)shiTime();
   else if(curPage===1&&r<.75)prayTime();
   else if(curPage===2&&r<.75)speechTime();
-  else if(curPage===4&&r<.75)danceTime();
+  else if(curPage===5&&r<.75)danceTime();
 },52000);
 /* 闲逛时也会跑去设施上呆着——设施是它们的，不是装饰 */
 function perchSpot(){
-  const ids={1:"mosque",2:"podium",3:"shishan",4:"stage"};
+  const ids={1:"mosque",2:"podium",3:"shishan",5:"stage"};
   const el=ids[curPage]&&document.getElementById(ids[curPage]);
   if(!el)return null;
   const mr=el.getBoundingClientRect();
@@ -1486,11 +1516,11 @@ setInterval(()=>{
   else if(curPage===3&&r<.75)shiTime();
   else if(curPage===1&&r<.75)prayTime();
   else if(curPage===2&&r<.75)speechTime();
-  else if(curPage===4&&r<.75)danceTime();
+  else if(curPage===5&&r<.75)danceTime();
 },52000);
 /* 闲逛时也会跑去设施上呆着——设施是它们的，不是装饰 */
 function perchSpot(){
-  const ids={1:"mosque",2:"podium",3:"shishan",4:"stage"};
+  const ids={1:"mosque",2:"podium",3:"shishan",5:"stage"};
   const el=ids[curPage]&&document.getElementById(ids[curPage]);
   if(!el)return null;
   const mr=el.getBoundingClientRect();
@@ -1576,6 +1606,45 @@ function guSell(sym){
 }
 (function(){const el=document.getElementById("guTip");if(el)el.textContent="每天迪拜零点自动换新行情，明天再来看涨跌。"})();
 renderGu();
+
+/* ═══ 玉桂狗.chat：想聊什么都可以 ═══ */
+(function(){
+  const log=document.getElementById("chatLog"),inp=document.getElementById("chatIn"),btn=document.getElementById("chatSend");
+  if(!log)return;
+  let hist=[];
+  try{hist=JSON.parse(localStorage.getItem("feiyaChat")||"[]")}catch(e){}
+  function paint(){
+    log.innerHTML=hist.map(m=>'<div class="bub '+(m.role==="ai"?"gui":"me")+'">'+
+      String(m.text).replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</div>').join("");
+    log.scrollTop=log.scrollHeight;
+  }
+  function saveChat(){try{localStorage.setItem("feiyaChat",JSON.stringify(hist.slice(-200)))}catch(e){}}
+  if(!hist.length){
+    hist.push({role:"ai",text:"霏雅！你来啦，我等你好久了。\n今天心情怎么样呀？"});saveChat();
+  }
+  paint();
+  let busy=false;
+  async function send(){
+    const v=inp.value.trim();
+    if(!v||busy)return;
+    inp.value="";hist.push({role:"user",text:v});saveChat();paint();
+    busy=true;btn.disabled=true;
+    const tip=document.createElement("div");tip.className="typing";tip.textContent="玉桂狗想了想…";
+    log.appendChild(tip);log.scrollTop=log.scrollHeight;
+    try{
+      const r=await fetch("https://su-family.yousef-abud.workers.dev/island/chat",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({messages:hist.slice(-20)})});
+      const j=await r.json();
+      hist.push({role:"ai",text:j.text||"呜，云朵把信号挡住了…再发一次好不好？"});
+    }catch(e){
+      hist.push({role:"ai",text:"呜，云朵把信号挡住了…再发一次好不好？"});
+    }
+    saveChat();paint();busy=false;btn.disabled=false;
+  }
+  btn.onclick=send;
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter")send()});
+})();
 
 /* ═══ 小岛资料上服务器：金币/植物/衣服/每日完成/持仓 ═══ */
 const ISL_API="https://su-family.yousef-abud.workers.dev/island/data";
