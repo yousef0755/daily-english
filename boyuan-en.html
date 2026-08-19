@@ -209,7 +209,7 @@
 
 <script>
 /* ====== 春如金卷单元库：数据由 tools/boyuan_units.py 生成，改内容改那边 ======
-   一年级上 Unit 12 缺后半页书图，暂不在队里；老板拍来 013-014 页就插进 1u11 后面。 */
+   一年级上 Unit 12 已于 8-19 晨补齐（老板拍来013-014页），排在 1u11 后面。 */
 const UNITS = {
  "1u11": {
   "volume": "一年级上",
@@ -277,6 +277,179 @@ const UNITS = {
     "n": 2,
     "en": "No. It's a panda.",
     "zh": "不是。它是一只熊猫。"
+   }
+  ]
+ },
+ "1u12": {
+  "volume": "一年级上",
+  "unit": 12,
+  "title": "In the park",
+  "page": "013",
+  "example": "比如：The kite is red. / It's in the tree.",
+  "words": [
+   {
+    "n": 1,
+    "w": "colour",
+    "ipa": "[ˈkʌlə(r)]",
+    "pos": "n.",
+    "zh": "颜色；v. 涂色",
+    "eg": {
+     "en": "What colour is the kite?",
+     "zh": "风筝是什么颜色？"
+    },
+    "f": "colour"
+   },
+   {
+    "n": 2,
+    "w": "kite",
+    "ipa": "[kaɪt]",
+    "pos": "n.",
+    "zh": "风筝",
+    "eg": {
+     "en": "The kite is in the sky.",
+     "zh": "风筝在天上。"
+    },
+    "f": "kite",
+    "star": true
+   },
+   {
+    "n": 3,
+    "w": "where",
+    "ipa": "[weə(r)]",
+    "pos": "adv.",
+    "zh": "在哪里",
+    "eg": {
+     "en": "Where is the bird?",
+     "zh": "鸟在哪里？"
+    },
+    "f": "where"
+   },
+   {
+    "n": 4,
+    "w": "in",
+    "ipa": "[ɪn]",
+    "pos": "prep.",
+    "zh": "在……里面",
+    "eg": {
+     "en": "The bird is in the tree.",
+     "zh": "鸟在树里。"
+    },
+    "f": "in"
+   },
+   {
+    "n": 5,
+    "w": "tree",
+    "ipa": "[triː]",
+    "pos": "n.",
+    "zh": "树；树木",
+    "eg": {
+     "en": "The tree is big.",
+     "zh": "树很大。"
+    },
+    "f": "tree",
+    "star": true
+   },
+   {
+    "n": 6,
+    "w": "yellow",
+    "ipa": "[ˈjeləʊ]",
+    "pos": "adj.",
+    "zh": "黄色的",
+    "eg": {
+     "en": "The bird is yellow.",
+     "zh": "鸟是黄色的。"
+    },
+    "f": "yellow"
+   },
+   {
+    "n": 7,
+    "w": "red",
+    "ipa": "[red]",
+    "pos": "adj.",
+    "zh": "红色的",
+    "eg": {
+     "en": "My kite is red.",
+     "zh": "我的风筝是红色的。"
+    },
+    "f": "red"
+   },
+   {
+    "n": 8,
+    "w": "blue",
+    "ipa": "[bluː]",
+    "pos": "adj.",
+    "zh": "蓝色的",
+    "eg": {
+     "en": "The sky is blue.",
+     "zh": "天是蓝色的。"
+    },
+    "f": "blue"
+   },
+   {
+    "n": 9,
+    "w": "green",
+    "ipa": "[griːn]",
+    "pos": "adj.",
+    "zh": "绿色的",
+    "eg": {
+     "en": "The tree is green.",
+     "zh": "树是绿色的。"
+    },
+    "f": "green"
+   },
+   {
+    "n": 10,
+    "w": "small",
+    "ipa": "[smɔːl]",
+    "pos": "adj.",
+    "zh": "小的",
+    "eg": {
+     "en": "The bee is small.",
+     "zh": "蜜蜂小小的。"
+    },
+    "f": "small"
+   },
+   {
+    "n": 11,
+    "w": "go",
+    "ipa": "[gəʊ]",
+    "pos": "v.",
+    "zh": "发出（某种声音）",
+    "eg": {
+     "en": "The bird goes \"Peep\".",
+     "zh": "鸟发出「叽」的叫声。"
+    },
+    "f": "go",
+    "star": true
+   },
+   {
+    "n": 12,
+    "w": "big",
+    "ipa": "[bɪg]",
+    "pos": "adj.",
+    "zh": "大的",
+    "eg": {
+     "en": "The panda is big.",
+     "zh": "熊猫很大。"
+    },
+    "f": "big"
+   }
+  ],
+  "sentences": [
+   {
+    "n": 1,
+    "en": "What colour is it?",
+    "zh": "它是什么颜色？"
+   },
+   {
+    "n": 2,
+    "en": "It's in the tree.",
+    "zh": "它在树上。"
+   },
+   {
+    "n": 3,
+    "en": "It's yellow. It's small. It goes \"Peep ... Peep ...\" What is it?",
+    "zh": "它是黄色的。它小小的。它发出「叽……叽……」的叫声。它是什么？"
    }
   ]
  },
@@ -1875,7 +2048,7 @@ const UNITS = {
 
 /* 排课：从 2026-08-19 起每天一课，按书的顺序走；学完最后一课就停在最后一课。
    要看别的课：网址后面加 ?unit=2u5 这样的钥匙（也方便复习）。 */
-const SCHEDULE = ['1u11', '2u1', '2u2', '2u3', '2u4', '2u5', '2u6', '2u7', '2u8', '2u9', '2u10', '2u11', '2u12'];
+const SCHEDULE = ['1u11', '1u12', '2u1', '2u2', '2u3', '2u4', '2u5', '2u6', '2u7', '2u8', '2u9', '2u10', '2u11', '2u12'];
 const ANCHOR = "2026-08-19";
 function dubaiDate(){ return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Dubai'}); }
 function pickToday(){

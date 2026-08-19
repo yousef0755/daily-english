@@ -35,6 +35,28 @@ UNITS = [
   "sents": [("Is this/that a monkey?", "这／那是猴子吗？", "Is this a monkey? Is that a monkey?"),
             ("No. It's a panda.", "不是。它是一只熊猫。", None)]},
 
+ {"key": "1u12", "volume": "一年级上", "unit": 12, "title": "In the park", "page": "013",
+  "example": "比如：The kite is red. / It's in the tree.",
+  "words": [
+    W("colour", "[ˈkʌlə(r)]", "n.", "颜色；v. 涂色", "What colour is the kite?", "风筝是什么颜色？"),
+    W("kite", "[kaɪt]", "n.", "风筝", "The kite is in the sky.", "风筝在天上。", star=True),
+    W("where", "[weə(r)]", "adv.", "在哪里", "Where is the bird?", "鸟在哪里？"),
+    W("in", "[ɪn]", "prep.", "在……里面", "The bird is in the tree.", "鸟在树里。"),
+    W("tree", "[triː]", "n.", "树；树木", "The tree is big.", "树很大。", star=True),
+    W("yellow", "[ˈjeləʊ]", "adj.", "黄色的", "The bird is yellow.", "鸟是黄色的。"),
+    W("red", "[red]", "adj.", "红色的", "My kite is red.", "我的风筝是红色的。"),
+    W("blue", "[bluː]", "adj.", "蓝色的", "The sky is blue.", "天是蓝色的。"),
+    W("green", "[griːn]", "adj.", "绿色的", "The tree is green.", "树是绿色的。"),
+    W("small", "[smɔːl]", "adj.", "小的", "The bee is small.", "蜜蜂小小的。"),
+    W("go", "[gəʊ]", "v.", "发出（某种声音）", "The bird goes \"Peep\".", "鸟发出「叽」的叫声。", star=True),
+    W("big", "[bɪg]", "adj.", "大的", "The panda is big.", "熊猫很大。"),
+  ],
+  "sents": [("What colour is it?", "它是什么颜色？", None),
+            ("It's in the tree.", "它在树上。", None),
+            ("It's yellow. It's small. It goes \"Peep ... Peep ...\" What is it?",
+             "它是黄色的。它小小的。它发出「叽……叽……」的叫声。它是什么？",
+             "It's yellow. It's small. It goes Peep, Peep. What is it?")]},
+
  {"key": "2u1", "volume": "一年级下", "unit": 1, "title": "Look and see", "page": "016",
   "example": "比如：I see a bird. / I see a frog.",
   "words": [
