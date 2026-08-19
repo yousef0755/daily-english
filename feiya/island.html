@@ -100,7 +100,29 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 .lang .big{font-size:44px}
 .lang h2{font-size:24px;color:var(--deep)}
 .lang p{font-size:13.5px;color:#a97b95;max-width:300px}
-.l-ar{background:linear-gradient(165deg,#eafaf1,#cdeeda)}
+.l-ar{background:
+  radial-gradient(rgba(255,255,255,.8) 1.5px, transparent 1.6px),
+  linear-gradient(178deg,#eafaf1 0%,#f2fbf3 55%,#fff7fb 100%);
+  background-size:28px 28px,100% 100%}
+.l-ar::before,.l-ar::after{content:"";position:absolute;left:0;right:0;height:14px;z-index:2;pointer-events:none;
+  background:radial-gradient(circle at 12px -3px,#cdeeda 12px,transparent 13px);background-size:24px 14px}
+.l-ar::before{top:0}.l-ar::after{bottom:0;transform:scaleY(-1)}
+.arcard h3{color:#2e9e6b}
+.arcard .au{color:#7cbf9c}
+.ar-line{font-size:19px;line-height:2.3;direction:rtl;text-align:center;color:#1f6b4a;letter-spacing:0}
+.arcard .mean{color:#57947a;background:#effaf2}
+.ar-listen{background:#d9f3e4;color:#1f7a53}
+.ar-got{background:#a9dfc4;color:#fff}.ar-got.on{background:#31a877}
+.ar-done-btn{border:0;border-radius:14px;padding:13px 22px;font-size:15px;font-weight:800;font-family:inherit;
+  background:#31a877;color:#fff;cursor:pointer}
+.ar-done-btn:disabled{opacity:.45}
+.awrow{display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px dashed #dff0e6}
+.awrow:last-of-type{border-bottom:0}
+.awrow .aw{font-size:20px;direction:rtl;flex:1;text-align:right;color:#1f6b4a}
+.awrow .ac{font-size:12.5px;color:#57947a;flex:1}
+.awrow button{border:0;border-radius:10px;background:#d9f3e4;color:#1f7a53;padding:6px 10px;font-size:13px;cursor:pointer}
+.cat svg{transition:transform .9s ease}
+.cat.pray svg{transform:rotate(26deg) translateY(5px)}
 .l-en{background:linear-gradient(165deg,#fff7e0,#ffe9ae)}
 .l-zh{background:url("bg-zh.jpg") center/cover no-repeat #fce8f1}
 .zhdeco{position:absolute;pointer-events:none;opacity:.5;z-index:0}
@@ -240,8 +262,36 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
   </section>
 
   <!-- 语言页（先立牌坊，课一门门装） -->
-  <section class="page lang l-ar"><button class="backhome" onclick="goHome()">← 回小岛</button>
-    <span class="big">🗝️</span><h2>🇦🇪 العربية 阿拉伯语</h2><p>古兰经（真人诵读）· 圣训 · 单词<br><br>🚧 小林施工中，很快开门</p></section>
+  <section class="page l-ar" id="pgAr" style="overflow-y:auto;padding:64px 18px 40px">
+    <button class="backhome" onclick="goHome()">← 回小岛</button>
+    <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
+      <div style="text-align:center;margin-bottom:6px">
+        <span style="font-size:30px">🗝️</span>
+        <h2 style="font-size:21px;color:#1f7a53">🇦🇪 العربية 阿拉伯语</h2>
+        <div style="font-size:12px;color:#57947a;margin-top:3px">古兰经 · 圣训 · 单词，每天换新</div>
+      </div>
+      <div id="arQuran" class="zhcard arcard"></div>
+      <div id="arHadith" class="zhcard arcard"></div>
+      <div id="arWords" class="zhcard arcard"></div>
+      <div id="arDone" style="text-align:center;margin-top:14px"></div>
+      <div style="text-align:center;margin-top:20px">
+        <div style="font-size:11.5px;color:#57947a;margin-bottom:2px">点清真寺，它们仨会来礼拜 ✨</div>
+        <div id="mosque" onclick="prayTime()" style="cursor:pointer;display:inline-block">
+          <svg width="170" height="116" viewBox="0 0 150 110">
+            <rect x="20" y="60" width="110" height="46" rx="8" fill="#effaf2" stroke="#9ed8ba" stroke-width="3"/>
+            <path d="M75 8 Q112 34 104 60 L46 60 Q38 34 75 8 Z" fill="#a9dfc4" stroke="#5cb98d" stroke-width="3"/>
+            <circle cx="75" cy="7" r="3" fill="#f2c94c"/>
+            <rect x="4" y="34" width="12" height="72" rx="5" fill="#effaf2" stroke="#9ed8ba" stroke-width="2.5"/>
+            <path d="M10 20 L16 34 L4 34 Z" fill="#a9dfc4" stroke="#5cb98d" stroke-width="2"/>
+            <rect x="134" y="34" width="12" height="72" rx="5" fill="#effaf2" stroke="#9ed8ba" stroke-width="2.5"/>
+            <path d="M140 20 L146 34 L134 34 Z" fill="#a9dfc4" stroke="#5cb98d" stroke-width="2"/>
+            <path d="M75 72 Q87 79 87 92 L87 106 L63 106 L63 92 Q63 79 75 72 Z" fill="#cdeeda" stroke="#5cb98d" stroke-width="2.5"/>
+            <path d="M118 14 a9 9 0 1 0 7 15 a7 7 0 1 1 -7 -15" fill="#f2c94c"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
   <section class="page lang l-en"><button class="backhome" onclick="goHome()">← 回小岛</button>
     <span class="big">🩰</span><h2>🇬🇧 English</h2><p>单词 · 句子 · 语音<br><br>🚧 小林施工中，很快开门</p></section>
   <section class="page l-zh" id="pgZh" style="overflow-y:auto;padding:64px 18px 40px">
@@ -623,6 +673,108 @@ function zhFinish(){
   setTimeout(()=>say(duomiC,"……还行。明天继续。"),1800);
 }
 renderZh();
+
+/* ═══ 阿拉伯语页 ═══ */
+const QURL="https://everyayah.com/data/Husary_Muallim_128kbps/";
+const SURAHS=[
+ {n:"سُورَةُ الإِخْلاص",cn:"忠诚章 · 真主是独一的，万物都仰赖祂",s:112,
+  a:["قُلْ هُوَ اللَّهُ أَحَدٌ","اللَّهُ الصَّمَدُ","لَمْ يَلِدْ وَلَمْ يُولَدْ","وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ"]},
+ {n:"سُورَةُ الفَلَق",cn:"曙光章 · 求真主护佑，远离一切伤害",s:113,
+  a:["قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ","مِن شَرِّ مَا خَلَقَ","وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ","وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ","وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ"]},
+ {n:"سُورَةُ النَّاس",cn:"世人章 · 求真主守护心里的平安",s:114,
+  a:["قُلْ أَعُوذُ بِرَبِّ النَّاسِ","مَلِكِ النَّاسِ","إِلَٰهِ النَّاسِ","مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ","الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ","مِنَ الْجِنَّةِ وَالنَّاسِ"]},
+ {n:"سُورَةُ الفَاتِحَة",cn:"开端章 · 每一拜都要念的那一章",s:1,
+  a:["بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ","الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ","الرَّحْمَٰنِ الرَّحِيمِ","مَالِكِ يَوْمِ الدِّينِ","إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ","اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ","صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ"]},
+ {n:"سُورَةُ العَصْر",cn:"时光章 · 珍惜时间，行善互勉",s:103,
+  a:["وَالْعَصْرِ","إِنَّ الْإِنسَانَ لَفِي خُسْرٍ","إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ"]},
+ {n:"سُورَةُ الكَوْثَر",cn:"多福章 · 感恩真主的厚赐",s:108,
+  a:["إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ","فَصَلِّ لِرَبِّكَ وَانْحَرْ","إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ"]},
+ {n:"سُورَةُ النَّصْر",cn:"援助章 · 胜利来临时要赞美与求恕",s:110,
+  a:["إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ","وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا","فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا"]}
+];
+const HADITHS=[
+ ["تَبَسُّمُكَ في وَجْهِ أَخيكَ صَدَقَةٌ","对兄弟姐妹微笑，也是一种善功。"],
+ ["الطُّهورُ شَطْرُ الإيمانِ","清洁是信仰的一半。"],
+ ["مَنْ لا يَرْحَمْ لا يُرْحَمْ","不慈爱别人的人，也得不到慈爱。"],
+ ["الجَنَّةُ تَحْتَ أَقْدامِ الأُمَّهاتِ","天堂在母亲的脚下。"],
+ ["خَيْرُكُمْ مَنْ تَعَلَّمَ القُرْآنَ وَعَلَّمَهُ","你们中最好的人，是学习古兰经并教别人的人。"],
+ ["الكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ","一句好话，也是善功。"],
+ ["إِنَّ اللهَ جَميلٌ يُحِبُّ الجَمالَ","真主是美的，祂喜爱美。"]
+];
+const ARWORDS=[
+ ["السَّلامُ عَلَيْكُم","愿你平安（问候语）"],["شُكْراً","谢谢"],["بِسْمِ الله","奉真主之名"],["ماء","水"],
+ ["أُمّ","妈妈"],["أَب","爸爸"],["أُخْت","姐妹"],["بَيْت","家"],
+ ["قِطّة","小猫"],["حَليب","牛奶"],["تُفّاحة","苹果"],["كِتاب","书"],
+ ["شَمْس","太阳"],["قَمَر","月亮"],["نَجْمة","星星"],["وَرْدة","花"],
+ ["مَسْجِد","清真寺"],["صَلاة","礼拜"],["دُعاء","祈祷"],["جَنَّة","天堂"],
+ ["قَلْب","心"],["نُور","光"],["سَماء","天空"],["بَحْر","大海"],
+ ["صَديقة","好朋友"],["مَدْرَسة","学校"],["مُعَلِّمة","老师"],["عائِلة","家人"]
+];
+const adi=zhDay%7;
+function arPlaySeq(list,btn){
+  try{if(zhAu)zhAu.pause()}catch(e){}
+  let i=0;
+  const nx=()=>{if(i>=list.length)return;
+    zhAu=new Audio(list[i++]);zhAu.onended=nx;
+    zhAu.play().catch(()=>{btn&&(btn.textContent="放不出来，跟小林说")})};
+  nx();
+}
+function arState(){try{return JSON.parse(localStorage.getItem("feiyaAr_"+dxb())||"{}")}catch(e){return{}}}
+function arSave(st){try{localStorage.setItem("feiyaAr_"+dxb(),JSON.stringify(st))}catch(e){}}
+function arGot(k){const st=arState();st[k]=!st[k];arSave(st);renderAr();}
+function renderAr(){
+  const st=arState(),SU=SURAHS[adi],HA=HADITHS[adi];
+  const pad=n=>String(n).padStart(3,"0");
+  const qfiles=SU.a.map((_,i)=>QURL+pad(SU.s)+pad(i+1)+".mp3");
+  document.getElementById("arQuran").innerHTML=
+    '<h3>'+SU.n+'</h3><div class="au">今日经文 · 跟侯赛里老师念</div>'
+    +SU.a.map(x=>'<div class="ar-line">'+x+'</div>').join("")
+    +'<div class="mean">'+SU.cn+'</div>'
+    +'<div class="zhbtns"><button class="ar-listen" onclick=\'arPlaySeq('+JSON.stringify(qfiles)+',this)\'>🔊 听老师诵读</button>'
+    +'<button class="ar-got'+(st.q?" on":"")+'" onclick="arGot(\'q\')">'+(st.q?"会念啦 ✓":"我会念了")+'</button></div>';
+  document.getElementById("arHadith").innerHTML=
+    '<h3>今日圣训</h3><div class="au">先知ﷺ的一句话</div>'
+    +'<div class="ar-line">'+HA[0]+'</div><div class="mean">'+HA[1]+'</div>'
+    +'<div class="zhbtns"><button class="ar-listen" onclick="arPlaySeq([\'audio/ar/h'+adi+'.mp3\'],this)">🔊 听法蒂玛读</button>'
+    +'<button class="ar-got'+(st.h?" on":"")+'" onclick="arGot(\'h\')">'+(st.h?"记住啦 ✓":"我记住了")+'</button></div>';
+  const ws=ARWORDS.slice(adi*4,adi*4+4);
+  document.getElementById("arWords").innerHTML=
+    '<h3>今日单词</h3><div class="au">每天四个，一周28个</div>'
+    +ws.map((w,j)=>'<div class="awrow"><button onclick="arPlaySeq([\'audio/ar/w'+(adi*4+j)+'.mp3\'],this)">🔊</button><span class="aw">'+w[0]+'</span><span class="ac">'+w[1]+'</span></div>').join("")
+    +'<div class="zhbtns"><button class="ar-got'+(st.w?" on":"")+'" onclick="arGot(\'w\')">'+(st.w?"学会啦 ✓":"四个都会了")+'</button></div>';
+  const all=st.q&&st.h&&st.w;
+  document.getElementById("arDone").innerHTML=st.done
+    ?'<div style="font-size:15px;font-weight:800;color:#31a877">今天的阿拉伯语完成啦 🗝️ +2🪙</div>'
+    :'<button class="ar-done-btn" '+(all?"":"disabled")+' onclick="arFinish()">'+(all?"完成今天的阿拉伯语 🗝️":"三样都点了才能完成")+'</button>';
+}
+function arFinish(){
+  const st=arState();if(st.done)return;st.done=1;arSave(st);
+  S.coins+=2;save();document.getElementById("coins").textContent=S.coins;
+  renderAr();
+  try{fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({who:"feiya",done:1,total:1,started:true})}).catch(()=>{})}catch(e){}
+  say(yuguiC,"أَحْسَنْتِ！棒棒的！");
+  setTimeout(()=>say(snowyC,"阿语也过啦！你太厉害了！"),1600);
+}
+function prayTime(){
+  const mr=document.getElementById("mosque").getBoundingClientRect();
+  const by=Math.max(8,window.innerHeight-mr.bottom-60);
+  const xs=[mr.left-4,mr.left+56,mr.left+116];
+  const cats=[duomiC,snowyC,yuguiC].filter(c=>!c.away);
+  cats.forEach((c,i)=>{c.sleep=false;c.el.classList.remove("sleep","flip");place(c,xs[i]||mr.left+56,by)});
+  setTimeout(()=>{
+    say(duomiC,"اللهُ أَكْبَر");
+    let n=0;
+    const iv=setInterval(()=>{
+      n++;cats.forEach(c=>c.el.classList.toggle("pray"));
+      if(n===3)say(snowyC,"سُبْحانَ رَبِّيَ الأَعْلى");
+      if(n>=6){clearInterval(iv);cats.forEach(c=>c.el.classList.remove("pray"));
+        say(yuguiC,"آمين～ 心里亮亮的",3200);}
+    },1100);
+  },2800);
+}
+renderAr();
 </script>
 </body>
 </html>
