@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<title>霏雅的小岛</title>
+<!-- 设计师：霏雅（10岁，图纸口述于 2026-08-19）；施工：小林。
+     规格出自她本人：整页横滑、双猫兄妹（哆咪毒舌学霸不粘人 / Snowy温柔同桌超亲人）、
+     猫会散步睡觉、可拖（哆咪3次炸毛带妹离场、Snowy10次才走还碎碎念、都会回来）、
+     摸头冒爱心脸红、泡泡跟猫走、打字种东西、杂草做题拔、学习币。 -->
+<style>
+:root{--pink:#ffd6e7;--sky1:#ffeef6;--sky2:#ffe0ec;--sea1:#cfeef5;--sea2:#a8dcec;
+  --ink:#6b4a5c;--rose:#e87faf;--deep:#d4568f;--grass1:#bfe8a8;--grass2:#96d17e;--sand:#f7e6b8}
+*{margin:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sky1)}
+/* ── 整页横滑 ── */
+#pager{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth}
+#pager::-webkit-scrollbar{display:none}
+.page{flex:0 0 100%;height:100%;scroll-snap-align:start;position:relative;overflow:hidden}
+
+/* ── 小岛页 ── */
+#pgIsland{background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 40%,var(--sea1) 40.5%,var(--sea2) 100%)}
+#pgIsland.night{background:linear-gradient(180deg,#2c2440 0%,#3a2f55 40%,#1f3a52 40.5%,#152c40 100%);color:#e8ddf0}
+.topbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;
+  align-items:center;padding:14px 16px;z-index:30}
+.title{font-weight:800;color:var(--deep);font-size:19px}
+.night .title{color:#ffb7d5}
+.coin{background:rgba(255,255,255,.92);border-radius:999px;padding:5px 12px;font-size:13px;
+  box-shadow:0 3px 10px rgba(212,86,143,.18);color:var(--ink)}
+#sun{position:absolute;top:64px;right:26px;font-size:30px;z-index:1}
+.cloud{position:absolute;font-size:24px;opacity:.9;z-index:1;animation:drift 60s linear infinite}
+@keyframes drift{from{transform:translateX(-40px)}to{transform:translateX(110vw)}}
+.bfly{position:absolute;font-size:15px;z-index:6;transition:left 3s ease-in-out,top 3s ease-in-out}
+/* 海面小鱼泡泡 */
+.fish{position:absolute;font-size:16px;z-index:2;opacity:0;animation:pop 6s ease-in-out infinite}
+@keyframes pop{0%,70%{opacity:0;transform:translateY(6px)}80%{opacity:1;transform:translateY(0)}95%{opacity:0;transform:translateY(-4px)}}
+/* 岛体 */
+#isle{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);width:min(88vw,420px);height:200px;z-index:5}
+.sandban{position:absolute;bottom:-10px;left:6%;right:6%;height:44px;background:var(--sand);border-radius:50%}
+.mound{position:absolute;bottom:0;left:0;right:0;height:130px;
+  background:linear-gradient(180deg,var(--grass1),var(--grass2));
+  border-radius:50% 50% 46% 46%/74% 74% 30% 30%;box-shadow:0 12px 26px rgba(90,150,90,.28)}
+.night .mound{filter:brightness(.7) saturate(.8)}
+.palm{position:absolute;left:8px;bottom:96px;font-size:40px;transform:scaleX(-1);z-index:6}
+.dock{position:absolute;right:-26px;bottom:8px;font-size:26px;z-index:4}
+.shell{position:absolute;font-size:13px;z-index:6}
+/* 种下的东西 */
+.plant{position:absolute;z-index:7;text-align:center;transform:translateX(-50%);cursor:default}
+.plant .em{font-size:24px;display:block;animation:sway 4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.plant .tg{font-size:9px;background:rgba(255,255,250,.95);border-radius:8px;padding:1px 6px;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);color:#96a06b;white-space:nowrap}
+/* 杂草小烦恼 */
+#weed{position:absolute;z-index:8;text-align:center;transform:translateX(-50%);cursor:pointer}
+#weed .em{font-size:22px;display:block;filter:saturate(.6)}
+#weed .tg{font-size:9.5px;background:#fff;border-radius:8px;padding:2px 7px;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);color:#b08d3e;white-space:nowrap}
+/* ── 猫 ── */
+.cat{position:absolute;width:76px;z-index:10;cursor:grab;transition:left 2.6s ease-in-out,bottom 2.6s ease-in-out;touch-action:none}
+.cat.drag{transition:none;cursor:grabbing;z-index:20}
+.cat.flip svg{transform:scaleX(-1)}
+.cat .zzz{position:absolute;top:-14px;right:-4px;font-size:13px;display:none}
+.cat.sleep .zzz{display:block;animation:zz 2s ease-in-out infinite}
+.cat.sleep svg{filter:brightness(.94)}
+@keyframes zz{0%,100%{opacity:.4;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+.speech{position:absolute;background:#fff;border-radius:12px;padding:6px 10px;font-size:12px;color:var(--ink);
+  box-shadow:0 4px 12px rgba(212,86,143,.22);white-space:nowrap;z-index:21;
+  transition:left 2.6s ease-in-out,bottom 2.6s ease-in-out;opacity:0;pointer-events:none}
+.speech.show{opacity:1}
+.speech:after{content:"";position:absolute;bottom:-6px;left:16px;border:6px solid transparent;border-top-color:#fff;border-bottom:0}
+.heart{position:absolute;font-size:15px;z-index:22;pointer-events:none;animation:rise 1.2s ease-out forwards}
+@keyframes rise{from{opacity:1;transform:translateY(0) scale(.8)}to{opacity:0;transform:translateY(-46px) scale(1.25)}}
+/* 种植输入 */
+#plantbar{position:absolute;left:50%;transform:translateX(-50%);bottom:64px;z-index:30;
+  display:flex;gap:8px;width:min(86vw,360px)}
+#plantbar input{flex:1;border:0;border-radius:14px;padding:11px 14px;font-size:14px;font-family:inherit;
+  background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(212,86,143,.16);color:var(--ink);outline:none}
+#plantbar button{border:0;border-radius:14px;padding:11px 16px;font-size:14px;font-weight:700;font-family:inherit;
+  background:var(--rose);color:#fff;cursor:pointer}
+/* 页脚 */
+.dots{position:absolute;bottom:40px;left:0;right:0;text-align:center;z-index:29}
+.dots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#eec3d6;margin:0 3px}
+.dots i.on{background:var(--deep);width:16px;border-radius:4px}
+.hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:12px;color:#b48ba1;z-index:29}
+.night .hint{color:#c9b8d8}
+/* 语言占位页 */
+.lang{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+.lang .big{font-size:44px}
+.lang h2{font-size:24px;color:var(--deep)}
+.lang p{font-size:13.5px;color:#a97b95;max-width:300px}
+.l-ar{background:linear-gradient(165deg,#eafaf1,#cdeeda)}
+.l-en{background:linear-gradient(165deg,#fff7e0,#ffe9ae)}
+.l-zh{background:linear-gradient(165deg,#efe9ff,#d8c9f5)}
+.l-ko{background:linear-gradient(165deg,#ffe9f3,#ffd3e6)}
+.backhome{position:absolute;top:16px;left:16px;background:rgba(255,255,255,.9);border:0;border-radius:999px;
+  padding:7px 14px;font-size:13px;font-family:inherit;color:var(--deep);font-weight:700;cursor:pointer;
+  box-shadow:0 3px 10px rgba(212,86,143,.16);z-index:5}
+/* 杂草小题弹窗 */
+#quiz{position:fixed;inset:0;background:rgba(80,40,60,.35);display:none;align-items:center;justify-content:center;z-index:99}
+#quiz.on{display:flex}
+#quiz .box{background:#fff;border-radius:20px;padding:20px 18px;width:min(86vw,330px);box-shadow:0 16px 40px rgba(0,0,0,.25)}
+#quiz h3{font-size:16px;color:var(--deep);margin-bottom:12px}
+#quiz button.opt{display:block;width:100%;text-align:left;border:1.5px solid #f3d7e4;background:#fffafd;
+  border-radius:12px;padding:10px 13px;margin-top:8px;font-size:14px;font-family:inherit;color:var(--ink);cursor:pointer}
+#quiz button.opt.ok{background:#d9f3e7;border-color:#7ec9a4}
+</style>
+</head>
+<body>
+
+<div id="pager">
+  <!-- 第0页：小岛 -->
+  <section class="page" id="pgIsland">
+    <div class="topbar"><span class="title">🏝️ <span id="isleName">霏雅的小岛</span></span>
+      <span class="coin">🪙 <b id="coins">0</b></span></div>
+    <span id="sun">🌤️</span>
+    <span class="cloud" style="top:70px;left:-30px">☁️</span>
+    <span class="cloud" style="top:110px;left:-90px;animation-duration:85s">☁️</span>
+    <span class="bfly" id="bfly">🦋</span>
+    <span class="fish" style="bottom:10%;left:16%">🐟</span>
+    <span class="fish" style="bottom:7%;right:20%;animation-delay:3s">🫧</span>
+
+    <div id="isle">
+      <div class="sandban"></div>
+      <div class="mound"></div>
+      <span class="palm">🌴</span>
+      <span class="dock">⛵</span>
+      <span class="shell" style="left:22%;bottom:-2px">🐚</span>
+      <span class="shell" style="right:18%;bottom:-6px">🐚</span>
+      <div id="plants"></div>
+      <div id="weed" style="display:none"><span class="em">🌿</span><span class="tg">长杂草啦！点我做1题拔掉</span></div>
+    </div>
+
+    <!-- 猫和泡泡挂在整页上，坐标好算 -->
+    <div class="cat" id="duomi">
+      <span class="zzz">💤</span>
+      <svg viewBox="0 0 98 100">
+        <path d="M84 62 Q100 52 94 34" stroke="#3c3947" stroke-width="7" fill="none" stroke-linecap="round" class="tail"/>
+        <path d="M18 34 L12 12 L32 22 Z" fill="#3c3947"/><path d="M80 34 L86 12 L66 22 Z" fill="#3c3947"/>
+        <path d="M18 34 L14.5 16 L30 23.5 Z" fill="#ffb7cd"/><path d="M80 34 L83.5 16 L68 23.5 Z" fill="#ffb7cd"/>
+        <ellipse cx="49" cy="58" rx="38" ry="34" fill="#3c3947"/>
+        <ellipse cx="49" cy="70" rx="22" ry="16" fill="#fff"/>
+        <g class="eyes"><circle cx="36" cy="52" r="4.6" fill="#fff"/><circle cx="62" cy="52" r="4.6" fill="#fff"/>
+        <circle cx="37" cy="53" r="2.6" fill="#463f52"/><circle cx="61" cy="53" r="2.6" fill="#463f52"/></g>
+        <path d="M46 61 Q49 64 52 61" stroke="#e8a0b8" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="49" cy="59.5" rx="2.6" ry="2" fill="#ffb7cd"/>
+        <circle cx="28" cy="61" r="4.5" fill="#ff9fc0" opacity=".55"/><circle cx="70" cy="61" r="4.5" fill="#ff9fc0" opacity=".55"/>
+        <path d="M12 56 L26 58 M12 64 L26 63 M14 72 L27 68 M86 56 L72 58 M86 64 L72 63 M84 72 L71 68" stroke="#3c3947" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="speech" id="sp-duomi"></div>
+
+    <div class="cat" id="snowy">
+      <span class="zzz">💤</span>
+      <svg viewBox="0 0 108 108">
+        <path d="M14 66 Q-2 58 6 42" stroke="#f5d492" stroke-width="7" fill="none" stroke-linecap="round" class="tail"/>
+        <path d="M28 40 L22 18 L42 28 Z" fill="#ffe6b3"/><path d="M90 40 L96 18 L76 28 Z" fill="#ffe6b3"/>
+        <path d="M28 40 L24.5 22 L40 29.5 Z" fill="#ffc2d4"/><path d="M90 40 L93.5 22 L78 29.5 Z" fill="#ffc2d4"/>
+        <ellipse cx="59" cy="64" rx="38" ry="34" fill="#ffe6b3"/>
+        <path d="M42 56 Q46 52 50 56" stroke="#8a6a4f" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="M68 56 Q72 52 76 56" stroke="#8a6a4f" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="M55 66 Q59 69.5 63 66" stroke="#d98aa6" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="59" cy="64" rx="2.6" ry="2" fill="#ff9fc0"/>
+        <circle cx="38" cy="66" r="4.5" fill="#ffb0c9" opacity=".7"/><circle cx="80" cy="66" r="4.5" fill="#ffb0c9" opacity=".7"/>
+        <path d="M22 62 L36 64 M22 70 L36 69 M24 78 L37 74 M96 62 L82 64 M96 70 L82 69 M94 78 L81 74" stroke="#caa06a" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="speech" id="sp-snowy"></div>
+
+    <div id="plantbar">
+      <input id="seed" placeholder="想种什么？打出来就能种（树/花/星星…）" maxlength="8">
+      <button id="sow">种下去</button>
+    </div>
+    <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    <div class="hint">← 左右滑：小岛 · 阿拉伯语 · 英语 · 中文 · 한국어 →</div>
+  </section>
+
+  <!-- 语言页（先立牌坊，课一门门装） -->
+  <section class="page lang l-ar"><button class="backhome" onclick="goHome()">← 回小岛</button>
+    <span class="big">🕌</span><h2>阿拉伯语</h2><p>古兰经（真人诵读）· 圣训 · 单词<br><br>🚧 小林施工中，很快开门</p></section>
+  <section class="page lang l-en"><button class="backhome" onclick="goHome()">← 回小岛</button>
+    <span class="big">🌷</span><h2>英语</h2><p>单词 · 句子 · 语音<br><br>🚧 小林施工中，很快开门</p></section>
+  <section class="page lang l-zh"><button class="backhome" onclick="goHome()">← 回小岛</button>
+    <span class="big">🏮</span><h2>中文</h2><p>古诗 · 成语（照旧）<br><br>🚧 小林施工中，很快开门</p></section>
+  <section class="page lang l-ko"><button class="backhome" onclick="goHome()">← 回小岛</button>
+    <span class="big">🧸</span><h2>한국어 韩语</h2><p>日常聊天 · 单词 · 发音<br><br>🚧 小林施工中，很快开门</p></section>
+</div>
+
+<div id="quiz"><div class="box"><h3 id="qTitle"></h3><div id="qOpts"></div></div></div>
+
+<script>
+/* ═══ 存档 ═══ */
+const KEY="feiyaIsland_v1";
+let S={coins:0,plants:[],weedDay:"",weedGone:"",petD:0,petS:0,dragD:0,dragS:0};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const dxb=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Dubai"});
+document.getElementById("coins").textContent=S.coins;
+
+/* ═══ 昼夜 ═══ */
+(function(){
+  const h=parseInt(new Date().toLocaleString("en-GB",{timeZone:"Asia/Dubai",hour:"2-digit",hour12:false}));
+  if(h>=19||h<6){document.getElementById("pgIsland").classList.add("night");
+    document.getElementById("sun").textContent="🌙";}
+})();
+
+/* ═══ 蝴蝶飘 ═══ */
+(function(){
+  const b=document.getElementById("bfly");
+  function fly(){b.style.left=(10+Math.random()*75)+"vw";b.style.top=(14+Math.random()*30)+"vh"}
+  fly();setInterval(fly,3200);
+})();
+
+/* ═══ 种东西 ═══ */
+const EMOJI=[["树","🌳"],["花","🌸"],["星","⭐"],["草莓","🍓"],["向日葵","🌻"],["玫瑰","🌹"],
+  ["郁金香","🌷"],["蘑菇","🍄"],["仙人掌","🌵"],["樱","🌸"],["月亮","🌙"],["爱心","💗"],["草","🌿"]];
+function emojiFor(t){for(const [k,e] of EMOJI){if(t.includes(k))return e}return "🌱"}
+function renderPlants(){
+  const box=document.getElementById("plants");box.innerHTML="";
+  S.plants.slice(-14).forEach(p=>{
+    const d=document.createElement("div");d.className="plant";
+    d.style.left=p.x+"%";d.style.bottom=p.y+"px";
+    d.innerHTML='<span class="em">'+p.e+'</span><span class="tg">'+p.n+" · "+p.d.slice(5)+'</span>';
+    box.appendChild(d);
+  });
+}
+document.getElementById("sow").onclick=()=>{
+  const i=document.getElementById("seed");const t=(i.value||"").trim();
+  if(!t){say(snowyC,"想好种什么再告诉我～");return}
+  S.plants.push({n:t,e:emojiFor(t),x:14+Math.random()*66,y:56+Math.random()*54,d:dxb()});
+  save();renderPlants();i.value="";
+  say(snowyC,"种下啦！"+t+"会陪着你长大");setTimeout(()=>say(duomiC,"…还行，会挑。"),1800);
+};
+renderPlants();
+
+/* ═══ 杂草：每天可能冒一棵，做一题拔掉 ═══ */
+const QBANK=[
+ {q:"「一心一意」是什么意思？",o:["专心，心思都在一件事上","有两个心愿","慢慢来"],a:0},
+ {q:"「早」的反义词是？",o:["晚","大","高"],a:0},
+ {q:"apple 是什么？",o:["苹果","香蕉","书包"],a:0},
+ {q:"「谢谢」用英语怎么说？",o:["Thank you","Goodbye","Hello"],a:0},
+ {q:"一年有几个季节？",o:["四个","两个","八个"],a:0}];
+(function(){
+  const w=document.getElementById("weed");const today=dxb();
+  if(S.weedGone===today)return;
+  if(S.weedDay!==today){S.weedDay=today;save()}
+  w.style.display="block";w.style.left=(20+((today.charCodeAt(9)*7)%60))+"%";w.style.bottom="44px";
+  w.onclick=()=>{
+    const it=QBANK[Math.floor(Math.random()*QBANK.length)];
+    const qz=document.getElementById("quiz");
+    document.getElementById("qTitle").textContent=it.q;
+    const ob=document.getElementById("qOpts");ob.innerHTML="";
+    it.o.map((t,k)=>[t,k]).sort(()=>Math.random()-.5).forEach(([t,k])=>{
+      const b=document.createElement("button");b.className="opt";b.textContent=t;
+      b.onclick=()=>{
+        if(k===it.a){b.classList.add("ok");
+          setTimeout(()=>{qz.classList.remove("on");w.style.display="none";
+            S.weedGone=dxb();S.coins+=1;save();
+            document.getElementById("coins").textContent=S.coins;
+            say(duomiC,"拔了。手不脏。");setTimeout(()=>say(snowyC,"好厉害！+1 学习币🪙"),1500);
+          },500);
+        }else{say(snowyC,"再想一下下，不急～");qz.classList.remove("on");}
+      };
+      ob.appendChild(b);
+    });
+    qz.classList.add("on");
+  };
+})();
+
+/* ═══ 猫：性格、散步、睡觉、说话、拖、摸 ═══ */
+const LINES={
+  duomi:{idle:["…就玩五分钟","别盯着我看","哼，今天词背了吗","风不错","（甩尾巴）"],
+    pet:["…别摸","就摸一下啊","哼。","（尾巴翘起来了）"],
+    sleepy:"（打了个哈欠）",
+    angry:"够了！Snowy我们走！",
+    return:"…就回来看一眼。",
+    quiz:"昨天那个词，不会忘了吧？"},
+  snowy:{idle:["陪你陪你！💕","今天也一起加油呀","要不要种点什么？","哥哥其实很想你"],
+    pet:["喵嗷～再摸再摸","好舒服呀","（脸红）","蹭蹭你"],
+    sleepy:"（困困地眨眼）",
+    leaveTalk:"哼，人家数到十次啦！我去找哥哥了，你要想我哦…",
+    followD:"（一步三回头）等等我呀哥…",
+    return:"我们回来啦！！想你！",
+    quiz:"我们再看一眼昨天学的，好不好？"}
+};
+function mkCat(id){
+  const el=document.getElementById(id),sp=document.getElementById("sp-"+id);
+  return {id,el,sp,x:0,y:0,away:false,sleep:false,dragN:0,t:null};
+}
+const duomiC=mkCat("duomi"),snowyC=mkCat("snowy");
+function place(c,x,y,instant){
+  c.x=x;c.y=y;
+  if(instant){c.el.style.transition="none";c.sp.style.transition="none"}
+  c.el.style.left=x+"px";c.el.style.bottom=y+"px";
+  c.sp.style.left=(x+6)+"px";c.sp.style.bottom=(y+84)+"px";
+  if(instant){void c.el.offsetWidth;c.el.style.transition="";c.sp.style.transition=""}
+}
+function bounds(){
+  const r=document.getElementById("isle").getBoundingClientRect();
+  const H=window.innerHeight;
+  return {x0:r.left+8,x1:r.right-84,y0:H-r.bottom+18,y1:H-r.bottom+96};
+}
+function wander(c){
+  if(c.away||c.sleep||c.el.classList.contains("drag"))return;
+  const b=bounds();
+  const nx=b.x0+Math.random()*(b.x1-b.x0),ny=b.y0+Math.random()*(b.y1-b.y0);
+  c.el.classList.toggle("flip",nx<c.x);
+  place(c,nx,ny);
+}
+function say(c,txt,ms){
+  if(c.away&&txt!==LINES[c.id].return)return;
+  c.sp.textContent=txt;c.sp.classList.add("show");
+  clearTimeout(c.t);c.t=setTimeout(()=>c.sp.classList.remove("show"),ms||2600);
+}
+/* 初始位 */
+(function(){
+  const b=bounds();
+  place(duomiC,b.x0+20,b.y0+30,true);
+  place(snowyC,b.x1-30,b.y0+16,true);
+})();
+setInterval(()=>wander(duomiC),7000);
+setTimeout(()=>setInterval(()=>wander(snowyC),8000),3500);
+/* 闲聊 */
+setInterval(()=>{if(Math.random()<.5&&!duomiC.away&&!duomiC.sleep)say(duomiC,LINES.duomi.idle[Math.floor(Math.random()*LINES.duomi.idle.length)])},15000);
+setInterval(()=>{if(Math.random()<.6&&!snowyC.away&&!snowyC.sleep)say(snowyC,LINES.snowy.idle[Math.floor(Math.random()*LINES.snowy.idle.length)])},18000);
+/* 睡觉：一分钟没人动屏幕就打盹 */
+let lastTouch=Date.now();
+["pointerdown","scroll","keydown"].forEach(ev=>addEventListener(ev,()=>{
+  lastTouch=Date.now();
+  [duomiC,snowyC].forEach(c=>{if(c.sleep){c.sleep=false;c.el.classList.remove("sleep")}});
+},{passive:true}));
+setInterval(()=>{
+  if(Date.now()-lastTouch>60000){
+    [duomiC,snowyC].forEach(c=>{if(!c.away&&!c.sleep){c.sleep=true;c.el.classList.add("sleep")}});
+  }
+},5000);
+
+/* 拖与摸：拖动距离小 = 摸头 */
+function bindCat(c,other){
+  let sx,sy,ox,oy,moved;
+  c.el.addEventListener("pointerdown",e=>{
+    if(c.away)return;
+    c.el.setPointerCapture(e.pointerId);
+    sx=e.clientX;sy=e.clientY;ox=c.x;oy=c.y;moved=false;
+    c.el.classList.add("drag");
+  });
+  c.el.addEventListener("pointermove",e=>{
+    if(!c.el.classList.contains("drag"))return;
+    const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(Math.abs(dx)+Math.abs(dy)>8)moved=true;
+    place(c,ox+dx,oy-dy,true);
+  });
+  c.el.addEventListener("pointerup",e=>{
+    if(!c.el.classList.contains("drag"))return;
+    c.el.classList.remove("drag");
+    if(!moved){pet(c);return}
+    dragCount(c,other);
+  });
+}
+function pet(c){
+  /* 摸头：两只都冒爱心脸红（哆咪也爱你，只是嘴硬——设计师原话） */
+  const k=c.id==="duomi"?"petD":"petS";S[k]=(S[k]||0)+1;save();
+  for(let i=0;i<3;i++){
+    const h=document.createElement("span");h.className="heart";h.textContent=["💗","💕","😽"][i%3];
+    h.style.left=(c.x+18+i*16)+"px";h.style.bottom=(c.y+70)+"px";
+    document.getElementById("pgIsland").appendChild(h);
+    setTimeout(()=>h.remove(),1300);
+  }
+  const L=LINES[c.id].pet;say(c,L[Math.floor(Math.random()*L.length)]);
+}
+function dragCount(c,other){
+  const k=c.id==="duomi"?"dragD":"dragS";S[k]=(S[k]||0)+1;save();
+  if(c.id==="duomi"&&S.dragD%3===0){
+    /* 哆咪三次炸毛，带妹离场；Snowy 不舍 */
+    say(c,LINES.duomi.angry);
+    setTimeout(()=>{leave(c);say(other,LINES.snowy.followD,3000);setTimeout(()=>leave(other),2600)},1400);
+    setTimeout(comeBack,42000);
+  }else if(c.id==="snowy"&&S.dragS%10===0){
+    say(c,LINES.snowy.leaveTalk,3400);
+    setTimeout(()=>leave(c),3000);
+    setTimeout(comeBack,42000);
+  }
+}
+function leave(c){
+  c.away=true;c.sleep=false;c.el.classList.remove("sleep");
+  c.el.classList.add("flip");
+  place(c,-140,c.y);
+  setTimeout(()=>c.sp.classList.remove("show"),800);
+}
+function comeBack(){
+  const b=bounds();
+  [duomiC,snowyC].forEach((c,i)=>{
+    if(!c.away)return;
+    c.away=false;c.el.classList.remove("flip");
+    place(c,b.x0+40+i*120,b.y0+28);
+  });
+  say(duomiC,LINES.duomi.return);
+  setTimeout(()=>say(snowyC,LINES.snowy.return),1500);
+}
+bindCat(duomiC,snowyC);bindCat(snowyC,duomiC);
+
+/* 滑页圆点 */
+const pager=document.getElementById("pager");
+pager.addEventListener("scroll",()=>{
+  const i=Math.round(pager.scrollLeft/pager.clientWidth);
+  document.querySelectorAll(".dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
+},{passive:true});
+function goHome(){pager.scrollTo({left:0,behavior:"smooth"})}
+</script>
+</body>
+</html>
