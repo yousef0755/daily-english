@@ -3,53 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>背景小样 · QQ风流动玻璃</title>
+<title>背景小样 · 棱镜光幕（跟鼠标走）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  min-height:100vh;overflow-x:hidden;
-  font-family:Inter,-apple-system,"PingFang SC",sans-serif;
-  background:linear-gradient(160deg,#eaf3ff 0%,#f2ecff 38%,#e8f9ff 70%,#f6f0ff 100%);
-  background-size:220% 220%;
-  animation:flow 16s ease-in-out infinite alternate;
-  position:relative;
-}
-@keyframes flow{0%{background-position:0% 0%}100%{background-position:100% 100%}}
-.blob{position:fixed;border-radius:50%;filter:blur(60px);opacity:.55;pointer-events:none;will-change:transform}
-.b1{width:46vw;height:46vw;background:radial-gradient(circle at 30% 30%,#9ec9ff,#c4b5ff);top:-10vw;left:-8vw;animation:drift1 22s ease-in-out infinite alternate}
-.b2{width:38vw;height:38vw;background:radial-gradient(circle at 60% 40%,#a5f0e6,#9ec9ff);bottom:-6vw;right:-6vw;animation:drift2 26s ease-in-out infinite alternate}
-.b3{width:30vw;height:30vw;background:radial-gradient(circle at 40% 60%,#ffd7ec,#c4b5ff);top:38%;left:56%;animation:drift3 30s ease-in-out infinite alternate}
-@keyframes drift1{to{transform:translate(9vw,7vh) scale(1.12)}}
-@keyframes drift2{to{transform:translate(-7vw,-9vh) scale(1.08)}}
-@keyframes drift3{to{transform:translate(-10vw,6vh) scale(.92)}}
-.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:60px 20px}
-h1{font-size:1.9rem;color:#25335c;letter-spacing:.02em}
-.sub{color:#7385ad;margin-top:6px;font-size:.95rem}
-.card{
-  margin-top:26px;border-radius:24px;padding:26px 24px;
-  background:rgba(255,255,255,.55);
-  border:1px solid rgba(255,255,255,.8);
-  box-shadow:0 20px 60px rgba(90,120,200,.14);
-  -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
-  color:#31406b;
-}
-.card h2{font-size:1.15rem;margin-bottom:8px}
-.card p{font-size:.92rem;color:#5d6d99;line-height:1.8}
-.btn{display:inline-block;margin-top:16px;padding:13px 30px;border-radius:999px;border:0;
-  background:linear-gradient(135deg,#4d8dff,#7a5cff);color:#fff;font-size:.95rem;font-weight:700;
-  box-shadow:0 12px 30px rgba(90,110,255,.35);cursor:pointer}
+html,body{height:100%}
+body{font-family:Inter,-apple-system,"PingFang SC",sans-serif;overflow-x:hidden}
+#prism{position:fixed;inset:0;width:100%;height:100%;display:block}
+.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:16vh 22px 60px;text-align:center}
+h1{font-size:2.2rem;color:#fff;letter-spacing:.06em;text-shadow:0 2px 30px rgba(60,60,120,.4)}
+.sub{color:rgba(255,255,255,.85);margin-top:10px;font-size:1rem;text-shadow:0 1px 12px rgba(60,60,120,.4)}
+.btn{display:inline-flex;align-items:center;gap:10px;margin-top:34px;padding:16px 40px;border-radius:999px;border:0;
+  background:rgba(255,255,255,.92);color:#1d2233;font-size:1.05rem;font-weight:800;cursor:pointer;
+  box-shadow:0 16px 50px rgba(40,50,110,.25);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.note{margin-top:26vh;color:rgba(255,255,255,.75);font-size:.85rem;text-shadow:0 1px 10px rgba(60,60,120,.5)}
 </style>
 </head>
 <body>
-<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<canvas id="prism"></canvas>
 <div class="wrap">
-  <h1>流动玻璃背景 · 小样</h1>
-  <div class="sub">QQ官网那种感觉 · 纯CSS · 无图片 · 手机流畅</div>
-  <div class="card">
-    <h2>玻璃卡片</h2>
-    <p>背景在慢慢流动，三个大光斑各自漂移。卡片是磨砂玻璃，能透出后面的颜色。这一套可以铺到任何一个站上，颜色随便换——比如换成深空金就是你网站那个气质，换成粉色就是霏雅小岛的气质。</p>
-    <button class="btn">按钮长这样</button>
-  </div>
+  <h1>轻松做自己</h1>
+  <div class="sub">棱镜光幕 · 电脑上跟鼠标走，手机上跟手指走，不动它自己慢慢流</div>
+  <button class="btn">⬇ 就像这样的按钮</button>
+  <div class="note">动一动鼠标（或用手指划屏幕）看光跟着你走</div>
 </div>
+<script>
+const cv=document.getElementById("prism"),ctx=cv.getContext("2d");
+let W,H,dpr;
+function fit(){dpr=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+fit();addEventListener("resize",fit);
+/* 色带调色：照QQ那张——蓝→青→紫→蓝紫→桃→米 分区渐变 */
+const STOPS=[[215,70,62],[195,65,68],[262,55,60],[240,60,58],[205,60,70],[268,45,66],[22,75,80],[35,70,86]];
+function palette(t){ /* t 0..1 → hsl */
+  const n=STOPS.length-1,x=t*n,i=Math.min(n-1,Math.floor(x)),f=x-i;
+  const a=STOPS[i],b=STOPS[i+1];
+  let dh=b[0]-a[0]; if(dh>180)dh-=360; if(dh<-180)dh+=360;
+  return [a[0]+dh*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f];
+}
+let mx=innerWidth*.5,my=innerHeight*.4,tx=mx,ty=my;
+addEventListener("pointermove",e=>{tx=e.clientX;ty=e.clientY},{passive:true});
+addEventListener("touchmove",e=>{const t=e.touches[0];if(t){tx=t.clientX;ty=t.clientY}},{passive:true});
+function draw(ts){
+  const t=ts/1000;
+  mx+=(tx-mx)*.08; my+=(ty-my)*.08;         /* 光斑缓动跟随 */
+  const N=Math.max(48,Math.round(W/16));     /* 条数随屏宽 */
+  const bw=W/N;
+  for(let i=0;i<N;i++){
+    const u=i/(N-1);
+    /* 基色 + 每条自身的呼吸 + 慢速整体漂移 */
+    const drift=(Math.sin(t*.18+i*.35)+1)/2;
+    const [h,s,l]=palette((u+Math.sin(t*.05)*.04+1)%1);
+    /* 鼠标光：横向距离决定提亮，纵向决定亮带位置 */
+    const dx=Math.abs((i+.5)*bw-mx)/(W*.22);
+    const glow=Math.exp(-dx*dx)*26;
+    const li=Math.min(92,l+drift*5+glow);
+    const g=ctx.createLinearGradient(0,0,0,H);
+    const yFocus=my/H;
+    g.addColorStop(0,`hsl(${h} ${s}% ${Math.max(20,li-16)}%)`);
+    g.addColorStop(Math.max(.05,Math.min(.95,yFocus)),`hsl(${h} ${s+6}% ${li}%)`);
+    g.addColorStop(1,`hsl(${(h+30)%360} ${s}% ${Math.min(94,li+10)}%)`);
+    ctx.fillStyle=g;
+    ctx.fillRect(i*bw-0.5,0,bw+1,H);
+    /* 条与条之间一道细高光，出玻璃感 */
+    ctx.fillStyle=`hsla(0 0% 100% / ${.05+glow*.006})`;
+    ctx.fillRect(i*bw,0,1,H);
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
 </body>
 </html>
