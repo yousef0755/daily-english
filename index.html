@@ -452,6 +452,11 @@ main > .mode-tabs .pill.on{background:linear-gradient(135deg,#e3c07a,#c99a45);co
 .eyebrow{color:var(--gold);letter-spacing:.14em}
 a.famlink,.famlink{color:#e3c07a}
 ::selection{background:rgba(216,179,102,.35)}
+/* 简化：默认收起次要区（老板 8-19：东西太多有点复杂）。只是收起，一键展开，什么都没删 */
+body:not(.showmore) .practice-section,
+body:not(.showmore) .coach-note,
+body:not(.showmore) .coach-share{display:none!important}
+#moreFold{display:block;margin:18px auto 6px;padding:11px 26px;border:1px solid rgba(216,179,102,.4);border-radius:999px;background:rgba(216,179,102,.1);color:#e3c07a;font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
 </style>
 <script>
 /* 本机预览一律不往共用的榜上报打卡。
@@ -1173,5 +1178,18 @@ function applyUiLang(){
 })();
 </script>
 <script src="./shared/fam-widget.js?v=29fed1f8" data-me="baba"></script>
+<script id="deepspace-fold">
+(function(){
+  var ps=document.querySelector(".practice-section");
+  if(!ps)return;
+  var b=document.createElement("button");
+  b.id="moreFold";b.type="button";
+  var upd=function(){b.textContent=document.body.classList.contains("showmore")?"收起更多 ▴":"更多 · 口语课和教练 ▾"};
+  b.onclick=function(){document.body.classList.toggle("showmore");try{localStorage.setItem("fiveShowMore",document.body.classList.contains("showmore")?"1":"")}catch(e){};upd()};
+  try{if(localStorage.getItem("fiveShowMore")==="1")document.body.classList.add("showmore")}catch(e){}
+  upd();
+  ps.parentNode.insertBefore(b,ps);
+})();
+</script>
 </body>
 </html>
