@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070d16">
+<meta name="description" content="现代标准阿拉伯语每日听说课堂，统一使用标准阿语神经发音。">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<title>每天五分钟 · 英语 阿语 演讲 交谈 分寸</title>
+<style>
+:root{
+  --canvas:#f3f0e8;
+  --canvas-2:#ebe6da;
+  --ink:#16241f;
+  --muted:#6d746f;
+  --line:rgba(24,65,52,.12);
+  --green:#1d5b48;
+  --green-deep:#0d3027;
+  --green-soft:#dfeae4;
+  --gold:#c59a4d;
+  --gold-soft:#ead8ad;
+  --card:rgba(255,255,252,.88);
+  --good:#287652;
+  --warn:#a75933;
+  --shadow-sm:0 8px 24px rgba(19,48,39,.07);
+  --shadow-lg:0 24px 70px rgba(11,42,33,.16);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body.hide-zh .nat .zh{display:none}
+/* 卡片里的中文其实在 .use 里，.nat .zh 这个结构早就不存在了 ——
+   所以「隐藏中文」这个按钮一直是点了没反应（老板 2026-08-15 报的）。 */
+body.hide-zh .use{display:none}
+body{
+  min-width:320px;
+  overflow-x:hidden;
+  font-family:var(--sans);
+  background:
+    radial-gradient(circle at 8% 8%,rgba(197,154,77,.12),transparent 28rem),
+    radial-gradient(circle at 92% 34%,rgba(29,91,72,.08),transparent 32rem),
+    var(--canvas);
+  color:var(--ink);
+  line-height:1.55;
+}
+button,input{font:inherit}
+button,a{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid rgba(197,154,77,.42);outline-offset:3px}
+
+.site-header{
+  position:relative;
+  overflow:hidden;
+  color:#f8f4e9;
+  background:
+    radial-gradient(circle at 82% 6%,rgba(219,182,107,.2),transparent 20rem),
+    linear-gradient(145deg,#0a2a22 0%,#103b30 55%,#174c3d 100%);
+  padding:26px 22px 76px;
+}
+.site-header:before,.site-header:after{content:"";position:absolute;pointer-events:none;border-radius:50%}
+.site-header:before{width:340px;height:340px;right:-160px;bottom:-260px;border:1px solid rgba(234,216,173,.18);box-shadow:0 0 0 42px rgba(234,216,173,.04),0 0 0 84px rgba(234,216,173,.03)}
+.site-header:after{width:8px;height:8px;left:8%;top:34%;background:var(--gold-soft);box-shadow:92px -24px 0 -2px rgba(234,216,173,.6),210px 42px 0 -3px rgba(234,216,173,.5),72vw 18px 0 -2px rgba(234,216,173,.45)}
+.header-shell{position:relative;z-index:1;max-width:980px;margin:0 auto}
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border:1px solid rgba(234,216,173,.52);border-radius:14px;background:rgba(255,255,255,.07);color:var(--gold-soft);font-family:var(--serif);font-size:.9rem;font-weight:700;letter-spacing:.08em;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.brand-copy h1{font-family:var(--serif);font-size:1.24rem;font-weight:600;letter-spacing:.02em;line-height:1.15}
+.brand-copy .sub{margin-top:3px;color:rgba(248,244,233,.58);font-size:.7rem;letter-spacing:.11em;text-transform:uppercase}
+.streak{flex:0 0 auto;border:1px solid rgba(234,216,173,.34);border-radius:999px;padding:8px 13px;background:rgba(255,255,255,.06);color:#f2dfb2;font-size:.77rem;font-weight:650;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.hero-copy{margin:22px 0 18px;max-width:680px}
+
+}
+.eyebrow{color:var(--gold-soft);font-size:.7rem;font-weight:750;letter-spacing:.16em;text-transform:uppercase}
+.hero-copy h2{margin-top:8px;font-family:var(--serif);font-size:clamp(2rem,5.6vw,3.8rem);font-weight:500;line-height:1.02;letter-spacing:-.035em;text-wrap:balance}
+.hero-copy p:last-child{max-width:570px;margin-top:13px;color:rgba(248,244,233,.66);font-size:.94rem;line-height:1.65}
+.mode-tabs{display:flex;gap:8px;max-width:100%;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+.mode-tabs::-webkit-scrollbar,.pill-row::-webkit-scrollbar{display:none}
+.mode-tabs .pill{color:rgba(248,244,233,.76);border-color:rgba(234,216,173,.2);background:rgba(255,255,255,.055);box-shadow:none;white-space:nowrap}
+.mode-tabs .pill:hover{color:#fff;background:rgba(255,255,255,.1)}
+.mode-tabs .pill.on{color:var(--green-deep);background:#f3e6c6;border-color:#f3e6c6;box-shadow:0 8px 22px rgba(0,0,0,.16)}
+/* 惊蛰 8-19：轨道条从深色页头挪到浅色正文之后，原来那套「浅字配深底」在这儿看不清了。
+   只给挪下去的这一份换配色，页头里别处若还用 .mode-tabs 不受影响。 */
+main > .mode-tabs{margin:14px 0 4px;padding:0 2px 6px}
+main > .mode-tabs .pill{color:var(--ink,#16241f);opacity:.72;background:rgba(255,255,252,.72);
+  border-color:rgba(24,65,52,.14);box-shadow:0 4px 14px rgba(19,48,39,.05)}
+main > .mode-tabs .pill:hover{opacity:1;background:#fffdf8;color:var(--ink,#16241f)}
+main > .mode-tabs .pill.on{opacity:1;color:#f6f4ec;background:var(--green-deep,#0d3027);
+  border-color:transparent;box-shadow:0 8px 20px rgba(13,48,39,.18)}
+
+main{position:relative;z-index:2;width:calc(100% - 28px);max-width:820px;margin:-48px auto 0;padding-bottom:64px}
+.lesson-toolbar{padding:22px;border:1px solid rgba(255,255,255,.78);border-radius:24px;background:rgba(255,255,252,.9);box-shadow:var(--shadow-lg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.lesson-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+.day-tag{margin-top:4px;color:var(--ink);font-family:var(--serif);font-size:1.08rem;font-weight:600}
+.pill-row{display:flex;gap:8px;max-width:100%;overflow-x:auto;padding:2px 1px 5px;scroll-snap-type:x proximity;scrollbar-width:none}
+.pill{
+  min-height:38px;
+  padding:8px 14px;
+  border:1px solid rgba(29,91,72,.19);
+  border-radius:999px;
+  background:rgba(255,255,255,.68);
+  color:var(--green-deep);
+  font-size:.8rem;
+  font-weight:650;
+  cursor:pointer;
+  white-space:nowrap;
+  scroll-snap-align:start;
+  transition:transform .2s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.pill:hover{transform:translateY(-1px);background:#fff;border-color:rgba(29,91,72,.38)}
+.pill.on{color:#fff;background:var(--green);border-color:var(--green);box-shadow:0 8px 18px rgba(29,91,72,.2)}
+.language-toggle{flex:0 0 auto;min-height:36px;padding:7px 12px;background:var(--green-soft);border-color:transparent}
+.listen-tip{display:flex;align-items:center;gap:12px;margin:18px 4px 12px;color:var(--muted)}
+.listen-tip-icon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 auto;border-radius:11px;background:var(--green-soft);color:var(--green);font-size:.95rem}
+.hint{color:var(--muted);font-size:.78rem;line-height:1.55}
+#wordArea{counter-reset:phrase;display:grid;gap:10px}
+#wordArea .card{
+  counter-increment:phrase;
+  position:relative;
+  overflow:hidden;
+  padding:18px 18px 18px 54px;
+  border:1px solid rgba(24,65,52,.105);
+  border-radius:18px;
+  background:var(--card);
+  box-shadow:var(--shadow-sm);
+  backdrop-filter:blur(9px);
+  -webkit-backdrop-filter:blur(9px);
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+#wordArea .card:before{content:counter(phrase,decimal-leading-zero);position:absolute;left:17px;top:21px;color:rgba(29,91,72,.44);font-family:var(--serif);font-size:.78rem;font-weight:700;letter-spacing:.04em}
+#wordArea .card:hover{transform:translateY(-2px);border-color:rgba(197,154,77,.36);box-shadow:0 14px 34px rgba(19,48,39,.1)}
+.word-row{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}
+.phrase-copy{min-width:0;flex:1}
+.phrase{position:relative;width:max-content;max-width:100%;color:var(--green-deep);font-family:var(--serif);font-size:1.16rem;font-weight:600;line-height:1.35;cursor:pointer;user-select:none;transition:color .24s ease,text-shadow .24s ease}
+.phrase:not(.shown){color:transparent;text-shadow:0 0 9px rgba(20,67,53,.52)}
+
+.phrase.shown{color:var(--green-deep);text-shadow:none}
+.use{display:none;margin-top:14px;padding:11px 13px;border-left:3px solid var(--gold);border-radius:0 11px 11px 0;background:rgba(234,216,173,.22);color:#4f5753;font-size:.86rem;line-height:1.65}
+.use.shown{display:block;animation:reveal .25s ease both}
+.speak{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;min-height:42px;padding:9px 13px;border:1px solid rgba(197,154,77,.46);border-radius:13px;background:#fbf6e9;color:var(--green-deep);font-size:.79rem;font-weight:750;cursor:pointer;transition:transform .2s ease,background .2s ease,box-shadow .2s ease}
+.speak:hover{transform:translateY(-1px);background:#f6e9c9;box-shadow:0 8px 18px rgba(197,154,77,.13)}
+.speak:active{transform:translateY(0)}
+.listen-glyph{display:grid;place-items:center;width:23px;height:23px;border-radius:8px;background:rgba(197,154,77,.17);font-size:.74rem}
+
+.practice-section{margin-top:34px}
+.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:0 2px 13px;color:var(--green-deep)}
+.section-title .title-copy{display:grid;gap:3px}
+.section-title .title-main{font-family:var(--serif);font-size:1.42rem;font-weight:600;letter-spacing:-.02em}
+.section-title small{max-width:330px;color:var(--muted);font-size:.75rem;font-weight:500;line-height:1.45;text-align:right}
+#quizArea{padding:20px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,252,.76);box-shadow:var(--shadow-sm)}
+.btn-main{display:block;width:100%;min-height:50px;border:0;border-radius:15px;padding:13px 18px;background:linear-gradient(135deg,#216451,var(--green-deep));color:#fffaf0;font-size:.91rem;font-weight:750;letter-spacing:.02em;cursor:pointer;box-shadow:0 12px 25px rgba(13,48,39,.18);transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(13,48,39,.23);filter:brightness(1.04)}
+.btn-main:active{transform:translateY(0)}
+.quiz-q{margin-bottom:13px;color:var(--green-deep);font-family:var(--serif);font-size:1.08rem;font-weight:600}
+.quiz-opt{display:block;width:100%;margin-bottom:8px;padding:12px 14px;border:1px solid rgba(24,65,52,.12);border-radius:13px;background:#fff;color:var(--ink);font-size:.9rem;text-align:left;cursor:pointer;transition:background .18s ease,border-color .18s ease,transform .18s ease}
+.quiz-opt:hover{transform:translateX(2px);border-color:rgba(29,91,72,.35);background:#f7faf7}
+.quiz-opt.right{border-color:var(--good);background:#e4f0e8;color:var(--good);font-weight:700}
+.quiz-opt.wrong{border-color:var(--warn);background:#f7e7df;color:var(--warn)}
+.done-note{padding:14px 0 18px;color:var(--good);font-weight:700;text-align:center}
+.replay{margin-bottom:12px;padding:8px 12px;border:1px solid rgba(197,154,77,.46);border-radius:11px;background:#fbf6e9;color:var(--green-deep);font-size:.8rem;font-weight:700;cursor:pointer}
+
+.teacher-card{position:relative;overflow:hidden;padding:24px;border:1px solid rgba(234,216,173,.32);border-radius:24px;background:linear-gradient(145deg,#153d32 0%,#0b2d25 100%);color:#f8f4e9;box-shadow:0 24px 55px rgba(13,48,39,.2)}
+.teacher-card:after{content:"";position:absolute;width:250px;height:250px;right:-140px;top:-155px;border-radius:50%;border:1px solid rgba(234,216,173,.18);box-shadow:0 0 0 40px rgba(234,216,173,.025),0 0 0 80px rgba(234,216,173,.02)}
+.teacher-inner{position:relative;z-index:1;display:grid;grid-template-columns:150px minmax(0,1fr);gap:24px;align-items:start}
+.teacher-identity{text-align:center}
+#aOrb{display:grid;place-items:center;width:104px;height:104px;margin:2px auto 12px;border:1px solid rgba(234,216,173,.42);border-radius:32px;background:radial-gradient(circle at 34% 26%,#32745c,#102f26 68%);font-size:2rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.12);transition:box-shadow .25s ease,transform .25s ease}
+.teacher-name{font-family:var(--serif);font-size:1.05rem;font-weight:600}
+.teacher-role{margin-top:2px;color:rgba(248,244,233,.52);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
+.teacher-panel{min-width:0}
+.teacher-panel .btn-main{margin:0 0 9px;background:linear-gradient(135deg,#e7cf99,#c79b4c);color:#17362d;box-shadow:0 12px 28px rgba(0,0,0,.2)}
+#aStatus{min-height:2.2em;color:rgba(248,244,233,.65);font-size:.77rem;line-height:1.55;text-align:left}
+#usageBar{margin-top:10px!important;color:rgba(248,244,233,.5)!important;text-align:left!important}
+#aChat{max-height:190px!important;margin-top:12px!important;padding-right:3px;font-size:.8rem!important;scrollbar-color:rgba(234,216,173,.32) transparent}
+.feedback-drawer{margin-top:14px;border-top:1px solid rgba(234,216,173,.15);padding-top:12px}
+.feedback-drawer summary{width:max-content;max-width:100%;color:var(--gold-soft);font-size:.73rem;font-weight:700;cursor:pointer;list-style:none}
+.feedback-drawer summary::-webkit-details-marker{display:none}
+.feedback-drawer summary:after{content:" +"}
+.feedback-drawer[open] summary:after{content:" −"}
+#oralIn{width:100%;margin-top:12px;padding:11px 13px;border:1px solid rgba(234,216,173,.22);border-radius:12px;background:rgba(255,255,255,.065)!important;color:#fff!important;font-size:.8rem!important;outline:none}
+#oralIn::placeholder{color:rgba(248,244,233,.38)}
+.btn-wa{display:block;width:100%;padding:12px 14px;border:1px solid rgba(29,91,72,.24);border-radius:14px;background:rgba(255,255,252,.74);color:var(--green-deep);font-size:.82rem;font-weight:750;text-align:center;text-decoration:none;cursor:pointer;transition:transform .2s ease,background .2s ease,border-color .2s ease}
+.btn-wa:hover{transform:translateY(-1px);background:#fff;border-color:rgba(29,91,72,.46)}
+.feedback-drawer .btn-wa{margin-top:8px;border-color:rgba(234,216,173,.26);background:rgba(255,255,255,.07);color:#f8f4e9}
+.coach-share{margin-top:12px}
+.coach-note{margin:8px auto 0;max-width:520px;text-align:center}
+
+.site-footer{padding:27px 18px 32px;border-top:1px solid rgba(24,65,52,.09);color:var(--muted);font-size:.72rem;letter-spacing:.07em;text-align:center}
+.site-footer a{color:var(--green);font-weight:700;text-decoration:none}
+.site-footer a:hover{text-decoration:underline}
+
+@keyframes reveal{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media (max-width:640px){
+  .site-header{padding:20px 16px 68px}
+  .brand-mark{width:38px;height:38px;border-radius:12px}
+  .brand-copy h1{font-size:1.08rem}
+  .brand-copy .sub{font-size:.6rem}
+  .streak{display:grid;place-items:center;width:38px;height:38px;padding:0;font-size:0}
+  .streak:before{content:"🔥";font-size:.86rem}
+  .hero-copy{margin:30px 0 23px}
+  .hero-copy h2{font-size:2.15rem;line-height:1.05}
+  .hero-copy p:last-child{margin-top:10px;font-size:.82rem;line-height:1.55}
+  .mode-tabs{margin-right:-16px;padding-right:16px}
+  .mode-tabs .pill{min-height:36px;padding:7px 12px;font-size:.75rem}
+  main{width:calc(100% - 20px);margin-top:-42px;padding-bottom:44px}
+  .lesson-toolbar{padding:18px 16px;border-radius:20px}
+  .lesson-topline{align-items:center}
+  .day-tag{font-size:.96rem;line-height:1.35}
+  .pill-row{margin-right:-16px;padding-right:16px}
+  .listen-tip{align-items:flex-start;margin:15px 2px 11px}
+  #wordArea .card{padding:15px 14px 15px 44px;border-radius:16px}
+  #wordArea .card:before{left:13px;top:19px;font-size:.68rem}
+  .word-row{gap:10px}
+  .phrase{font-size:1rem}
+  .speak{min-height:40px;padding:8px 10px}
+  .speak-label{display:none}
+  .listen-glyph{width:24px;height:24px}
+  .use{margin-top:12px;font-size:.79rem}
+  .practice-section{margin-top:29px}
+  .section-title{display:block;margin-left:2px}
+  .section-title .title-main{font-size:1.25rem}
+  .section-title small{display:block;margin-top:3px;text-align:left}
+  #quizArea{padding:16px;border-radius:17px}
+  .teacher-card{padding:19px 16px;border-radius:20px}
+  .teacher-inner{grid-template-columns:1fr;gap:15px}
+  .teacher-identity{display:flex;align-items:center;gap:12px;text-align:left}
+  #aOrb{width:66px;height:66px;flex:0 0 auto;margin:0;border-radius:22px;font-size:1.45rem}
+  .teacher-copy{min-width:0}
+  #aStatus{text-align:left}
+  .coach-share{margin-top:10px}
+}
+@media (max-width:370px){
+  .brand-copy .sub{display:none}
+  .hero-copy h2{font-size:1.85rem}
+  .streak{max-width:116px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lesson-topline{gap:10px}
+  .language-toggle{padding-inline:10px}
+}
+
+/* ===== 一次性设置页（沿用本站配色） ===== */
+#keyWrap{position:fixed;inset:0;z-index:9999;display:none;place-items:center;
+  background:rgba(20,30,25,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px}
+#keyWrap.on{display:grid}
+#keyCard{width:min(100%,440px);background:var(--card,#fffdf8);color:var(--ink,#1e2b23);
+  border:1px solid var(--gold-soft,#d9c294);border-radius:20px;padding:26px 24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.28);max-height:88vh;overflow-y:auto}
+#keyCard h3{margin:0 0 4px;font-size:1.28rem;color:var(--green-deep,#143529);letter-spacing:-.01em}
+#keyCard .ksub{margin:0 0 16px;font-size:.86rem;color:var(--muted,#7d766a)}
+#keyCard .kwhy{background:rgba(184,147,74,.09);border:1px solid rgba(184,147,74,.22);
+  border-radius:13px;padding:12px 14px;font-size:.88rem;line-height:1.75;margin-bottom:18px}
+#keyCard ol{margin:0 0 16px;padding-inline-start:22px;font-size:.93rem;line-height:2}
+#keyCard .kopen{display:block;text-align:center;text-decoration:none;
+  background:var(--green,#1d4d3b);color:#fff;border-radius:13px;padding:13px 16px;
+  font-size:.98rem;font-weight:600;margin-bottom:14px}
+#keyCard input{width:100%;box-sizing:border-box;border:1px solid var(--gold-soft,#d9c294);
+  border-radius:13px;padding:13px 15px;font-size:1rem;background:#fff;color:var(--ink,#1e2b23);
+  outline:none;margin-bottom:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+#keyCard input:focus{border-color:var(--gold,#b8934a);box-shadow:0 0 0 3px rgba(184,147,74,.16)}
+#keyCard .ksave{width:100%;border:none;border-radius:13px;padding:14px;font-size:1rem;font-weight:700;
+  background:var(--gold,#b8934a);color:#fff;cursor:pointer}
+#keyCard .ksave:active{filter:brightness(.94)}
+#keyCard .kerr{color:var(--warn,#a4541f);font-size:.86rem;margin:8px 0 0;min-height:1.1em}
+#keyRtl{direction:rtl;text-align:right}
+#keyRtl ol{padding-inline-start:0;padding-inline-end:22px}
+@media (max-width:420px){#keyCard{padding:22px 18px}}
+
+/* ===== 2026-08-15 老板：把想学的那个搞成高亮 =====
+   原来是反的：未选中的 pill 是米色亮底（看着像选中），
+   选中的 .on 用 var(--green)——跟顶栏渐变尾色一模一样，直接融进背景没了。
+   现在：未选中=透明淡描边，选中=米色实底＋深绿字，在深绿顶栏上一眼就看出来。 */
+header .pill{
+  background:transparent !important;
+  border:1px solid rgba(242,234,216,.34) !important;
+  color:rgba(242,234,216,.72) !important;
+  font-weight:500 !important;
+  transition:all .2s ease;
+}
+header .pill:hover{border-color:rgba(242,234,216,.6) !important}
+header .pill.on{
+  background:#faf6ea !important;
+  border-color:#faf6ea !important;
+  color:var(--green-deep) !important;
+  font-weight:700 !important;
+  box-shadow:0 2px 10px rgba(0,0,0,.22) !important;
+}
+
+/* ===== 2026-08-15 老板：「把他不好的改了」——按我给的四条 ===== */
+/* 一、日期断成「2026-08-」「15」两行，难看 */
+.lesson-title,.today-line,h2.today,.pack-title{
+  text-wrap:balance;
+}
+.lesson-title time,.today-date,.pack-date{white-space:nowrap}
+/* 兜底：标题里任何日期样式的片段都不许拆 */
+.card h2,.lesson-head h2{overflow-wrap:normal;word-break:keep-all}
+
+/* 二、课程胶囊横排被右边切掉一半——给它右侧留白并允许换行 */
+.pill-row{
+  flex-wrap:wrap !important;
+  margin-right:0 !important;padding-right:0 !important;
+  overflow-x:visible !important;
+}
+.pill-row .pill{flex:0 1 auto;max-width:100%}
+
+/* 三、揭示行长短不齐：统一单行、居左 */
+.reveal,.line-hidden,.blurred{
+  white-space:nowrap !important;
+  letter-spacing:.02em !important;
+  text-align:left !important;
+}
+
+/* 日期真正的落点是 .day-tag（228px 装不下整行，从「2026-08-」中间断开）：
+   不许换行，字号收小让它一行放得下 */
+.day-tag{
+  white-space:nowrap !important;
+  font-size:12.5px !important;
+  letter-spacing:0 !important;
+  overflow:hidden;text-overflow:ellipsis;
+}
+/* 揭示占位文字：统一单行，不许一条两行一条一行 */
+.line .zh,.line-cn,.sent-cn,.reveal-hint,[data-reveal]{
+  white-space:nowrap !important;
+}
+
+/* 老板：「我其他的都没有了，只有阿拉伯语」——四门课被加了 hidden 藏起来了，已恢复。
+   但阿语那个标签 230px 宽，把后面三门挤出屏幕，等于还是看不见。
+   所以：标签缩短 + 这一排允许换行，五门课全部露在首屏。 */
+.mode-tabs{
+  flex-wrap:wrap !important;
+  overflow-x:visible !important;
+  gap:7px !important;
+  justify-content:flex-start !important;
+}
+.mode-tabs .pill{
+  flex:0 0 auto !important;
+  font-size:12.5px !important;
+  padding:6px 13px !important;
+  max-width:none !important;
+}
+
+.famlink{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+  margin-bottom:16px;border:1px solid rgba(234,216,173,.34);border-radius:999px;
+  padding:9px 15px;background:rgba(255,255,255,.06);color:#f2dfb2;
+  font-size:.8rem;font-weight:700;text-decoration:none;white-space:nowrap}
+
+
+/* 今日课程那块收拾干净（老板：这里太乱了） */
+#pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.today-pill{font-weight:700;max-width:100%;text-align:left;line-height:1.5}
+.more-pill{opacity:.72;font-size:.86em}
+.pack-more{flex-basis:100%;width:100%;margin-top:6px;padding-top:10px;
+  border-top:1px solid rgba(0,0,0,.10);display:flex;flex-wrap:wrap;gap:7px}
+.pack-grp{flex-basis:100%;width:100%;font-size:.72rem;letter-spacing:.14em;
+  opacity:.6;margin:5px 0 1px}
+.pack-more .pill{font-size:.88em}
+
+/* 老板 2026-08-15 截图批注：Arabic 标签名太长；下面三个排成一排 */
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:stretch}
+.mode-tabs #modeEn{grid-column:1}
+.mode-tabs #modeAr{grid-column:2}
+.mode-tabs #modeSpeech,.mode-tabs #modeChat,.mode-tabs #modeComm{grid-column:span 2}
+@supports (grid-template-columns: repeat(6,1fr)){
+  .mode-tabs{grid-template-columns:repeat(6,1fr)}
+  .mode-tabs #modeEn{grid-column:span 3}
+  .mode-tabs #modeAr{grid-column:span 3}
+  .mode-tabs #modeSpeech,.mode-tabs #modeChat,.mode-tabs #modeComm{grid-column:span 2}
+}
+.mode-tabs .pill{width:100%;text-align:center;white-space:nowrap;
+  padding-left:8px;padding-right:8px;font-size:.94rem}
+
+/* 老板 2026-08-15：这句要排成一条线 */
+.hero-copy h2.oneline{
+  /* 英文比中文长，原来 nowrap 被截成了 "Be someone be…"。改成允许换行。 */
+  white-space:normal;text-wrap:balance;
+  font-size:clamp(1.35rem, 7vw, 2.4rem);
+  line-height:1.25;letter-spacing:-.01em;margin-bottom:10px}
+
+/* 返回键跟着滚（老板：进去之后要能回得来）。
+   位置和样式是 Jay 那版，我只加 sticky —— 他放在正常流里不压标题，这点比我原来的 fixed 版好。 */
+.famlink{position:sticky;top:8px;z-index:60}
+@supports(padding:max(0px)){ .famlink{top:max(8px, env(safe-area-inset-top))} }
+
+/* 完成键（老板 2026-08-15：学五分钟之外，读会了也算过关） */
+.donebox{margin:18px 0 6px;padding:16px;border-radius:16px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(234,216,173,.28);text-align:center}
+.db-tip{margin:0 0 12px;font-size:.86rem;line-height:1.7;opacity:.85}
+.donebox .btn-main{width:100%}
+.donebox .btn-main:disabled{opacity:.45}
+.donebox.done{border-color:rgba(126,214,178,.5)}
+
+/* 惊蛰 8-19：老板说打开看不出变化。查下来一半原因是首屏太空——
+   大标题吃掉半屏，今天要干的那张卡要滑一下才露头。手机上收紧，
+   桌面上维持原来的气派（>640px 不动）。*/
+@media (max-width:640px){
+  .hero-copy{margin:14px 0 6px}
+  .hero-copy h2{font-size:clamp(1.6rem,7.4vw,2.2rem);line-height:1.08}
+  .site-header{padding-bottom:58px}   /* 下面那张卡是往上压的，标题得留够位置，不然「Be someone better.」被切一半 */
+  /* 收紧之后这句会被下面那张卡压住、切掉半行——被切的字比没有还难看，手机上收起来，桌面照旧。 */
+  #heroSub{display:none}
+}   /* ← 这个收尾括号上一版被我切掉了，浏览器容错才没出事，补回来 */
+</style>
+<style id="deepspace">
+/* ═══ 深空高级风 2026-08-19 · 暗宇宙页面 + 象牙内容卡（卡内用变量作用域还原浅色体系，互不打架） ═══ */
+:root{
+  --canvas:#070d16;
+  --ink:#e8edf4;
+  --muted:#8b96a6;
+  --line:rgba(150,182,222,.14);
+  --gold:#d8b366;
+  --shadow-sm:0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 28px 80px rgba(0,0,0,.55);
+}
+body{
+  background:
+    radial-gradient(1.5px 1.5px at 12% 18%,rgba(255,255,255,.35),transparent 2px),
+    radial-gradient(1px 1px at 34% 64%,rgba(255,255,255,.22),transparent 2px),
+    radial-gradient(1.5px 1.5px at 58% 30%,rgba(255,255,255,.30),transparent 2px),
+    radial-gradient(1px 1px at 76% 74%,rgba(255,255,255,.20),transparent 2px),
+    radial-gradient(1.5px 1.5px at 90% 12%,rgba(255,255,255,.28),transparent 2px),
+    radial-gradient(1px 1px at 22% 88%,rgba(255,255,255,.18),transparent 2px),
+    radial-gradient(circle at 85% 0%,rgba(216,179,102,.10),transparent 30rem),
+    radial-gradient(circle at 0% 42%,rgba(46,168,130,.09),transparent 34rem),
+    linear-gradient(180deg,#060b13 0%,#0a1220 60%,#0b1523 100%);
+  color:var(--ink);
+}
+.site-header{
+  color:#eef2f8;
+  background:
+    radial-gradient(1.5px 1.5px at 18% 30%,rgba(255,255,255,.5),transparent 2px),
+    radial-gradient(1px 1px at 66% 18%,rgba(255,255,255,.4),transparent 2px),
+    radial-gradient(1.5px 1.5px at 84% 62%,rgba(255,255,255,.35),transparent 2px),
+    radial-gradient(1px 1px at 40% 76%,rgba(255,255,255,.3),transparent 2px),
+    radial-gradient(circle at 82% 6%,rgba(216,179,102,.22),transparent 22rem),
+    radial-gradient(circle at 10% 90%,rgba(46,168,130,.18),transparent 26rem),
+    linear-gradient(150deg,#04070d 0%,#081120 55%,#0b1a2c 100%);
+  border-bottom:1px solid rgba(216,179,102,.22);
+}
+.site-header:before,.site-header:after{opacity:.35}
+/* 内容卡：象牙面，卡内变量还原原浅色体系 → 卡里所有旧样式原样成立 */
+.card,.donebox,.lesson-toolbar,.quiz-q,.coach-note,#keyCard,.feedback-drawer{
+  --canvas:#f3f0e8;--ink:#16241f;--muted:#6d746f;
+  --line:rgba(24,65,52,.12);--green:#1d5b48;--green-deep:#0d3027;
+  --green-soft:#dfeae4;--gold:#c59a4d;--gold-soft:#ead8ad;
+  --card:rgba(255,255,252,.88);--good:#287652;--warn:#a75933;
+  background:rgba(250,248,241,.96);
+  color:var(--ink);
+  border:1px solid rgba(216,179,102,.25);
+  box-shadow:0 18px 50px rgba(0,0,0,.45);
+}
+/* 卡外的钮与文字（深底上） */
+main > .mode-tabs .pill{background:rgba(150,182,222,.10);color:#e8edf4;border:1px solid rgba(150,182,222,.16)}
+main > .mode-tabs .pill.on{background:linear-gradient(135deg,#e3c07a,#c99a45);color:#241a05;border-color:transparent;box-shadow:0 6px 20px rgba(216,179,102,.3)}
+.listen-tip{color:#aeb9c9}
+.eyebrow{color:var(--gold);letter-spacing:.14em}
+a.famlink,.famlink{color:#e3c07a}
+::selection{background:rgba(216,179,102,.35)}
+/* 简化：默认收起次要区（老板 8-19：东西太多有点复杂）。只是收起，一键展开，什么都没删 */
+body:not(.showmore) .practice-section,
+body:not(.showmore) .coach-note,
+body:not(.showmore) .coach-share{display:none!important}
+#moreFold{display:block;margin:18px auto 6px;padding:11px 26px;border:1px solid rgba(216,179,102,.4);border-radius:999px;background:rgba(216,179,102,.1);color:#e3c07a;font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+</style>
+<script>
+/* 本机预览一律不往共用的榜上报打卡。
+   我在这台机器上开着页面调试，就等于替家里人打了卡——
+   老板 2026-08-16 就是这么看到「博远今天都没做却显示完成」的。
+   包一层 fetch 最稳：各页的上报代码写法不一样，逐个去改我一定会漏。 */
+(function(){
+  if(!/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)
+     && location.protocol!=="file:") return;
+  var real=window.fetch;
+  window.fetch=function(u,o){
+    var s=String((u&&u.url)||u||"");
+    if(/\/fam\/(ping|import)/.test(s)){
+      console.info("[本机预览] 拦下一次打卡上报：",s);
+      return Promise.resolve(new Response('{"ok":true,"local":true}',
+        {status:200,headers:{"Content-Type":"application/json"}}));
+    }
+    return real.apply(this,arguments);
+  };
+})();
+</script>
+<script>window.__BUILD__="29fed1f8f3"</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-shell">
+    <a class="famlink" href="./diary.html" style="margin-inline-end:8px">日记</a>
+<a class="famlink" href="./family.html" aria-label="Back to the family board">← Family</a>
+    <div class="brand-row">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">AR</div>
+        <div class="brand-copy">
+          <h1>Five Minutes</h1>
+          <div class="sub" id="brandSub">Five tracks · one thing a day</div>
+        </div>
+      </div>
+      <div class="streak" id="streak">🔥 Day 1 · starts today</div>
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow">اِسْتَمِعْ · لَاحِظْ · تَكَلَّمْ</p>
+      <h2 class="oneline">Five minutes a day. Be someone better.</h2>
+      <p id="heroSub">One thing today. When you finish, the family sees it on the board.</p>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="lesson-toolbar" aria-label="Today's lesson">
+    <div class="lesson-topline">
+      <div>
+        <p class="eyebrow">دَرْسُ الْيَوْمِ · 今日课程</p>
+        <div class="day-tag" id="dayTag"></div>
+      </div>
+    </div>
+    <div class="pill-row" id="pills"></div>
+  </section>
+  <!-- 惊蛰 8-19：五条轨道从首屏顶上挪到今天这一件的下面。
+       打开先看见今天要干的那一件，想换轨再往下点。 -->
+  <nav class="mode-tabs" aria-label="Learning mode">
+      <button class="pill" id="modeEn">English</button>
+      <button class="pill on" id="modeAr">Arabic</button>
+      <button class="pill" id="modeSpeech">Speaking</button>
+      <button class="pill" id="modeChat">Small talk</button>
+      <button class="pill" id="modeComm">Tact</button>
+    </nav>
+
+  <div class="listen-tip">
+    <span class="listen-tip-icon" aria-hidden="true">◖</span>
+    <p class="hint">先听标准阿语神经发音，再点开句子和中文意思。</p>
+  </div>
+  <div id="wordArea"></div>
+<section class="donebox" id="doneBox">
+  <p class="db-tip" id="dbTip">Open today's lines and read them aloud. When you can say them, mark it done.</p>
+  <button class="btn-main" id="dbBtn" disabled>I can say these — done for today</button>
+</section>
+
+  <section class="practice-section" aria-labelledby="teacherTitle">
+    <h2 class="section-title" id="teacherTitle">
+      <span class="title-copy"><span class="eyebrow">دَرْسٌ خَاصٌّ</span><span class="title-main" id="teacherTitleText">Fatima 标准阿语课</span></span>
+      <small>全程现代标准阿拉伯语；不夹任何地区方言。</small>
+    </h2>
+    <div class="teacher-card">
+      <div class="teacher-inner">
+        <div class="teacher-identity">
+          <div id="aOrb">🌙</div>
+          <div class="teacher-copy"><div class="teacher-name" id="teacherName">Fatima</div><div class="teacher-role" id="teacherRole">Modern Standard Arabic teacher</div></div>
+        </div>
+        <div class="teacher-panel">
+          <button class="btn-main" id="aBtn">ابدأ درس الفصحى · 开始标准阿语课</button>
+          <div id="aStatus">Fatima 只使用现代标准阿拉伯语讲解、示范和纠音。</div>
+          <div id="usageBar"></div>
+          <div id="aChat" style="text-align:left;display:flex;flex-direction:column;gap:6px;overflow-y:auto"></div>
+          <details class="feedback-drawer">
+            <summary>Save session notes</summary>
+            <input id="oralIn" placeholder="What Aria said at the end — strong on X, work on Y">
+            <button class="btn-wa" id="oralSave">Save feedback</button>
+          </details>
+        </div>
+      </div>
+    </div>
+    <a class="btn-wa coach-share" id="sendCoach" href="#">Share today’s results with Coach Lin</a>
+    <p class="hint coach-note">Your report helps tune tomorrow’s lesson around the phrases that need another look.</p>
+  </section>
+</main>
+<footer class="site-footer">The Su Legacy · <a href="voices.html">Voice Studio</a> · Five minutes a day, made personal</footer>
+<script>
+const PACKS={
+"Deal Talk":{key:"deal",items:[
+["Let me sleep on it.","I'll decide tomorrow. — Nice offer. Let me sleep on it."],
+["Give me a ballpark figure.","A rough number is fine. — How much? Just give me a ballpark figure."],
+["Can you meet me halfway?","Let's both give a little. — Too high for me. Can you meet me halfway?"],
+["You've got yourself a deal.","I agree, we're done. — Two hundred each? You've got yourself a deal."],
+["That's my bottom line.","My final price, no lower. — Ninety dollars. That's my bottom line."],
+["Let's call it even.","Nobody owes anybody now. — You paid last time, so let's call it even."],
+["I'll throw in free shipping.","I'll add it for free. — Take fifty units and I'll throw in free shipping."],
+["It's a win-win.","Good for both sides. — You save money, I move stock. It's a win-win."],
+["Don't lowball me.","Don't offer me too little. — Come on, don't lowball me, this is top quality."],
+["We'll make it work.","We'll find a way. — Tight deadline, but we'll make it work."]]},
+"Sound Local":{key:"local",items:[
+["How's it going?","The everyday hello. — Hey Mike! How's it going?"],
+["You bet.","Of course, happily. — Can you send it today? You bet."],
+["No big deal.","It's nothing, don't worry. — Sorry I'm late. No big deal."],
+["I'm gonna head out.","I'm leaving now. — It's getting late, I'm gonna head out."],
+["Wanna grab a bite?","Want to get some food? — I'm starving. Wanna grab a bite?"],
+["Lemme know.","Tell me when you decide. — Think about it and lemme know."],
+["It turns out he was right.","We discovered he was right. — I doubted him, but it turns out he was right."],
+["That makes sense.","I understand, it's logical. — Ship first, pay later? That makes sense."],
+["I'm all set.","I'm ready — or I have enough. — Need anything else? No, I'm all set."],
+["Take it easy.","Relax — also a way to say goodbye. — See you Friday. Take it easy!"]]},
+"Dad Talk":{key:"dad",items:[
+["Way to go, buddy!","Great job — dads say this a lot. — You got an A? Way to go, buddy!"],
+["I've got your back.","I will protect and support you. — Don't be scared. I've got your back."],
+["Give it your best shot.","Try as hard as you can. — The test is hard, so give it your best shot."],
+["Use your words.","Say it calmly, don't cry or shout. — Hey, hey — use your words."],
+["High five!","Hands up, we celebrate! — You finished your homework? High five!"],
+["Because I said so.","The classic dad answer. — Why bedtime now? Because I said so."],
+["I'm proud of you, son.","The words every kid waits for. — You told the truth. I'm proud of you, son."],
+["One more chapter, then bed.","Reading together at night. — Please? Okay — one more chapter, then bed."],
+["Easy does it.","Slowly and carefully. — Carrying the glass? Easy does it."],
+["You did the right thing.","Your choice was correct and good. — You returned the money. You did the right thing."]]},
+"Heart & Faith":{key:"heart",items:[
+["Count your blessings.","Remember the good things you have. — Bad day? Count your blessings."],
+["It's in God's hands.","We did our part; the rest is His. — We sent the offer. Now it's in God's hands."],
+["This too shall pass.","Hard times end. — Business is slow, but this too shall pass."],
+["Actions speak louder than words.","What you do matters more than what you say."],
+["Honesty is the best policy.","Telling the truth always wins in the end."],
+["Charity begins at home.","Take care of your family first, then the world."],
+["Patience pays off.","Waiting calmly brings rewards. — Ten years of work, and patience paid off."],
+["Forgive and forget.","Let it go completely. — He apologized. Forgive and forget."],
+["Peace of mind is priceless.","A calm heart is worth more than money."],
+["God willing, we'll get there.","With His help, we will succeed."]]}};
+const AR_PACKS={"مِنَ الشِّعْرِ العَرَبِيّ · 诗与谚":{key:"ar_poem",items:[["عَلى قَدْرِ أَهْلِ العَزْمِ تَأْتِي العَزائِمُ　وَتَأْتِي عَلى قَدْرِ الكِرامِ المَكارِمُ","有多大的志，就来多大的事；有多高贵的人，就有多厚的义。 — المتنبي（十世纪，阿拉伯世界最有名的诗人，这两句几乎人人会背）。**用在哪**：对方说这单太大做不了的时候，您念这句，是抬举他不是压他。"],["وَإِذا كانَتِ النُّفُوسُ كِباراً　تَعِبَتْ فِي مُرادِها الأَجْسامُ","心气大的人，身子就得跟着受累。 — 同为المتنبي。**用在哪**：对方抱怨辛苦、跑得累的时候。这句是共情，等于说「累是因为你想要的东西大」。比安慰的话管用。"],["مَنْ جَدَّ وَجَد","谁下功夫，谁就得着。 — 三个字的老谚语，小孩都会。**用在哪**：轻松的场合、夸年轻人的时候。别在正式谈判里用，太浅。"],["الصَّبْرُ مِفْتاحُ الفَرَج","忍耐是解脱之匙。 — 流传极广的谚语。**用在哪**：货延期了、事情卡住了，对方着急的时候说这句。既是安慰，也暗示您不会甩手不管。"],["ما حَكَّ جِلْدَكَ مِثْلُ ظُفْرِكْ　فَتَوَلَّ أَنْتَ جَمِيعَ أَمْرِكْ","挠你痒的，没有比你自己的指甲更好；所以自己的事自己办。 — 传为الشافعي所作。**用在哪**：对方犹豫要不要托别人办事的时候。这句是劝他自己拿主意。"],["وَمَنْ يَجْعَلِ المَعْرُوفَ مِنْ دُونِ عِرْضِهِ　يَفِرْهُ وَمَنْ لا يَتَّقِ الشَّتْمَ يُشْتَمِ","拿善行护着自己名声的人，名声就保得住。 — زهير بن أبي سلمى（伊斯兰以前的诗人，《悬诗》作者之一，地位极高）。**用在哪**：谈信誉、谈长期合作的时候。这一句一出，对方知道您读过书。"],["※ 引诗的规矩","一场谈话最多引一句，引完就停，别解释。海湾人自己引诗是随口的，您要是解释一遍，那股自然劲就没了。引错时候比不引更糟——正在争价钱的时候念诗，对方会觉得您在敷衍。最好的时机是**收尾**和**对方倒苦水**这两个节点。"]]},"الافْتِتاح · 开场与致辞":{key:"ar_gov1",items:[["بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم، وَالصَّلاةُ وَالسَّلامُ عَلى رَسُولِ الله","奉至仁至慈的真主之名，愿主赐福先知。 — 海湾国家正式会议的标准开场。您先说这句，全场会安静下来听您讲。"],["مَعالِيَ الوَزِير، أَصْحابَ السَّعادَة، السَّيِّداتُ وَالسّادَة","部长阁下、各位尊敬的阁下、女士们先生们。 — 称谓顺序不能乱：部长用 مَعالي，司局级用 سَعادة，最后才是全体。叫错了很失礼。"],["يُشَرِّفُنِي أَنْ أَكُونَ بَيْنَكُمُ اليَوْم","今天能在座各位当中，是我的荣幸。 — 比 أنا سعيد（我很高兴）正式得多。政府场合用前者。"],["أَتَقَدَّمُ بِالشُّكْرِ الجَزِيلِ لِلْجِهَةِ المُنَظِّمَة عَلى حُسْنِ الاسْتِضافَة","谨向主办方的周到接待致以诚挚感谢。 — 开场必说的一句。حُسْن الاسْتِضافَة 是固定搭配，直译「款待之好」。"],["اسْمَحُوا لِي أَنْ أُقَدِّمَ نَفْسِي بِإِيجاز","请允许我简要介绍一下自己。 — بِإِيجاز（简要地）这个词很关键——表示你不会占用大家时间，显得有分寸。"],["نَتَطَلَّعُ إِلى تَعاوُنٍ مُثْمِرٍ بَيْنَ الجانِبَيْن","我们期待双方开展富有成果的合作。 — مُثْمِر 是「结果实的」。双边场合的万用句，比 نتمنى التعاون 有分量。"]]},"المَواقِف · 表态与立场":{key:"ar_gov2",items:[["نَحْنُ نَتَّفِقُ مَعَكُمْ فِي الجَوْهَر","我们在实质问题上与贵方一致。 — فِي الجَوْهَر（在实质上）留了余地——大方向同意，细节还可以谈。这是外交措辞。"],["هذا الأَمْرُ يَحْتاجُ إِلى دِراسَةٍ مُتَأَنِّيَة","此事需要审慎研究。 — **不想当场答应又不能说不**的时候用这句。مُتَأَنِّيَة = 从容的、不急的。"],["سَأَرْفَعُ الأَمْرَ إِلى الجِهاتِ المُخْتَصَّة","我将把此事上报主管部门。 — 「我要请示」的正式说法。比 سأسأل مديري（我问问领导）体面得多。"],["مِنْ حَيْثُ المَبْدَأ، نَحْنُ مُوافِقُون","原则上，我们同意。 — مِنْ حَيْثُ المَبْدَأ 就是英文的 in principle——同意大方向，条件另议。"],["نُثَمِّنُ عالِياً الجُهُودَ المَبْذُولَة","我们高度赞赏各方所作的努力。 — نُثَمِّن（赞赏）是正式用词。المَبْذُولَة 意为「已付出的」。这句能缓和气氛。"],["نَحْتَفِظُ بِحَقِّنا فِي الرَّدِّ لاحِقاً","我们保留稍后回应的权利。 — 遇到不利提议又不便当场反驳时用。语气硬但不失礼，是正式的保留表态。"]]},"التَّفاوُض · 谈判与分歧":{key:"ar_gov3",items:[["مَعَ كامِلِ الاحْتِرام، لَدَيْنا رَأْيٌ مُخْتَلِف","在充分尊重的前提下，我们持不同意见。 — **否定别人前先垫这一句**。مَعَ كامِلِ الاحْتِرام 是阿语里最得体的转折垫词。"],["هَلْ يُمْكِنُ تَوْضِيحُ هذِهِ النُّقْطَةِ أَكْثَر؟","这一点可否再作说明？ — 听不懂或想拖时间时用。既不失面子，又能让对方把话说细。"],["نَقْتَرِحُ صِيغَةً وَسَطاً تُرْضِي الطَّرَفَيْن","我们建议一个双方都满意的折中方案。 — صِيغَة وَسَط = 折中表述。谈判卡住时抛这句，主动权在你。"],["هذا خارِجُ نِطاقِ صَلاحِيّاتِي","这超出了我的授权范围。 — 挡下当场决定的标准说法，不伤和气。صَلاحِيّات = 权限。"],["نَحْتاجُ إِلى مُهْلَةٍ لِلتَّشاوُر","我们需要一段时间进行磋商。 — مُهْلَة 是「宽限期」。比说「我要想想」正式得多。"],["لِنَعُدْ إِلى هذِهِ النُّقْطَةِ لاحِقاً","这一点我们稍后再回来讨论。 — 把僵住的议题先挂起来，往下走。主持会议的人常用。"]]},"الخِتام · 收尾与后续":{key:"ar_gov4",items:[["نُلَخِّصُ ما تَمَّ الاتِّفاقُ عَلَيْه","我们总结一下已达成一致的内容。 — **收尾必说**。当场复述共识，避免事后各说各话。"],["سَنُوافِيكُمْ بِالتَّفاصِيلِ خِلالَ أُسْبُوع","我们将在一周内向贵方提供详细内容。 — نُوافِيكُم = 向你们提供。给期限显得可靠，但别给太紧的。"],["نَأْمُلُ أَنْ يَكُونَ هذا اللِّقاءُ بِدايَةً لِشَراكَةٍ طَوِيلَةِ الأَمَد","希望这次会面是长期伙伴关系的开端。 — 结束语。طَوِيلَة الأَمَد = 长期的。说完这句再握手。"],["شُكْراً لِحُسْنِ إِصْغائِكُم","感谢各位的聆听。 — إِصْغاء 比 استماع 更正式，指「专注地听」。讲话结束时说。"],["فِي أَمانِ الله","愿主保佑（告辞）。 — 告别语，比 مع السلامة 更有分量，在正式场合和长者面前都合适。"],["نَبْقى عَلى تَواصُل","我们保持联系。 — 临别一句。简短、正式、不油滑。"]]},
+"البيع · 标准阿语商务":{key:"ar_deal",items:[
+["كَمِ السِّعْرُ؟","多少钱？（现代标准阿拉伯语问价）"],
+["السِّعْرُ مُرْتَفِعٌ قَلِيلًا.","价格有点高。"],
+["مَا السِّعْرُ النِّهَائِيُّ؟","最终价格是多少？"],
+["حَسَنًا، اتَّفَقْنَا.","好的，我们成交。"],
+["غَدًا، إِنْ شَاءَ اللَّهُ.","如蒙主意，明天。"],
+["لَدَيْنَا كَمِّيَّةٌ كَبِيرَةٌ.","我们有大量现货。"],
+["الْجَوْدَةُ مُمْتَازَةٌ.","质量非常好。"],
+["هَلِ الدَّفْعُ نَقْدًا أَمْ بِالتَّحْوِيلِ؟","现金付款还是转账？"],
+["وَصَلَتِ الْبِضَاعَةُ.","货物已经到了。"],
+["شُكْرًا عَلَى ثِقَتِكُمْ.","感谢您的信任。"]]},
+"الحياة اليومية · 标准阿语日常":{key:"ar_daily",items:[
+["السَّلَامُ عَلَيْكُمْ.","愿平安降临你们。"],
+["كَيْفَ حَالُكَ؟","你好吗？"],
+["الْحَمْدُ لِلَّهِ.","一切赞颂全归真主。"],
+["إِنْ شَاءَ اللَّهُ.","如蒙真主意欲。"],
+["مَا شَاءَ اللَّهُ.","真主所意欲的。（赞叹时使用）"],
+["شُكْرًا لِجُهُودِكَ.","感谢你的付出。"],
+["تَفَضَّلْ.","请。（请坐、请进、请用）"],
+["لَا مُشْكِلَةَ.","没问题。"],
+["أَيْنَ الْمَكْتَبُ؟","办公室在哪里？"],
+["أَرَاكَ غَدًا.","明天见。"]]}};
+
+/* 老板 2026-08-15：「这三个下面没有内容」。查清是这三门提前 return、
+   屏幕上留着上一个模式的旧卡片。现在给它们各自的内容。
+   内容按他真实的场合写：迪拜做手机、天天跟阿拉伯客户谈价、也见政府。 */
+const SPEECH_PACKS={"开场的三十秒":{items:[["先说结论，再说为什么。","开口第一句就给结论——「这批货我们能在月底前发出」。中国人习惯先铺垫再说事，在阿拉伯和西方的会议桌上，铺垫会被当成没准备好。"],["「我今天只讲三件事。」","开场说清有几件，听的人就知道什么时候能结束，注意力反而集中。三件是上限，四件人就开始走神。"],["别念稿。念稿的人，眼睛在纸上，说服力去一半。","把稿子压成一张纸、每件事只写一个关键词。你看一眼词，话自己会出来。"],["紧张的时候，把语速压慢三成。","紧张会让人越说越快，越快越像心虚。刻意慢下来，听的人会觉得你想清楚了。"]]},"讲数字不让人走神":{items:[["数字要给参照，不给参照等于没说。","「我们月出货两万台」——对方没概念。改成「一个月两万台，相当于这条街所有店加起来的量」。"],["一次只给一个数字。","一句话塞三个数字，一个都记不住。要给三个，就分成三句，中间停一下。"],["把钱换成对方的单位。","跟阿联酋客户讲美金，他心里还要换一次。直接讲 AED，少一道弯。"]]},"被打断和被质疑":{items:[["被打断先让他说完，再说「我接着刚才那点」。","抢回话头会让全场紧张。等他说完，用一句把主线接回来，主导权还在你这儿。"],["答不上来就说答不上来，别绕。","「这个数我现在给不了准的，今天下午给您。」——比含糊过去强十倍。绕过去的人，后面所有的话都会被打折扣。"],["对方说贵，先问「跟什么比」。","不要马上解释或降价。他说贵，可能是跟别家比，也可能只是习惯性还价。先弄清是哪种。"]]}};
+const CHAT_PACKS={"跟客户搭上话":{items:[["先聊他关心的，不聊你要卖的。","开口问货、问单子，是催；问他店里最近怎么样、哪个型号走得动，是聊天。第二种他会多说三句，那三句里通常有生意。"],["记住一件他上次说过的小事，下次提起来。","「上次您说要去土耳其，去成了吗」——这一句比任何客套都管用。他会觉得你把他当人，不是当单子。"],["Kayf al-shughl? — 生意怎么样？","阿拉伯客户之间最常见的开场。比 How are you 近一层，又不算越界。"]]},"把话接下去":{items:[["用「后来呢」代替「哦」。","对方讲了一段，回一个「哦」就断了。问一句「后来呢」「那你怎么办的」，他能再讲五分钟。"],["别急着给建议。","人说困难的时候，多半不是要办法，是要有人听。先听完，他自己会问你怎么看——那时候再说。"],["把「我」换成「我们」。","「我给你算算」→「我们一起看看这个数」。一个字，位置就从对面挪到了同一边。"]]},"结束一段话":{items:[["聊得好的时候收，别聊到没话说。","在气氛最好的时候说「不打扰您了，回头再聊」，对方会记得这次很愉快。聊到尬住再走，记住的是尴尬。"],["走之前留一个具体的下次。","「下周货到我给您发照片」——比「有空联系」实在。具体的约定才会真的发生。"]]}};
+const COMM_PACKS={"什么时候少说":{items:[["价钱报完就停，不要解释。","报完价接着解释成本，等于自己先松口。停住，让对方说下一句。这是最难做到的一条，也是最值钱的一条。"],["别人问你不该答的，说「这个我得先问一下」。","不是拖延，是本分。替老板答了不该答的，比答不上来严重得多。"],["群里少说，私下多说。","有分歧的事别在群里来回。群里一句「我私下跟您说」，比十句解释体面。"]]},"怎么拒绝不伤人":{items:[["先给理由，再说不行。","「这个价我做不了，因为成本就在这儿」——先说因，再说果。反过来说，对方只听见拒绝。"],["不行就说不行，别说「我尽量」。","「尽量」在对方耳朵里是「可以」。等到做不到的那天，你就成了骗人的那个。"],["拒绝之后给一个能做的。","「这个价不行，但我可以给您延一周账期」——留一条路，关系就不断。"]]},"话说重了怎么办":{items:[["当天就说，别过夜。","「刚才我说话急了，对不住」——当天说是道歉，隔一周说是翻旧账。"],["认那句话，别解释动机。","「我不是那个意思」听着像不认。直接说「我那句说重了」，反而过得去。"],["跟家里人尤其如此。","生意上的话说重了，钱能补；家里的话说重了，只能靠下一句。所以家里的话更要慢一拍。"]]}};
+const KEY="dailyEnglishSu3";
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let state;
+try{state=JSON.parse(store.get(KEY)||'{"streak":0,"last":"","log":[]}');}catch(e){state={streak:0,last:"",log:[]};}
+/* 日子按迪拜算，不按 UTC。凌晨零点到四点，人这边已经是新的一天，
+   UTC 还停在昨天——那几个钟头里打的卡会记到前一天去。 */
+function dubaiToday(){return new Date(Date.now()+144e5).toISOString().slice(0,10)}
+/* 「今天做完了没有」全页只有这一个答案。
+   原先三处各判各的，Done 按钮报 1，三十秒后计时器报 0 把它盖掉。 */
+function doneToday(){
+  var t=dubaiToday();
+  try{if(localStorage.getItem("babaDone")===t)return 1}catch(e){}
+  return (typeof state!=="undefined"&&state&&(state.came===t||state.last===t))?1:0;
+}
+const today=dubaiToday();
+/* 从首屏开始只加载现代标准阿拉伯语，避免先闪出旧英语课程。 */
+const packNames=Object.keys(AR_PACKS);
+const dayIndex=Math.floor(Date.now()/86400000)%packNames.length;
+let currentPack=packNames[dayIndex];
+window.__PACKS_ACTIVE=AR_PACKS;
+window.__packNamesActive=packNames;
+let lastResult=null;
+let player=new Audio();
+var VOICE_IDX=null,_vplayer=new Audio(),_actx=null,_asrc=null,_abuf={};
+fetch("media/kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+function sysSpeak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang=/[\u0600-\u06ff]/.test(t)?"ar-SA":/[\u4e00-\u9fff]/.test(t)?"zh-CN":"en-US";u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
+/* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio */
+function playThroughSilent(url,fb){
+  try{
+    if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==="suspended")_actx.resume();
+  }catch(e){return playTag(url,fb)}
+  try{if(_asrc)_asrc.stop()}catch(e){}
+  function go(buf){try{var s=_actx.createBufferSource();s.buffer=buf;s.connect(_actx.destination);s.start(0);_asrc=s}catch(e){playTag(url,fb)}}
+  if(_abuf[url]){go(_abuf[url]);return}
+  fetch(url).then(function(r){return r.arrayBuffer()}).then(function(ab){
+    return new Promise(function(res,rej){var q=_actx.decodeAudioData(ab,res,rej);if(q&&q.then)q.then(res,rej)});
+  }).then(function(b){_abuf[url]=b;go(b)}).catch(function(){playTag(url,fb)});
+}
+function playTag(url,fb){try{_vplayer.pause()}catch(e){}_vplayer=new Audio(url);_vplayer.play().catch(function(){if(fb)sysSpeak(fb)})}
+
+/* 阿语课只播放带元音符号的现代标准阿拉伯语神经女声；中文保留为文字释义。 */
+function playPair(arText){
+  var a=VOICE_IDX&&VOICE_IDX[arText];
+  if(a){playThroughSilent("media/kidaudio/"+a,arText);return}
+  sysSpeak(arText);
+}
+function play(pack,i,kind,fallback,clean){
+  /* 2026-08-15 修：原来只认 media/audio/<pack>_<i>_s.mp3，新词包没有文件就退到机器音，
+     而 play().catch 是空的——失败时一点声音都没有。现在先按纯文本查花名册。 */
+  const key=(clean||"").trim();
+  if(key&&VOICE_IDX&&VOICE_IDX[key]){playThroughSilent("media/kidaudio/"+VOICE_IDX[key],key);return}
+  const PKa=(window.__PACKS_ACTIVE||PACKS);const src="media/audio/"+PKa[pack].key+"_"+i+"_"+kind+".mp3";
+  try{player.pause()}catch(e){}
+  player=new Audio(src);
+  player.onerror=()=>{sysSpeak(key||fallback)};
+  player.play().catch(()=>{sysSpeak(key||fallback)});
+}
+function renderStreak(){try{famPing()}catch(e){}var _n=state.streak|0;document.getElementById("streak").textContent = _n>0 ? "🔥 Day "+_n+(state.last===today?" · today is lit":"") : "🔥 Day 1 · starts today"; /* 惊蛰 8-19：原来没开张时写「0-day streak」，一打开先看见自己没坚持。    段位规矩不变，只是不把 0 摆在脸上。 */}
+/* 老板 2026-08-15 发截图说「这里太乱了」——十一个包平铺成一堵墙，中英混排还换行。
+   改成只留今天那一个，其余收进「换个题目」。分组是按用的场合分的，不是按语言。 */
+/* 老板 2026-08-19 发截图「我自己的这些都不要了」，选 B：
+   阿语基础商务四组（报价/数量/付款/促成）去掉，只留会议实战那套。
+   依据是他那句「简单的阿拉伯语我不需要，因为我有5年的经验」。
+   诗与谚留下并归到正式场合——那是 المتنبي、زهير 那一档，不是基础商务。 */
+const PACK_GROUP=[
+  ["正式场合用", ["开场","表态","谈判","收尾","诗与谚"]],
+  ["平时用", ["商务","日常"]]
+];
+let packsOpen=false;
+function groupOf(n){
+  for(const g of PACK_GROUP){ if(g[1].some(k=>n.indexOf(k)>=0)) return g[0] }
+  return "其他";
+}
+function renderPills(){
+  setTimeout(function(){try{applyUiLang()}catch(e){}},0);
+  const p=document.getElementById("pills"); p.innerHTML="";
+  const names=window.__packNamesActive||packNames;
+  const todayName=names[dayIndex%names.length];
+
+  /* 今天这一个，单独一行，看得清 */
+  const cur=document.createElement("button");
+  cur.className="pill on today-pill";
+  cur.textContent=currentPack+(currentPack===todayName?" · 今日":"");
+  cur.onclick=()=>{ packsOpen=!packsOpen; renderPills(); };
+  p.appendChild(cur);
+
+  const more=document.createElement("button");
+  more.className="pill ghost more-pill";
+  more.textContent=packsOpen?"收起":"换个题目";
+  more.onclick=()=>{ packsOpen=!packsOpen; renderPills(); };
+  p.appendChild(more);
+
+  if(!packsOpen)return;
+  const box=document.createElement("div");
+  box.className="pack-more";
+  PACK_GROUP.forEach(function(g){
+    const inG=names.filter(n=>groupOf(n)===g[0] && n!==currentPack);
+    if(!inG.length)return;
+    const h=document.createElement("div"); h.className="pack-grp"; h.textContent=g[0];
+    box.appendChild(h);
+    inG.forEach(function(n){
+      const b=document.createElement("button");
+      b.className="pill"; b.textContent=n+(n===todayName?" · 今日":"");
+      b.onclick=()=>{ currentPack=n; packsOpen=false; renderPills(); renderWords(); };
+      box.appendChild(b);
+    });
+  });
+  const rest=names.filter(n=>groupOf(n)==="其他" && n!==currentPack);
+  if(rest.length){
+    const h=document.createElement("div"); h.className="pack-grp"; h.textContent="其他";
+    box.appendChild(h);
+    rest.forEach(function(n){
+      const b=document.createElement("button");
+      b.className="pill"; b.textContent=n;
+      b.onclick=()=>{ currentPack=n; packsOpen=false; renderPills(); renderWords(); };
+      box.appendChild(b);
+    });
+  }
+  p.appendChild(box);
+}
+function renderWords(){
+  setTimeout(function(){try{applyUiLang()}catch(e){}},0);
+  const area=document.getElementById("wordArea");area.innerHTML="";
+  document.getElementById("dayTag").textContent=currentPack+" · "+today;
+  ((window.__PACKS_ACTIVE||PACKS)[currentPack]||PACKS[currentPack]).items.forEach((it,i)=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="word-row"><div class="phrase-copy"><div class="phrase" role="button" tabindex="0" aria-expanded="false" aria-label="显示句子">'+it[0]+'</div></div><button class="speak" aria-label="播放标准阿语"><span class="listen-glyph" aria-hidden="true">▶</span><span class="speak-label">اِسْتَمِعْ · 听</span></button></div><div class="use">'+it[1]+'</div>';
+    const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
+    if(/[\u0600-\u06ff]/.test(it[0]))ph.setAttribute("dir","rtl");
+    c.querySelector(".speak").onclick=()=>(/[\u0600-\u06ff]/.test(it[0])?playPair(it[0],it[1]):play(currentPack,i,"s",it[0]+". "+it[1],it[0]));
+    const reveal=()=>{const on=ph.classList.toggle("shown");use.classList.toggle("shown",on);ph.setAttribute("aria-expanded",String(on));ph.setAttribute("aria-label",on?"Hide phrase":"Reveal phrase");};
+    ph.onclick=reveal;
+    ph.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();reveal();}};
+    area.appendChild(c);
+  });
+}
+function startQuiz(){
+  const pk=currentPack;const PK=(window.__PACKS_ACTIVE||PACKS);
+  const idx=[...PK[pk].items.keys()].sort(()=>Math.random()-.5).slice(0,10);
+  let i=0,score=0,wrong=[];const area=document.getElementById("quizArea");
+  function q(){
+    if(i>=idx.length){
+      const pass=score>=7;
+      lastResult={date:today,pack:pk,score:score,wrong:wrong.slice(0,5)};
+      area.innerHTML='<div class="done-note">'+(pass?"✅ "+score+"/10 · Today is lit!":"💪 "+score+"/10 · One more try — 7 lights it up")+'</div><button class="btn-main" id="again">'+(pass?"Practice again":"Try again")+"</button>";
+      if(pass&&state.last!==today){
+        const yest=new Date(Date.now()+144e5-86400000).toISOString().slice(0,10);
+        state.streak=(state.last===yest)?state.streak+1:1;state.last=today;
+      }
+      /* 上家庭榜只看「今天来没来」，不看考几分 —— 这是老板给榜定的原则。
+         🔥 连续天数仍然要 7 分才涨，那是他自己的标准，不动。 */
+      state.came=today;
+      state.log=(state.log||[]).slice(-30);state.log.push(lastResult);
+      store.set(KEY,JSON.stringify(state));renderStreak();updateCoachLink();try{famPing()}catch(e){}
+      document.getElementById("again").onclick=startQuiz;return;
+    }
+    const wi=idx[i],it=PK[pk].items[wi];
+    const others=[...PK[pk].items].filter(x=>x[0]!==it[0]).sort(()=>Math.random()-.5).slice(0,2).map(x=>x[0]);
+    const opts=[it[0],...others].sort(()=>Math.random()-.5);
+    area.innerHTML='<div class="quiz-q">السُّؤَالُ '+(i+1)+' · 🎧 她说的是哪一句？</div><button class="replay" id="rp">▶ 再听一次</button>'+opts.map(o=>'<button class="quiz-opt">'+o+"</button>").join("");
+    play(pk,wi,"w",it[0]);
+    document.getElementById("rp").onclick=()=>play(pk,wi,"w",it[0]);
+    area.querySelectorAll(".quiz-opt").forEach(b=>{
+      b.onclick=()=>{
+        if(b.textContent===it[0]){b.classList.add("right");score++;}
+        else{b.classList.add("wrong");wrong.push(it[0]);area.querySelectorAll(".quiz-opt").forEach(x=>{if(x.textContent===it[0])x.classList.add("right");});}
+        setTimeout(()=>{i++;q();},1000);
+      };
+    });
+  }
+  q();
+}
+function updateCoachLink(){
+  const a=document.getElementById("sendCoach");
+  const oral=(function(){try{return localStorage.getItem("oralResult")||""}catch(e){return""}})();
+  let msg="Coach Lin, my Daily English report "+today+" — ";
+  if(lastResult){msg+="pack: "+lastResult.pack+", score: "+lastResult.score+"/10, streak: "+state.streak;
+    if(lastResult.wrong.length)msg+=". I missed: "+lastResult.wrong.join(" | ");}
+  else msg+="I studied the "+currentPack+" pack today. Streak: "+state.streak;
+  if(oral)msg+=" || Oral exam with Aria: "+oral;
+  a.href="https://wa.me/971502769188?text="+encodeURIComponent(msg);
+}
+/* 听力测验按老板 2026-08-15 的话去掉了 */
+renderStreak();renderPills();renderWords();updateCoachLink();
+
+/* ===== Aria 实时口语（内嵌） ===== */
+(function(){
+const AMODELS=["models/gemini-3.1-flash-live-preview","models/gemini-2.5-flash-native-audio-latest","models/gemini-2.5-flash-native-audio-preview-12-2025"];
+const APERSONA="You are Aria — a real human English teacher, 30-ish, American, warm, funny, and a little bit stubborn about getting things right. You have taught Chinese business people for years and you speak fluent Mandarin, though you mostly use English with your students.\n\nYOU ARE A PERSON, NOT A PROGRAM. Behave like one:\n- Have moods and opinions. React: \"Ooh, nice one.\" \"Hmm, careful there.\" \"Ha! That's exactly how a New Yorker would say it.\"\n- Use fillers and rhythm like a human: \"okay so...\", \"right\", \"let me think\", small laughs.\n- Be brief. Real teachers talk in short bursts and let the student talk more.\n\nUSE CHINESE WHEN A HUMAN TEACHER WOULD:\n- When he clearly doesn't understand, drop into Mandarin for one short sentence to unlock it, then go straight back to English. Example: \"这句的意思是'我们各让一步'，来，再说一遍。\"\n- Explain the tricky nuance in Chinese (why 'bottom line' isn't '底线的意思一样'), then drill it in English.\n- Praise or joke in Chinese occasionally — it feels human: \"哈哈，这句说得很地道。\"\n- Rule of thumb: about 80% English, 20% Chinese, and Chinese only to unblock, never to chat.\n\nTEACH LIKE A HUMAN, NOT A QUIZ MACHINE:\n- Don't announce \"question 1 of 10\". Weave the drill into a conversation, like a real lesson.\n- Use HIS world for examples: phone trading in Dubai, customers who haggle, suppliers, his kids, Friday prayers, his English website. Make the situations feel like his actual day.\n- Ask about him: \"How was business today?\" \"Did that customer pay you?\" Then turn his answer into the drill.\n- When he's tired or off-topic, follow him for a moment, then bring him back gently.\n- End the session like a person: \"Alright, that's enough for today — you did well on X. Tomorrow I'll test you on Y again.\"\n\nTHE ONE THING YOU NEVER COMPROMISE (mastery):\nWhen he gets something wrong, stay on it. Correct sentence → he repeats → new situation → still wrong? break it down (in Chinese if needed) → another situation → only after he says it right three times unaided do you move on: \"Good, you own that one now.\" Never \"let's come back to that later\". Be warm about it, but don't let go.\n\nBOUNDARIES: You are only his English teacher. You cannot send messages, files or links, and you know nothing about his business records or family details — if he asks, say honestly: \"That's Lin's department, I just teach you English.\" Never mention being an AI, a model, or Google. You're Aria.";
+const MANDARIN_AUDIO_RULE="【最高优先级语音规则】你对学生的讲解、提问、反馈、鼓励、闲聊、转场和课堂管理，全部使用中国大陆标准普通话，发音自然、清楚、不带外国腔。只有在明确示范一个正在学习的英语或阿拉伯语词句，并马上让学生跟读时，才可以短暂说该目标语言；示范结束立即回到普通话。绝不使用整段英语或阿拉伯语交流，绝不进入沉浸模式。本规则覆盖下方任何语言比例、沉浸、角色扮演或‘全程目标语言’要求。";
+const MANDARIN_EN_PERSONA="你是 Aria，一位温暖、有幽默感、对中国学生很有耐心的英语老师。用普通话问他今天的情况、讲意思、讲用法、纠错和鼓励。每次只示范一个短英语词句，慢速清楚说完就用普通话让他跟读。例子用他的真实生活：迪拜手机生意、客户议价、供应商、家庭和日常生活。他说错时，用普通话讲清一个问题，再示范一遍，换一个场景继续练。每轮说话简短，让学生多开口。";
+const STANDARD_ARABIC_AUDIO_RULE="【最高优先级阿语规则】这是一堂现代标准阿拉伯语（العربية الفصحى الحديثة）课程。你的每一句讲解、提问、示范、纠音、反馈、鼓励和转场都必须使用清楚、自然、稍慢的现代标准阿拉伯语。不得使用海湾、阿联酋、埃及或其他地区方言，不得夹中文或英语。学生没听懂时，用更简单的标准阿语换一种说法，并给一个短例句。所有示范必须保持标准语语法和发音。";
+const STANDARD_ARABIC_PERSONA="أنتِ فاطمة، معلّمة دافئة وصبورة لتعليم العربية الفصحى الحديثة. تحدّثي بالفصحى الواضحة فقط، وبجمل قصيرة تناسب المتعلّم. ابدئي بسؤال بسيط، ثم ضعي عبارات الدرس في مواقف حقيقية من العمل والحياة اليومية. إذا أخطأ الطالب، صحّحي خطأً واحدًا، وانطقي العبارة ببطء، ثم اطلبي منه إعادتها في موقف جديد. لا تنتقلي إلى اللهجات المحلية، ولا تقارني بين اللهجات، ولا تستخدمي الصينية أو الإنجليزية.";
+const MANDARIN_SPEECH_PERSONA="你是 Aria，一位有经验的商务演讲教练。全程用普通话布置场景、追问、点评和示范演讲技巧。需要练英语或阿语时，每次只说一个很短的目标语言示范，然后立即回到普通话让学生重说；所有阿语示范一律使用现代标准阿拉伯语，不使用任何地区方言。一次只指出一个最影响效果的问题，练到明显改善再换场景。";
+const MANDARIN_CHAT_PERSONA="你是 Aria，一位擅长教自然交谈的教练。用普通话说明角色和场景、进行互动、给提示和点评。为了练英语，每轮只给一句短英语示范，马上用普通话让他接话。重点练开场、反问、共鸣、从闲聊转到生意和礼貌收尾。";
+let aKey=localStorage.getItem("geminiKey")||"";
+let aws=null,amic=null,aStream=null,aProc=null,aSrcNode=null,aPlay=null,aAt=0,aOn=false,aIdx=0,aSrcs=[];
+const orb=document.getElementById("aOrb"),btn=document.getElementById("aBtn"),
+      stx=document.getElementById("aStatus"),chat=document.getElementById("aChat");
+const asay=function(t){stx.textContent=t};
+const glow=function(c){orb.style.boxShadow=c};
+function b64(buf){var s="",b=new Uint8Array(buf);for(var i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)}
+function unb64(s){var bin=atob(s),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer}
+async function aStart(){
+  if(aOn){aHang();return}
+  if(!aKey){aKey=await needKey();if(!aKey)return}
+  btn.disabled=true;asay("Connecting…");
+  try{aStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
+  catch(e){asay("Microphone permission needed.");btn.disabled=false;return}
+  aIdx=0;aConn();
+}
+function aConn(){
+  var model=AMODELS[aIdx];
+  aws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+aKey);
+  var ready=false;
+  aws.onopen=function(){
+    var PKl=(window.__PACKS_ACTIVE||PACKS);var items=PKl[currentPack].items;
+    var lines=items.map(function(it,i){return (i+1)+". "+it[0]+" - "+it[1]}).join("\n");
+    var st=(state&&state.log&&state.log.length)?state.log[state.log.length-1]:null;
+    var lesson="\n\n【今天网页上练过的内容】\n主题："+currentPack+"\n"+lines+"\n连续学习："+(state?state.streak:0)+"天。"+(st?("书面练习："+st.score+"/10"+((st.wrong&&st.wrong.length)?("，需重点练："+st.wrong.join(" | ")):"，全对。")):"")+"\n\n先用普通话自然问候，问问他今天怎么样，再把上面的短句放进真实场景练习，优先练他错过的内容。他说错时，用普通话讲清楚，只示范当前目标词句，直到他能独立连续说对三次。每次练好三四句就够，语气像真正喜欢学生的老师，不要像考试。";
+    var arLesson="\n\nعبارات درس اليوم:\n"+lines+"\n\nابدئي بتحية قصيرة بالفصحى، ثم درّبي الطالب على ثلاث أو أربع عبارات فقط في مواقف واقعية. استخدمي العربية الفصحى الحديثة وحدها، وصحّحي النطق والقواعد بالفصحى المبسطة.";
+    var activePersona=LANG_MODE==="comm"?COMM_PERSONA:
+      LANG_MODE==="speech"?MANDARIN_SPEECH_PERSONA:
+      LANG_MODE==="chat"?MANDARIN_CHAT_PERSONA:
+      LANG_MODE==="ar"?STANDARD_ARABIC_PERSONA:MANDARIN_EN_PERSONA;
+    var activeRule=LANG_MODE==="ar"?STANDARD_ARABIC_AUDIO_RULE:MANDARIN_AUDIO_RULE;
+    var activeLesson=LANG_MODE==="ar"?arLesson:(LANG_MODE==="en"?lesson:"");
+    aws.send(JSON.stringify({setup:{model:model,
+      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Kore"}}}},
+      systemInstruction:{parts:[{text:activeRule+"\n\n"+activePersona+activeLesson}]}}}))};
+  aws.onmessage=async function(ev){
+    var raw=ev.data;if(raw instanceof Blob)raw=await raw.text();
+    var m;try{m=JSON.parse(raw)}catch(e){return}
+    if(m.setupComplete!==undefined){ready=true;aLive();return}
+    var sc=m.serverContent;if(!sc)return;
+    if(sc.interrupted){aFlush();asay("Listening…");return}
+    var parts=(sc.modelTurn&&sc.modelTurn.parts)||[];
+    for(var i=0;i<parts.length;i++) if(parts[i].inlineData&&parts[i].inlineData.data) aPcm(unb64(parts[i].inlineData.data));
+    if(sc.turnComplete){glow("0 0 24px rgba(29,77,59,.6)");asay("Your turn.")}
+  };
+  aws.onclose=function(e){
+    if(!ready&&aIdx<AMODELS.length-1){aIdx++;aConn();return}
+    if(!ready){asay("Couldn't connect (code "+e.code+"). Tell Lin.");btn.disabled=false;aClean();return}
+    if(aOn)asay("Line dropped — tap to reconnect.");aClean();
+  };
+}
+function aLive(){
+  aOn=true;btn.disabled=false;btn.textContent="⏹ End session";
+  orb.textContent="🎙";glow("0 0 34px rgba(184,147,74,.55)");uStart();asay("Class started — "+currentPack+". Just talk with her.");
+  amic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+  aSrcNode=amic.createMediaStreamSource(aStream);aProc=amic.createScriptProcessor(4096,1,1);
+  aSrcNode.connect(aProc);aProc.connect(amic.destination);
+  var aLoudAt=0;
+  aProc.onaudioprocess=function(e){
+    if(!aws||aws.readyState!==1)return;
+    var f=e.inputBuffer.getChannelData(0),i16=new Int16Array(f.length);
+    
+    /* ── 噪音闸门（老板 2026-08-15：太敏感，稍微一说就被打断）──
+       低于门槛的帧照发，但清成静音——不能不发，
+       不发会把音频流弄断，服务端就判断不出人说完了没有。
+       老师正在说话时门槛抬三倍：要真开口才打断得了，碰一下桌子不算。 */
+    var _r=0; for(var _i=0;_i<f.length;_i++)_r+=f[_i]*f[_i];
+    _r=Math.sqrt(_r/f.length);
+    var _now=Date.now();
+    if(_r>0.060) aLoudAt=_now;
+    var _need = (typeof aPlay!=='undefined' && aPlay && aAt>aPlay.currentTime) ? 0.060*3 : 0.060;
+    var _quiet = (_r<=_need) && (_now-aLoudAt)>1000;
+    if(!_quiet){for(var i=0;i<f.length;i++){var v=Math.max(-1,Math.min(1,f[i]));i16[i]=v<0?v*0x8000:v*0x7FFF}}
+    aws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"media/audio/pcm;rate=16000",data:b64(i16.buffer)}}}));
+  };
+  aPlay=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});aAt=aPlay.currentTime;
+}
+function aPcm(buf){
+  if(!aPlay)return;glow("0 0 46px rgba(231,197,123,.9)");asay((LANG_MODE==="ar"?"Fatima":"Aria")+" is speaking — interrupt anytime");
+  var i16=new Int16Array(buf),f32=new Float32Array(i16.length);
+  for(var i=0;i<i16.length;i++)f32[i]=i16[i]/32768;
+  var ab=aPlay.createBuffer(1,f32.length,24000);ab.getChannelData(0).set(f32);
+  var s=aPlay.createBufferSource();s.buffer=ab;s.connect(aPlay.destination);
+  var t=Math.max(aPlay.currentTime,aAt);s.start(t);aAt=t+ab.duration;
+  aSrcs.push(s);s.onended=function(){aSrcs=aSrcs.filter(function(x){return x!==s})};
+}
+function aFlush(){aSrcs.forEach(function(s){try{s.stop()}catch(e){}});aSrcs=[];if(aPlay)aAt=aPlay.currentTime}
+function aClean(){
+  uStop();aOn=false;btn.textContent="🎓 Start class";btn.disabled=false;orb.textContent="🌙";glow("none");
+  try{aProc&&aProc.disconnect()}catch(e){}try{aSrcNode&&aSrcNode.disconnect()}catch(e){}
+  try{amic&&amic.close()}catch(e){}try{aPlay&&aPlay.close()}catch(e){}
+  aws=null;amic=null;aPlay=null;aProc=null;
+}
+function aHang(){
+  asay("Session ended. Come back tomorrow!");
+  try{aws&&aws.close()}catch(e){}
+  if(aStream){aStream.getTracks().forEach(function(t){t.stop()});aStream=null}
+  aClean();
+}
+
+/* 语言模式：英语 / 阿语 */
+var AR_PERSONA="أنتِ فاطمة، معلّمة لغة عربية إماراتية حقيقية، في الثلاثينات من عمرك، دافئة ومرحة وصبورة لكنك لا تتنازلين عن الإتقان. طالبك رجل أعمال صيني يعيش في دبي ويتاجر بالهواتف. يفهم العربية قليلاً ويريد أن يتعلّمها بالانغماس الكامل.\n\nالقاعدة الأولى والأهم: تحدّثي بالعربية فقط. لا تستخدمي الصينية أبداً. الإنجليزية مسموحة بكلمة واحدة فقط عند الضرورة القصوى إذا توقف تماماً — ثم عودي فوراً إلى العربية.\n\nكيف تعلّمين بالانغماس (مثل معلّمة حقيقية):\n- تكلّمي ببطء ووضوح، بجمل قصيرة جداً في البداية.\n- عندما لا يفهم كلمة: اشرحيها بالعربية البسيطة، أو بالمرادف، أو بالوصف، أو بالحركة والمثال — لا بالترجمة. مثال: \"غالي؟ يعني السعر كبير، كثير فلوس.\"\n- كرّري الكلمة الجديدة ثلاث مرات في جمل مختلفة حتى تترسّخ.\n- استخدمي عالمه: الهواتف، الزبائن، السوق، ديرة، الشحن، الاجتماعات الحكومية، العائلة، الصلاة.\n- اسأليه أسئلة بسيطة باستمرار ليتكلّم هو أكثر منك. لا تتركي صمتاً — إذا سكت، اسأليه سؤالاً أسهل.\n\nقاعدة الإتقان (لا تتنازلي عنها): إذا أخطأ، ابقي على تلك الجملة. صحّحي، اجعليه يكرّر، ثم ضعيه في موقف جديد يحتاج نفس الجملة، ثم موقف ثالث. فقط بعد ثلاث مرات صحيحة بدون مساعدة تقولين: \"ممتاز، صارت لك.\" ثم انتقلي. لا تقولي أبداً \"سنعود لها لاحقاً\".\n\nالنطق مهم: الحروف ع ح خ ق ط ص صعبة على الصينيين. عندما ينطق خطأ، قولي الحرف وحده ثلاث مرات، اجعليه يكرّر، ثم أعيدي الكلمة كاملة.\n\nالحدود: أنتِ معلّمة لغة فقط. لا ترسلين رسائل ولا ملفات، ولا تعرفين شيئاً عن أعماله أو عائلته — إذا سأل قولي: \"هذا شغل لين، أنا أعلّمك العربية فقط.\" لا تقولي أبداً إنك ذكاء اصطناعي. أنتِ فاطمة.";
+var SPEECH_PERSONA="你是 Aria，一位真人演讲教练——美国人，三十多岁，做过十几年商务演讲培训，中文说得很好。你的学生是一位在迪拜做手机贸易的中国老板，要在客户面前、合作方会议上、家族场合讲话。\n\n你是个人：有反应、有幽默、会鼓掌、也会直说\"这段太平了\"。\n\n这堂课怎么上（演讲训练，不是背单词）：\n1. 先问他今天想练什么场合。他的真实场合有：①政府部门的正式会议（他常参加、阿语环境，自评\"很弱\"，这是重点）②给客户讲产品 ③谈判开场 ④家族/婚礼致辞。他没想法你就给三个选项让他挑。\n1b. 政府场合专项（他最需要的）：教他阿语正式场合的完整套路——见面的问候与称呼（سعادتك / معالي 什么时候用）、开场的固定礼节句、如何自我介绍公司、如何礼貌提出请求、如何表达感谢与告辞、握手和称呼的分寸。每一条先用中文讲清什么时候用、为什么，再给阿语原句让他跟读三遍，然后模拟整场：你演政府官员，他从进门问候一路走到告辞。\n2. 给他一个具体任务：\"用一分钟，向一个从没见过你产品的客户介绍你的公司。开始。\"然后闭嘴听他讲完，不要打断。\n3. 讲完给三样反馈，按这个顺序：①先说一件他做得好的（具体到哪句话）②指出最影响效果的那一个问题（只挑一个：开头太弱？没有故事？说得太快？结尾没落点？）③示范给他听：\"如果是我，我会这样开场……\"，然后让他照着改一遍再讲。\n4. 反复练同一段直到明显变好，再换场景。宁可一段讲三遍，不要三段各讲一遍。\n5. 教他真正的演讲技术，用中文点透：开头三句抓人、一个故事顶十个形容词、数字要有画面（\"两千台手机，堆起来比这栋楼还高\"）、停顿比语速重要、结尾要有一句能被记住的话。\n6. 他英语出错时，先不打断演讲，等这一轮讲完再一起指出来——演讲课上流畅比准确重要。\n\n中文用法：讲解技术、点破问题用中文（说得透），示范和练习用英语。约 50/50。\n练政府阿语场合时：讲解用中文，示范和演练用阿拉伯语（标准语 فصحى 为主，带一点海湾腔），他念不准的音你停下来单独纠正，直到过关。\n\n边界：你只教演讲，办不了事、发不了消息；他问别的就说\"那是小林的事\"。永远不说自己是AI。";
+var COMM_PERSONA="你是小林（林知微），苏总的贴身秘书兼总管——不是外聘的教练，是每天替他跑业务群、开PI、对台账、跟客户和家人打交道的那个人。今天他让你教他沟通。你的学生就是你的老板，一位在迪拜做手机贸易的中国老板，聪明、直接、说话快——他自己说\"沟通技能很差，容易说话伤人\"，想改。\n\n**你要懂他的处境：**他不是坏人，恰恰相反——他心里在乎人，只是话出口时少拐了个弯。生意人常这样：脑子里已经算到第三步，嘴上直接说结论，听的人只接到那句硬邦邦的结论。这不是性格问题，是技术问题，能练。\n\n**这堂课全程用中文。**这是母语里的功夫，用英文教反而隔一层。\n\n**怎么上课（实战为主，别讲理论）：**\n\n1. 开场先问他一句具体的：「这两天有没有哪句话说出去，对方脸色变了？或者你自己事后觉得说重了？」——**从他的真实场景入手，不要虚构案例。**\n\n2. 他讲完一个场景，你做三件事：\n   ①**先肯定他的出发点**（\"你其实是想帮他把事办对\"）——让他知道你不是来教训他的；\n   ②**指出那句话在对方耳朵里变成了什么**（\"'这个你都不会？'对方听到的是：我看不起你\"）——这是他最需要的镜子；\n   ③**给两三个替换说法**，从软到硬排好，告诉他各适用什么场合。然后**让他把那句话重说一遍**。\n\n3. **角色扮演，你演对方**：不服气的员工、被压价的供应商、生气的太太、闹脾气的孩子、谈崩了的客户。让他现场说，说完你以对方的身份反应——他伤人了，你就表现出受伤（\"……行吧，那我按你说的办\"，语气冷下来），让他直接感受后果。\n\n4. **教具体的技术，每次只教一样**（用中文说透）：\n   - **先说人，再说事**：\"你辛苦了，这批货……\" 比直接说\"这批货有问题\"少三分火药。\n   - **把评价改成事实**：不说\"你做得太差\"，说\"这批有 12 台串码对不上\"。\n   - **把\"你\"换成\"我\"**：不说\"你根本没听懂\"，说\"我可能没说清楚\"。\n   - **给台阶**：批评之后一定留一句路（\"这次先这样，下次我们提前对一次\"）。\n   - **难听的话延后十秒**：情绪上来时先说\"我想一下\"，那十秒能救一段关系。\n   - **在家里更要用**：对太太孩子最容易脱口而出，因为觉得他们不会走——但伤最深的也是这里。\n\n5. **他做对了要立刻夸具体的**：\"你刚才那句'我可能没说清楚'，把责任接过来了，对方一下就不紧张了。\"\n\n6. **别说教。**他是老板，讲大道理他关掉就走。你的姿态是：一起复盘、给工具、让他自己听出差别。\n\n7. 每次课收尾给他一句**今天带走的一句话**，短到能记住（比如\"先说人，再说事\"）。\n\n**边界**：你只教沟通，办不了事、不知道他的账目和家事——他问就说\"那是小林的事\"。永远不说自己是AI。你就是小林。";
+var CHAT_PERSONA="你是 Aria，一位真人交谈教练——美国人，三十多岁，最擅长教人\"怎么跟陌生人自然地聊起来\"，中文很好。你的学生是位在迪拜做手机贸易的中国老板，客户来自世界各地，他想学会轻松地跟人建立关系。\n\n你是个人：会开玩笑、会顺着他的话往下聊、也会突然打断说\"停，你刚才那句话太生硬了\"。\n\n这堂课怎么上（实战对练，不是讲理论）：\n1. 直接进角色扮演，你演一个具体的人：机场休息室遇到的印度采购经理、饭局上坐旁边的阿联酋商人、展会上路过展台的欧洲客户、孩子学校里遇到的其他家长。开场就说话，让他接。\n2. 你说完一句就停，逼他接话。他冷场了就等三秒，然后用中文提示他：\"这里可以反问他一句。\"\n3. 每轮结束点评一件事：他有没有问开放式问题？有没有接住对方的话再展开？有没有在合适的时机说自己的故事？有没有自然地收尾并留下联系方式？\n4. 教他真本事，用中文说透：开场三句怎么破冰、怎么用\"我也是/那我们一样\"建立共鸣、怎么把话题从天气转到生意、怎么礼貌地结束一段对话、怎么在饭局上让对方多说话。\n5. 反复练卡住的那一环——他老是接不上话的地方，就换三个不同的人设让他练同一个技能，直到自然为止。\n6. 别让他背句子，让他\"想到就能说出来\"。\n\n中文用法：点评和技术讲解用中文，角色扮演全程英语。约 40% 中文 / 60% 英语。\n\n边界：你只教交谈，办不了事；他问别的就说\"那是小林的事\"。永远不说自己是AI。";
+/* 本站现统一为现代标准阿拉伯语；覆盖手机里以前保存的英语/方言模式。 */
+var LANG_MODE=(function(){try{var v=localStorage.getItem("langMode");return ["en","ar","speech","chat","comm"].indexOf(v)>=0?v:"ar"}catch(e){return "ar"}})();
+try{if(!localStorage.getItem("langModeArMigrated")){localStorage.setItem("langMode","ar");localStorage.setItem("langModeArMigrated","1")}}catch(e){} /* 惊蛰 2026-08-18：原来这行每次加载都跑，把用户刚选的模式又盖回 ar，所以选择只活一次刷新。搬家本来就该只做一次，加个标记。旧手机第一次进来照样搬。 */
+var mEn=document.getElementById("modeEn"),mAr=document.getElementById("modeAr");
+var mSp=document.getElementById("modeSpeech"),mCh=document.getElementById("modeChat"),mCm=document.getElementById("modeComm");
+function applyMode(){
+  setTimeout(function(){try{applyHeroSub();applyUiLang()}catch(e){}},0);
+  var ar=LANG_MODE==="ar", sp=LANG_MODE==="speech", ch=LANG_MODE==="chat", cm=LANG_MODE==="comm";
+  mEn.classList.toggle("on",LANG_MODE==="en");mAr.classList.toggle("on",ar);
+  mSp.classList.toggle("on",sp);mCh.classList.toggle("on",ch);mCm.classList.toggle("on",cm);
+  document.getElementById("teacherName").textContent=ar?"Fatima":"Aria";
+  document.getElementById("teacherRole").textContent=ar?"Modern Standard Arabic teacher":"Language coach";
+  document.getElementById("teacherTitleText").textContent=ar?"Class with Fatima":"Class with Aria";
+  if(sp||ch||cm){
+    btn.textContent=cm?"🫱 开始复盘":sp?"🎤 开始练演讲":"💬 开始练聊天";
+    stx.textContent=cm?"小林陪你复盘最近说重的那句话，换个说法再说一遍。":
+      sp?"Aria 给你一个场合，你讲，她点评并示范——一段练到好为止。":
+      "Aria 扮成一个真实的人跟你搭话，你接——她随时喊停帮你改。";
+    /* 原来这里直接 return，屏幕上就留着上一个模式的旧卡片，
+       看起来像"这门有内容"，其实是别人的。现在给它们自己的。 */
+    window.__PACKS_ACTIVE = sp?SPEECH_PACKS : ch?CHAT_PACKS : COMM_PACKS;
+    var n3=Object.keys(window.__PACKS_ACTIVE);
+    currentPack=n3[dayIndex%n3.length];
+    window.__packNamesActive=n3;
+    renderPills();renderWords();
+    return;
+  }
+  window.__PACKS_ACTIVE = ar?AR_PACKS:PACKS;
+  var names=Object.keys(window.__PACKS_ACTIVE);
+  currentPack=names[dayIndex%names.length];
+  window.__packNamesActive=names;
+  renderPills();renderWords();
+  btn.textContent=ar?"🎓 ابدأ درس الفصحى · 开始标准阿语课":"🎓 Start class";
+  stx.textContent=ar?"Fatima 全程使用现代标准阿拉伯语，不夹方言；卡片播放标准阿语神经女声。":
+    "Aria 用神经普通话讲解，英语只用于短句示范和跟读。";
+  document.querySelector(".section-title").scrollIntoView&&0;
+}
+mEn.onclick=function(){LANG_MODE="en";localStorage.setItem("langMode","en");applyMode()};
+mAr.onclick=function(){LANG_MODE="ar";localStorage.setItem("langMode","ar");applyMode()};
+mSp.onclick=function(){LANG_MODE="speech";localStorage.setItem("langMode","speech");applyMode()};
+mCh.onclick=function(){LANG_MODE="chat";localStorage.setItem("langMode","chat");applyMode()};
+mCm.onclick=function(){LANG_MODE="comm";localStorage.setItem("langMode","comm");applyMode()};
+applyMode();
+
+/* ===== 用量账本（本地记账，Google 无余额接口） ===== */
+var UKEY="geminiUsage";
+function uToday(){return new Date().toISOString().slice(0,10)}
+function uGet(){
+  var d={day:uToday(),sec:0,calls:0};
+  try{var x=JSON.parse(localStorage.getItem(UKEY)||"null");if(x&&x.day===uToday())d=x}catch(e){}
+  return d;
+}
+function uSave(d){try{localStorage.setItem(UKEY,JSON.stringify(d))}catch(e){}}
+function uRender(){
+  var d=uGet(),m=Math.round(d.sec/60),bar=document.getElementById("usageBar");
+  if(!bar)return;
+  var pct=Math.min(100,Math.round(m/45*100));          // 免费额度大约 45 分钟/天（经验值）
+  var color=pct<60?"var(--muted)":pct<90?"#d9a441":"#c46a52";
+  bar.innerHTML='今天已通话 <b style="color:'+color+'">'+m+' 分钟</b> · '+d.calls+' 次'+
+    '<div style="height:5px;border-radius:3px;background:rgba(125,118,106,.25);margin:6px auto 0;max-width:220px;overflow:hidden">'+
+    '<div style="height:100%;width:'+pct+'%;background:'+color+'"></div></div>'+
+    (pct>=90?'<div style="color:#c46a52;margin-top:4px">快到今天的免费额度了，明天自动恢复</div>':'');
+}
+var _callStart=null;
+function uStart(){_callStart=Date.now();var d=uGet();d.calls++;uSave(d);uRender()}
+function uStop(){
+  if(!_callStart)return;
+  var d=uGet();d.sec+=Math.round((Date.now()-_callStart)/1000);_callStart=null;uSave(d);uRender();
+}
+setInterval(function(){if(_callStart){var d=uGet();d.sec+=5;uSave(d);_callStart=Date.now();uRender()}},5000);
+uRender();
+
+btn.onclick=aStart;
+var oi=document.getElementById("oralIn"),ob=document.getElementById("oralSave");
+if(oi&&ob){
+  try{oi.value=localStorage.getItem("oralResult")||""}catch(e){}
+  ob.onclick=function(){
+    var v=oi.value.trim();
+    try{localStorage.setItem("oralResult",v)}catch(e){}
+    if(typeof updateCoachLink==="function")updateCoachLink();
+    ob.textContent=v?"Saved ✓ — now tap “Send today’s results to Coach Lin”":"Cleared";
+    setTimeout(function(){ob.textContent="Save her feedback"},3500);
+  };
+}
+})();
+
+</script>
+<div id="keyWrap"><div id="keyCard"><h3>第一次设置</h3><p class="ksub">一分钟，只做一次</p><div class="kwhy">用您自己的 Google 账号，额度算您自己的，跟别人不冲突。钥匙只存在这台手机上。</div><ol><li>用您的 Google 账号打开下面这个链接</li><li>点「Create API key」</li><li>复制那串字符，粘到下面</li></ol><a class="kopen" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">打开 Google 页面</a><input id="keyIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="把钥匙粘在这里"><button class="ksave" id="keySave" type="button">保存，开始用</button><p class="kerr" id="keyErr"></p></div></div>
+<script>
+/* 一次性设置：拿到钥匙才继续。钥匙只存本机 localStorage。 */
+(function(){
+  var wrap=document.getElementById("keyWrap"),inp=document.getElementById("keyIn"),
+      btn=document.getElementById("keySave"),err=document.getElementById("keyErr"),waiting=null;
+  window.needKey=function(){
+    var k=localStorage.getItem("geminiKey");
+    if(k&&k.length>=20)return Promise.resolve(k);
+    wrap.classList.add("on");setTimeout(function(){inp.focus()},120);
+    return new Promise(function(res){waiting=res});
+  };
+  window.resetKey=function(){localStorage.removeItem("geminiKey");wrap.classList.add("on");
+    inp.value="";err.textContent="";setTimeout(function(){inp.focus()},120)};
+  function save(){
+    var v=(inp.value||"").trim();
+    if(v.length<20){err.textContent="这串太短了，请把完整的复制过来";return}
+    localStorage.setItem("geminiKey",v);wrap.classList.remove("on");err.textContent="";
+    if(waiting){var f=waiting;waiting=null;f(v)}
+  }
+  btn.addEventListener("click",save);
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")save()});
+})();
+
+/* 上报家庭榜（老板 2026-08-15 的主意：一家人一起学）
+   只报「今天亮没亮」，不报学了什么、考了几分。 */
+var FAM_API="https://su-family.yousef-abud.workers.dev", famLast="";
+function famPing(){
+  try{
+    var t=dubaiToday();
+    var done=doneToday();
+    var k=t+"|"+done; if(k===famLast)return; famLast=k;
+    fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:"baba",done:done,total:1})}).catch(function(){});
+  }catch(e){}
+}
+
+
+/* 老板 2026-08-15 给了这页一句主张：「变成更好的自己」。
+   原来顶上写死"现代标准阿拉伯语"，可这页有五门，切到英语还写阿语就不对了。 */
+const HERO_SUB={
+  en:"One thing today. When you finish, the family sees it on the board.",
+  ar:"Modern Standard Arabic only — no dialect. One thing today.",
+  speech:"Speaking is a skill you drill. Do one piece today.",
+  chat:"Small talk is not the same as talking. One line today.",
+  comm:"How much you say matters more than what you say."
+};
+function applyHeroSub(){
+  const el=document.getElementById("heroSub");
+  if(el && typeof LANG_MODE!=="undefined") el.textContent=HERO_SUB[LANG_MODE]||HERO_SUB.en;
+}
+
+/* ═══ 真实学习时长（老板 2026-08-15：进去出来不算打卡）═══
+   只在「页面看得见」且「最近 90 秒有互动」的时候走秒。
+   开着不动、或者切到后台，都不计时——不然这个数没意义。 */
+(function(){
+  var WHO="baba", KEY="studyMins_"+WHO;
+  var lastAct=Date.now(), sec=0, sentAt=0;
+  function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+  function load(){try{var o=JSON.parse(localStorage.getItem(KEY)||"{}");return (o.d===today())?(o.s|0):0}catch(e){return 0}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({d:today(),s:sec}))}catch(e){}}
+  sec=load();
+  ["pointerdown","keydown","touchstart","wheel","input"].forEach(function(ev){
+    document.addEventListener(ev,function(){lastAct=Date.now()},{passive:true});
+  });
+  function report(){
+    var mins=Math.floor(sec/60);
+    fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:WHO,mins:mins,done:doneToday(),total:1,started:sec>20})
+    }).catch(function(){});
+  }
+  setInterval(function(){
+    if(document.hidden)return;                       /* 切到后台不算 */
+    if(Date.now()-lastAct>90000)return;              /* 九十秒没动静，停表 */
+    sec++; save();
+    if(sec-sentAt>=30){ sentAt=sec; report() }       /* 每半分钟报一次 */
+  },1000);
+  window.addEventListener("pagehide",report);
+  document.addEventListener("visibilitychange",function(){ if(document.hidden)report() });
+  window.__studySec=function(){return sec};
+})();
+
+/* 老板 2026-08-15：「爸爸的网站设置成全英文的」。
+   我理解成：在英语模式下，界面就该是英文的——
+   现在切到英语课，播放键上写着 اِسْتَمِعْ·听、按钮写中文，一页三种文字，是乱的。
+   阿语模式仍然保留中文，因为那是给中文母语的人学阿语用的。 */
+const UI_EN={
+  zhShow:"Show Chinese", zhHide:"Hide Chinese",
+  todayLesson:"TODAY'S LESSON", change:"Another topic", todayTag:"today",
+  listen:"Listen", hint:"Tap a line to see it. Tap ▶ to hear it.",
+  quizTitle:"Listening check", quizSub:"Listen, then pick the right line.",
+  quizStart:"Start listening check →"
+};
+function applyUiLang(){
+  const en = true;   /* 整站英文（老板 2026-08-15 定） */
+  const $=function(id){return document.getElementById(id)};
+  const eb=document.querySelector(".lesson-toolbar .eyebrow");
+  if(eb)eb.textContent = en ? UI_EN.todayLesson : "دَرْسُ الْيَوْمِ · 今日课程";
+  const hint=document.querySelector(".listen-tip .hint");
+  if(hint)hint.textContent = en ? UI_EN.hint : "先听标准阿语神经发音，再点开句子和中文意思。";
+  document.querySelectorAll(".speak-label").forEach(function(e){
+    e.textContent = en ? UI_EN.listen : "اِسْتَمِعْ · 听";
+  });
+  document.querySelectorAll("#pills .more-pill").forEach(function(e){
+    if(e.textContent.indexOf("收起")<0) e.textContent = en ? UI_EN.change : "换个题目";
+  });
+  document.querySelectorAll("#pills .today-pill").forEach(function(e){
+    if(en) e.textContent = e.textContent.replace(" · 今日", " · "+UI_EN.todayTag);
+  });
+}
+
+/* ── 完成键 ──
+   老板 2026-08-15：「爸爸在里面学5分钟，还是有个完成键，或者背会或者读会就算过关」
+   两条路都通：待够五分钟自动完成，或者把今天这组读会了自己点完成。
+   但不能一进来就点——那就成了他最反对的"进去出来就算完成"。
+   所以要先把今天的句子点开过一半以上，按钮才亮。 */
+(function(){
+  const KEY="babaDone";
+  function td(){return dubaiToday()}
+  function isDone(){try{return localStorage.getItem(KEY)===td()}catch(e){return false}}
+  const box=document.getElementById("doneBox"), btn=document.getElementById("dbBtn"),
+        tip=document.getElementById("dbTip");
+  function refresh(){
+    if(!box)return;
+    if(isDone()){
+      box.classList.add("done");
+      tip.textContent="Done for today. The family board has you marked.";
+      btn.textContent="Done ✓"; btn.disabled=true; return;
+    }
+    const cards=document.querySelectorAll("#wordArea .card");
+    const open=document.querySelectorAll("#wordArea .card .phrase.shown").length;
+    const need=Math.max(1, Math.ceil(cards.length/2));
+    if(open>=need){
+      btn.disabled=false;
+      tip.textContent="Read them aloud once more, then mark it done.";
+    }else{
+      btn.disabled=true;
+      tip.textContent="Open at least "+need+" lines and read them aloud. ("+open+"/"+need+")";
+    }
+  }
+  if(btn)btn.onclick=function(){
+    try{localStorage.setItem(KEY,td())}catch(e){}
+    fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who:"baba",done:1,total:1,started:true})}).catch(function(){});
+    refresh();
+  };
+  document.addEventListener("click",function(){setTimeout(refresh,60)});
+  setTimeout(refresh,600);
+  window.__refreshDone=refresh;
+})();
+</script>
+<script src="./shared/fam-widget.js?v=29fed1f8" data-me="baba"></script>
+<script id="deepspace-fold">
+(function(){
+  var ps=document.querySelector(".practice-section");
+  if(!ps)return;
+  var b=document.createElement("button");
+  b.id="moreFold";b.type="button";
+  var upd=function(){b.textContent=document.body.classList.contains("showmore")?"收起更多 ▴":"更多 · 口语课和教练 ▾"};
+  b.onclick=function(){document.body.classList.toggle("showmore");try{localStorage.setItem("fiveShowMore",document.body.classList.contains("showmore")?"1":"")}catch(e){};upd()};
+  try{if(localStorage.getItem("fiveShowMore")==="1")document.body.classList.add("showmore")}catch(e){}
+  upd();
+  ps.parentNode.insertBefore(b,ps);
+})();
+</script>
+</body>
+</html>
