@@ -173,6 +173,16 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 #swingbox{position:fixed;top:0;width:96px;height:236px;z-index:9;pointer-events:none;display:none;transform-origin:50% 0}
 #swingbox.go{animation:swy 2.3s ease-in-out infinite alternate}
 @keyframes swy{0%{transform:rotate(14deg)}100%{transform:rotate(-14deg)}}
+.acci{display:none}
+#shopPanel{position:fixed;inset:0;background:rgba(60,40,60,.35);z-index:60;display:none;align-items:center;justify-content:center}
+#shopPanel.on{display:flex}
+.shopcard{background:#fff;border-radius:20px;padding:18px;width:min(340px,88vw);max-height:76vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.shopcard h3{color:#d1567f;font-size:18px;text-align:center}
+.shoprow{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px dashed #f5d7e4;font-size:14px}
+.shoprow .nm{flex:1}
+.shoprow button{border:0;border-radius:9px;padding:5px 9px;font-size:12px;font-family:inherit;cursor:pointer;background:#ffddec;color:#b0446f}
+.shoprow button.on{background:#e0679a;color:#fff}
+.shoprow button:disabled{opacity:.4}
 </style>
 </head>
 <body>
@@ -182,7 +192,8 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
   <section class="page" id="pgIsland">
     <div class="veilw"></div>
     <div class="topbar"><span class="title">🏝️ <span id="isleName">霏雅的小岛</span></span>
-      <span class="coin">🪙 <b id="coins">0</b></span></div>
+      <span class="coin">🪙 <b id="coins">0</b></span>
+      <button onclick="document.getElementById('shopPanel').classList.add('on');renderShop()" style="border:0;background:rgba(255,255,255,.85);border-radius:999px;padding:4px 10px;font-size:14px;cursor:pointer;margin-left:6px">🛍️</button></div>
     <span id="sun">🌤️</span>
     <span class="cloud" style="top:70px;left:-30px">☁️</span>
     <span class="cloud" style="top:110px;left:-90px;animation-duration:85s">☁️</span>
@@ -231,6 +242,14 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
         <path d="M17 48 l9 1 M18 53 l7 0 M83 48 l-9 1 M82 53 l-7 0" stroke="#ff9fc0" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>
         <path d="M6 42 L16 44 M6 50 L15 50 M94 42 L84 44 M94 50 L85 50" stroke="#2b2833" stroke-width="1.6" stroke-linecap="round"/>
         <path d="M43 88 q-3 5 2 4 M57 88 q3 5 -2 4" stroke="#2b2833" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <g class="accg">
+        <g class="acci" data-item="beanie"><path d="M36 14 Q50 -2 64 14 Q50 9 36 14 Z" fill="#e05656" stroke="#b23b3b" stroke-width="2"/><circle cx="50" cy="3.5" r="3" fill="#fff" stroke="#b23b3b" stroke-width="1.4"/></g>
+        <g class="acci" data-item="crown"><path d="M38 14 L42 3 L50 11 L58 3 L62 14 Z" fill="#f2c94c" stroke="#caa02f" stroke-width="2" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="flower"><circle cx="38" cy="11" r="3.6" fill="#f78fb5"/><circle cx="50" cy="8" r="3.6" fill="#f7d76b"/><circle cx="62" cy="11" r="3.6" fill="#f78fb5"/><circle cx="38" cy="11" r="1.3" fill="#fff"/><circle cx="50" cy="8" r="1.3" fill="#fff"/><circle cx="62" cy="11" r="1.3" fill="#fff"/></g>
+        <g class="acci" data-item="glasses"><circle cx="34" cy="42" r="7" fill="none" stroke="#4a4550" stroke-width="2.2"/><circle cx="66" cy="42" r="7" fill="none" stroke="#4a4550" stroke-width="2.2"/><path d="M41 42 L59 42" stroke="#4a4550" stroke-width="2.2"/></g>
+        <g class="acci" data-item="scarf"><path d="M33 63 Q50 73 67 63 L65 71 Q50 80 35 71 Z" fill="#7db8e8" stroke="#5a92c4" stroke-width="2" stroke-linejoin="round"/><path d="M58 70 l3 12 l6 -2 l-4 -11" fill="#7db8e8" stroke="#5a92c4" stroke-width="2" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="bowclip"><path d="M74 12 L66 7 L67 16 Z M74 12 L82 7 L81 16 Z" fill="#f78fb5" stroke="#dd6f9e" stroke-width="1.6" stroke-linejoin="round"/><circle cx="74" cy="12" r="2.2" fill="#f78fb5" stroke="#dd6f9e" stroke-width="1.6"/></g>
+      </g>
       </svg>
     </div>
     <div class="speech" id="sp-duomi"></div>
@@ -250,6 +269,14 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
         <path d="M50 68 L39 61 L39 74 Z M50 68 L61 61 L61 74 Z" fill="#f2a0c0" stroke="#d9779f" stroke-width="1.6" stroke-linejoin="round"/>
         <circle cx="50" cy="68" r="3.6" fill="#f2a0c0" stroke="#d9779f" stroke-width="1.6"/>
         <path d="M43 88 q-3 5 2 4 M57 88 q3 5 -2 4" stroke="#b08d6a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <g class="accg">
+        <g class="acci" data-item="beanie"><path d="M36 14 Q50 -2 64 14 Q50 9 36 14 Z" fill="#e05656" stroke="#b23b3b" stroke-width="2"/><circle cx="50" cy="3.5" r="3" fill="#fff" stroke="#b23b3b" stroke-width="1.4"/></g>
+        <g class="acci" data-item="crown"><path d="M38 14 L42 3 L50 11 L58 3 L62 14 Z" fill="#f2c94c" stroke="#caa02f" stroke-width="2" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="flower"><circle cx="38" cy="11" r="3.6" fill="#f78fb5"/><circle cx="50" cy="8" r="3.6" fill="#f7d76b"/><circle cx="62" cy="11" r="3.6" fill="#f78fb5"/><circle cx="38" cy="11" r="1.3" fill="#fff"/><circle cx="50" cy="8" r="1.3" fill="#fff"/><circle cx="62" cy="11" r="1.3" fill="#fff"/></g>
+        <g class="acci" data-item="glasses"><circle cx="34" cy="42" r="7" fill="none" stroke="#4a4550" stroke-width="2.2"/><circle cx="66" cy="42" r="7" fill="none" stroke="#4a4550" stroke-width="2.2"/><path d="M41 42 L59 42" stroke="#4a4550" stroke-width="2.2"/></g>
+        <g class="acci" data-item="scarf"><path d="M33 63 Q50 73 67 63 L65 71 Q50 80 35 71 Z" fill="#7db8e8" stroke="#5a92c4" stroke-width="2" stroke-linejoin="round"/><path d="M58 70 l3 12 l6 -2 l-4 -11" fill="#7db8e8" stroke="#5a92c4" stroke-width="2" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="bowclip"><path d="M74 12 L66 7 L67 16 Z M74 12 L82 7 L81 16 Z" fill="#f78fb5" stroke="#dd6f9e" stroke-width="1.6" stroke-linejoin="round"/><circle cx="74" cy="12" r="2.2" fill="#f78fb5" stroke="#dd6f9e" stroke-width="1.6"/></g>
+      </g>
       </svg>
     </div>
     <div class="speech" id="sp-snowy"></div>
@@ -268,9 +295,26 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
         <path d="M45 52 q2.5 3 5 0 q2.5 3 5 0" stroke="#c9a37e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
         <circle cx="31" cy="51" r="4" fill="#ffd4e2" opacity=".7"/><circle cx="69" cy="51" r="4" fill="#ffd4e2" opacity=".7"/>
         <path d="M43 90 q-2 4 2 3.5 M57 90 q2 4 -2 3.5" stroke="#dcc3a8" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <g class="accg">
+        <g class="acci" data-item="beanie"><path d="M36 14 Q50 -2 64 14 Q50 9 36 14 Z" fill="#e05656" stroke="#b23b3b" stroke-width="2"/><circle cx="50" cy="3.5" r="3" fill="#fff" stroke="#b23b3b" stroke-width="1.4"/></g>
+        <g class="acci" data-item="crown"><path d="M38 14 L42 3 L50 11 L58 3 L62 14 Z" fill="#f2c94c" stroke="#caa02f" stroke-width="2" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="flower"><circle cx="38" cy="11" r="3.6" fill="#f78fb5"/><circle cx="50" cy="8" r="3.6" fill="#f7d76b"/><circle cx="62" cy="11" r="3.6" fill="#f78fb5"/><circle cx="38" cy="11" r="1.3" fill="#fff"/><circle cx="50" cy="8" r="1.3" fill="#fff"/><circle cx="62" cy="11" r="1.3" fill="#fff"/></g>
+        <g class="acci" data-item="glasses"><circle cx="34" cy="42" r="7" fill="none" stroke="#4a4550" stroke-width="2.2"/><circle cx="66" cy="42" r="7" fill="none" stroke="#4a4550" stroke-width="2.2"/><path d="M41 42 L59 42" stroke="#4a4550" stroke-width="2.2"/></g>
+        <g class="acci" data-item="scarf"><path d="M33 63 Q50 73 67 63 L65 71 Q50 80 35 71 Z" fill="#7db8e8" stroke="#5a92c4" stroke-width="2" stroke-linejoin="round"/><path d="M58 70 l3 12 l6 -2 l-4 -11" fill="#7db8e8" stroke="#5a92c4" stroke-width="2" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="bowclip"><path d="M74 12 L66 7 L67 16 Z M74 12 L82 7 L81 16 Z" fill="#f78fb5" stroke="#dd6f9e" stroke-width="1.6" stroke-linejoin="round"/><circle cx="74" cy="12" r="2.2" fill="#f78fb5" stroke="#dd6f9e" stroke-width="1.6"/></g>
+      </g>
       </svg>
     </div>
     <div class="speech" id="sp-yugui"></div>
+
+    <div id="shopPanel" onclick="if(event.target===this)this.classList.remove('on')">
+      <div class="shopcard">
+        <h3>🛍️ 小卖部 · 给它们穿衣服</h3>
+        <div style="text-align:center;font-size:12px;color:#b98aa5;margin:4px 0 6px">金币学习赚：每学完一门 +2🪙</div>
+        <div id="shopList"></div>
+        <div style="text-align:center;margin-top:10px"><button onclick="document.getElementById('shopPanel').classList.remove('on')" style="border:0;border-radius:12px;background:#e0679a;color:#fff;padding:9px 22px;font-size:14px;font-family:inherit;cursor:pointer">关门啦</button></div>
+      </div>
+    </div>
 
     <div id="swingbox">
       <svg width="96" height="236" viewBox="0 0 96 236">
@@ -887,6 +931,55 @@ function arFinish(){
   const st=arState();if(st.done)return;st.done=1;arSave(st);
   S.coins+=2;save();document.getElementById("coins").textContent=S.coins;
   updateVis();renderAr();
+/* ═══ 小卖部：金币换衣服 ═══ */
+const SHOP=[
+ {id:"bowclip",nm:"蝴蝶结发夹",em:"🎀",pr:2,slot:"ear"},
+ {id:"beanie",nm:"小红帽",em:"🧢",pr:3,slot:"head"},
+ {id:"glasses",nm:"圆眼镜",em:"👓",pr:3,slot:"face"},
+ {id:"scarf",nm:"蓝围巾",em:"🧣",pr:3,slot:"neck"},
+ {id:"flower",nm:"花环",em:"🌸",pr:4,slot:"head"},
+ {id:"crown",nm:"金皇冠",em:"👑",pr:6,slot:"head"}
+];
+if(!S.acc)S.acc={owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
+function applyAcc(){
+  [["duomi",duomiC],["snowy",snowyC],["yugui",yuguiC]].forEach(([id,c])=>{
+    const w=S.acc.wear[id]||{};
+    c.el.querySelectorAll(".acci").forEach(g=>{
+      const it=SHOP.find(s=>s.id===g.dataset.item);
+      g.style.display=(it&&w[it.slot]===it.id)?"":"none";
+    });
+  });
+}
+function buyAcc(id){
+  const it=SHOP.find(s=>s.id===id);
+  if(S.acc.owned[id])return;
+  if(S.coins<it.pr){say(yuguiC,"金币不够啦，去学一课就有了！");return}
+  S.coins-=it.pr;S.acc.owned[id]=1;save();
+  document.getElementById("coins").textContent=S.coins;
+  renderShop();say(snowyC,"买到"+it.nm+"啦！给谁穿？");
+}
+function wearAcc(id,cat){
+  const it=SHOP.find(s=>s.id===id);
+  const w=S.acc.wear[cat];
+  w[it.slot]=(w[it.slot]===id)?null:id;
+  save();applyAcc();renderShop();
+}
+function renderShop(){
+  const el=document.getElementById("shopList");if(!el)return;
+  el.innerHTML=SHOP.map(it=>{
+    const owned=S.acc.owned[it.id];
+    let right;
+    if(!owned){
+      right='<button '+(S.coins<it.pr?"disabled":"")+' onclick="buyAcc(\''+it.id+'\')">'+it.pr+'🪙 买</button>';
+    }else{
+      right=[["duomi","哆"],["snowy","S"],["yugui","玉"]].map(([c,l])=>
+        '<button class="'+(S.acc.wear[c][it.slot]===it.id?"on":"")+'" onclick="wearAcc(\''+it.id+'\',\''+c+'\')">'+l+'</button>').join("");
+    }
+    return '<div class="shoprow"><span>'+it.em+'</span><span class="nm">'+it.nm+'</span>'+right+'</div>';
+  }).join("");
+}
+applyAcc();
+
 /* ═══ 英语页 ═══ */
 const EN_W=[["significant", "重要的，显著的"], ["enhance", "提升，增强"], ["diverse", "多样的"], ["crucial", "关键的"], ["sustainable", "可持续的"], ["considerable", "相当大的"], ["phenomenon", "现象"], ["strategy", "策略"], ["perspective", "视角，观点"], ["innovation", "创新"], ["efficient", "高效的"], ["obstacle", "障碍"], ["motivation", "动力"], ["adapt", "适应"], ["gradually", "逐渐地"], ["achievement", "成就"], ["environment", "环境"], ["community", "社区"], ["opportunity", "机会"], ["responsibility", "责任"], ["curiosity", "好奇心"], ["ambition", "抱负，志向"], ["confident", "自信的"], ["potential", "潜力"], ["appreciate", "感激，欣赏"], ["memorable", "难忘的"], ["inspire", "激励"], ["generation", "一代人"]];
 const EN_SP=[["Hello, My Future", "Good morning everyone. My name is Feiya, and today I want to talk about dreams. A dream is not a small thing — it is the most significant map of who we will become. Every day I try to enhance my skills a little: drawing, languages, design. People around me have diverse talents, and that is exactly what makes a team strong. Remember: your effort today is crucial for your tomorrow. Thank you.", "大家早上好，我叫霏雅。今天我想聊聊梦想。梦想不是小事——它是我们未来样子的一张最重要的地图。我每天都努力把自己的本领提升一点点：画画、语言、设计。身边的人才华各不相同，而这正是团队强大的原因。记住：你今天的努力，对你的明天至关重要。谢谢。"], ["Our Blue Planet", "Have you ever stood by the sea and just listened? Our planet gives us so much, but pollution has become a serious phenomenon. If we want a sustainable future, we need a clear strategy: waste less, reuse more, and speak up. One person's effort may seem small, but a considerable change always starts with someone who cares. Let it start with us.", "你有没有站在海边静静听过海浪？地球给了我们那么多，但污染已经成了一个严重的现象。想要可持续的未来，我们需要清晰的策略：少浪费、多再利用、敢发声。一个人的力量看似微小，但每一次巨大的改变，都是从一个在乎的人开始的。就让它从我们开始。"], ["The Artist's Eye", "Some people think drawing is just a hobby. From my perspective, it is a way of thinking. Every sketch is a little innovation: you try, you fail, you try again — that is the most efficient way to learn anything. When I meet an obstacle in my art, I do not quit. I look at it, smile, and draw it into the picture. Problems can become part of the design.", "有人觉得画画只是个爱好。在我看来，它是一种思考方式。每一张草稿都是一次小小的创新：尝试、失败、再尝试——这是学任何东西最高效的办法。遇到瓶颈时我不放弃，我看着它、笑一笑，然后把它画进画里。难题也可以变成设计的一部分。"], ["Keep Going", "Where does motivation come from? Not from waiting — from starting. When life changes, we adapt; when things feel slow, we improve gradually. My best achievement is not a prize. It is the day I kept studying when I really wanted to give up. Small steps, taken every day, quietly become giant leaps. So keep going — future you is watching, and she is proud.", "动力从哪里来？不是等来的，是开始了才有的。生活变了，我们就去适应；进步慢了，我们就一点点来。我最好的成就不是奖状，而是那个特别想放弃却还是继续学下去的日子。每天的小步子，悄悄就变成了大飞跃。所以继续走吧——未来的你正看着你，她为你骄傲。"], ["Home Is a Team", "A family is the smallest community in the world, and maybe the strongest one. In our home, everyone has a responsibility: someone cooks, someone teaches, someone makes everyone laugh. A warm environment is not built by one person — it is built by all of us, every single day. And every dinner together is an opportunity to say: I am glad you are here.", "家是世界上最小的社区，也可能是最强大的一个。在我们家，每个人都有自己的责任：有人做饭，有人教功课，有人负责逗大家笑。温暖的环境从来不是一个人建成的——是我们所有人每天一起建的。每一顿一起吃的晚饭，都是一次机会，说一句：有你在真好。"], ["Stay Curious", "Curiosity is a superpower. It asks: what is behind that door? Ambition answers: let us go and see. I want to be confident enough to try new things, even when I might look silly at first. Everyone has potential, but potential is shy — it only comes out when you invite it with action. So ask questions, open doors, and never stop exploring.", "好奇心是一种超能力。它会问：那扇门后面是什么？抱负会回答：我们去看看吧。我想变得足够自信，去尝试新事物，哪怕一开始可能出丑。每个人都有潜力，但潜力很害羞——只有用行动去邀请，它才会出来见人。所以要多提问、多开门、永远别停下探索。"], ["Thank You, Tomorrow", "Today I simply want to appreciate everything: my family, my teachers, even the hard days — because hard days make memorable stories. Our generation grows up with the whole world in our pocket, and that gift should inspire us to build, not just to scroll. One day I will look back at this little speech and smile. Tomorrow, thank you in advance. I will not waste you.", "今天我只想好好感谢这一切：家人、老师，甚至那些难熬的日子——因为难熬的日子会变成难忘的故事。我们这一代人把整个世界装进了口袋，这份礼物应该激励我们去创造，而不只是刷屏。有一天我回头看这篇小演讲，一定会微笑。明天，提前谢谢你，我不会浪费你。"]];
@@ -1113,6 +1206,55 @@ function prayTime(){
   },2800);
 }
 updateVis();renderAr();
+/* ═══ 小卖部：金币换衣服 ═══ */
+const SHOP=[
+ {id:"bowclip",nm:"蝴蝶结发夹",em:"🎀",pr:2,slot:"ear"},
+ {id:"beanie",nm:"小红帽",em:"🧢",pr:3,slot:"head"},
+ {id:"glasses",nm:"圆眼镜",em:"👓",pr:3,slot:"face"},
+ {id:"scarf",nm:"蓝围巾",em:"🧣",pr:3,slot:"neck"},
+ {id:"flower",nm:"花环",em:"🌸",pr:4,slot:"head"},
+ {id:"crown",nm:"金皇冠",em:"👑",pr:6,slot:"head"}
+];
+if(!S.acc)S.acc={owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
+function applyAcc(){
+  [["duomi",duomiC],["snowy",snowyC],["yugui",yuguiC]].forEach(([id,c])=>{
+    const w=S.acc.wear[id]||{};
+    c.el.querySelectorAll(".acci").forEach(g=>{
+      const it=SHOP.find(s=>s.id===g.dataset.item);
+      g.style.display=(it&&w[it.slot]===it.id)?"":"none";
+    });
+  });
+}
+function buyAcc(id){
+  const it=SHOP.find(s=>s.id===id);
+  if(S.acc.owned[id])return;
+  if(S.coins<it.pr){say(yuguiC,"金币不够啦，去学一课就有了！");return}
+  S.coins-=it.pr;S.acc.owned[id]=1;save();
+  document.getElementById("coins").textContent=S.coins;
+  renderShop();say(snowyC,"买到"+it.nm+"啦！给谁穿？");
+}
+function wearAcc(id,cat){
+  const it=SHOP.find(s=>s.id===id);
+  const w=S.acc.wear[cat];
+  w[it.slot]=(w[it.slot]===id)?null:id;
+  save();applyAcc();renderShop();
+}
+function renderShop(){
+  const el=document.getElementById("shopList");if(!el)return;
+  el.innerHTML=SHOP.map(it=>{
+    const owned=S.acc.owned[it.id];
+    let right;
+    if(!owned){
+      right='<button '+(S.coins<it.pr?"disabled":"")+' onclick="buyAcc(\''+it.id+'\')">'+it.pr+'🪙 买</button>';
+    }else{
+      right=[["duomi","哆"],["snowy","S"],["yugui","玉"]].map(([c,l])=>
+        '<button class="'+(S.acc.wear[c][it.slot]===it.id?"on":"")+'" onclick="wearAcc(\''+it.id+'\',\''+c+'\')">'+l+'</button>').join("");
+    }
+    return '<div class="shoprow"><span>'+it.em+'</span><span class="nm">'+it.nm+'</span>'+right+'</div>';
+  }).join("");
+}
+applyAcc();
+
 /* ═══ 英语页 ═══ */
 const EN_W=[["significant", "重要的，显著的"], ["enhance", "提升，增强"], ["diverse", "多样的"], ["crucial", "关键的"], ["sustainable", "可持续的"], ["considerable", "相当大的"], ["phenomenon", "现象"], ["strategy", "策略"], ["perspective", "视角，观点"], ["innovation", "创新"], ["efficient", "高效的"], ["obstacle", "障碍"], ["motivation", "动力"], ["adapt", "适应"], ["gradually", "逐渐地"], ["achievement", "成就"], ["environment", "环境"], ["community", "社区"], ["opportunity", "机会"], ["responsibility", "责任"], ["curiosity", "好奇心"], ["ambition", "抱负，志向"], ["confident", "自信的"], ["potential", "潜力"], ["appreciate", "感激，欣赏"], ["memorable", "难忘的"], ["inspire", "激励"], ["generation", "一代人"]];
 const EN_SP=[["Hello, My Future", "Good morning everyone. My name is Feiya, and today I want to talk about dreams. A dream is not a small thing — it is the most significant map of who we will become. Every day I try to enhance my skills a little: drawing, languages, design. People around me have diverse talents, and that is exactly what makes a team strong. Remember: your effort today is crucial for your tomorrow. Thank you.", "大家早上好，我叫霏雅。今天我想聊聊梦想。梦想不是小事——它是我们未来样子的一张最重要的地图。我每天都努力把自己的本领提升一点点：画画、语言、设计。身边的人才华各不相同，而这正是团队强大的原因。记住：你今天的努力，对你的明天至关重要。谢谢。"], ["Our Blue Planet", "Have you ever stood by the sea and just listened? Our planet gives us so much, but pollution has become a serious phenomenon. If we want a sustainable future, we need a clear strategy: waste less, reuse more, and speak up. One person's effort may seem small, but a considerable change always starts with someone who cares. Let it start with us.", "你有没有站在海边静静听过海浪？地球给了我们那么多，但污染已经成了一个严重的现象。想要可持续的未来，我们需要清晰的策略：少浪费、多再利用、敢发声。一个人的力量看似微小，但每一次巨大的改变，都是从一个在乎的人开始的。就让它从我们开始。"], ["The Artist's Eye", "Some people think drawing is just a hobby. From my perspective, it is a way of thinking. Every sketch is a little innovation: you try, you fail, you try again — that is the most efficient way to learn anything. When I meet an obstacle in my art, I do not quit. I look at it, smile, and draw it into the picture. Problems can become part of the design.", "有人觉得画画只是个爱好。在我看来，它是一种思考方式。每一张草稿都是一次小小的创新：尝试、失败、再尝试——这是学任何东西最高效的办法。遇到瓶颈时我不放弃，我看着它、笑一笑，然后把它画进画里。难题也可以变成设计的一部分。"], ["Keep Going", "Where does motivation come from? Not from waiting — from starting. When life changes, we adapt; when things feel slow, we improve gradually. My best achievement is not a prize. It is the day I kept studying when I really wanted to give up. Small steps, taken every day, quietly become giant leaps. So keep going — future you is watching, and she is proud.", "动力从哪里来？不是等来的，是开始了才有的。生活变了，我们就去适应；进步慢了，我们就一点点来。我最好的成就不是奖状，而是那个特别想放弃却还是继续学下去的日子。每天的小步子，悄悄就变成了大飞跃。所以继续走吧——未来的你正看着你，她为你骄傲。"], ["Home Is a Team", "A family is the smallest community in the world, and maybe the strongest one. In our home, everyone has a responsibility: someone cooks, someone teaches, someone makes everyone laugh. A warm environment is not built by one person — it is built by all of us, every single day. And every dinner together is an opportunity to say: I am glad you are here.", "家是世界上最小的社区，也可能是最强大的一个。在我们家，每个人都有自己的责任：有人做饭，有人教功课，有人负责逗大家笑。温暖的环境从来不是一个人建成的——是我们所有人每天一起建的。每一顿一起吃的晚饭，都是一次机会，说一句：有你在真好。"], ["Stay Curious", "Curiosity is a superpower. It asks: what is behind that door? Ambition answers: let us go and see. I want to be confident enough to try new things, even when I might look silly at first. Everyone has potential, but potential is shy — it only comes out when you invite it with action. So ask questions, open doors, and never stop exploring.", "好奇心是一种超能力。它会问：那扇门后面是什么？抱负会回答：我们去看看吧。我想变得足够自信，去尝试新事物，哪怕一开始可能出丑。每个人都有潜力，但潜力很害羞——只有用行动去邀请，它才会出来见人。所以要多提问、多开门、永远别停下探索。"], ["Thank You, Tomorrow", "Today I simply want to appreciate everything: my family, my teachers, even the hard days — because hard days make memorable stories. Our generation grows up with the whole world in our pocket, and that gift should inspire us to build, not just to scroll. One day I will look back at this little speech and smile. Tomorrow, thank you in advance. I will not waste you.", "今天我只想好好感谢这一切：家人、老师，甚至那些难熬的日子——因为难熬的日子会变成难忘的故事。我们这一代人把整个世界装进了口袋，这份礼物应该激励我们去创造，而不只是刷屏。有一天我回头看这篇小演讲，一定会微笑。明天，提前谢谢你，我不会浪费你。"]];
