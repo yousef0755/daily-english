@@ -306,6 +306,11 @@ Promise.all([
 body{background:transparent!important}
 #prismbg{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block}
 main,header,section,.card,[class*=card]{position:relative}
+.card,[class*="card"],[class*="verse"],[class*="line"],[class*="row"]{
+  background:rgba(10,15,24,.58)!important;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid rgba(216,179,102,.16)!important;
+}
 </style>
 <canvas id="prismbg"></canvas>
 <script>
@@ -315,13 +320,19 @@ let W,H,dpr;
 function fit(){dpr=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
 fit();addEventListener("resize",fit);
 /* 深色系光谱：配他的金色卡——蓝夜→靛→紫→暗青→古铜 */
-const STOPS=[[218,55,30],[232,50,26],[262,45,32],[205,50,28],[268,40,30],[195,45,26],[30,45,34],[38,50,30]];
+const STOPS=[[220,42,24],[235,38,22],[258,36,26],[248,40,23],[266,32,26],[240,36,22],[40,42,28],[36,46,24]];
 function palette(t){const n=STOPS.length-1,x=t*n,i=Math.min(n-1,Math.floor(x)),f=x-i;
   const a=STOPS[i],b=STOPS[i+1];let dh=b[0]-a[0];if(dh>180)dh-=360;if(dh<-180)dh+=360;
   return [a[0]+dh*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f];}
 let mx=innerWidth*.5,my=innerHeight*.35,tx=mx,ty=my;
 addEventListener("pointermove",e=>{tx=e.clientX;ty=e.clientY},{passive:true});
 addEventListener("touchmove",e=>{const t=e.touches[0];if(t){tx=t.clientX;ty=t.clientY}},{passive:true});
+addEventListener("click",e=>{
+  const b=e.target.closest("button");
+  if(b&&/▶|play/i.test(b.textContent+b.className)){
+    const r=b.getBoundingClientRect();tx=r.left+r.width/2;ty=r.top+r.height/2;
+  }
+},true);
 function draw(ts){
   const t=ts/1000;
   mx+=(tx-mx)*.08;my+=(ty-my)*.08;
@@ -343,6 +354,12 @@ function draw(ts){
     ctx.fillStyle=`hsla(0 0% 100% / ${.04+glow*.005})`;
     ctx.fillRect(i*bw,0,1,H);
   }
+  const vg=ctx.createLinearGradient(0,0,0,H);
+  vg.addColorStop(0,"rgba(4,6,12,.55)");
+  vg.addColorStop(.28,"rgba(4,6,12,0)");
+  vg.addColorStop(.72,"rgba(4,6,12,0)");
+  vg.addColorStop(1,"rgba(4,6,12,.6)");
+  ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
   requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
