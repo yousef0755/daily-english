@@ -21,15 +21,9 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 .page{flex:0 0 100%;height:100%;scroll-snap-align:start;position:relative;overflow:hidden}
 
 /* ── 小岛页 ── */
-#pgIsland{background:
-  radial-gradient(130% 70% at 78% -10%, rgba(255,244,200,.75), transparent 55%),
-  linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 40%,var(--sea1) 40.5%,var(--sea2) 100%)}
-#pgIsland::before{content:"";position:absolute;top:-4%;right:2%;width:52%;height:92%;
-  background:linear-gradient(200deg,rgba(255,248,205,.85),rgba(255,240,200,.25) 55%,transparent 78%);
-  transform:skewX(-14deg);pointer-events:none;z-index:2}
-#pgIsland::after{content:"";position:absolute;top:-4%;right:30%;width:16%;height:80%;
-  background:linear-gradient(200deg,rgba(255,252,230,.55),transparent 70%);
-  transform:skewX(-18deg);pointer-events:none;z-index:2}
+#pgIsland{background:url("bg-island.jpg") center/cover no-repeat}
+#pgIsland .veilw{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,240,248,.28),rgba(255,255,255,.06) 40%,rgba(210,240,250,.25));pointer-events:none;z-index:1}
+
 .bokeh{position:absolute;border-radius:50%;pointer-events:none;z-index:3;
   background:radial-gradient(circle,rgba(255,255,240,.55),transparent 70%)}
 .soap{position:absolute;border-radius:50%;pointer-events:none;z-index:9;
@@ -127,6 +121,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 <div id="pager">
   <!-- 第0页：小岛 -->
   <section class="page" id="pgIsland">
+    <div class="veilw"></div>
     <div class="topbar"><span class="title">🏝️ <span id="isleName">霏雅的小岛</span></span>
       <span class="coin">🪙 <b id="coins">0</b></span></div>
     <span id="sun">🌤️</span>
@@ -154,6 +149,11 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       <span class="dock">⛵</span>
       <span class="shell" style="left:22%;bottom:-2px">🐚</span>
       <span class="shell" style="right:18%;bottom:-6px">🐚</span>
+      <span class="shell" style="left:34%;bottom:104px;font-size:18px">🪨</span>
+      <span class="shell" style="right:30%;bottom:60px;font-size:17px">🍄</span>
+      <span class="shell" style="left:48%;bottom:110px;font-size:16px">🌼</span>
+      <span class="shell" style="right:8%;bottom:88px;font-size:18px">🪵</span>
+      <span class="shell" style="left:12%;bottom:52px;font-size:15px">🌺</span>
       <div id="plants"></div>
       <div id="weed" style="display:none"><span class="em">🌿</span><span class="tg">长杂草啦！点我做1题拔掉</span></div>
     </div>
@@ -301,7 +301,7 @@ const LINES={
     pet:["喵嗷～再摸再摸","好舒服呀","（脸红）","蹭蹭你"],
     sleepy:"（困困地眨眼）",
     leaveTalk:"哼，人家数到十次啦！我去找哥哥了，你要想我哦…",
-    followD:"（一步三回头）等等我呀哥…",
+    followD:"等等我呀哥…",
     return:"我们回来啦！！想你！",
     quiz:"我们再看一眼昨天学的，好不好？"}
 };
@@ -405,8 +405,18 @@ function dragCount(c,other){
 }
 function leave(c){
   c.away=true;c.sleep=false;c.el.classList.remove("sleep");
-  c.el.classList.add("flip");
-  place(c,-140,c.y);
+  if(c.id==="snowy"){
+    /* 一步三回头：走一段、转身望一眼、再走（设计师令：动作要演出来，不许用括号写） */
+    const y=c.y, x0=c.x;
+    c.el.classList.add("flip"); place(c, x0-90, y);
+    setTimeout(()=>{ c.el.classList.remove("flip") }, 2700);   /* 回头望 */
+    setTimeout(()=>{ c.el.classList.add("flip"); place(c, x0-200, y) }, 3600);
+    setTimeout(()=>{ c.el.classList.remove("flip") }, 6300);   /* 再回头 */
+    setTimeout(()=>{ c.el.classList.add("flip"); place(c,-140, y) }, 7200);
+  }else{
+    c.el.classList.add("flip");
+    place(c,-140,c.y);
+  }
   setTimeout(()=>c.sp.classList.remove("show"),800);
 }
 function comeBack(){
