@@ -1466,6 +1466,7 @@ english:{title:"English words",unit:"Unit 11 · In the zoo 在动物园",list:[
       if((j.ver|0) <= cur) return;                    /* 没更新就别动 */
       try{ localStorage.setItem(CK, JSON.stringify({ver:j.ver, recite:j.recite})) }catch(e){}
       RECITE=j.recite;
+      if(typeof applyBoyuanEnglish==="function")applyBoyuanEnglish();
       /* 已经渲染过就重画一次，让他当场看到新课文 */
       try{ if(typeof renderRecite==="function" && document.getElementById("reciteCard")
             && document.getElementById("reciteCard").style.display!=="none") renderRecite() }catch(e){}
@@ -2406,12 +2407,42 @@ function renderEnglishCards(box, item){
   }
 }
 
+
+/* ── 英语全套课表（老板 8-19：kid.html里也要全部单元）。
+   14课全灌进 RECITE.english.list；默认课按迪拜日推进（8-19起每天一课），
+   胶囊选择器是页面原生的，点哪课学哪课。worker 那份英语内容从此不用了，
+   它刷回来也会被这份盖回去——两头只认这一个数据源。 ── */
+const BOYUAN_EN_LIST=[{"name": "U11 · In the zoo", "lines": ["monkey — 猴子", "The monkey is in the tree. — 猴子在树上。", "bear — 熊", "The bear is big. — 熊很大。", "panda — 熊猫", "The panda is black and white. — 熊猫是黑白色的。", "tiger — 老虎", "The tiger can run. — 老虎会跑。", "Is this/that a monkey? — 这／那是猴子吗？", "No. It's a panda. — 不是。它是一只熊猫。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U12 · In the park", "lines": ["colour — 颜色；v. 涂色", "What colour is the kite? — 风筝是什么颜色？", "kite — 风筝", "The kite is in the sky. — 风筝在天上。", "where — 在哪里", "Where is the bird? — 鸟在哪里？", "in — 在……里面", "The bird is in the tree. — 鸟在树里。", "tree — 树；树木", "The tree is big. — 树很大。", "yellow — 黄色的", "The bird is yellow. — 鸟是黄色的。", "red — 红色的", "My kite is red. — 我的风筝是红色的。", "blue — 蓝色的", "The sky is blue. — 天是蓝色的。", "green — 绿色的", "The tree is green. — 树是绿色的。", "small — 小的", "The bee is small. — 蜜蜂小小的。", "go — 发出（某种声音）", "The bird goes \"Peep\". — 鸟发出「叽」的叫声。", "big — 大的", "The panda is big. — 熊猫很大。", "What colour is it? — 它是什么颜色？", "It's in the tree. — 它在树上。", "It's yellow. It's small. It goes \"Peep ... Peep ...\" What is it? — 它是黄色的。它小小的。它发出「叽……叽……」的叫声。它是什么？"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U1 · Look and see", "lines": ["see — 看见", "I see a bird. — 我看见一只鸟。", "frog — 青蛙", "The frog is green. — 青蛙是绿色的。", "rabbit — 兔子", "The rabbit can jump. — 兔子会跳。", "bee — 蜜蜂", "The bee is small. — 蜜蜂小小的。", "bird — 鸟", "The bird is in the tree. — 鸟在树上。", "What do you see? — 你（们）看见什么？", "I see a panda. — 我看见一只熊猫。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U2 · Listen and hear", "lines": ["listen — 听", "Listen! What is it? — 听！这是什么？", "hear — 听见", "I hear a dog. — 我听见一只狗。", "sheep — 绵羊（复数 sheep）", "The sheep is white. — 绵羊是白色的。", "hen — 母鸡", "The hen is fat. — 母鸡胖胖的。", "dog — 狗", "The dog can run. — 狗会跑。", "cat — 猫", "The cat is on the bed. — 猫在床上。", "home — 家", "The cat is at home. — 猫在家里。", "What do you hear? — 你（们）听见什么？", "I hear a pig. — 我听见一只猪（的叫声）。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U3 · Taste and smell", "lines": ["smell — 闻（……的气味）", "Smell the flower. — 闻闻这朵花。", "taste — 尝（……的味道）", "Taste the rice. — 尝尝这米饭。", "rice — 米饭", "I like rice. — 我喜欢米饭。", "soup — 汤", "The soup is hot. — 汤是热的。", "egg — 蛋", "I see an egg. — 我看见一个蛋。", "noodles — 面条", "The noodles are yummy. — 面条很好吃。", "yummy — 美味的", "The soup is yummy. — 汤很美味。", "restaurant — 餐馆", "We eat in a restaurant. — 我们在餐馆吃饭。", "help — 帮助", "Can you help me? — 你能帮帮我吗？", "flower — 花", "The flower is red. — 花是红色的。", "stand up — 站起来", "Stand up, please. — 请站起来。", "Smell the noodles. — 闻闻这面。", "Taste the soup. — 尝尝这汤。", "Yummy. — 美味极了。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U4 · Toys I like", "lines": ["toy — 玩具", "I like my toy. — 我喜欢我的玩具。", "like — 喜欢", "I like pandas. — 我喜欢熊猫。", "ball — 球", "The ball is big. — 球很大。", "doll — 玩具娃娃", "The doll is nice. — 娃娃很好看。", "kite — 风筝", "My kite is in the sky. — 我的风筝在天上。", "bicycle — 自行车", "I ride my bicycle. — 我骑我的自行车。", "super — 超级的；顶好的", "My toy is super. — 我的玩具顶好。", "toy shop — 玩具店", "Let's go to the toy shop. — 我们去玩具店吧。", "I like balls. — 我喜欢球。", "It's nice. — 它很好。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U5 · Food I like", "lines": ["food — 食物", "I like this food. — 我喜欢这个食物。", "sweet — 糖果；adj. 甜的", "The sweet is yummy. — 糖果很好吃。", "jelly — 果冻", "I like jelly. — 我喜欢果冻。", "biscuit — 饼干", "One biscuit for you. — 一块饼干给你。", "teatime — 茶点时间", "It's teatime! — 茶点时间到了！", "for — 给", "This is for you. — 这是给你的。", "and — 和", "You and me. — 你和我。", "sorry — 对不起；抱歉", "Sorry, Miss Fang. — 对不起，方老师。", "very much — 非常", "I like milk very much. — 我非常喜欢牛奶。", "ice cream — 冰淇淋", "I like ice cream. — 我喜欢冰淇淋。", "Do you like sweets. — 你（们）喜欢糖果吗？", "One for you and one for me. — 一个给你一个给我。", "I like biscuits very much. — 我非常喜欢饼干。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U6 · Drinks I like", "lines": ["drink — 饮料", "This drink is sweet. — 这个饮料是甜的。", "water — 水", "I drink water. — 我喝水。", "cola — 可乐", "Cola is sweet. — 可乐是甜的。", "juice — 果汁", "I like juice. — 我喜欢果汁。", "milk — 牛奶", "Milk is white. — 牛奶是白色的。", "birthday — 生日", "Today is my birthday. — 今天是我的生日。", "party — 聚会；派对", "Come to my party. — 来我的派对吧。", "happy — 快乐的", "I am happy today. — 我今天很快乐。", "song — 歌曲", "I like this song. — 我喜欢这首歌。", "What do you like? — 你（们）喜欢什么？", "Happy birthday (to you)! — （祝你）生日快乐！"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U7 · Seasons", "lines": ["season — 季节", "Which season do you like? — 你喜欢哪个季节？", "spring — 春天", "Spring is green. — 春天是绿色的。", "summer — 夏天", "Summer is hot. — 夏天很热。", "autumn — 秋天", "Autumn is yellow. — 秋天是黄色的。", "winter — 冬天", "Winter is white. — 冬天是白色的。", "white — 白色的", "The sheep is white. — 绵羊是白色的。", "grass — 草", "The grass is green. — 草是绿色的。", "watermelon — 西瓜", "I like watermelon. — 我喜欢西瓜。", "Spring is green. — 春天是绿色的。", "Summer is red. — 夏天是红色的。", "Autumn is yellow. — 秋天是黄色的。", "Winter is white. — 冬天是白色的。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U8 · Weather", "lines": ["how — 怎样；如何", "How are you? — 你好吗？", "weather — 天气", "The weather is nice. — 天气很好。", "cloudy — 多云的", "It's cloudy today. — 今天多云。", "sunny — 阳光明媚的", "It's sunny today. — 今天阳光明媚。", "rainy — 有雨的；多雨的", "It's rainy. I stay at home. — 下雨了，我待在家里。", "windy — 有风的；多风的", "It's windy. My kite can fly. — 有风，我的风筝能飞。", "hot — 炎热的", "It's hot in Dubai. — 迪拜很热。", "go — 去", "Let's go! — 我们走吧！", "to — 到；向", "I go to school. — 我去上学。", "beach — 沙滩；海滩", "The beach is big. — 沙滩很大。", "How's the weather? — 天气怎么样？", "It's cloudy. — 天气多云。", "Let's go to the beach. — 我们去沙滩吧。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U9 · Clothes", "lines": ["clothes — 衣服", "I like my clothes. — 我喜欢我的衣服。", "need — 需要", "I need water. — 我需要水。", "new — 新的", "My T-shirt is new. — 我的T恤衫是新的。", "T-shirt — T 恤衫", "This T-shirt is white. — 这件T恤衫是白色的。", "dress — 连衣裙", "The dress is nice. — 这条连衣裙很好看。", "shorts — 短裤", "I need my shorts. — 我需要我的短裤。", "blouse — 女式衬衫", "The blouse is new. — 这件衬衫是新的。", "don't — （do 的否定形式）", "I don't like hot weather. — 我不喜欢热天。", "What do you need? — 你（们）需要什么？", "I need a new dress. — 我需要一条新连衣裙。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U10 · Activities", "lines": ["activity — 活动", "I like this activity. — 我喜欢这个活动。", "ride — 骑（车）", "I can ride a bicycle. — 我会骑自行车。", "skip — 跳绳", "I can skip. — 我会跳绳。", "play — 踢（球）；玩", "I play football. — 我踢足球。", "fly — 放（风筝）", "I fly my kite. — 我放我的风筝。", "playtime — 游戏时间", "It's playtime! — 游戏时间到了！", "football — 足球", "The football is new. — 这个足球是新的。", "rope — 绳子", "The rope is long. — 绳子很长。", "What can you do? — 你（们）能做什么？", "What can she do? — 她会做什么？"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U11 · New Year's Day", "lines": ["gift — 礼物", "This gift is for you. — 这个礼物是给你的。", "card — 卡片", "I make a card. — 我做一张卡片。", "firecracker — 鞭炮；爆竹", "I hear the firecrackers. — 我听见鞭炮声。", "firework — 烟花；烟火", "The fireworks are super. — 烟花顶好看。", "make — 制作", "I make a kite. — 我做一个风筝。", "write — 写", "I write a card. — 我写一张卡片。", "fold — 折", "I fold the paper. — 我把纸折起来。", "Miss — 小姐", "Good morning, Miss Fang. — 早上好，方小姐。", "shopping — 购物", "We go shopping. — 我们去购物。", "new year — 新年", "The new year is coming. — 新年就要到了。", "Happy New Year (to you)! — （祝你）新年快乐！"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}, {"name": "U12 · A boy and a wolf", "lines": ["boy — 男孩", "The boy can run. — 男孩会跑。", "wolf — 狼（复数 wolves）", "The wolf is bad. — 狼是坏的。", "farmer — 农夫", "The farmer has a dog. — 农夫有一只狗。", "narrator — 旁白；叙述者", "The narrator tells the story. — 旁白讲这个故事。", "come — 来", "Come here! — 过来！", "where — 哪里", "Where is my cat? — 我的猫在哪里？", "bad — 坏的", "The wolf is bad. — 狼是坏的。", "poor — 可怜的", "The poor boy is sad. — 可怜的男孩很难过。", "tell — 说；告诉", "Tell me, please. — 请告诉我。", "lie — 谎话；谎言", "Don't tell a lie. — 不要说谎。", "run away — 逃跑", "The wolf runs away. — 狼逃跑了。", "Help! — 救命！", "Here come the farmers. — 农民们来了。", "Where's the wolf? — 狼在哪里？", "Don't tell a lie! — 不要说谎！", "A poor boy. — 一个可怜的男孩。"], "tip": "先点喇叭听一遍再念。单词念完，就念它下面那句话。"}];
+function boyuanTodayIdx(){
+  var d=new Date(new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Dubai'}));
+  var days=Math.max(0,Math.round((d-new Date("2026-08-19"))/86400000));
+  return Math.min(days, BOYUAN_EN_LIST.length-1);
+}
+function applyBoyuanEnglish(){
+  try{
+    if(typeof RECITE!=="undefined"&&RECITE.english){
+      RECITE.english.list=BOYUAN_EN_LIST;
+      RECITE.english.unit="跟着书走 · 每天一课";
+    }
+  }catch(e){}
+}
+applyBoyuanEnglish();
+
 function openRecite(sub){
   rSub=sub;rHidden=false;
   const pack=RECITE[sub];
   const day=Math.floor(Date.now()/86400000);
   rIdx=(D.recitePos&&D.recitePos[sub]!=null)?D.recitePos[sub]:0;
   if(rIdx>=pack.list.length)rIdx=0;
+  /* 英语：每天默认翻到当天那课；他自己当天点过哪课就还停在哪课 */
+  if(sub==="english"&&typeof boyuanTodayIdx==="function"){
+    var tk=todayKey();
+    if(((D.recitePosDay||{})[sub])!==tk){
+      rIdx=boyuanTodayIdx();
+      D.recitePosDay=D.recitePosDay||{};D.recitePosDay[sub]=tk;
+      D.recitePos=D.recitePos||{};D.recitePos[sub]=rIdx;save();
+    }
+  }
   /* 古兰经：直接跳到今天那两句所在的章（老板 2026-08-16「每天背会两句」）。
      让孩子自己看提示找章，等于把实现难度转嫁给他。 */
   if(sub==="quran" && typeof quranToday==="function"){
