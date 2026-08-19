@@ -447,10 +447,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
         <h2 style="font-size:21px;color:#f08a6c">📈 股市.beta</h2>
         <div style="font-size:12px;color:#e8b39c;margin-top:3px">小岛自己的股市 · 全是游戏币，纸上谈兵</div>
       </div>
-      <div class="zhcard gucard">
-        <h3>我的账户</h3>
-        <div id="guAcct" style="font-size:14px;color:#a8624a;line-height:1.9"></div>
-      </div>
+      <div class="zhcard gucard"><h3>我的账户</h3><div id="guAcct" style="font-size:14px;color:#a8624a;line-height:1.9"></div></div>
       <div class="zhcard gucard"><h3>今日行情</h3><div class="au">每天迪拜零点换一次价 · 点买/卖</div><div id="guList"></div></div>
       <div class="zhcard gucard"><h3>小道理</h3>
         <div style="font-size:12.5px;color:#b98a75;line-height:2">
@@ -1026,137 +1023,6 @@ function renderShop(){
 }
 applyAcc();
 
-/* ═══ 股市.beta：确定性行情（种子=公司+日期，各设备一致）═══ */
-const GU=[
- {s:"DONUT",em:"🍩",nm:"甜甜圈厂",cn:"玉桂狗最爱，销量稳",base:20},
- {s:"CATCAN",em:"🐟",nm:"猫罐头公司",cn:"哆咪和Snowy是大客户",base:35},
- {s:"BUBBLE",em:"🫧",nm:"泡泡水厂",cn:"小岛天上飘的泡泡都是它家的",base:12},
- {s:"BOWTIE",em:"🎀",nm:"蝴蝶结时装",cn:"Snowy代言，忽涨忽跌",base:50},
- {s:"CLOUD",em:"☁️",nm:"云朵棉花糖",cn:"下雨天会跌价",base:8}
-];
-function guRnd(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return ((h>>>0)%10000)/10000}
-const GU_EPOCH=new Date("2026-08-01T00:00:00+04:00").getTime();
-function guDayN(){return Math.floor((Date.now()-GU_EPOCH)/86400000)}
-function guPrice(sym,base,day){
-  let px=base;
-  for(let i=1;i<=day;i++){
-    const r=(guRnd(sym+"#"+i)-.48)*.13;  /* 约±6.5%，略偏涨 */
-    px=Math.max(1,px*(1+r));
-  }
-  return Math.round(px*100)/100;
-}
-if(!S.stock)S.stock={cash:1000,hold:{},cost:{}};
-function guToday(sym,base){return guPrice(sym,base,guDayN())}
-function guYest(sym,base){return guPrice(sym,base,Math.max(0,guDayN()-1))}
-function guSpark(sym,base){
-  const d=guDayN(),pts=[];
-  for(let i=Math.max(0,d-13);i<=d;i++)pts.push(guPrice(sym,base,i));
-  const mn=Math.min(...pts),mx=Math.max(...pts),rg=(mx-mn)||1;
-  const xs=pts.map((v,i)=>((i/(pts.length-1))*72+1).toFixed(1)+","+((24-(v-mn)/rg*22)+1).toFixed(1));
-  const up=pts[pts.length-1]>=pts[0];
-  return '<svg class="guspark" viewBox="0 0 74 26"><polyline points="'+xs.join(" ")+'" fill="none" stroke="'+(up?"#d94f4f":"#3d9d6e")+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-}
-function guAssets(){
-  let v=S.stock.cash;
-  GU.forEach(g=>{v+=(S.stock.hold[g.s]||0)*guToday(g.s,g.base)});
-  return Math.round(v*100)/100;
-}
-function renderGu(){
-  const el=document.getElementById("guList");if(!el)return;
-  el.innerHTML=GU.map(g=>{
-    const px=guToday(g.s,g.base),py=guYest(g.s,g.base);
-    const chg=py?((px-py)/py*100):0,up=chg>=0;
-    const h=S.stock.hold[g.s]||0;
-    return '<div class="gurow"><span class="sym">'+g.em+'</span>'
-      +'<span class="gnm"><b>'+g.nm+'</b><small>'+g.cn+(h?' · 持有'+h+'股':'')+'</small></span>'
-      +guSpark(g.s,g.base)
-      +'<span class="px '+(up?"up":"dn")+'">'+px.toFixed(2)+'<small>'+(up?"▲":"▼")+Math.abs(chg).toFixed(1)+'%</small></span>'
-      +'<button class="gubtn gubuy" '+(S.stock.cash<px?"disabled":"")+' onclick="guBuy(\''+g.s+'\')">买1</button>'
-      +'<button class="gubtn gusell" '+(h?"":"disabled")+' onclick="guSell(\''+g.s+'\')">卖1</button></div>';
-  }).join("");
-  const total=guAssets(),pl=Math.round((total-1000)*100)/100;
-  document.getElementById("guAcct").innerHTML=
-    '现金：<b>'+S.stock.cash.toFixed(2)+'</b> 股币<br>总资产：<b>'+total.toFixed(2)+'</b> 股币 '
-    +'<span class="'+(pl>=0?"up":"dn")+'">（'+(pl>=0?"赚":"亏")+' '+Math.abs(pl).toFixed(2)+'）</span>';
-}
-function guBuy(sym){
-  const g=GU.find(x=>x.s===sym),px=guToday(sym,g.base);
-  if(S.stock.cash<px){say(yuguiC,"股币不够啦");return}
-  S.stock.cash=Math.round((S.stock.cash-px)*100)/100;
-  S.stock.hold[sym]=(S.stock.hold[sym]||0)+1;save();renderGu();
-  say(duomiC,"买了？…行吧，本大爷看好"+g.em);
-}
-function guSell(sym){
-  const g=GU.find(x=>x.s===sym),px=guToday(sym,g.base);
-  if(!(S.stock.hold[sym]>0))return;
-  S.stock.cash=Math.round((S.stock.cash+px)*100)/100;
-  S.stock.hold[sym]--;save();renderGu();
-  say(snowyC,"卖掉一股"+g.em+"，落袋为安！");
-}
-document.getElementById("guTip").textContent="每天迪拜零点自动换新行情，明天再来看涨跌。";
-renderGu();
-
-/* ═══ 小岛资料上服务器：金币/植物/衣服/每日完成 ═══ */
-const ISL_API="https://su-family.yousef-abud.workers.dev/island/data";
-function islDays(){
-  const out={};
-  for(let i=0;i<localStorage.length;i++){
-    const k=localStorage.key(i);
-    if(/^feiya(Zh|Ar|En|Ko)_\d{4}-\d{2}-\d{2}$/.test(k)){
-      try{out[k]=JSON.parse(localStorage.getItem(k)||"{}")}catch(e){}
-    }
-  }
-  return out;
-}
-let islT=null;
-function islSyncUp(){
-  clearTimeout(islT);
-  islT=setTimeout(()=>{
-    S._t=Date.now();
-    try{localStorage.setItem("feiyaIsland_v1",JSON.stringify(S))}catch(e){}
-    try{fetch(ISL_API,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({S:S,days:islDays()})}).catch(()=>{})}catch(e){}
-  },1500);
-}
-(function(){
-  try{
-    fetch(ISL_API).then(r=>r.json()).then(d=>{
-      let redo=false;
-      if(d.S&&(d.S._t||0)>(S._t||0)){
-        /* 服务器的新：植物和已购衣服并集，其余以服务器为准 */
-        const lp=S.plants||[],lo=(S.acc&&S.acc.owned)||{};
-        S=d.S;
-        S.plants=S.plants||[];
-        const pk=o=>(o.x||0)+","+(o.y||0)+","+(o.em||"")+","+(o.date||"");
-        const pm={};S.plants.concat(lp).forEach(o=>{if(o)pm[pk(o)]=o});
-        S.plants=Object.values(pm);
-        if(!S.stock)S.stock={cash:1000,hold:{},cost:{}};
-        S.acc=S.acc||{owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
-        Object.assign(S.acc.owned,lo);
-        localStorage.setItem("feiyaIsland_v1",JSON.stringify(S));
-        redo=true;
-      }
-      for(const [k,v] of Object.entries(d.days||{})){
-        try{
-          const cur=JSON.parse(localStorage.getItem(k)||"{}");
-          let ch=false;
-          for(const [f,val] of Object.entries(v||{}))if(val&&!cur[f]){cur[f]=1;ch=true}
-          if(ch){localStorage.setItem(k,JSON.stringify(cur));redo=true}
-        }catch(e){}
-      }
-      if(redo){
-        try{document.getElementById("coins").textContent=S.coins}catch(e){}
-        try{renderPlants()}catch(e){}
-        try{applyAcc()}catch(e){}
-        try{renderZh()}catch(e){}try{renderAr()}catch(e){}
-        try{renderEn()}catch(e){}try{renderKo()}catch(e){}
-        try{renderGu()}catch(e){}
-      }
-      islSyncUp();  /* 本机的也传上去存好 */
-    }).catch(()=>{});
-  }catch(e){}
-})();
-
 /* ═══ 英语页 ═══ */
 const EN_W=[["significant", "重要的，显著的"], ["enhance", "提升，增强"], ["diverse", "多样的"], ["crucial", "关键的"], ["sustainable", "可持续的"], ["considerable", "相当大的"], ["phenomenon", "现象"], ["strategy", "策略"], ["perspective", "视角，观点"], ["innovation", "创新"], ["efficient", "高效的"], ["obstacle", "障碍"], ["motivation", "动力"], ["adapt", "适应"], ["gradually", "逐渐地"], ["achievement", "成就"], ["environment", "环境"], ["community", "社区"], ["opportunity", "机会"], ["responsibility", "责任"], ["curiosity", "好奇心"], ["ambition", "抱负，志向"], ["confident", "自信的"], ["potential", "潜力"], ["appreciate", "感激，欣赏"], ["memorable", "难忘的"], ["inspire", "激励"], ["generation", "一代人"]];
 const EN_SP=[["Hello, My Future", "Good morning everyone. My name is Feiya, and today I want to talk about dreams. A dream is not a small thing — it is the most significant map of who we will become. Every day I try to enhance my skills a little: drawing, languages, design. People around me have diverse talents, and that is exactly what makes a team strong. Remember: your effort today is crucial for your tomorrow. Thank you.", "大家早上好，我叫霏雅。今天我想聊聊梦想。梦想不是小事——它是我们未来样子的一张最重要的地图。我每天都努力把自己的本领提升一点点：画画、语言、设计。身边的人才华各不相同，而这正是团队强大的原因。记住：你今天的努力，对你的明天至关重要。谢谢。"], ["Our Blue Planet", "Have you ever stood by the sea and just listened? Our planet gives us so much, but pollution has become a serious phenomenon. If we want a sustainable future, we need a clear strategy: waste less, reuse more, and speak up. One person's effort may seem small, but a considerable change always starts with someone who cares. Let it start with us.", "你有没有站在海边静静听过海浪？地球给了我们那么多，但污染已经成了一个严重的现象。想要可持续的未来，我们需要清晰的策略：少浪费、多再利用、敢发声。一个人的力量看似微小，但每一次巨大的改变，都是从一个在乎的人开始的。就让它从我们开始。"], ["The Artist's Eye", "Some people think drawing is just a hobby. From my perspective, it is a way of thinking. Every sketch is a little innovation: you try, you fail, you try again — that is the most efficient way to learn anything. When I meet an obstacle in my art, I do not quit. I look at it, smile, and draw it into the picture. Problems can become part of the design.", "有人觉得画画只是个爱好。在我看来，它是一种思考方式。每一张草稿都是一次小小的创新：尝试、失败、再尝试——这是学任何东西最高效的办法。遇到瓶颈时我不放弃，我看着它、笑一笑，然后把它画进画里。难题也可以变成设计的一部分。"], ["Keep Going", "Where does motivation come from? Not from waiting — from starting. When life changes, we adapt; when things feel slow, we improve gradually. My best achievement is not a prize. It is the day I kept studying when I really wanted to give up. Small steps, taken every day, quietly become giant leaps. So keep going — future you is watching, and she is proud.", "动力从哪里来？不是等来的，是开始了才有的。生活变了，我们就去适应；进步慢了，我们就一点点来。我最好的成就不是奖状，而是那个特别想放弃却还是继续学下去的日子。每天的小步子，悄悄就变成了大飞跃。所以继续走吧——未来的你正看着你，她为你骄傲。"], ["Home Is a Team", "A family is the smallest community in the world, and maybe the strongest one. In our home, everyone has a responsibility: someone cooks, someone teaches, someone makes everyone laugh. A warm environment is not built by one person — it is built by all of us, every single day. And every dinner together is an opportunity to say: I am glad you are here.", "家是世界上最小的社区，也可能是最强大的一个。在我们家，每个人都有自己的责任：有人做饭，有人教功课，有人负责逗大家笑。温暖的环境从来不是一个人建成的——是我们所有人每天一起建的。每一顿一起吃的晚饭，都是一次机会，说一句：有你在真好。"], ["Stay Curious", "Curiosity is a superpower. It asks: what is behind that door? Ambition answers: let us go and see. I want to be confident enough to try new things, even when I might look silly at first. Everyone has potential, but potential is shy — it only comes out when you invite it with action. So ask questions, open doors, and never stop exploring.", "好奇心是一种超能力。它会问：那扇门后面是什么？抱负会回答：我们去看看吧。我想变得足够自信，去尝试新事物，哪怕一开始可能出丑。每个人都有潜力，但潜力很害羞——只有用行动去邀请，它才会出来见人。所以要多提问、多开门、永远别停下探索。"], ["Thank You, Tomorrow", "Today I simply want to appreciate everything: my family, my teachers, even the hard days — because hard days make memorable stories. Our generation grows up with the whole world in our pocket, and that gift should inspire us to build, not just to scroll. One day I will look back at this little speech and smile. Tomorrow, thank you in advance. I will not waste you.", "今天我只想好好感谢这一切：家人、老师，甚至那些难熬的日子——因为难熬的日子会变成难忘的故事。我们这一代人把整个世界装进了口袋，这份礼物应该激励我们去创造，而不只是刷屏。有一天我回头看这篇小演讲，一定会微笑。明天，提前谢谢你，我不会浪费你。"]];
@@ -1382,6 +1248,395 @@ function prayTime(){
     },1100);
   },2800);
 }
+updateVis();renderAr();
+/* ═══ 小卖部：金币换衣服 ═══ */
+const SHOP=[
+ {id:"bowclip",nm:"蝴蝶结发夹",em:"🎀",pr:2,slot:"ear"},
+ {id:"beanie",nm:"小红帽",em:"🧢",pr:3,slot:"head"},
+ {id:"glasses",nm:"圆眼镜",em:"👓",pr:3,slot:"face"},
+ {id:"scarf",nm:"蓝围巾",em:"🧣",pr:3,slot:"neck"},
+ {id:"flower",nm:"花环",em:"🌸",pr:4,slot:"head"},
+ {id:"crown",nm:"金皇冠",em:"👑",pr:6,slot:"head"}
+];
+if(!S.acc)S.acc={owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
+function applyAcc(){
+  [["duomi",duomiC],["snowy",snowyC],["yugui",yuguiC]].forEach(([id,c])=>{
+    const w=S.acc.wear[id]||{};
+    c.el.querySelectorAll(".acci").forEach(g=>{
+      const it=SHOP.find(s=>s.id===g.dataset.item);
+      g.style.display=(it&&w[it.slot]===it.id)?"inline":"none";
+    });
+  });
+}
+function buyAcc(id){
+  const it=SHOP.find(s=>s.id===id);
+  if(S.acc.owned[id])return;
+  if(S.coins<it.pr){say(yuguiC,"金币不够啦，去学一课就有了！");return}
+  S.coins-=it.pr;S.acc.owned[id]=1;
+  /* 买完立刻穿上（随机一只），再点 哆/S/玉 可以换人 */
+  const cats=["duomi","snowy","yugui"];
+  const lucky=cats[Math.floor(Math.random()*cats.length)];
+  S.acc.wear[lucky][it.slot]=id;save();
+  document.getElementById("coins").textContent=S.coins;
+  applyAcc();renderShop();
+  const names={duomi:"哆咪",snowy:"Snowy",yugui:"玉桂狗"};
+  say(snowyC,it.nm+"给"+names[lucky]+"穿上啦！点 哆/S/玉 能换人");
+}
+function wearAcc(id,cat){
+  const it=SHOP.find(s=>s.id===id);
+  const w=S.acc.wear[cat];
+  w[it.slot]=(w[it.slot]===id)?null:id;
+  save();applyAcc();renderShop();
+}
+function renderShop(){
+  const el=document.getElementById("shopList");if(!el)return;
+  el.innerHTML=SHOP.map(it=>{
+    const owned=S.acc.owned[it.id];
+    let right;
+    if(!owned){
+      right='<button '+(S.coins<it.pr?"disabled":"")+' onclick="buyAcc(\''+it.id+'\')">'+it.pr+'🪙 买</button>';
+    }else{
+      right=[["duomi","哆"],["snowy","S"],["yugui","玉"]].map(([c,l])=>
+        '<button class="'+(S.acc.wear[c][it.slot]===it.id?"on":"")+'" onclick="wearAcc(\''+it.id+'\',\''+c+'\')">'+l+'</button>').join("");
+    }
+    return '<div class="shoprow"><span>'+it.em+'</span><span class="nm">'+it.nm+'</span>'+right+'</div>';
+  }).join("");
+}
+applyAcc();
+
+/* ═══ 英语页 ═══ */
+const EN_W=[["significant", "重要的，显著的"], ["enhance", "提升，增强"], ["diverse", "多样的"], ["crucial", "关键的"], ["sustainable", "可持续的"], ["considerable", "相当大的"], ["phenomenon", "现象"], ["strategy", "策略"], ["perspective", "视角，观点"], ["innovation", "创新"], ["efficient", "高效的"], ["obstacle", "障碍"], ["motivation", "动力"], ["adapt", "适应"], ["gradually", "逐渐地"], ["achievement", "成就"], ["environment", "环境"], ["community", "社区"], ["opportunity", "机会"], ["responsibility", "责任"], ["curiosity", "好奇心"], ["ambition", "抱负，志向"], ["confident", "自信的"], ["potential", "潜力"], ["appreciate", "感激，欣赏"], ["memorable", "难忘的"], ["inspire", "激励"], ["generation", "一代人"]];
+const EN_SP=[["Hello, My Future", "Good morning everyone. My name is Feiya, and today I want to talk about dreams. A dream is not a small thing — it is the most significant map of who we will become. Every day I try to enhance my skills a little: drawing, languages, design. People around me have diverse talents, and that is exactly what makes a team strong. Remember: your effort today is crucial for your tomorrow. Thank you.", "大家早上好，我叫霏雅。今天我想聊聊梦想。梦想不是小事——它是我们未来样子的一张最重要的地图。我每天都努力把自己的本领提升一点点：画画、语言、设计。身边的人才华各不相同，而这正是团队强大的原因。记住：你今天的努力，对你的明天至关重要。谢谢。"], ["Our Blue Planet", "Have you ever stood by the sea and just listened? Our planet gives us so much, but pollution has become a serious phenomenon. If we want a sustainable future, we need a clear strategy: waste less, reuse more, and speak up. One person's effort may seem small, but a considerable change always starts with someone who cares. Let it start with us.", "你有没有站在海边静静听过海浪？地球给了我们那么多，但污染已经成了一个严重的现象。想要可持续的未来，我们需要清晰的策略：少浪费、多再利用、敢发声。一个人的力量看似微小，但每一次巨大的改变，都是从一个在乎的人开始的。就让它从我们开始。"], ["The Artist's Eye", "Some people think drawing is just a hobby. From my perspective, it is a way of thinking. Every sketch is a little innovation: you try, you fail, you try again — that is the most efficient way to learn anything. When I meet an obstacle in my art, I do not quit. I look at it, smile, and draw it into the picture. Problems can become part of the design.", "有人觉得画画只是个爱好。在我看来，它是一种思考方式。每一张草稿都是一次小小的创新：尝试、失败、再尝试——这是学任何东西最高效的办法。遇到瓶颈时我不放弃，我看着它、笑一笑，然后把它画进画里。难题也可以变成设计的一部分。"], ["Keep Going", "Where does motivation come from? Not from waiting — from starting. When life changes, we adapt; when things feel slow, we improve gradually. My best achievement is not a prize. It is the day I kept studying when I really wanted to give up. Small steps, taken every day, quietly become giant leaps. So keep going — future you is watching, and she is proud.", "动力从哪里来？不是等来的，是开始了才有的。生活变了，我们就去适应；进步慢了，我们就一点点来。我最好的成就不是奖状，而是那个特别想放弃却还是继续学下去的日子。每天的小步子，悄悄就变成了大飞跃。所以继续走吧——未来的你正看着你，她为你骄傲。"], ["Home Is a Team", "A family is the smallest community in the world, and maybe the strongest one. In our home, everyone has a responsibility: someone cooks, someone teaches, someone makes everyone laugh. A warm environment is not built by one person — it is built by all of us, every single day. And every dinner together is an opportunity to say: I am glad you are here.", "家是世界上最小的社区，也可能是最强大的一个。在我们家，每个人都有自己的责任：有人做饭，有人教功课，有人负责逗大家笑。温暖的环境从来不是一个人建成的——是我们所有人每天一起建的。每一顿一起吃的晚饭，都是一次机会，说一句：有你在真好。"], ["Stay Curious", "Curiosity is a superpower. It asks: what is behind that door? Ambition answers: let us go and see. I want to be confident enough to try new things, even when I might look silly at first. Everyone has potential, but potential is shy — it only comes out when you invite it with action. So ask questions, open doors, and never stop exploring.", "好奇心是一种超能力。它会问：那扇门后面是什么？抱负会回答：我们去看看吧。我想变得足够自信，去尝试新事物，哪怕一开始可能出丑。每个人都有潜力，但潜力很害羞——只有用行动去邀请，它才会出来见人。所以要多提问、多开门、永远别停下探索。"], ["Thank You, Tomorrow", "Today I simply want to appreciate everything: my family, my teachers, even the hard days — because hard days make memorable stories. Our generation grows up with the whole world in our pocket, and that gift should inspire us to build, not just to scroll. One day I will look back at this little speech and smile. Tomorrow, thank you in advance. I will not waste you.", "今天我只想好好感谢这一切：家人、老师，甚至那些难熬的日子——因为难熬的日子会变成难忘的故事。我们这一代人把整个世界装进了口袋，这份礼物应该激励我们去创造，而不只是刷屏。有一天我回头看这篇小演讲，一定会微笑。明天，提前谢谢你，我不会浪费你。"]];
+function enState(){try{return JSON.parse(localStorage.getItem("feiyaEn_"+dxb())||"{}")}catch(e){return{}}}
+function enSave(st){try{localStorage.setItem("feiyaEn_"+dxb(),JSON.stringify(st))}catch(e){}}
+function enGot(k){const st=enState();st[k]=!st[k];enSave(st);renderEn();}
+function renderEn(){
+  const st=enState();
+  const ws=EN_W.slice(adi*4,adi*4+4);
+  document.getElementById("enWords").innerHTML=
+    '<h3>今日雅思词</h3><div class="au">跟 Ava 读 · 每天四个</div>'
+    +ws.map((w,j)=>'<div class="ewrow"><button onclick="arPlaySeq([\'audio/en/iw'+(adi*4+j)+'.mp3\'],this)">🔊</button><span class="ew">'+w[0]+'</span><span class="ec">'+w[1]+'</span></div>').join("")
+    +'<div class="zhbtns"><button class="en-got'+(st.w?" on":"")+'" onclick="enGot(\'w\')">'+(st.w?"会了 ✓":"四个都会了")+'</button></div>';
+  const sp=EN_SP[adi];
+  document.getElementById("enSents").innerHTML=
+    '<h3>今日演讲稿 🎤</h3><div class="au">《'+sp[0]+'》 · 先听 Jenny，再自己上台念</div>'
+    +'<div style="font-size:15px;line-height:1.9;color:#6b7a52;padding:4px 0">'+sp[1]+'</div>'
+    +'<div class="mean" style="margin-top:8px">'+sp[2]+'</div>'
+    +'<div class="zhbtns"><button class="en-listen" onclick="arPlaySeq([\'audio/en/sp'+adi+'.mp3\'],this)">🔊 听Jenny念</button>'
+    +'<button class="en-got'+(st.s?" on":"")+'" onclick="enGot(\'s\')">'+(st.s?"我念完啦 ✓":"我念完了")+'</button></div>';
+  const all=st.w&&st.s;
+  document.getElementById("enDone").innerHTML=st.done
+    ?'<div style="font-size:15px;font-weight:800;color:#7ba05a">今天的English完成啦 🩰 +2🪙</div>'
+    :'<button class="zh-done-btn" style="background:#9dbb7d" '+(all?"":"disabled")+' onclick="enFinish()">'+(all?"完成今天的English 🩰":"词和演讲都完成才行")+'</button>';
+}
+function enFinish(){
+  const st=enState();if(st.done)return;st.done=1;enSave(st);
+  S.coins+=2;save();document.getElementById("coins").textContent=S.coins;
+  renderEn();famCheer("English");
+}
+/* ═══ 韩语页 ═══ */
+const KO=[["안녕하세요", "你好", "annyeong-haseyo"], ["감사합니다", "谢谢", "gamsa-hamnida"], ["잘 가요", "再见", "jal gayo"], ["사랑해요", "我爱你", "saranghaeyo"], ["맛있어요", "好吃", "masisseoyo"], ["좋아요", "喜欢·好", "joayo"], ["미안해요", "对不起", "mianhaeyo"], ["괜찮아요", "没关系", "gwaenchanayo"], ["화이팅", "加油", "hwaiting"], ["예뻐요", "好漂亮", "yeppeoyo"], ["귀여워요", "好可爱", "gwiyeowoyo"], ["대박", "太棒了", "daebak"], ["배고파요", "肚子饿了", "baegopayo"], ["물 주세요", "请给我水", "mul juseyo"], ["잘 먹겠습니다", "我开动啦", "jal meokgessseumnida"], ["안녕히 주무세요", "晚安", "annyeonghi jumuseyo"], ["꿈 꿔요", "做个好梦", "kkum kkwoyo"], ["내일 봐요", "明天见", "naeil bwayo"], ["친구", "朋友", "chingu"], ["노래", "唱歌", "norae"], ["춤 춰요", "跳舞", "chum chwoyo"]];
+function koState(){try{return JSON.parse(localStorage.getItem("feiyaKo_"+dxb())||"{}")}catch(e){return{}}}
+function koSave(st){try{localStorage.setItem("feiyaKo_"+dxb(),JSON.stringify(st))}catch(e){}}
+function koGot(){const st=koState();st.k=!st.k;koSave(st);renderKo();}
+function renderKo(){
+  const st=koState();
+  const ks=KO.slice(adi*3,adi*3+3);
+  document.getElementById("koCard").innerHTML=
+    '<h3>今天三句</h3><div class="au">跟 SunHi 读 · 说给家里人听</div>'
+    +ks.map((k,j)=>'<div style="padding:7px 0;border-bottom:1px dashed #e3ebf6"><div style="font-size:19px;font-weight:800;color:#f06f92">'+k[0]+'</div><div style="font-size:11.5px;color:#8fd4cf">'+k[2]+'</div><div style="font-size:12.5px;color:#5d9995">'+k[1]+'</div><button style="border:0;border-radius:10px;background:#d9f4f2;color:#3d9d96;padding:5px 10px;font-size:12.5px;margin-top:3px;cursor:pointer" onclick="arPlaySeq([\'audio/ko/k'+(adi*3+j)+'.mp3\'],this)">🔊 听</button></div>').join("")
+    +'<div class="zhbtns"><button class="ko-got'+(st.k?" on":"")+'" onclick="koGot()">'+(st.k?"三句都会啦 ✓":"三句都会了")+'</button></div>';
+  document.getElementById("koDone").innerHTML=st.done
+    ?'<div style="font-size:15px;font-weight:800;color:#f06f92">오늘의 한국어 完成 ❄️ +2🪙</div>'
+    :'<button class="zh-done-btn" style="background:#f06f92" '+(st.k?"":"disabled")+' onclick="koFinish()">'+(st.k?"完成今天的한국어 ❄️":"三句都点了才能完成")+'</button>';
+}
+function koFinish(){
+  const st=koState();if(st.done)return;st.done=1;koSave(st);
+  S.coins+=2;save();document.getElementById("coins").textContent=S.coins;
+  renderKo();famCheer("한국어");
+}
+function famCheer(which){
+  try{fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({who:"feiya",done:1,total:1,started:true})}).catch(()=>{})}catch(e){}
+  say(yuguiC,which+"过啦！你最棒！");
+  setTimeout(()=>say(snowyC,"庆功会庆功会！"),1500);
+}
+/* 演讲台：搞笑英语演讲 */
+function speechTime(){
+  const pd=document.getElementById("podium");if(!pd)return;
+  const mr=pd.getBoundingClientRect();
+  if(mr.bottom<0||mr.top>window.innerHeight)return;
+  const py=Math.max(8,window.innerHeight-mr.top-40);
+  const cats=visCats();
+  cats.forEach((c,i)=>{c.sleep=false;c.el.classList.remove("sleep","flip");
+    place(c,i===0?mr.left+40:mr.left-30+i*110,i===0?py:Math.max(8,py-52))});
+  const here=duoSnowyPage===curPage;
+  setTimeout(()=>say(here?duomiC:yuguiC,"Ladies and gentlemen…"),2900);
+  setTimeout(()=>say(here?duomiC:yuguiC,"……me…meow. Thank you."),5400);
+  if(here){
+    setTimeout(()=>say(snowyC,"他就会这一句哈哈哈哈"),7200);
+    setTimeout(()=>say(yuguiC,"Bravo！Bravo！（跟着鼓掌）"),8600);
+    setTimeout(()=>say(duomiC,"…下台了。别拍了。"),10200);
+  }
+}
+/* K-POP舞台：各跳各的 */
+let dancing=false;
+function danceTime(){
+  if(dancing)return;
+  const sg=document.getElementById("stage");if(!sg)return;
+  const mr=sg.getBoundingClientRect();
+  if(mr.bottom<0||mr.top>window.innerHeight)return;
+  dancing=true;
+  const py=Math.max(8,window.innerHeight-mr.top-30);
+  const cats=visCats();
+  cats.forEach((c,i)=>{c.sleep=false;c.el.classList.remove("sleep","flip");place(c,mr.left+6+i*56,py)});
+  setTimeout(()=>{
+    cats.forEach(c=>c.el.classList.add("dance"));
+    say(snowyC,"라라라 ♪ 跟我跳！");
+    setTimeout(()=>say(duomiC,"（假装不想跳，尾巴很诚实）"),2200);
+    setTimeout(()=>say(yuguiC,"转圈圈～转圈圈～"),4200);
+    let n=0;
+    const nv=setInterval(()=>{
+      n++;
+      const m=document.createElement("span");m.className="mnote";m.textContent=["🎵","🎶","♪","❄️"][n%4];
+      m.style.left=(mr.left+20+Math.random()*120)+"px";m.style.bottom=(py+60)+"px";
+      document.body.appendChild(m);setTimeout(()=>m.remove(),1700);
+      if(n>=10){clearInterval(nv);
+        cats.forEach(c=>c.el.classList.remove("dance"));
+        say(duomiC,"哼，本大爷跳得最好。");dancing=false;}
+    },900);
+  },2900);
+}
+renderEn();renderKo();
+
+
+/* ═══ 秋千 + 各页随机表演 ═══ */
+function visCats(){
+  const arr=[];
+  if(duoSnowyPage===curPage){if(!duomiC.away)arr.push(duomiC);if(!snowyC.away)arr.push(snowyC)}
+  if(!yuguiC.away)arr.push(yuguiC);
+  return arr;
+}
+let swinging=false;
+function swingTime(c){
+  if(swinging||c.away||c.el.classList.contains("drag"))return;
+  swinging=true;
+  say(c,"荡秋千喽～！");
+  const sb=document.getElementById("swingbox");
+  const sx=60+Math.random()*(window.innerWidth-200);
+  sb.style.left=sx+"px";
+  setTimeout(()=>{
+    c._pp=c.el.parentNode;
+    c.el.style.transition="none";c.el.style.left="21px";c.el.style.bottom="30px";
+    sb.appendChild(c.el);sb.style.display="block";sb.classList.add("go");
+    if(c===duomiC&&!snowyC.away&&duoSnowyPage===curPage){
+      const b=bounds();
+      place(snowyC,Math.min(b.x1,Math.max(b.x0,sx+80)),b.y0+10);
+      setTimeout(()=>say(snowyC,"哥你好帅！！"),1800);
+    }
+  },1200);
+  setTimeout(()=>{
+    sb.classList.remove("go");sb.style.display="none";
+    if(c._pp){c._pp.appendChild(c.el);c._pp=null}
+    c.el.style.transition="";
+    const b=bounds();
+    place(c,Math.min(b.x1,Math.max(b.x0,sx)),b.y0+24,true);
+    say(c,c===duomiC?"…还行，再玩一次。":"好晕好开心～");
+    swinging=false;
+  },11000);
+}
+/* 中文页小山：上山写诗（可点，也会自己刷新） */
+function shiTime(){
+  const sh=document.getElementById("shishan");if(!sh)return;
+  const mr=sh.getBoundingClientRect();
+  if(mr.bottom<0||mr.top>window.innerHeight)return;
+  const py=Math.max(8,window.innerHeight-mr.top-46);
+  const xs=[mr.left+18,mr.left+62,mr.left+106];
+  const cats=visCats();
+  cats.forEach((c,i)=>{c.sleep=false;c.el.classList.remove("sleep","flip");place(c,xs[i]||mr.left+40,py)});
+  const P=POEMS[zpi];
+  const here=duoSnowyPage===curPage;
+  const half=P.l[0].slice(0,P.l[0].indexOf("，")>0?P.l[0].indexOf("，"):8);
+  const wrong=half.slice(0,-1)+"喵";
+  if(here){
+    setTimeout(()=>say(duomiC,"咳咳——本大爷要题诗了！"),2600);
+    setTimeout(()=>say(duomiC,wrong+"…等等，不对。"),4600);
+    setTimeout(()=>say(snowyC,"哥你背错啦哈哈哈哈！"),6400);
+    setTimeout(()=>say(yuguiC,"好诗好诗！（其实没听懂）"),8000);
+    setTimeout(()=>say(duomiC,"谁也不许说出去。"),9800);
+  }else{
+    setTimeout(()=>say(yuguiC,wrong+"…咦？"),2900);
+    setTimeout(()=>say(yuguiC,"算了，你念我听 ✿"),5200);
+  }
+  setTimeout(()=>{
+    const o=document.getElementById("shiOut");
+    if(o){
+      const wob=s=>s.split("").map((ch,i)=>ch==="<"?ch:'<span style="transform:rotate('+((i*7%9)-4)+'deg) translateY('+((i*5%5)-2)+'px)">'+ch+'</span>').join("");
+      o.innerHTML='<div class="zhcard" style="margin-top:10px;animation:qpop .3s ease"><h3>'+P.t+' 🖌️</h3><div class="ln pawfont">'+P.l.map(l=>wob(l)).join("<br>")+'</div><div class="use">——哆咪 挥爪题于小山之巅（背错三次之后）🐾💦</div></div>'}
+  },8600);
+}
+/* 随机刷新：它们自己会去玩各页的设施 */
+setInterval(()=>{
+  const r=Math.random();
+  const alive=visCats().filter(c=>!c.sleep);
+  if(!alive.length)return;
+  const c=alive[Math.floor(Math.random()*alive.length)];
+  if(r<.4)swingTime(c);
+  else if(curPage===3&&r<.75)shiTime();
+  else if(curPage===1&&r<.75)prayTime();
+  else if(curPage===2&&r<.75)speechTime();
+  else if(curPage===4&&r<.75)danceTime();
+},52000);
+/* 闲逛时也会跑去设施上呆着——设施是它们的，不是装饰 */
+function perchSpot(){
+  const ids={1:"mosque",2:"podium",3:"shishan",4:"stage"};
+  const el=ids[curPage]&&document.getElementById(ids[curPage]);
+  if(!el)return null;
+  const mr=el.getBoundingClientRect();
+  if(mr.bottom<0||mr.top>window.innerHeight)return null;
+  return {x:mr.left+10+Math.random()*Math.max(20,mr.width-70),y:Math.max(8,window.innerHeight-mr.top-44)};
+}
+setInterval(()=>{
+  if(Math.random()<.35){
+    const alive=visCats().filter(c=>!c.sleep&&!c.el.classList.contains("drag")&&!c.el.classList.contains("dance"));
+    if(!alive.length)return;
+    const c=alive[Math.floor(Math.random()*alive.length)];
+    const s=perchSpot();
+    if(s){c.el.classList.toggle("flip",s.x<c.x);place(c,s.x,s.y)}
+  }
+},23000);
+
+/* ═══ 股市.beta：确定性行情（种子=公司+日期，各设备一致）═══ */
+const GU=[
+ {s:"DONUT",em:"🍩",nm:"甜甜圈厂",cn:"玉桂狗最爱，销量稳",base:20},
+ {s:"CATCAN",em:"🐟",nm:"猫罐头公司",cn:"哆咪和Snowy是大客户",base:35},
+ {s:"BUBBLE",em:"🫧",nm:"泡泡水厂",cn:"小岛天上飘的泡泡都是它家的",base:12},
+ {s:"BOWTIE",em:"🎀",nm:"蝴蝶结时装",cn:"Snowy代言，忽涨忽跌",base:50},
+ {s:"CLOUD",em:"☁️",nm:"云朵棉花糖",cn:"下雨天会跌价",base:8}
+];
+function guRnd(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return ((h>>>0)%10000)/10000}
+const GU_EPOCH=new Date("2026-08-01T00:00:00+04:00").getTime();
+function guDayN(){return Math.floor((Date.now()-GU_EPOCH)/86400000)}
+function guPrice(sym,base,day){
+  let px=base;
+  for(let i=1;i<=day;i++){
+    const r=(guRnd(sym+"#"+i)-.48)*.13;
+    px=Math.max(1,px*(1+r));
+  }
+  return Math.round(px*100)/100;
+}
+if(!S.stock)S.stock={cash:1000,hold:{},cost:{}};
+function guToday(sym,base){return guPrice(sym,base,guDayN())}
+function guYest(sym,base){return guPrice(sym,base,Math.max(0,guDayN()-1))}
+function guSpark(sym,base){
+  const d=guDayN(),pts=[];
+  for(let i=Math.max(0,d-13);i<=d;i++)pts.push(guPrice(sym,base,i));
+  const mn=Math.min(...pts),mx=Math.max(...pts),rg=(mx-mn)||1;
+  const xs=pts.map((v,i)=>((i/(pts.length-1))*72+1).toFixed(1)+","+((24-(v-mn)/rg*22)+1).toFixed(1));
+  const up=pts[pts.length-1]>=pts[0];
+  return '<svg class="guspark" viewBox="0 0 74 26"><polyline points="'+xs.join(" ")+'" fill="none" stroke="'+(up?"#d94f4f":"#3d9d6e")+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function guAssets(){
+  let v=S.stock.cash;
+  GU.forEach(g=>{v+=(S.stock.hold[g.s]||0)*guToday(g.s,g.base)});
+  return Math.round(v*100)/100;
+}
+function renderGu(){
+  const el=document.getElementById("guList");if(!el)return;
+  el.innerHTML=GU.map(g=>{
+    const px=guToday(g.s,g.base),py=guYest(g.s,g.base);
+    const chg=py?((px-py)/py*100):0,up=chg>=0;
+    const h=S.stock.hold[g.s]||0;
+    return '<div class="gurow"><span class="sym">'+g.em+'</span>'
+      +'<span class="gnm"><b>'+g.nm+'</b><small>'+g.cn+(h?' · 持有'+h+'股':'')+'</small></span>'
+      +guSpark(g.s,g.base)
+      +'<span class="px '+(up?"up":"dn")+'">'+px.toFixed(2)+'<small>'+(up?"▲":"▼")+Math.abs(chg).toFixed(1)+'%</small></span>'
+      +'<button class="gubtn gubuy" '+(S.stock.cash<px?"disabled":"")+' onclick="guBuy(\''+g.s+'\')">买1</button>'
+      +'<button class="gubtn gusell" '+(h?"":"disabled")+' onclick="guSell(\''+g.s+'\')">卖1</button></div>';
+  }).join("");
+  const total=guAssets(),pl=Math.round((total-1000)*100)/100;
+  document.getElementById("guAcct").innerHTML=
+    '现金：<b>'+S.stock.cash.toFixed(2)+'</b> 股币<br>总资产：<b>'+total.toFixed(2)+'</b> 股币 '
+    +'<span class="'+(pl>=0?"up":"dn")+'">（'+(pl>=0?"赚":"亏")+' '+Math.abs(pl).toFixed(2)+'）</span>';
+}
+function guBuy(sym){
+  const g=GU.find(x=>x.s===sym),px=guToday(sym,g.base);
+  if(S.stock.cash<px){say(yuguiC,"股币不够啦");return}
+  S.stock.cash=Math.round((S.stock.cash-px)*100)/100;
+  S.stock.hold[sym]=(S.stock.hold[sym]||0)+1;save();renderGu();
+  say(duomiC,"买了？…行吧，本大爷看好"+g.em);
+}
+function guSell(sym){
+  const g=GU.find(x=>x.s===sym),px=guToday(sym,g.base);
+  if(!(S.stock.hold[sym]>0))return;
+  S.stock.cash=Math.round((S.stock.cash+px)*100)/100;
+  S.stock.hold[sym]--;save();renderGu();
+  say(snowyC,"卖掉一股"+g.em+"，落袋为安！");
+}
+(function(){const el=document.getElementById("guTip");if(el)el.textContent="每天迪拜零点自动换新行情，明天再来看涨跌。"})();
+renderGu();
+
+/* ═══ 小岛资料上服务器：金币/植物/衣服/每日完成/持仓 ═══ */
+const ISL_API="https://su-family.yousef-abud.workers.dev/island/data";
+function islDays(){
+  const out={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(/^feiya(Zh|Ar|En|Ko)_\d{4}-\d{2}-\d{2}$/.test(k)){
+      try{out[k]=JSON.parse(localStorage.getItem(k)||"{}")}catch(e){}
+    }
+  }
+  return out;
+}
+let islT=null;
+function islSyncUp(){
+  clearTimeout(islT);
+  islT=setTimeout(()=>{
+    S._t=Date.now();
+    try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+    try{fetch(ISL_API,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({S:S,days:islDays()})}).catch(()=>{})}catch(e){}
+  },1500);
+}
+(function(){
+  try{
+    fetch(ISL_API).then(r=>r.json()).then(d=>{
+      let redo=false;
+      if(d.S&&(d.S._t||0)>(S._t||0)){
+        const lp=S.plants||[],lo=(S.acc&&S.acc.owned)||{};
+        S=d.S;
+        S.plants=S.plants||[];
+        const pk=o=>(o.x||0)+","+(o.y||0)+","+(o.em||"")+","+(o.date||"");
+        const pm={};S.plants.concat(lp).forEach(o=>{if(o)pm[pk(o)]=o});
+        S.plants=Object.values(pm);
+        if(!S.stock)S.stock={cash:1000,hold:{},cost:{}};
+        S.acc=S.acc||{owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
+        Object.assign(S.acc.owned,lo);
+        try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+        redo=true;
+      }
+      for(const [k,v] of Object.entries(d.days||{})){
+        try{
+          const cur=JSON.parse(localStorage.getItem(k)||"{}");
+          let ch=false;
+          for(const [f,val] of Object.entries(v||{}))if(val&&!cur[f]){cur[f]=1;ch=true}
+          if(ch){localStorage.setItem(k,JSON.stringify(cur));redo=true}
+        }catch(e){}
+      }
+      if(redo){
+        try{document.getElementById("coins").textContent=S.coins}catch(e){}
+        try{renderPlants()}catch(e){}
+        try{applyAcc()}catch(e){}
+        try{renderZh()}catch(e){}try{renderAr()}catch(e){}
+        try{renderEn()}catch(e){}try{renderKo()}catch(e){}
+        try{renderGu()}catch(e){}
+      }
+      islSyncUp();
+    }).catch(()=>{});
+  }catch(e){}
+})();
+
 </script>
 </body>
 </html>
