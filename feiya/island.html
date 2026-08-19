@@ -184,11 +184,12 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
         <ellipse cx="50" cy="81" rx="11" ry="8" fill="#fff"/>
         <path d="M10 44 Q8 24 20 16 L24 3 L36 12 Q50 6 64 12 L76 3 L80 16 Q92 24 90 44 Q90 64 50 66 Q10 64 10 44 Z" fill="#3c3947" stroke="#2b2833" stroke-width="3" stroke-linejoin="round"/>
         <path d="M24 9 L27 13 L30 10 Z" fill="#ff9fc0" opacity=".55"/><path d="M76 9 L73 13 L70 10 Z" fill="#ff9fc0" opacity=".55"/>
+        <path d="M30 48 Q50 66 70 48 Q66 62 50 63 Q34 62 30 48 Z" fill="#fff"/>
         <path d="M28 38 L38 43 M72 38 L62 43" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
-        <path d="M44 50 Q47 53 50 50 Q53 53 56 50" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="M44 51 Q47 54 50 51 Q53 54 56 51" stroke="#3c3947" stroke-width="2.4" fill="none" stroke-linecap="round"/>
         <path d="M17 48 l9 1 M18 53 l7 0 M83 48 l-9 1 M82 53 l-7 0" stroke="#ff9fc0" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>
         <path d="M6 42 L16 44 M6 50 L15 50 M94 42 L84 44 M94 50 L85 50" stroke="#2b2833" stroke-width="1.6" stroke-linecap="round"/>
-        <path d="M43 88 q-3 5 2 4 M57 88 q3 5 -2 4" stroke="#2b2833" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="43" cy="88" rx="5" ry="4" fill="#fff" stroke="#2b2833" stroke-width="1.8"/><ellipse cx="57" cy="88" rx="5" ry="4" fill="#fff" stroke="#2b2833" stroke-width="1.8"/>
       </svg>
     </div>
     <div class="speech" id="sp-duomi"></div>
@@ -235,20 +236,20 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       <button id="sow">种下去</button>
     </div>
     <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></div>
-    <div class="hint">← 左右滑：小岛 · 阿拉伯语 · 英语 · 中文 · 한국어 →</div>
+    <div class="hint">← 左右滑：小岛 · 🇦🇪العربية · 🇬🇧English · 🇨🇳中文 · 🇰🇷한국어 →</div>
   </section>
 
   <!-- 语言页（先立牌坊，课一门门装） -->
   <section class="page lang l-ar"><button class="backhome" onclick="goHome()">← 回小岛</button>
-    <span class="big">🗝️</span><h2>阿拉伯语</h2><p>古兰经（真人诵读）· 圣训 · 单词<br><br>🚧 小林施工中，很快开门</p></section>
+    <span class="big">🗝️</span><h2>🇦🇪 العربية 阿拉伯语</h2><p>古兰经（真人诵读）· 圣训 · 单词<br><br>🚧 小林施工中，很快开门</p></section>
   <section class="page lang l-en"><button class="backhome" onclick="goHome()">← 回小岛</button>
-    <span class="big">🩰</span><h2>英语</h2><p>单词 · 句子 · 语音<br><br>🚧 小林施工中，很快开门</p></section>
+    <span class="big">🩰</span><h2>🇬🇧 English</h2><p>单词 · 句子 · 语音<br><br>🚧 小林施工中，很快开门</p></section>
   <section class="page l-zh" id="pgZh" style="overflow-y:auto;padding:64px 18px 40px">
     <button class="backhome" onclick="goHome()">← 回小岛</button>
     <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
       <div style="text-align:center;margin-bottom:6px">
         <span style="font-size:30px">🧸</span>
-        <h2 style="font-size:21px;color:var(--deep)">中文 · 今天一诗一成语</h2>
+        <h2 style="font-size:21px;color:var(--deep)">🇨🇳 中文 · 今天一诗一成语</h2>
         <div id="zhCats" style="font-size:12px;color:#a97b95;margin-top:3px"></div>
       </div>
       <div id="zhPoem" class="zhcard"></div>
@@ -261,7 +262,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     </div>
   </section>
   <section class="page lang l-ko"><button class="backhome" onclick="goHome()">← 回小岛</button>
-    <span class="big">🎀</span><h2>한국어 韩语</h2><p>日常聊天 · 单词 · 发音<br><br>🚧 小林施工中，很快开门</p></section>
+    <span class="big">🎀</span><h2>🇰🇷 한국어</h2><p>日常聊天 · 单词 · 发音<br><br>🚧 小林施工中，很快开门</p></section>
 </div>
 
 <div id="quiz"><div class="box"><h3 id="qTitle"></h3><div id="qOpts"></div></div></div>
