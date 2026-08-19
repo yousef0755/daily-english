@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070d16">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<title>五分钟</title>
+<style>
+:root{
+  --bg:#070d16;--ink:#e8edf4;--dim:#8b96a6;
+  --ivory:#f6f2e7;--ivory2:#efe9da;--dark-ink:#1d2a24;--dark-dim:#6d746f;
+  --gold:#d8b366;--gold-deep:#c99a45;--line-d:rgba(150,182,222,.14);--line-l:rgba(50,70,60,.14);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:var(--sans);color:var(--ink);line-height:1.6;min-height:100vh;
+  background:
+    radial-gradient(1.5px 1.5px at 12% 16%,rgba(255,255,255,.35),transparent 2px),
+    radial-gradient(1px 1px at 36% 60%,rgba(255,255,255,.2),transparent 2px),
+    radial-gradient(1.5px 1.5px at 62% 28%,rgba(255,255,255,.3),transparent 2px),
+    radial-gradient(1px 1px at 80% 72%,rgba(255,255,255,.2),transparent 2px),
+    radial-gradient(1.5px 1.5px at 92% 10%,rgba(255,255,255,.26),transparent 2px),
+    radial-gradient(circle at 88% 0%,rgba(216,179,102,.10),transparent 28rem),
+    radial-gradient(circle at 0% 46%,rgba(46,168,130,.08),transparent 32rem),
+    linear-gradient(180deg,#060b13,#0a1220 55%,#0b1523);
+  padding:18px 16px 60px;
+}
+.wrap{max-width:560px;margin:0 auto}
+/* 顶条 */
+.top{display:flex;align-items:baseline;gap:14px;margin-bottom:22px}
+.wordmark{font-family:var(--serif);font-size:1.5rem;font-weight:700;letter-spacing:.02em;color:#f4efe2}
+.streak{font-size:.82rem;color:var(--gold);font-weight:700}
+.toplinks{margin-left:auto;display:flex;gap:14px}
+.toplinks a{color:var(--dim);font-size:.8rem;text-decoration:none;border-bottom:1px solid transparent}
+.toplinks a:hover{color:var(--gold);border-color:rgba(216,179,102,.4)}
+/* 今日卡 */
+.today{
+  background:linear-gradient(178deg,var(--ivory),var(--ivory2));
+  color:var(--dark-ink);
+  border-radius:22px;border:1px solid rgba(216,179,102,.3);
+  box-shadow:0 24px 70px rgba(0,0,0,.5);
+  padding:22px 20px 18px;
+}
+.eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.16em;color:var(--gold-deep);text-transform:uppercase}
+.daytitle{font-family:var(--serif);font-size:1.14rem;font-weight:700;margin-top:3px;color:var(--dark-ink)}
+.daytitle small{font-weight:400;color:var(--dark-dim);font-size:.8rem;margin-left:6px}
+.lines{margin-top:14px;display:flex;flex-direction:column}
+.row{border-top:1px solid var(--line-l);padding:12px 2px;cursor:pointer}
+.row:first-child{border-top:0}
+.rline{display:flex;align-items:center;gap:12px}
+.rnum{font-size:.68rem;color:#b7ab8d;font-variant-numeric:tabular-nums;width:18px;flex:none}
+.artxt{flex:1;direction:rtl;text-align:right;font-family:var(--serif);font-size:1.42rem;line-height:2;color:var(--dark-ink);font-weight:600}
+.play{flex:none;width:42px;height:42px;border-radius:12px;border:1px solid rgba(216,179,102,.55);
+  background:#fdf9ee;color:#8a6b2e;font-size:.95rem;cursor:pointer;display:grid;place-items:center}
+.play:active{transform:scale(.94)}
+.zh{display:none;margin:6px 30px 2px 0;padding:9px 12px;border-radius:10px;
+  background:rgba(216,179,102,.13);border-inline-start:3px solid var(--gold);
+  color:#5c5443;font-size:.86rem;direction:ltr;text-align:left}
+.row.open .zh{display:block}
+.prog{display:flex;gap:5px;justify-content:center;margin:14px 0 12px}
+.prog i{width:7px;height:7px;border-radius:50%;background:rgba(50,70,60,.15)}
+.prog i.on{background:var(--gold-deep)}
+.donebtn{display:block;width:100%;border:0;border-radius:15px;padding:15px;
+  font:inherit;font-size:.95rem;font-weight:800;cursor:pointer;
+  background:linear-gradient(135deg,#e3c07a,var(--gold-deep));color:#241a05;
+  box-shadow:0 12px 34px rgba(216,179,102,.3)}
+.donebtn:disabled{filter:saturate(.35);opacity:.55;cursor:default}
+.donebtn.did{background:#20493b;color:#cfe8dc;box-shadow:none}
+/* 分寸卡 */
+.fencun{margin-top:18px;background:rgba(15,24,38,.82);border:1px solid var(--line-d);
+  border-radius:18px;padding:18px 20px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.fencun .eyebrow{color:var(--gold)}
+.fline{font-family:var(--serif);font-size:1.06rem;font-weight:700;color:#f0ead8;margin-top:6px}
+.fwhy{font-size:.84rem;color:var(--dim);margin-top:7px}
+.ftag{font-size:.7rem;color:rgba(216,179,102,.7);margin-top:9px;letter-spacing:.08em}
+/* 换题与更多 */
+.moar{margin-top:18px;text-align:center}
+.moar summary{list-style:none;cursor:pointer;display:inline-block;
+  padding:9px 22px;border:1px solid rgba(216,179,102,.35);border-radius:999px;
+  color:#d9bd80;font-size:.82rem;font-weight:700}
+.moar summary::-webkit-details-marker{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.chips button{border:1px solid var(--line-d);background:rgba(150,182,222,.08);
+  color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:.8rem;cursor:pointer}
+.chips button.on{background:linear-gradient(135deg,#e3c07a,var(--gold-deep));color:#241a05;border-color:transparent;font-weight:700}
+.classic{margin-top:14px;font-size:.78rem;color:var(--dim)}
+.classic a{color:#d9bd80;text-decoration:none;border-bottom:1px dashed rgba(216,179,102,.4);margin:0 7px}
+footer{margin-top:34px;text-align:center;font-size:.72rem;color:rgba(139,150,166,.6)}
+@media (max-width:420px){.artxt{font-size:1.28rem}}
+</style>
+<script>
+/* 本机预览不往家庭榜上报（防止调试替真人打卡） */
+(function(){
+  if(!/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)
+     && location.protocol!=="file:") return;
+  var real=window.fetch;
+  window.fetch=function(u,o){
+    var s=String((u&&u.url)||u||"");
+    if(/\/fam\/(ping|import)/.test(s)){
+      return Promise.resolve(new Response('{"ok":true,"local":true}',
+        {status:200,headers:{"Content-Type":"application/json"}}));
+    }
+    return real.apply(this,arguments);
+  };
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="wordmark">五分钟</span>
+    <span class="streak" id="streak"></span>
+    <span class="toplinks"><a href="./diary.html">日记</a><a href="./family.html">Family</a></span>
+  </div>
+
+  <section class="today">
+    <p class="eyebrow" id="dayTag"></p>
+    <h1 class="daytitle" id="packTitle"></h1>
+    <div class="lines" id="lines"></div>
+    <div class="prog" id="prog"></div>
+    <button class="donebtn" id="doneBtn" disabled>先点开六句，再来打卡</button>
+  </section>
+
+  <section class="fencun">
+    <p class="eyebrow">今天的一条分寸</p>
+    <p class="fline" id="fLine"></p>
+    <p class="fwhy" id="fWhy"></p>
+    <p class="ftag" id="fTag"></p>
+  </section>
+
+  <details class="moar">
+    <summary>换个题目 ▾</summary>
+    <div class="chips" id="chips"></div>
+    <p class="classic">还想用旧版全功能（英语课·口语课·教练）？<a href="./classic.html" id="classicLink">进旧版</a></p>
+  </details>
+
+  <footer>苏家 · 一天一件事 · 打完卡家庭榜就亮灯</footer>
+</div>
+<script>
+const AR_PACKS={"مِنَ الشِّعْرِ العَرَبِيّ · 诗与谚":{key:"ar_poem",items:[["عَلى قَدْرِ أَهْلِ العَزْمِ تَأْتِي العَزائِمُ　وَتَأْتِي عَلى قَدْرِ الكِرامِ المَكارِمُ","有多大的志，就来多大的事；有多高贵的人，就有多厚的义。 — المتنبي（十世纪，阿拉伯世界最有名的诗人，这两句几乎人人会背）。**用在哪**：对方说这单太大做不了的时候，您念这句，是抬举他不是压他。"],["وَإِذا كانَتِ النُّفُوسُ كِباراً　تَعِبَتْ فِي مُرادِها الأَجْسامُ","心气大的人，身子就得跟着受累。 — 同为المتنبي。**用在哪**：对方抱怨辛苦、跑得累的时候。这句是共情，等于说「累是因为你想要的东西大」。比安慰的话管用。"],["مَنْ جَدَّ وَجَد","谁下功夫，谁就得着。 — 三个字的老谚语，小孩都会。**用在哪**：轻松的场合、夸年轻人的时候。别在正式谈判里用，太浅。"],["الصَّبْرُ مِفْتاحُ الفَرَج","忍耐是解脱之匙。 — 流传极广的谚语。**用在哪**：货延期了、事情卡住了，对方着急的时候说这句。既是安慰，也暗示您不会甩手不管。"],["ما حَكَّ جِلْدَكَ مِثْلُ ظُفْرِكْ　فَتَوَلَّ أَنْتَ جَمِيعَ أَمْرِكْ","挠你痒的，没有比你自己的指甲更好；所以自己的事自己办。 — 传为الشافعي所作。**用在哪**：对方犹豫要不要托别人办事的时候。这句是劝他自己拿主意。"],["وَمَنْ يَجْعَلِ المَعْرُوفَ مِنْ دُونِ عِرْضِهِ　يَفِرْهُ وَمَنْ لا يَتَّقِ الشَّتْمَ يُشْتَمِ","拿善行护着自己名声的人，名声就保得住。 — زهير بن أبي سلمى（伊斯兰以前的诗人，《悬诗》作者之一，地位极高）。**用在哪**：谈信誉、谈长期合作的时候。这一句一出，对方知道您读过书。"],["※ 引诗的规矩","一场谈话最多引一句，引完就停，别解释。海湾人自己引诗是随口的，您要是解释一遍，那股自然劲就没了。引错时候比不引更糟——正在争价钱的时候念诗，对方会觉得您在敷衍。最好的时机是**收尾**和**对方倒苦水**这两个节点。"]]},"الافْتِتاح · 开场与致辞":{key:"ar_gov1",items:[["بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم، وَالصَّلاةُ وَالسَّلامُ عَلى رَسُولِ الله","奉至仁至慈的真主之名，愿主赐福先知。 — 海湾国家正式会议的标准开场。您先说这句，全场会安静下来听您讲。"],["مَعالِيَ الوَزِير، أَصْحابَ السَّعادَة، السَّيِّداتُ وَالسّادَة","部长阁下、各位尊敬的阁下、女士们先生们。 — 称谓顺序不能乱：部长用 مَعالي，司局级用 سَعادة，最后才是全体。叫错了很失礼。"],["يُشَرِّفُنِي أَنْ أَكُونَ بَيْنَكُمُ اليَوْم","今天能在座各位当中，是我的荣幸。 — 比 أنا سعيد（我很高兴）正式得多。政府场合用前者。"],["أَتَقَدَّمُ بِالشُّكْرِ الجَزِيلِ لِلْجِهَةِ المُنَظِّمَة عَلى حُسْنِ الاسْتِضافَة","谨向主办方的周到接待致以诚挚感谢。 — 开场必说的一句。حُسْن الاسْتِضافَة 是固定搭配，直译「款待之好」。"],["اسْمَحُوا لِي أَنْ أُقَدِّمَ نَفْسِي بِإِيجاز","请允许我简要介绍一下自己。 — بِإِيجاز（简要地）这个词很关键——表示你不会占用大家时间，显得有分寸。"],["نَتَطَلَّعُ إِلى تَعاوُنٍ مُثْمِرٍ بَيْنَ الجانِبَيْن","我们期待双方开展富有成果的合作。 — مُثْمِر 是「结果实的」。双边场合的万用句，比 نتمنى التعاون 有分量。"]]},"المَواقِف · 表态与立场":{key:"ar_gov2",items:[["نَحْنُ نَتَّفِقُ مَعَكُمْ فِي الجَوْهَر","我们在实质问题上与贵方一致。 — فِي الجَوْهَر（在实质上）留了余地——大方向同意，细节还可以谈。这是外交措辞。"],["هذا الأَمْرُ يَحْتاجُ إِلى دِراسَةٍ مُتَأَنِّيَة","此事需要审慎研究。 — **不想当场答应又不能说不**的时候用这句。مُتَأَنِّيَة = 从容的、不急的。"],["سَأَرْفَعُ الأَمْرَ إِلى الجِهاتِ المُخْتَصَّة","我将把此事上报主管部门。 — 「我要请示」的正式说法。比 سأسأل مديري（我问问领导）体面得多。"],["مِنْ حَيْثُ المَبْدَأ، نَحْنُ مُوافِقُون","原则上，我们同意。 — مِنْ حَيْثُ المَبْدَأ 就是英文的 in principle——同意大方向，条件另议。"],["نُثَمِّنُ عالِياً الجُهُودَ المَبْذُولَة","我们高度赞赏各方所作的努力。 — نُثَمِّن（赞赏）是正式用词。المَبْذُولَة 意为「已付出的」。这句能缓和气氛。"],["نَحْتَفِظُ بِحَقِّنا فِي الرَّدِّ لاحِقاً","我们保留稍后回应的权利。 — 遇到不利提议又不便当场反驳时用。语气硬但不失礼，是正式的保留表态。"]]},"التَّفاوُض · 谈判与分歧":{key:"ar_gov3",items:[["مَعَ كامِلِ الاحْتِرام، لَدَيْنا رَأْيٌ مُخْتَلِف","在充分尊重的前提下，我们持不同意见。 — **否定别人前先垫这一句**。مَعَ كامِلِ الاحْتِرام 是阿语里最得体的转折垫词。"],["هَلْ يُمْكِنُ تَوْضِيحُ هذِهِ النُّقْطَةِ أَكْثَر؟","这一点可否再作说明？ — 听不懂或想拖时间时用。既不失面子，又能让对方把话说细。"],["نَقْتَرِحُ صِيغَةً وَسَطاً تُرْضِي الطَّرَفَيْن","我们建议一个双方都满意的折中方案。 — صِيغَة وَسَط = 折中表述。谈判卡住时抛这句，主动权在你。"],["هذا خارِجُ نِطاقِ صَلاحِيّاتِي","这超出了我的授权范围。 — 挡下当场决定的标准说法，不伤和气。صَلاحِيّات = 权限。"],["نَحْتاجُ إِلى مُهْلَةٍ لِلتَّشاوُر","我们需要一段时间进行磋商。 — مُهْلَة 是「宽限期」。比说「我要想想」正式得多。"],["لِنَعُدْ إِلى هذِهِ النُّقْطَةِ لاحِقاً","这一点我们稍后再回来讨论。 — 把僵住的议题先挂起来，往下走。主持会议的人常用。"]]},"الخِتام · 收尾与后续":{key:"ar_gov4",items:[["نُلَخِّصُ ما تَمَّ الاتِّفاقُ عَلَيْه","我们总结一下已达成一致的内容。 — **收尾必说**。当场复述共识，避免事后各说各话。"],["سَنُوافِيكُمْ بِالتَّفاصِيلِ خِلالَ أُسْبُوع","我们将在一周内向贵方提供详细内容。 — نُوافِيكُم = 向你们提供。给期限显得可靠，但别给太紧的。"],["نَأْمُلُ أَنْ يَكُونَ هذا اللِّقاءُ بِدايَةً لِشَراكَةٍ طَوِيلَةِ الأَمَد","希望这次会面是长期伙伴关系的开端。 — 结束语。طَوِيلَة الأَمَد = 长期的。说完这句再握手。"],["شُكْراً لِحُسْنِ إِصْغائِكُم","感谢各位的聆听。 — إِصْغاء 比 استماع 更正式，指「专注地听」。讲话结束时说。"],["فِي أَمانِ الله","愿主保佑（告辞）。 — 告别语，比 مع السلامة 更有分量，在正式场合和长者面前都合适。"],["نَبْقى عَلى تَواصُل","我们保持联系。 — 临别一句。简短、正式、不油滑。"]]},
+
+"الحياة اليومية · 标准阿语日常":{key:"ar_daily",items:[
+["السَّلَامُ عَلَيْكُمْ.","愿平安降临你们。"],
+["كَيْفَ حَالُكَ؟","你好吗？"],
+["الْحَمْدُ لِلَّهِ.","一切赞颂全归真主。"],
+["إِنْ شَاءَ اللَّهُ.","如蒙真主意欲。"],
+["مَا شَاءَ اللَّهُ.","真主所意欲的。（赞叹时使用）"],
+["شُكْرًا لِجُهُودِكَ.","感谢你的付出。"],
+["تَفَضَّلْ.","请。（请坐、请进、请用）"],
+["لَا مُشْكِلَةَ.","没问题。"],
+["أَيْنَ الْمَكْتَبُ؟","办公室在哪里？"],
+["أَرَاكَ غَدًا.","明天见。"]]}};
+const SPEECH_PACKS={"开场的三十秒":{items:[["先说结论，再说为什么。","开口第一句就给结论——「这批货我们能在月底前发出」。中国人习惯先铺垫再说事，在阿拉伯和西方的会议桌上，铺垫会被当成没准备好。"],["「我今天只讲三件事。」","开场说清有几件，听的人就知道什么时候能结束，注意力反而集中。三件是上限，四件人就开始走神。"],["别念稿。念稿的人，眼睛在纸上，说服力去一半。","把稿子压成一张纸、每件事只写一个关键词。你看一眼词，话自己会出来。"],["紧张的时候，把语速压慢三成。","紧张会让人越说越快，越快越像心虚。刻意慢下来，听的人会觉得你想清楚了。"]]},"讲数字不让人走神":{items:[["数字要给参照，不给参照等于没说。","「我们月出货两万台」——对方没概念。改成「一个月两万台，相当于这条街所有店加起来的量」。"],["一次只给一个数字。","一句话塞三个数字，一个都记不住。要给三个，就分成三句，中间停一下。"],["把钱换成对方的单位。","跟阿联酋客户讲美金，他心里还要换一次。直接讲 AED，少一道弯。"]]},"被打断和被质疑":{items:[["被打断先让他说完，再说「我接着刚才那点」。","抢回话头会让全场紧张。等他说完，用一句把主线接回来，主导权还在你这儿。"],["答不上来就说答不上来，别绕。","「这个数我现在给不了准的，今天下午给您。」——比含糊过去强十倍。绕过去的人，后面所有的话都会被打折扣。"],["对方说贵，先问「跟什么比」。","不要马上解释或降价。他说贵，可能是跟别家比，也可能只是习惯性还价。先弄清是哪种。"]]}};
+const CHAT_PACKS={"跟客户搭上话":{items:[["先聊他关心的，不聊你要卖的。","开口问货、问单子，是催；问他店里最近怎么样、哪个型号走得动，是聊天。第二种他会多说三句，那三句里通常有生意。"],["记住一件他上次说过的小事，下次提起来。","「上次您说要去土耳其，去成了吗」——这一句比任何客套都管用。他会觉得你把他当人，不是当单子。"],["Kayf al-shughl? — 生意怎么样？","阿拉伯客户之间最常见的开场。比 How are you 近一层，又不算越界。"]]},"把话接下去":{items:[["用「后来呢」代替「哦」。","对方讲了一段，回一个「哦」就断了。问一句「后来呢」「那你怎么办的」，他能再讲五分钟。"],["别急着给建议。","人说困难的时候，多半不是要办法，是要有人听。先听完，他自己会问你怎么看——那时候再说。"],["把「我」换成「我们」。","「我给你算算」→「我们一起看看这个数」。一个字，位置就从对面挪到了同一边。"]]},"结束一段话":{items:[["聊得好的时候收，别聊到没话说。","在气氛最好的时候说「不打扰您了，回头再聊」，对方会记得这次很愉快。聊到尬住再走，记住的是尴尬。"],["走之前留一个具体的下次。","「下周货到我给您发照片」——比「有空联系」实在。具体的约定才会真的发生。"]]}};
+const COMM_PACKS={"什么时候少说":{items:[["价钱报完就停，不要解释。","报完价接着解释成本，等于自己先松口。停住，让对方说下一句。这是最难做到的一条，也是最值钱的一条。"],["别人问你不该答的，说「这个我得先问一下」。","不是拖延，是本分。替老板答了不该答的，比答不上来严重得多。"],["群里少说，私下多说。","有分歧的事别在群里来回。群里一句「我私下跟您说」，比十句解释体面。"]]},"怎么拒绝不伤人":{items:[["先给理由，再说不行。","「这个价我做不了，因为成本就在这儿」——先说因，再说果。反过来说，对方只听见拒绝。"],["不行就说不行，别说「我尽量」。","「尽量」在对方耳朵里是「可以」。等到做不到的那天，你就成了骗人的那个。"],["拒绝之后给一个能做的。","「这个价不行，但我可以给您延一周账期」——留一条路，关系就不断。"]]},"话说重了怎么办":{items:[["当天就说，别过夜。","「刚才我说话急了，对不住」——当天说是道歉，隔一周说是翻旧账。"],["认那句话，别解释动机。","「我不是那个意思」听着像不认。直接说「我那句说重了」，反而过得去。"],["跟家里人尤其如此。","生意上的话说重了，钱能补；家里的话说重了，只能靠下一句。所以家里的话更要慢一拍。"]]}};
+
+/* ── 基础 ── */
+const FAM_API="https://su-family.yousef-abud.workers.dev";
+function dubaiToday(){return new Date(Date.now()+144e5).toISOString().slice(0,10)}
+const today=dubaiToday();
+const KEY="dailyEnglishSu3";     /* 与旧版同一把钥匙：连续天数无缝接着算 */
+let state;try{state=JSON.parse(localStorage.getItem(KEY)||'{"streak":0,"last":"","log":[]}')}catch(e){state={streak:0,last:"",log:[]}}
+function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+/* ── 今日包：老板圈定的六个（商务包已按他的圈删掉） ── */
+const KEEP=["الحياة اليومية · 标准阿语日常","مِنَ الشِّعْرِ العَرَبِيّ · 诗与谚",
+  "الافْتِتاح · 开场与致辞","المَواقِف · 表态与立场","التَّفاوُض · 谈判与分歧","الخِتام · 收尾与后续"];
+const PACKS={};KEEP.forEach(k=>{if(AR_PACKS[k])PACKS[k]=AR_PACKS[k]});
+const packNames=Object.keys(PACKS);
+const dayN=Math.floor(Date.now()/864e5);
+let pack=null;
+try{const ov=JSON.parse(localStorage.getItem("fiveTopic")||"null");if(ov&&ov.d===today&&PACKS[ov.p])pack=ov.p}catch(e){}
+if(!pack)pack=packNames[dayN%packNames.length];
+
+/* ── 声音：法蒂玛标准阿语花名册 + 静音拨杆旁路 ── */
+let VOICE=null,_actx=null,_asrc=null,_abuf={},_tag=new Audio();
+fetch("media/kidaudio/msa-index.json",{cache:"no-store"}).then(r=>r.json()).then(j=>{VOICE=j}).catch(()=>{});
+function sysSpeak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="ar-SA";u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+function playTagA(url,fb){try{_tag.pause()}catch(e){};_tag=new Audio(url);_tag.play().catch(()=>{if(fb)sysSpeak(fb)})}
+function playAr(t){
+  const f=VOICE&&VOICE[t];
+  if(!f){sysSpeak(t);return}
+  const url="media/kidaudio/"+f;
+  try{
+    if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==="suspended")_actx.resume();
+  }catch(e){playTagA(url,t);return}
+  try{if(_asrc)_asrc.stop()}catch(e){}
+  const go=b=>{try{const s=_actx.createBufferSource();s.buffer=b;s.connect(_actx.destination);s.start(0);_asrc=s}catch(e){playTagA(url,t)}};
+  if(_abuf[url]){go(_abuf[url]);return}
+  fetch(url).then(r=>r.arrayBuffer())
+    .then(ab=>new Promise((res,rej)=>{const q=_actx.decodeAudioData(ab,res,rej);if(q&&q.then)q.then(res,rej)}))
+    .then(b=>{_abuf[url]=b;go(b)}).catch(()=>playTagA(url,t));
+}
+
+/* ── 渲染今天 ── */
+const opened=new Set();
+function doneToday(){try{if(localStorage.getItem("babaDone")===today)return 1}catch(e){};return state.last===today?1:0}
+function renderStreak(){
+  const n=state.streak|0;
+  document.getElementById("streak").textContent=n>0?("🔥 "+n+" 天"+(state.last===today?" · 今天亮着":"")):"🔥 今天开张";
+}
+function render(){
+  const P=PACKS[pack];
+  document.getElementById("dayTag").textContent="今日 · "+today;
+  const parts=pack.split(" · ");
+  document.getElementById("packTitle").innerHTML=(parts[1]||pack)+' <small>'+(parts[0]||"")+'</small>';
+  const L=document.getElementById("lines");L.innerHTML="";
+  P.items.forEach((it,i)=>{
+    const row=document.createElement("div");row.className="row";
+    row.innerHTML='<div class="rline"><span class="rnum">'+String(i+1).padStart(2,"0")+'</span>'
+      +'<span class="artxt">'+it[0]+'</span>'
+      +'<button class="play" aria-label="听">▶</button></div>'
+      +'<div class="zh">'+it[1]+'</div>';
+    row.querySelector(".play").onclick=e=>{e.stopPropagation();playAr(it[0]);opened.add(i);paintProg()};
+    row.onclick=()=>{row.classList.toggle("open");opened.add(i);paintProg()};
+    L.appendChild(row);
+  });
+  paintProg();renderDone();renderStreak();
+}
+function paintProg(){
+  const P=PACKS[pack],el=document.getElementById("prog");
+  el.innerHTML=P.items.map((_,i)=>'<i class="'+(opened.has(i)?"on":"")+'"></i>').join("");
+  renderDone();
+}
+function renderDone(){
+  const b=document.getElementById("doneBtn");
+  if(doneToday()){b.disabled=true;b.classList.add("did");b.textContent="今天已经过关 · 榜上亮灯了";return}
+  const need=Math.min(6,PACKS[pack].items.length);
+  if(opened.size>=need){b.disabled=false;b.textContent="这些我能说出口 · 今天过关"}
+  else{b.disabled=true;b.textContent="先点开"+need+"句（还差"+(need-opened.size)+"）"}
+}
+document.getElementById("doneBtn").onclick=function(){
+  if(doneToday())return;
+  const y=new Date(Date.now()+144e5-864e5).toISOString().slice(0,10);
+  state.streak=(state.last===y)?(state.streak|0)+1:1;
+  state.last=today;saveState();
+  try{localStorage.setItem("babaDone",today)}catch(e){}
+  fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({who:"baba",done:1,total:1,started:true})}).catch(()=>{});
+  renderDone();renderStreak();
+};
+
+/* ── 分寸卡：27条按日轮换 ── */
+(function(){
+  const all=[];
+  [["开口",SPEECH_PACKS],["聊天",CHAT_PACKS],["分寸",COMM_PACKS]].forEach(([tag,P])=>{
+    Object.keys(P).forEach(g=>P[g].items.forEach(it=>all.push({t:it[0],w:it[1],g:tag+" · "+g}))); 
+  });
+  const f=all[dayN%all.length];
+  document.getElementById("fLine").textContent=f.t;
+  document.getElementById("fWhy").textContent=f.w;
+  document.getElementById("fTag").textContent="—— "+f.g;
+})();
+
+/* ── 换题 chips ── */
+(function(){
+  const box=document.getElementById("chips");
+  packNames.forEach(n=>{
+    const b=document.createElement("button");
+    b.textContent=n.split(" · ")[1]||n;
+    if(n===pack)b.classList.add("on");
+    b.onclick=()=>{pack=n;opened.clear();
+      try{localStorage.setItem("fiveTopic",JSON.stringify({d:today,p:n}))}catch(e){}
+      [...box.children].forEach(c=>c.classList.toggle("on",c===b));
+      render()};
+    box.appendChild(b);
+  });
+})();
+
+render();
+/* 上榜心跳：开着页面就报一次在场 */
+fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({who:"baba",done:doneToday(),total:1,started:true})}).catch(()=>{});
+</script>
+</body>
+</html>

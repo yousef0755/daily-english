@@ -62,15 +62,19 @@ body{
 .body{flex:1;min-width:0}
 .ar{font-family:var(--ar);font-size:21px;line-height:2.05;direction:rtl;text-align:right}
 .en-main{font-size:16px;line-height:1.55;font-family:var(--serif)}
-.tr{margin-top:7px;font-size:13px;line-height:1.6;color:var(--dim);display:none}
+.tr{margin-top:7px;font-size:13px;line-height:1.6;color:var(--dim)}
 .tr[dir="rtl"]{font-family:var(--ar);font-size:16px;line-height:1.9;text-align:right}
-.line.open .tr{display:block}
-.note{margin-top:6px;font-size:11.5px;line-height:1.6;color:#7d8c89;display:none}
-.line.open .note{display:block}
+.note{margin-top:6px;font-size:11.5px;line-height:1.6;color:#7d8c89}
 .play{flex:0 0 auto;width:32px;height:32px;border-radius:10px;margin-top:1px;
   border:1px solid rgba(217,178,106,.32);background:rgba(217,178,106,.09);
   color:var(--gold-soft);display:grid;place-items:center;font-size:11px;cursor:pointer}
 .play:active{background:rgba(217,178,106,.2)}
+.tafsir{margin-top:9px;padding:9px 11px;border-right:2px solid rgba(217,178,106,.45);
+  background:rgba(217,178,106,.05);border-radius:8px;
+  font-family:var(--ar);font-size:14.5px;line-height:1.95;color:#c8d4d1;direction:rtl;text-align:right}
+.bg{margin-top:12px;padding:11px 13px;border-radius:12px;border:1px solid rgba(217,178,106,.22);
+  background:rgba(217,178,106,.06);font-size:12.5px;line-height:1.75;color:#cfd9d6}
+.bg b{color:var(--gold-soft)}
 .tap-hint{margin:10px 2px 0;font-size:11px;color:var(--dim)}
 
 /* 过关 */
@@ -114,7 +118,8 @@ footer{margin-top:24px;text-align:center;font-size:10.5px;color:#5f6d6a;line-hei
     <div class="meta" id="meta"></div>
   </section>
 
-  <div class="tap-hint" id="hint">Tap a line for the translation. Tap ▶ to hear it.</div>
+  <div class="bg" id="bg" style="display:none"></div>
+  <div class="tap-hint" id="hint">Tap ▶ to hear it. Translations are always shown.</div>
   <div class="lines" id="lines"></div>
 
   <button class="done" id="done">Done for today</button>
@@ -223,6 +228,9 @@ function render(){
   $("title").textContent = item.title || "";
   $("sub").textContent = item.sub || "";
   $("meta").innerHTML = (item.meta||[]).map(m=>"<span>"+m+"</span>").join("");
+  const bgBox = $("bg");
+  if(item.bg){ bgBox.style.display="block"; bgBox.innerHTML=item.bg }
+  else bgBox.style.display="none";
 
   const box = $("lines"); box.innerHTML="";
   (item.lines||[]).forEach((L,i)=>{
@@ -235,12 +243,10 @@ function render(){
        <div class="body">${main}
          <div class="tr"${trDir}>${L.b||""}</div>
          ${L.note?`<div class="note">${L.note}</div>`:""}
+         ${L.tafsir?`<div class="tafsir">${L.tafsir}</div>`:""}
        </div>
        <button class="play" aria-label="listen">▶</button>`;
-    el.addEventListener("click", e=>{
-      if(e.target.closest(".play")){ speak(L.a); return }
-      el.classList.toggle("open");
-    });
+    el.addEventListener("click", e=>{ if(e.target.closest(".play")) speak(L.a); });
     box.appendChild(el);
   });
 
@@ -283,12 +289,24 @@ $("done").addEventListener("click",()=>{
     state.last = today;
   }
   store.set(KEY, JSON.stringify(state));
+  try{ localStorage.setItem("babaDone", today) }catch(e){}
+  famPing(1);
   if(cur.track==="quran"){           /* 背完这一章，明天从下一章接着走 */
     const next = Math.min(cur.idx+1, (DATA.quran||[]).length-1);
     store.set("quranAt", String(next));
   }
   renderStreak(); render();
 });
+
+/* 上家庭榜：旧站有这条，换页不能丢——他做完了，家里人板上要看得见。
+   本机预览不上报，免得我在这儿调试就替他打了卡（8-16 踩过一次）。 */
+const FAM_API = "https://su-family.yousef-abud.workers.dev";
+function famPing(done){
+  if(/^(localhost|127\.|192\.168\.)/.test(location.hostname)) return;
+  fetch(FAM_API+"/fam/ping",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({who:"baba",done:done|0,total:1,started:true})}).catch(()=>{});
+}
+famPing(state.last===dubaiToday()?1:0);
 
 Promise.all([
   fetch("data/five-content.json?v="+Date.now()).then(r=>r.json()).catch(()=>({})),
