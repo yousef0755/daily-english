@@ -852,6 +852,30 @@ const KEY="mieSampler";
 let S=JSON.parse(localStorage.getItem(KEY)||"null")||{topic:"free",stitches:[],days:[],last:"",lang:"both",dares:[]};
 if(!S.lang)S.lang="both";if(!S.dares)S.dares=[];
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(S));try{famPing()}catch(e){}};
+
+/* 2026-08-19：连续天数从服务器把账接回来（跟打卡日历同一病同一药）。
+   她换了浏览器，本地 mieSampler 里的日子就没了，看着像连击清零——
+   其实账一直在家庭榜的服务器上。开页时把服务器的日子并进来，
+   本地只当断网影子；并账不回 ping，免得自己跟自己转圈。 */
+(function(){
+  try{
+    fetch("https://su-family.yousef-abud.workers.dev/fam/history?who=manya")
+      .then(function(r){return r.json()})
+      .then(function(j){
+        if(!j||!j.ok||!j.days)return;
+        var have=new Set(S.days), added=0;
+        Object.keys(j.days).forEach(function(k){
+          var d=j.days[k];
+          if((d.done>0||d.mins>0)&&!have.has(k)){S.days.push(k);added++}
+        });
+        if(added){
+          S.days.sort();S.days=S.days.slice(-40);
+          localStorage.setItem(KEY,JSON.stringify(S));   /* 不走 save()，不回 ping */
+          if(typeof renderDays==="function")renderDays();
+        }
+      }).catch(function(){});
+  }catch(e){}
+})();
 /* 日子按迪拜算。UTC 会在迪拜时间凌晨四点才换日，那四个钟头里学的会记到昨天。 */
 function dubaiToday(){return new Date(Date.now()+144e5).toISOString().slice(0,10)}
 const today=()=>dubaiToday();
