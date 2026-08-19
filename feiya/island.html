@@ -748,15 +748,15 @@ pager.addEventListener("scroll",()=>{
 },{passive:true});
 /* 哥妹俩隔一阵子结伴搬去别的页面玩 */
 setInterval(()=>{
-  if(Math.random()<.4&&!duomiC.away&&!snowyC.away&&!swinging){
-    const np=Math.floor(Math.random()*5);
-    if(np===duoSnowyPage)return;
+  if(Math.random()<.65&&!duomiC.away&&!snowyC.away&&!swinging){
+    let np=Math.floor(Math.random()*5);
+    if(np===duoSnowyPage)np=(np+1+Math.floor(Math.random()*4))%5;
     if(duoSnowyPage===curPage){
       say(duomiC,"走，妹，换个地方。");
       setTimeout(()=>{duoSnowyPage=np;updateVis()},2200);
     }else{duoSnowyPage=np;updateVis()}
   }
-},150000);
+},55000);
 function goHome(){pager.scrollTo({left:0,behavior:"smooth"})}
 
 /* ═══ 中文页：她自己的诗集成语库（与 feiya/index.html 同一份），晓晓配音 ═══ */
