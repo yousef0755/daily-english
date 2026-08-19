@@ -183,6 +183,24 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 .shoprow button{border:0;border-radius:9px;padding:5px 9px;font-size:12px;font-family:inherit;cursor:pointer;background:#ffddec;color:#b0446f}
 .shoprow button.on{background:#e0679a;color:#fff}
 .shoprow button:disabled{opacity:.4}
+.l-gu{background:
+  radial-gradient(rgba(255,255,255,.7) 1.5px, transparent 1.6px),
+  linear-gradient(178deg,#ffe3d8 0%,#ffefe2 50%,#fff7ea 100%);
+  background-size:26px 26px,100% 100%}
+.gucard h3{color:#f08a6c}.gucard .au{color:#e8b39c}
+.gurow{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px dashed #f7e0d2}
+.gurow:last-of-type{border-bottom:0}
+.gurow .sym{font-size:22px}
+.gurow .gnm{flex:1;min-width:0}
+.gurow .gnm b{font-size:14.5px;color:#a8624a;display:block}
+.gurow .gnm small{font-size:11px;color:#d0a08a}
+.gurow .px{text-align:right;font-size:14px;font-weight:800;color:#a8624a}
+.gurow .px small{display:block;font-weight:700;font-size:11px}
+.up{color:#d94f4f!important}.dn{color:#3d9d6e!important}
+.gubtn{border:0;border-radius:9px;padding:6px 10px;font-size:12.5px;font-family:inherit;cursor:pointer}
+.gubuy{background:#ffd9c4;color:#b0603f}.gusell{background:#d9f0e3;color:#2e7d54}
+.gubtn:disabled{opacity:.35}
+.guspark{width:74px;height:26px}
 </style>
 </head>
 <body>
@@ -328,8 +346,8 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       <input id="seed" placeholder="想种什么？打出来就能种（树/花/星星…）" maxlength="8">
       <button id="sow">种下去</button>
     </div>
-    <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></div>
-    <div class="hint">← 左右滑：小岛 · 🇦🇪العربية · 🇬🇧English · 🇨🇳中文 · 🇰🇷한국어 →</div>
+    <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="hint">← 左右滑：小岛 · 🇦🇪عربي mode · 🇬🇧Eng.exe · 🇨🇳中文加载中… · 🇰🇷한글.zip · 📈股市.beta →</div>
   </section>
 
   <!-- 语言页（先立牌坊，课一门门装） -->
@@ -338,7 +356,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
       <div style="text-align:center;margin-bottom:6px">
         <span style="font-size:30px">🗝️</span>
-        <h2 style="font-size:21px;color:#c97a68">🇦🇪 العربية 阿拉伯语</h2>
+        <h2 style="font-size:21px;color:#c97a68">🇦🇪 عربي mode</h2>
         <div style="font-size:12px;color:#b98aa5;margin-top:3px">古兰经 · 圣训 · 单词，每天换新</div>
       </div>
       <div id="arQuran" class="zhcard arcard"></div>
@@ -369,7 +387,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
       <div style="text-align:center;margin-bottom:6px">
         <span style="font-size:30px">🩰</span>
-        <h2 style="font-size:21px;color:#e88f90">🇬🇧 English</h2>
+        <h2 style="font-size:21px;color:#e88f90">🇬🇧 Eng.exe</h2>
         <div style="font-size:12px;color:#c495ab;margin-top:3px">每天四个词两句话，一周一轮</div>
       </div>
       <div id="enWords" class="zhcard encard"></div>
@@ -394,7 +412,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
       <div style="text-align:center;margin-bottom:6px">
         <span style="font-size:30px">🧸</span>
-        <h2 style="font-size:21px;color:var(--deep)">🇨🇳 中文 · 今天一诗一成语</h2>
+        <h2 style="font-size:21px;color:var(--deep)">🇨🇳 中文加载中…</h2>
         <div id="zhCats" style="font-size:12px;color:#a97b95;margin-top:3px"></div>
       </div>
       <div id="zhPoem" class="zhcard"></div>
@@ -421,6 +439,28 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       </div>
     </div>
   </section>
+  <section class="page l-gu" id="pgGu" style="overflow-y:auto;padding:64px 18px 40px">
+    <button class="backhome" onclick="goHome()">← 回小岛</button>
+    <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
+      <div style="text-align:center;margin-bottom:6px">
+        <span style="font-size:30px">📈</span>
+        <h2 style="font-size:21px;color:#f08a6c">📈 股市.beta</h2>
+        <div style="font-size:12px;color:#e8b39c;margin-top:3px">小岛自己的股市 · 全是游戏币，纸上谈兵</div>
+      </div>
+      <div class="zhcard gucard">
+        <h3>我的账户</h3>
+        <div id="guAcct" style="font-size:14px;color:#a8624a;line-height:1.9"></div>
+      </div>
+      <div class="zhcard gucard"><h3>今日行情</h3><div class="au">每天迪拜零点换一次价 · 点买/卖</div><div id="guList"></div></div>
+      <div class="zhcard gucard"><h3>小道理</h3>
+        <div style="font-size:12.5px;color:#b98a75;line-height:2">
+        1. 别把所有股币放在一家公司，篮子多几个。<br>
+        2. 涨了别贪，跌了别慌，明天还有行情。<br>
+        3. 这里全是游戏币——真钱的事，等你长大和爸爸学。</div>
+      </div>
+      <div id="guTip" style="text-align:center;font-size:12px;color:#e8b39c;margin-top:8px"></div>
+    </div>
+  </section>
   <section class="page l-ko" id="pgKo" style="overflow-y:auto;padding:64px 18px 40px">
     <button class="backhome" onclick="goHome()">← 回小岛</button>
     <span class="snowfall" style="left:8%;animation-duration:9s;animation-delay:-2s">❄️</span>
@@ -431,7 +471,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
     <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
       <div style="text-align:center;margin-bottom:6px">
         <span style="font-size:30px">🎀</span>
-        <h2 style="font-size:21px;color:#f06f92">🇰🇷 한국어</h2>
+        <h2 style="font-size:21px;color:#f06f92">🇰🇷 한글.zip</h2>
         <div style="font-size:12px;color:#9fb4d9;margin-top:3px">每天三句日常话 · ❄️荔枝气泡味</div>
       </div>
       <div id="koCard" class="zhcard kocard"></div>
@@ -461,7 +501,7 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 const KEY="feiyaIsland_v1";
 let S={coins:0,plants:[],weedDay:"",weedGone:"",petD:0,petS:0,dragD:0,dragS:0};
 try{S=Object.assign(S,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){};try{if(typeof islSyncUp==="function")islSyncUp()}catch(e){}};
 const dxb=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Dubai"});
 document.getElementById("coins").textContent=S.coins;
 
@@ -985,6 +1025,137 @@ function renderShop(){
   }).join("");
 }
 applyAcc();
+
+/* ═══ 股市.beta：确定性行情（种子=公司+日期，各设备一致）═══ */
+const GU=[
+ {s:"DONUT",em:"🍩",nm:"甜甜圈厂",cn:"玉桂狗最爱，销量稳",base:20},
+ {s:"CATCAN",em:"🐟",nm:"猫罐头公司",cn:"哆咪和Snowy是大客户",base:35},
+ {s:"BUBBLE",em:"🫧",nm:"泡泡水厂",cn:"小岛天上飘的泡泡都是它家的",base:12},
+ {s:"BOWTIE",em:"🎀",nm:"蝴蝶结时装",cn:"Snowy代言，忽涨忽跌",base:50},
+ {s:"CLOUD",em:"☁️",nm:"云朵棉花糖",cn:"下雨天会跌价",base:8}
+];
+function guRnd(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return ((h>>>0)%10000)/10000}
+const GU_EPOCH=new Date("2026-08-01T00:00:00+04:00").getTime();
+function guDayN(){return Math.floor((Date.now()-GU_EPOCH)/86400000)}
+function guPrice(sym,base,day){
+  let px=base;
+  for(let i=1;i<=day;i++){
+    const r=(guRnd(sym+"#"+i)-.48)*.13;  /* 约±6.5%，略偏涨 */
+    px=Math.max(1,px*(1+r));
+  }
+  return Math.round(px*100)/100;
+}
+if(!S.stock)S.stock={cash:1000,hold:{},cost:{}};
+function guToday(sym,base){return guPrice(sym,base,guDayN())}
+function guYest(sym,base){return guPrice(sym,base,Math.max(0,guDayN()-1))}
+function guSpark(sym,base){
+  const d=guDayN(),pts=[];
+  for(let i=Math.max(0,d-13);i<=d;i++)pts.push(guPrice(sym,base,i));
+  const mn=Math.min(...pts),mx=Math.max(...pts),rg=(mx-mn)||1;
+  const xs=pts.map((v,i)=>((i/(pts.length-1))*72+1).toFixed(1)+","+((24-(v-mn)/rg*22)+1).toFixed(1));
+  const up=pts[pts.length-1]>=pts[0];
+  return '<svg class="guspark" viewBox="0 0 74 26"><polyline points="'+xs.join(" ")+'" fill="none" stroke="'+(up?"#d94f4f":"#3d9d6e")+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function guAssets(){
+  let v=S.stock.cash;
+  GU.forEach(g=>{v+=(S.stock.hold[g.s]||0)*guToday(g.s,g.base)});
+  return Math.round(v*100)/100;
+}
+function renderGu(){
+  const el=document.getElementById("guList");if(!el)return;
+  el.innerHTML=GU.map(g=>{
+    const px=guToday(g.s,g.base),py=guYest(g.s,g.base);
+    const chg=py?((px-py)/py*100):0,up=chg>=0;
+    const h=S.stock.hold[g.s]||0;
+    return '<div class="gurow"><span class="sym">'+g.em+'</span>'
+      +'<span class="gnm"><b>'+g.nm+'</b><small>'+g.cn+(h?' · 持有'+h+'股':'')+'</small></span>'
+      +guSpark(g.s,g.base)
+      +'<span class="px '+(up?"up":"dn")+'">'+px.toFixed(2)+'<small>'+(up?"▲":"▼")+Math.abs(chg).toFixed(1)+'%</small></span>'
+      +'<button class="gubtn gubuy" '+(S.stock.cash<px?"disabled":"")+' onclick="guBuy(\''+g.s+'\')">买1</button>'
+      +'<button class="gubtn gusell" '+(h?"":"disabled")+' onclick="guSell(\''+g.s+'\')">卖1</button></div>';
+  }).join("");
+  const total=guAssets(),pl=Math.round((total-1000)*100)/100;
+  document.getElementById("guAcct").innerHTML=
+    '现金：<b>'+S.stock.cash.toFixed(2)+'</b> 股币<br>总资产：<b>'+total.toFixed(2)+'</b> 股币 '
+    +'<span class="'+(pl>=0?"up":"dn")+'">（'+(pl>=0?"赚":"亏")+' '+Math.abs(pl).toFixed(2)+'）</span>';
+}
+function guBuy(sym){
+  const g=GU.find(x=>x.s===sym),px=guToday(sym,g.base);
+  if(S.stock.cash<px){say(yuguiC,"股币不够啦");return}
+  S.stock.cash=Math.round((S.stock.cash-px)*100)/100;
+  S.stock.hold[sym]=(S.stock.hold[sym]||0)+1;save();renderGu();
+  say(duomiC,"买了？…行吧，本大爷看好"+g.em);
+}
+function guSell(sym){
+  const g=GU.find(x=>x.s===sym),px=guToday(sym,g.base);
+  if(!(S.stock.hold[sym]>0))return;
+  S.stock.cash=Math.round((S.stock.cash+px)*100)/100;
+  S.stock.hold[sym]--;save();renderGu();
+  say(snowyC,"卖掉一股"+g.em+"，落袋为安！");
+}
+document.getElementById("guTip").textContent="每天迪拜零点自动换新行情，明天再来看涨跌。";
+renderGu();
+
+/* ═══ 小岛资料上服务器：金币/植物/衣服/每日完成 ═══ */
+const ISL_API="https://su-family.yousef-abud.workers.dev/island/data";
+function islDays(){
+  const out={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(/^feiya(Zh|Ar|En|Ko)_\d{4}-\d{2}-\d{2}$/.test(k)){
+      try{out[k]=JSON.parse(localStorage.getItem(k)||"{}")}catch(e){}
+    }
+  }
+  return out;
+}
+let islT=null;
+function islSyncUp(){
+  clearTimeout(islT);
+  islT=setTimeout(()=>{
+    S._t=Date.now();
+    try{localStorage.setItem("feiyaIsland_v1",JSON.stringify(S))}catch(e){}
+    try{fetch(ISL_API,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({S:S,days:islDays()})}).catch(()=>{})}catch(e){}
+  },1500);
+}
+(function(){
+  try{
+    fetch(ISL_API).then(r=>r.json()).then(d=>{
+      let redo=false;
+      if(d.S&&(d.S._t||0)>(S._t||0)){
+        /* 服务器的新：植物和已购衣服并集，其余以服务器为准 */
+        const lp=S.plants||[],lo=(S.acc&&S.acc.owned)||{};
+        S=d.S;
+        S.plants=S.plants||[];
+        const pk=o=>(o.x||0)+","+(o.y||0)+","+(o.em||"")+","+(o.date||"");
+        const pm={};S.plants.concat(lp).forEach(o=>{if(o)pm[pk(o)]=o});
+        S.plants=Object.values(pm);
+        if(!S.stock)S.stock={cash:1000,hold:{},cost:{}};
+        S.acc=S.acc||{owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
+        Object.assign(S.acc.owned,lo);
+        localStorage.setItem("feiyaIsland_v1",JSON.stringify(S));
+        redo=true;
+      }
+      for(const [k,v] of Object.entries(d.days||{})){
+        try{
+          const cur=JSON.parse(localStorage.getItem(k)||"{}");
+          let ch=false;
+          for(const [f,val] of Object.entries(v||{}))if(val&&!cur[f]){cur[f]=1;ch=true}
+          if(ch){localStorage.setItem(k,JSON.stringify(cur));redo=true}
+        }catch(e){}
+      }
+      if(redo){
+        try{document.getElementById("coins").textContent=S.coins}catch(e){}
+        try{renderPlants()}catch(e){}
+        try{applyAcc()}catch(e){}
+        try{renderZh()}catch(e){}try{renderAr()}catch(e){}
+        try{renderEn()}catch(e){}try{renderKo()}catch(e){}
+        try{renderGu()}catch(e){}
+      }
+      islSyncUp();  /* 本机的也传上去存好 */
+    }).catch(()=>{});
+  }catch(e){}
+})();
 
 /* ═══ 英语页 ═══ */
 const EN_W=[["significant", "重要的，显著的"], ["enhance", "提升，增强"], ["diverse", "多样的"], ["crucial", "关键的"], ["sustainable", "可持续的"], ["considerable", "相当大的"], ["phenomenon", "现象"], ["strategy", "策略"], ["perspective", "视角，观点"], ["innovation", "创新"], ["efficient", "高效的"], ["obstacle", "障碍"], ["motivation", "动力"], ["adapt", "适应"], ["gradually", "逐渐地"], ["achievement", "成就"], ["environment", "环境"], ["community", "社区"], ["opportunity", "机会"], ["responsibility", "责任"], ["curiosity", "好奇心"], ["ambition", "抱负，志向"], ["confident", "自信的"], ["potential", "潜力"], ["appreciate", "感激，欣赏"], ["memorable", "难忘的"], ["inspire", "激励"], ["generation", "一代人"]];
