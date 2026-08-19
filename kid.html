@@ -1156,7 +1156,15 @@ function speakQuiz(text){
 /* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio。
    所以优先用 AudioContext 播；解码不了再退回老办法。 */
 var _actx=null,_asrc=null,_abuf={};
+/* 一点只许响一个声（老板 8-19）：三条声道（WebAudio/Audio标签/系统合成）互斥，
+   开任何一个前先把另外两个全掐掉。之前词走标签、句走WebAudio，互相停不掉就叠音了。 */
+function stopAllVoices(){
+  try{ if(_asrc){_asrc.stop();_asrc=null} }catch(e){}
+  try{ _vplayer.pause() }catch(e){}
+  try{ speechSynthesis.cancel() }catch(e){}
+}
 function playThroughSilent(url,fallbackText){
+  stopAllVoices();
   try{
     if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
     if(_actx.state==="suspended")_actx.resume();
@@ -1178,13 +1186,13 @@ function playThroughSilent(url,fallbackText){
    .catch(function(){ playTag(url,fallbackText) });
 }
 function playTag(url,fallbackText){
-  try{_vplayer.pause()}catch(e){}
+  stopAllVoices();
   _vplayer=new Audio(url);
   _vplayer.play().catch(function(){ if(fallbackText)sysSpeak(fallbackText) });
 }
 function sysSpeak(text){
   try{
-    speechSynthesis.cancel();
+    stopAllVoices();
     var u=new SpeechSynthesisUtterance(text);
     u.lang=/[\u0600-\u06ff]/.test(text)?"ar-AE":/[\u4e00-\u9fff]/.test(text)?"zh-CN":"en-US";
     u.rate=.9;speechSynthesis.speak(u);
@@ -2375,9 +2383,7 @@ function renderEnglishCards(box, item){
       ops.style.cssText="display:flex;gap:10px;margin-top:12px";
       const lb=mkListen(w);
       /* 听：念词，接着念它的句子——跟 boyuan-en 一致 */
-      if(hasSent){ lb.onclick=function(ev){ ev.stopPropagation();
-        if(typeof speakRoster==="function"){ speakRoster(w);
-          setTimeout(function(){ speakRoster(enOf(item.lines[li2])) }, 1400); } } }
+      /* 一点一声：听=只念这个词；句子点下面例句框单独念（老板8-19） */
       ops.appendChild(lb);
       const bh=makeBhBtn(rSub,rIdx,li1, function(){ afterMark(rSub) });
       if(li2>=0){
