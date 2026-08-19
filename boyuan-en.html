@@ -36,6 +36,13 @@
   .datechip{display:inline-block;margin-top:12px;font-size:12.5px;color:var(--ink-dim);
     border:1px solid var(--card-bd);border-radius:999px;padding:5px 14px;background:var(--card)}
 
+  .unitbar{display:flex;gap:7px;overflow-x:auto;padding:14px 2px 2px;-webkit-overflow-scrolling:touch}
+  .unitbar::-webkit-scrollbar{display:none}
+  .ub{flex:none;font-size:12.5px;padding:6px 12px;border-radius:999px;cursor:pointer;
+    border:1px solid var(--card-bd);background:var(--card);color:var(--ink-dim);white-space:nowrap}
+  .ub.today{border-color:rgba(232,180,90,.55);color:var(--gold-soft);font-weight:600}
+  .ub.on{background:linear-gradient(160deg,rgba(232,180,90,.25),rgba(232,180,90,.08));
+    border-color:var(--gold);color:var(--ink);font-weight:700}
   .steps{display:flex;gap:8px;margin:22px 0 8px}
   .step-tab{flex:1;text-align:center;font-size:13px;padding:9px 4px;border-radius:12px;
     border:1px solid var(--card-bd);background:var(--card);color:var(--ink-dim);font-weight:600;
@@ -153,6 +160,7 @@
     <h1 id="title">May I have a pie?</h1>
     <div class="subtitle" id="subtitle">今天的单词</div>
     <div class="datechip" id="datechip">今天</div>
+    <div class="unitbar" id="unitbar"></div>
   </header>
 
   <div class="steps">
@@ -1877,6 +1885,22 @@ function pickToday(){
   return SCHEDULE[Math.min(days, SCHEDULE.length - 1)];
 }
 const TODAY = pickToday();
+
+/* 课程表栏：整本都排在这儿，点哪课学哪课；不带参数就是今天的课 */
+(function(){
+  const bar=document.getElementById('unitbar');
+  if(!bar) return;
+  const days=Math.max(0,Math.round((new Date(dubaiDate())-new Date(ANCHOR))/86400000));
+  const todayKey=SCHEDULE[Math.min(days,SCHEDULE.length-1)];
+  SCHEDULE.forEach(k=>{
+    const u=UNITS[k]; if(!u) return;
+    const b=document.createElement('div');
+    b.className='ub'+(k===TODAY?' on':'')+(k===todayKey?' today':'');
+    b.textContent=(k===todayKey?'今天 · ':'')+'U'+u.unit+' '+u.title;
+    b.onclick=()=>{ location.search = (k===todayKey) ? '' : ('?unit='+k); };
+    bar.appendChild(b);
+  });
+})();
 const U = UNITS[TODAY];
 const AUDIO_DIR = "boyuan-audio/";
 const SPK='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>';
