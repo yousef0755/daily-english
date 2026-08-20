@@ -839,9 +839,9 @@ function goChat(){pager.scrollTo({left:pager.scrollWidth,behavior:"smooth"})} /*
 const ygFab=document.createElement("button");
 ygFab.type="button";ygFab.className="yg-fab";ygFab.setAttribute("aria-label","去找玉桂狗聊天");
 ygFab.addEventListener("click",goChat);
-const ygSvg=document.querySelector("#yugui svg").cloneNode(true);
-{const g=ygSvg.querySelector(".accg");if(g)g.remove()} /* 只要本体，不带衣柜配饰层 */
-ygFab.appendChild(ygSvg);
+/* 8-20 霏雅定稿：不用整只造型（和页面动物分不清），用💬 */
+ygFab.textContent="💬";
+ygFab.style.cssText+="font-size:26px;line-height:46px;text-align:center;background:#fff;border:1px solid #f0cdd9;border-radius:50%;box-shadow:0 3px 10px rgba(0,0,0,.12)";
 document.body.appendChild(ygFab);
 
 /* ═══ 中文页：她自己的诗集成语库（与 feiya/index.html 同一份），晓晓配音 ═══ */
