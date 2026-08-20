@@ -216,6 +216,13 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 .chatbar button{border:0;border-radius:999px;padding:11px 20px;background:#ef86ac;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
 .chatbar button:disabled{opacity:.5}
 .typing{align-self:flex-start;font-size:12px;color:#c993a9;padding:2px 8px}
+/* ── 玉桂狗浮标：学习页右下角，一键直达聊天页（形象=页内 #yugui 现成SVG原样缩用） ── */
+.yg-fab{position:fixed;right:14px;bottom:calc(16px + env(safe-area-inset-bottom));width:48px;height:46px;
+  border:0;padding:0;background:none;cursor:pointer;z-index:23;display:none;
+  filter:drop-shadow(0 4px 10px rgba(212,86,143,.3));-webkit-tap-highlight-color:transparent}
+.yg-fab.on{display:block}
+.yg-fab svg{width:100%;height:100%;display:block;transition:transform .15s ease}
+.yg-fab:active svg{transform:scale(.9)}
 </style>
 </head>
 <body>
@@ -362,10 +369,35 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       <button id="sow">种下去</button>
     </div>
     <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="hint">← 左右滑：小岛 · 🇦🇪عربي mode · 🇬🇧Eng.exe · 🇨🇳中文加载中… · 🇰🇷한글.zip · 📈股市.beta · 💬玉桂狗.chat →</div>
+    <div class="hint">← 左右滑：小岛 · 🇬🇧Eng.exe · 🇦🇪عربي mode · 🇨🇳中文加载中… · 🇰🇷한글.zip · 📈股市.beta · 💬玉桂狗.chat →</div>
   </section>
 
   <!-- 语言页（先立牌坊，课一门门装） -->
+  <section class="page l-en" id="pgEn" style="overflow-y:auto;padding:64px 18px 40px">
+    <button class="backhome" onclick="goHome()">← 回小岛</button>
+    <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
+      <div style="text-align:center;margin-bottom:6px">
+        <span style="font-size:30px">🩰</span>
+        <h2 style="font-size:21px;color:#e88f90">🇬🇧 Eng.exe</h2>
+        <div style="font-size:12px;color:#c495ab;margin-top:3px">每天四个词两句话，一周一轮</div>
+      </div>
+      <div id="enWords" class="zhcard encard"></div>
+      <div id="enSents" class="zhcard encard"></div>
+      <div id="enDone" style="text-align:center;margin-top:14px"></div>
+      <div style="text-align:center;margin-top:18px">
+        <div style="font-size:11.5px;color:#c495ab;margin-bottom:2px">演讲台：它们会上去用英语演讲（大概吧）🎤</div>
+        <div id="podium" onclick="speechTime()" style="cursor:pointer;display:inline-block">
+          <svg width="130" height="92" viewBox="0 0 130 92">
+            <rect x="30" y="34" width="70" height="52" rx="6" fill="#e8c98e" stroke="#b08d5f" stroke-width="3"/>
+            <rect x="22" y="26" width="86" height="12" rx="5" fill="#f5dcae" stroke="#b08d5f" stroke-width="2.6"/>
+            <line x1="62" y1="26" x2="62" y2="12" stroke="#6b5a48" stroke-width="3"/>
+            <circle cx="62" cy="9" r="5" fill="#4a4550"/>
+            <path d="M40 52 h50 M40 62 h50 M40 72 h34" stroke="#caa06a" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
   <section class="page l-ar" id="pgAr" style="overflow-y:auto;padding:64px 18px 40px">
     <button class="backhome" onclick="goHome()">← 回小岛</button>
     <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
@@ -392,31 +424,6 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
             <path d="M140 20 L146 34 L134 34 Z" fill="#f5e3b8" stroke="#d9b96b" stroke-width="2"/>
             <path d="M75 72 Q87 79 87 92 L87 106 L63 106 L63 92 Q63 79 75 72 Z" fill="#fbd6e6" stroke="#d9b96b" stroke-width="2.5"/>
             <path d="M118 14 a9 9 0 1 0 7 15 a7 7 0 1 1 -7 -15" fill="#d9b96b"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </section>
-  <section class="page l-en" id="pgEn" style="overflow-y:auto;padding:64px 18px 40px">
-    <button class="backhome" onclick="goHome()">← 回小岛</button>
-    <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
-      <div style="text-align:center;margin-bottom:6px">
-        <span style="font-size:30px">🩰</span>
-        <h2 style="font-size:21px;color:#e88f90">🇬🇧 Eng.exe</h2>
-        <div style="font-size:12px;color:#c495ab;margin-top:3px">每天四个词两句话，一周一轮</div>
-      </div>
-      <div id="enWords" class="zhcard encard"></div>
-      <div id="enSents" class="zhcard encard"></div>
-      <div id="enDone" style="text-align:center;margin-top:14px"></div>
-      <div style="text-align:center;margin-top:18px">
-        <div style="font-size:11.5px;color:#c495ab;margin-bottom:2px">演讲台：它们会上去用英语演讲（大概吧）🎤</div>
-        <div id="podium" onclick="speechTime()" style="cursor:pointer;display:inline-block">
-          <svg width="130" height="92" viewBox="0 0 130 92">
-            <rect x="30" y="34" width="70" height="52" rx="6" fill="#e8c98e" stroke="#b08d5f" stroke-width="3"/>
-            <rect x="22" y="26" width="86" height="12" rx="5" fill="#f5dcae" stroke="#b08d5f" stroke-width="2.6"/>
-            <line x1="62" y1="26" x2="62" y2="12" stroke="#6b5a48" stroke-width="3"/>
-            <circle cx="62" cy="9" r="5" fill="#4a4550"/>
-            <path d="M40 52 h50 M40 62 h50 M40 72 h34" stroke="#caa06a" stroke-width="2" stroke-linecap="round" opacity=".6"/>
           </svg>
         </div>
       </div>
@@ -454,25 +461,6 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       </div>
     </div>
   </section>
-  <section class="page l-gu" id="pgGu" style="overflow-y:auto;padding:64px 18px 40px">
-    <button class="backhome" onclick="goHome()">← 回小岛</button>
-    <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
-      <div style="text-align:center;margin-bottom:6px">
-        <span style="font-size:30px">📈</span>
-        <h2 style="font-size:21px;color:#f08a6c">📈 股市.beta</h2>
-        <div style="font-size:12px;color:#e8b39c;margin-top:3px">小岛自己的股市 · 全是游戏币，纸上谈兵</div>
-      </div>
-      <div class="zhcard gucard"><h3>我的账户</h3><div id="guAcct" style="font-size:14px;color:#a8624a;line-height:1.9"></div></div>
-      <div class="zhcard gucard"><h3>今日行情</h3><div class="au">每天迪拜零点换一次价 · 点买/卖</div><div id="guList"></div></div>
-      <div class="zhcard gucard"><h3>小道理</h3>
-        <div style="font-size:12.5px;color:#b98a75;line-height:2">
-        1. 别把所有股币放在一家公司，篮子多几个。<br>
-        2. 涨了别贪，跌了别慌，明天还有行情。<br>
-        3. 这里全是游戏币——真钱的事，等你长大和爸爸学。</div>
-      </div>
-      <div id="guTip" style="text-align:center;font-size:12px;color:#e8b39c;margin-top:8px"></div>
-    </div>
-  </section>
   <section class="page l-ko" id="pgKo" style="overflow-y:auto;padding:64px 18px 40px">
     <button class="backhome" onclick="goHome()">← 回小岛</button>
     <span class="snowfall" style="left:8%;animation-duration:9s;animation-delay:-2s">❄️</span>
@@ -502,6 +490,25 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
           </svg>
         </div>
       </div>
+    </div>
+  </section>
+  <section class="page l-gu" id="pgGu" style="overflow-y:auto;padding:64px 18px 40px">
+    <button class="backhome" onclick="goHome()">← 回小岛</button>
+    <div style="max-width:420px;margin:0 auto;position:relative;z-index:1">
+      <div style="text-align:center;margin-bottom:6px">
+        <span style="font-size:30px">📈</span>
+        <h2 style="font-size:21px;color:#f08a6c">📈 股市.beta</h2>
+        <div style="font-size:12px;color:#e8b39c;margin-top:3px">小岛自己的股市 · 全是游戏币，纸上谈兵</div>
+      </div>
+      <div class="zhcard gucard"><h3>我的账户</h3><div id="guAcct" style="font-size:14px;color:#a8624a;line-height:1.9"></div></div>
+      <div class="zhcard gucard"><h3>今日行情</h3><div class="au">每天迪拜零点换一次价 · 点买/卖</div><div id="guList"></div></div>
+      <div class="zhcard gucard"><h3>小道理</h3>
+        <div style="font-size:12.5px;color:#b98a75;line-height:2">
+        1. 别把所有股币放在一家公司，篮子多几个。<br>
+        2. 涨了别贪，跌了别慌，明天还有行情。<br>
+        3. 这里全是游戏币——真钱的事，等你长大和爸爸学。</div>
+      </div>
+      <div id="guTip" style="text-align:center;font-size:12px;color:#e8b39c;margin-top:8px"></div>
     </div>
   </section>
   <section class="page l-chat" id="pgChat" style="overflow-y:hidden;padding:56px 18px 12px">
@@ -812,6 +819,7 @@ pager.addEventListener("scroll",()=>{
     if(found&&!snowyC.away)setTimeout(()=>say(snowyC,"你找到我们啦！"),900);
   }
   document.querySelectorAll(".dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
+  ygFab.classList.toggle("on",i>=1&&i<=5);   /* 第1-5页（英/阿/中/韩/股）显示，小岛和聊天页不显示 */
 },{passive:true});
 /* 哥妹俩隔一阵子结伴搬去别的页面玩 */
 setInterval(()=>{
@@ -825,6 +833,16 @@ setInterval(()=>{
   }
 },55000);
 function goHome(){pager.scrollTo({left:0,behavior:"smooth"})}
+
+/* ═══ 玉桂狗浮标：英/阿/中/韩/股五页右下角，学习中有问题一键找玉桂狗（复用 #yugui 现成形象，不另画） ═══ */
+function goChat(){pager.scrollTo({left:pager.scrollWidth,behavior:"smooth"})} /* 聊天页=最后一页 */
+const ygFab=document.createElement("button");
+ygFab.type="button";ygFab.className="yg-fab";ygFab.setAttribute("aria-label","去找玉桂狗聊天");
+ygFab.addEventListener("click",goChat);
+const ygSvg=document.querySelector("#yugui svg").cloneNode(true);
+{const g=ygSvg.querySelector(".accg");if(g)g.remove()} /* 只要本体，不带衣柜配饰层 */
+ygFab.appendChild(ygSvg);
+document.body.appendChild(ygFab);
 
 /* ═══ 中文页：她自己的诗集成语库（与 feiya/index.html 同一份），晓晓配音 ═══ */
 const POEMS=[
@@ -913,7 +931,7 @@ function zhFinish(){
   S.coins+=2;save();document.getElementById("coins").textContent=S.coins;
   renderZh();
   /* 上家庭榜：她要的「su home 表扬」走这条 */
-  try{fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",
+  try{fetch("https://api.thesulegacy.com/fam/ping",{method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({who:"feiya",done:1,total:1,started:true})}).catch(()=>{})}catch(e){}
   say(snowyC,"中文过啦！我就知道你行！！");
@@ -1105,7 +1123,7 @@ function koFinish(){
   renderKo();famCheer("한국어");
 }
 function famCheer(which){
-  try{fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",
+  try{fetch("https://api.thesulegacy.com/fam/ping",{method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({who:"feiya",done:1,total:1,started:true})}).catch(()=>{})}catch(e){}
   say(yuguiC,which+"过啦！你最棒！");
@@ -1233,13 +1251,13 @@ setInterval(()=>{
   const c=alive[Math.floor(Math.random()*alive.length)];
   if(r<.4)swingTime(c);
   else if(curPage===3&&r<.75)shiTime();
-  else if(curPage===1&&r<.75)prayTime();
-  else if(curPage===2&&r<.75)speechTime();
-  else if(curPage===5&&r<.75)danceTime();
+  else if(curPage===2&&r<.75)prayTime();
+  else if(curPage===1&&r<.75)speechTime();
+  else if(curPage===4&&r<.75)danceTime();
 },52000);
 /* 闲逛时也会跑去设施上呆着——设施是它们的，不是装饰 */
 function perchSpot(){
-  const ids={1:"mosque",2:"podium",3:"shishan",5:"stage"};
+  const ids={1:"podium",2:"mosque",3:"shishan",4:"stage"};
   const el=ids[curPage]&&document.getElementById(ids[curPage]);
   if(!el)return null;
   const mr=el.getBoundingClientRect();
@@ -1255,7 +1273,7 @@ setInterval(()=>{
     if(s){c.el.classList.toggle("flip",s.x<c.x);place(c,s.x,s.y)}
   }
 },23000);
-  try{fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",
+  try{fetch("https://api.thesulegacy.com/fam/ping",{method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({who:"feiya",done:1,total:1,started:true})}).catch(()=>{})}catch(e){}
   say(yuguiC,"أَحْسَنْتِ！棒棒的！");
@@ -1386,7 +1404,7 @@ function koFinish(){
   renderKo();famCheer("한국어");
 }
 function famCheer(which){
-  try{fetch("https://su-family.yousef-abud.workers.dev/fam/ping",{method:"POST",
+  try{fetch("https://api.thesulegacy.com/fam/ping",{method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({who:"feiya",done:1,total:1,started:true})}).catch(()=>{})}catch(e){}
   say(yuguiC,which+"过啦！你最棒！");
@@ -1514,13 +1532,13 @@ setInterval(()=>{
   const c=alive[Math.floor(Math.random()*alive.length)];
   if(r<.4)swingTime(c);
   else if(curPage===3&&r<.75)shiTime();
-  else if(curPage===1&&r<.75)prayTime();
-  else if(curPage===2&&r<.75)speechTime();
-  else if(curPage===5&&r<.75)danceTime();
+  else if(curPage===2&&r<.75)prayTime();
+  else if(curPage===1&&r<.75)speechTime();
+  else if(curPage===4&&r<.75)danceTime();
 },52000);
 /* 闲逛时也会跑去设施上呆着——设施是它们的，不是装饰 */
 function perchSpot(){
-  const ids={1:"mosque",2:"podium",3:"shishan",5:"stage"};
+  const ids={1:"podium",2:"mosque",3:"shishan",4:"stage"};
   const el=ids[curPage]&&document.getElementById(ids[curPage]);
   if(!el)return null;
   const mr=el.getBoundingClientRect();
@@ -1611,28 +1629,28 @@ renderGu();
 (function(){
   const log=document.getElementById("chatLog"),inp=document.getElementById("chatIn"),btn=document.getElementById("chatSend");
   if(!log)return;
+  /* 聊天记录只留内存：刷新页面=清空、开新话题（霏雅8-20定），不再读写本地存储 */
   let hist=[];
-  try{hist=JSON.parse(localStorage.getItem("feiyaChat")||"[]")}catch(e){}
+  try{localStorage.removeItem("feiyaChat")}catch(e){} /* 清掉旧版遗留的历史 */
   function paint(){
     log.innerHTML=hist.map(m=>'<div class="bub '+(m.role==="ai"?"gui":"me")+'">'+
       String(m.text).replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</div>').join("");
     log.scrollTop=log.scrollHeight;
   }
-  function saveChat(){try{localStorage.setItem("feiyaChat",JSON.stringify(hist.slice(-200)))}catch(e){}}
   if(!hist.length){
-    hist.push({role:"ai",text:"霏雅！你来啦，我等你好久了。\n今天心情怎么样呀？"});saveChat();
+    hist.push({role:"ai",text:"霏雅！你来啦，我等你好久了。\n今天心情怎么样呀？"});
   }
   paint();
   let busy=false;
   async function send(){
     const v=inp.value.trim();
     if(!v||busy)return;
-    inp.value="";hist.push({role:"user",text:v});saveChat();paint();
+    inp.value="";hist.push({role:"user",text:v});paint();
     busy=true;btn.disabled=true;
     const tip=document.createElement("div");tip.className="typing";tip.textContent="玉桂狗想了想…";
     log.appendChild(tip);log.scrollTop=log.scrollHeight;
     try{
-      const r=await fetch("https://su-family.yousef-abud.workers.dev/island/chat",{
+      const r=await fetch("https://api.thesulegacy.com/island/chat",{
         method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({messages:hist.slice(-20)})});
       const j=await r.json();
@@ -1640,14 +1658,14 @@ renderGu();
     }catch(e){
       hist.push({role:"ai",text:"呜，云朵把信号挡住了…再发一次好不好？"});
     }
-    saveChat();paint();busy=false;btn.disabled=false;
+    paint();busy=false;btn.disabled=false;
   }
   btn.onclick=send;
   inp.addEventListener("keydown",e=>{if(e.key==="Enter")send()});
 })();
 
 /* ═══ 小岛资料上服务器：金币/植物/衣服/每日完成/持仓 ═══ */
-const ISL_API="https://su-family.yousef-abud.workers.dev/island/data";
+const ISL_API="https://api.thesulegacy.com/island/data";
 function islDays(){
   const out={};
   for(let i=0;i<localStorage.length;i++){
