@@ -72,10 +72,24 @@ body{
 .tafsir{margin-top:9px;padding:9px 11px;border-right:2px solid rgba(217,178,106,.45);
   background:rgba(217,178,106,.05);border-radius:8px;
   font-family:var(--ar);font-size:14.5px;line-height:1.95;color:#c8d4d1;direction:rtl;text-align:right}
+/* 《الميسر》是分段串讲，一条注释管好几节。不写清楚管到哪儿，
+   他翻到没注释的那几节会以为页面漏了。 */
+.tspan{margin-top:9px;display:flex;align-items:center;gap:7px;
+  font-size:10.5px;letter-spacing:.3px;color:#8b9a97}
+.tspan::before{content:"";flex:0 0 13px;height:1px;background:rgba(217,178,106,.5)}
+.tspan + .tafsir{margin-top:5px}
 .bg{margin-top:12px;padding:11px 13px;border-radius:12px;border:1px solid rgba(217,178,106,.22);
   background:rgba(217,178,106,.06);font-size:12.5px;line-height:1.75;color:#cfd9d6}
 .bg b{color:var(--gold-soft)}
 .tap-hint{margin:10px 2px 0;font-size:11px;color:var(--dim)}
+/* 点了没声音的时候，得有个地方把话说出来 */
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));
+  transform:translateX(-50%) translateY(14px);width:min(520px,calc(100% - 24px));z-index:30;
+  padding:12px 14px;border-radius:13px;border:1px solid rgba(217,178,106,.34);
+  background:rgba(16,26,31,.97);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  color:#e6ece9;font-size:12.5px;line-height:1.7;box-shadow:0 16px 42px rgba(0,0,0,.55);
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* 过关 */
 .done{
@@ -135,6 +149,7 @@ footer{margin-top:24px;text-align:center;font-size:10.5px;color:#5f6d6a;line-hei
     <span id="stamp"></span>
   </footer>
 </div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ── 老板 2026-08-19 定的四条轨道 ──────────────────────────────
@@ -178,16 +193,58 @@ function renderStreak(){
     : "🔥 Day 1 · starts today";
 }
 
+/* 底下这条横幅：点了没声音的时候，得让他看见为什么，别一声不吭。 */
+let toastTimer = null;
+function toast(msg){
+  const el = $("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove("show"), 6000);
+}
+function voiceFor(lang){
+  let vs = [];
+  try{ vs = speechSynthesis.getVoices() || [] }catch(e){}
+  const base = lang.split("-")[0].toLowerCase();
+  return vs.find(v => ((v.lang||"").toLowerCase().replace("_","-").split("-")[0]) === base) || null;
+}
+function noVoiceMsg(ar){
+  return ar
+    ? "这句还没有真人录音，这台设备里也没有阿拉伯语发音包，所以放不出声。"
+      + "装一个再点：设置 → 辅助功能 → 朗读内容 → 声音 → 阿拉伯语。"
+    : "这句还没有真人录音，这台设备的朗读也没响应，所以放不出声。";
+}
+/* 古兰和会议两轨每句都有真人音，走上面 playBuf。
+   诗歌和演讲还没录，只能退回系统合成音——而很多 iPhone 根本没装阿语音色：
+   speechSynthesis.speak() 不报错、也不出声，他点了以为按钮坏了。
+   所以这里三道都堵上：没音色先说、报错要说、说了半天没开口也要说。 */
 function speak(text){
   const f = VOICE[text];
   if(f){ playBuf("media/kidaudio/"+f); return; }
+  const ar = /[؀-ۿ]/.test(text);
+  if(!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined"){
+    toast(noVoiceMsg(ar)); return;
+  }
+  const lang = ar ? "ar-SA" : "en-US";
+  const v = voiceFor(lang);
+  let loaded = 0;
+  try{ loaded = (speechSynthesis.getVoices()||[]).length }catch(e){}
+  /* 音色表还没加载出来（loaded==0）的时候不敢下结论，先试着念，交给下面的超时兜 */
+  if(loaded && !v){ toast(noVoiceMsg(ar)); return; }
   try{
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = /[؀-ۿ]/.test(text) ? "ar-SA" : "en-US";
-    u.rate = .88; speechSynthesis.speak(u);
-  }catch(e){}
+    u.lang = lang; if(v) u.voice = v;
+    u.rate = .88;
+    let started = false;
+    u.onstart = () => { started = true };
+    u.onerror = () => { if(!started) toast(noVoiceMsg(ar)) };
+    speechSynthesis.speak(u);
+    setTimeout(()=>{ if(!started) toast(noVoiceMsg(ar)) }, 1800);
+  }catch(e){ toast(noVoiceMsg(ar)); }
 }
+/* Chrome 第一次 getVoices() 常常是空的，先叫一声让它去加载 */
+try{ speechSynthesis.getVoices() }catch(e){}
 /* iPhone 侧边静音拨杆会掐掉 <audio>，但管不了 Web Audio——这条坑旧站踩过，照搬 */
 let actx=null, asrc=null, cache={};
 function playBuf(url){
@@ -242,6 +299,7 @@ function render(){
        <div class="body">${main}
          <div class="tr"${trDir}>${L.b||""}</div>
          ${L.note?`<div class="note">${L.note}</div>`:""}
+         ${L.span?`<div class="tspan">${L.span}</div>`:""}
          ${L.tafsir?`<div class="tafsir">${L.tafsir}</div>`:""}
        </div>
        <button class="play" aria-label="listen">▶</button>`;

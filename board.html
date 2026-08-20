@@ -118,6 +118,12 @@ const STATUS = {
   "卡住":["t-stuck","卡住了"], "卡住了":["t-stuck","卡住了"]
 };
 let ITEMS = [], SCORES = {};
+/* 本次会话里真的 POST 成功过的条目 id。
+   SCORES 是从接口读回来的（含他今天早些时候、甚至上一次打的分），
+   拿它去数「已收到 N 条」，等于把别人存的账记在这一次点击头上——
+   他一分没打也会看到一个非零的数。回执只认这个集合。 */
+const SAVED = new Set();
+let OVERALL_SENT = false;
 
 function dubaiDate(){
   return new Date(Date.now()+4*3600*1000).toISOString().slice(0,10);
@@ -163,9 +169,15 @@ function render(){
       const okLine = el.querySelector(".saved"), badLine = el.querySelector(".failed");
       const push = async () => {
         const n = [...dots].findIndex(d=>d.classList.contains("on")) + 1;
+        const c = ta.value.trim();
+        const prevHad = SCORES[it.id] && (SCORES[it.id].score || SCORES[it.id].comment);
+        /* 空的不发：没打分也没写字，还去 POST 一次，回执上就多出一条谁都没打的账 */
+        if(!n && !c && !prevHad) return;
         try{
-          await save(it.id, n||null, ta.value.trim());
-          SCORES[it.id] = {score:n||null, comment:ta.value.trim()};
+          await save(it.id, n||null, c);
+          SCORES[it.id] = {score:n||null, comment:c};
+          /* 打了分/写了字才算一条；把字删干净＝撤回，要从数里退出来 */
+          if(n || c) SAVED.add(it.id); else SAVED.delete(it.id);
           okLine.classList.add("show"); badLine.classList.remove("show");
           setTimeout(()=>okLine.classList.remove("show"), 1600);
           countUp();
@@ -183,32 +195,63 @@ function render(){
 }
 
 function countUp(){
-  /* 只数当前清单里的条目。旧日子的分还留在 KV 里，照单全数会报出一个他今天没点过的数字。 */
-  const ids = new Set(ITEMS.map(i=>i.id));
-  const n = Object.entries(SCORES)
-    .filter(([id,v]) => ids.has(id) && v && (v.score || v.comment)).length;
-  $("receipt").innerHTML = n ? `已收到 <b>${n}</b> 条` : "还没打分";
+  /* 只数这次会话里真存成功的。旧日子、旧会话的分还留在 KV 里，
+     照单全数会报出一个他这次根本没点过的数字。 */
+  const n = SAVED.size;
+  $("receipt").innerHTML = n ? `已存 <b>${n}</b> 条` : "还没打分";
 }
 
+/* 「没有要提交的」那句 2.4 秒后自己收回去。这个定时器必须留着句柄：
+   他在这 2.4 秒里补写了总评又点成功，定时器晚一步醒来会把成功的回执抹成「提交」。 */
+let emptyTimer = null;
+
 $("submit").addEventListener("click", async ()=>{
-  const btn = $("submit"); btn.disabled = true; btn.textContent = "在存…";
+  const btn = $("submit");
+  const txt = $("overall").value.trim();
+  clearTimeout(emptyTimer);
+
+  /* 什么都没有的时候不许报成功。
+     上一版这里：总评为空就一个请求都不发，却照样把按钮改成「已收到 N 条 ✓」、
+     回执改成「我们看得见了」——他看见的是个假回执，我这边其实什么也没收到。 */
+  if(!txt && !SAVED.size){
+    btn.textContent = "没有要提交的";
+    $("receipt").innerHTML = "没打分，也没写总评";
+    emptyTimer = setTimeout(()=>{ btn.textContent = "提交"; countUp(); }, 2400);
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = "在存…";
   try{
-    const txt = $("overall").value.trim();
     if(txt){
       const r = await fetch(API+"/review/overall",{method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({who:"boss", comment:txt})});
       if(!r.ok) throw new Error("HTTP "+r.status);
+      /* 跟 save() 一个口径：HTTP 200 不代表接口收下了，j.ok 才算 */
+      let j = null; try{ j = await r.json() }catch(e){}
+      if(j && j.ok === false) throw new Error("接口说没存上");
+      OVERALL_SENT = true;
       $("overallSaved").classList.add("show");
     }
-    const ids = new Set(ITEMS.map(i=>i.id));
-    const n = Object.entries(SCORES)
-      .filter(([id,v]) => ids.has(id) && v && (v.score || v.comment)).length;
-    btn.textContent = "已收到 " + n + " 条 ✓";
-    $("receipt").innerHTML = `我们看得见了`;
+    const bits = [];
+    if(OVERALL_SENT) bits.push("总评");
+    if(SAVED.size) bits.push(SAVED.size + " 条打分");
+    btn.textContent = "已收到 " + bits.join(" ＋ ") + " ✓";
+    /* 只有打分没总评的时候，这一下其实没发新东西——分是刚才逐条存的。照实说。 */
+    $("receipt").innerHTML = OVERALL_SENT ? "我们看得见了" : "打分已经存下了";
   }catch(e){
-    btn.disabled = false; btn.textContent = "没存上，再点一次";
+    btn.disabled = false; btn.textContent = "总评没存上，再点一次";
+    $("receipt").innerHTML = "总评没发出去";
   }
+});
+/* 存过之后又改了总评：按钮得能再点。
+   不然他补的那几句永远发不出去，而按钮还挂着上一次的「✓」。 */
+$("overall").addEventListener("input", ()=>{
+  clearTimeout(emptyTimer);
+  OVERALL_SENT = false;
+  $("overallSaved").classList.remove("show");
+  const btn = $("submit");
+  if(btn.textContent !== "在存…"){ btn.disabled = false; btn.textContent = "提交"; }
 });
 
 fetch(API+"/review/board")
