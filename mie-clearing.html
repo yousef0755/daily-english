@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#e8efe5" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="回到自己" />
+<meta name="description" content="Back to Me · 回到自己 —— 在拿起手机之前，先回到自己的一处安静空间。" />
+<link rel="manifest" href="mie-clearing-assets/manifest.webmanifest" />
+<link rel="apple-touch-icon" href="mie-clearing-assets/apple-touch-icon.png" />
+<link rel="icon" type="image/svg+xml" href="mie-clearing-assets/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="mie-clearing-assets/favicon-32.png" />
+<title>Back to Me · 回到自己</title>
+<style>
+:root{
+  --ink:#233127;
+  --muted:#708074;
+  --cream:#f5f2e8;
+  --sage:#dce8da;
+  --leaf:#718d72;
+  --leaf-deep:#405c49;
+  --mist:rgba(255,255,255,.58);
+  --line:rgba(46,70,52,.12);
+  --shadow:0 24px 70px rgba(47,70,53,.15);
+  --safe-t:max(env(safe-area-inset-top),16px);
+  --safe-b:max(env(safe-area-inset-bottom),16px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#dfe8dc;color:var(--ink);font-family:ui-rounded,-apple-system,BlinkMacSystemFont,"SF Pro Rounded","SF Pro Display","Segoe UI",sans-serif}
+body{min-height:100dvh;overflow:hidden;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid #6f8b72;outline-offset:3px}
+
+/* living background */
+.world{position:fixed;inset:0;overflow:hidden;background:
+  radial-gradient(circle at 82% 8%,rgba(255,250,218,.90),transparent 26%),
+  linear-gradient(160deg,#eaf0e6 0%,#dbe7d7 45%,#cadac9 100%)}
+.world::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,.12),transparent 35%,rgba(51,83,59,.07));pointer-events:none}
+.sun{position:absolute;width:min(40vw,470px);aspect-ratio:1;border-radius:50%;right:-8%;top:-17%;background:rgba(255,248,214,.72);filter:blur(4px);box-shadow:0 0 100px rgba(255,249,218,.65)}
+.hill{position:absolute;left:-10%;width:120%;border-radius:50% 50% 0 0/38% 38% 0 0;transform-origin:center bottom;animation:breathe 10s ease-in-out infinite alternate}
+.hill.one{height:46%;bottom:-12%;background:#a9c0a5;opacity:.76}
+.hill.two{height:36%;bottom:-10%;left:-28%;background:#8eaa8c;opacity:.53;animation-delay:-3s}
+.hill.three{height:28%;bottom:-9%;left:18%;background:#6e9072;opacity:.25;animation-delay:-6s}
+.branch{position:absolute;width:360px;height:360px;left:-155px;top:-95px;border:34px solid rgba(72,95,70,.12);border-color:transparent rgba(72,95,70,.12) rgba(72,95,70,.12) transparent;border-radius:52% 48%;transform:rotate(25deg);filter:blur(.3px)}
+.fireflies{position:absolute;inset:0;pointer-events:none}.fly{position:absolute;width:4px;height:4px;border-radius:50%;background:rgba(255,251,216,.9);box-shadow:0 0 16px rgba(255,248,189,.95);animation:float var(--d) ease-in-out infinite alternate;opacity:.45}
+@keyframes breathe{to{transform:translateY(10px) scaleX(1.02)}}
+@keyframes float{0%{transform:translate(0,0)}100%{transform:translate(var(--x),var(--y));opacity:.95}}
+
+.shell{position:relative;z-index:2;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr);padding:var(--safe-t) 16px var(--safe-b)}
+.panel{position:relative;height:100%;max-width:1440px;width:100%;margin:auto;border:1px solid rgba(255,255,255,.58);background:rgba(247,249,243,.31);backdrop-filter:blur(26px) saturate(115%);-webkit-backdrop-filter:blur(26px) saturate(115%);border-radius:32px;box-shadow:0 35px 110px rgba(49,74,55,.17),inset 0 1px rgba(255,255,255,.72);overflow:hidden}
+.top{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid rgba(61,83,66,.08)}
+.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:34px;height:34px;border-radius:50%;border:1px solid rgba(52,80,58,.16);display:grid;place-items:center;background:rgba(255,255,255,.4)}.brand-mark::before{content:"";width:10px;height:16px;border-radius:100% 0 100% 0;background:#769176;transform:rotate(-28deg)}
+.brand-copy strong{font-size:14px;font-weight:650;letter-spacing:.04em}.brand-copy span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.pause{border:1px solid rgba(52,76,57,.14);background:rgba(255,255,255,.4);padding:10px 15px;border-radius:999px;font-size:12px;cursor:pointer;transition:.2s}.pause:hover{background:rgba(255,255,255,.7);transform:translateY(-1px)}
+
+.stage{height:calc(100% - 78px);position:relative;overflow:hidden}.view{position:absolute;inset:0;display:grid;opacity:1;transform:translateY(0);transition:opacity .42s ease,transform .52s cubic-bezier(.2,.8,.2,1);pointer-events:auto}.view.hidden{opacity:0;transform:translateY(14px);pointer-events:none}
+.home{grid-template-columns:1.08fr .92fr;padding:clamp(28px,6vw,88px);gap:clamp(28px,5vw,80px);align-items:center}
+.hero{max-width:650px}.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#718673;margin-bottom:20px}.hero h1{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(42px,6vw,86px);line-height:.98;letter-spacing:-.045em;margin:0 0 24px;color:#2d4032}.hero p{font-size:clamp(15px,1.5vw,19px);line-height:1.75;color:#69786d;max-width:520px;margin:0}.tiny-note{display:flex;align-items:center;gap:10px;margin-top:34px;color:#79877c;font-size:12px}.tiny-note i{display:block;width:32px;height:1px;background:#93a694}
+.paths{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:540px;justify-self:end;width:100%}.path{border:1px solid rgba(63,88,66,.11);background:rgba(250,251,247,.48);min-height:185px;padding:22px;border-radius:26px;text-align:left;cursor:pointer;display:flex;flex-direction:column;transition:.22s ease;box-shadow:0 10px 32px rgba(59,81,61,.07)}.path:hover{transform:translateY(-4px);background:rgba(255,255,255,.72);box-shadow:0 18px 46px rgba(59,81,61,.11)}.path-num{font-family:Georgia,serif;font-size:13px;color:#879888}.path-space{flex:1}.path h3{font-family:Georgia,serif;font-size:27px;font-weight:400;margin:0 0 7px}.path p{font-size:12px;color:#7a887d;margin:0}.path:nth-child(1){background:rgba(242,240,228,.62)}.path:nth-child(2){background:rgba(237,245,235,.62)}.path:nth-child(3){background:rgba(227,239,227,.62)}.path:nth-child(4){background:rgba(234,239,229,.58)}
+.returning{position:absolute;left:clamp(28px,6vw,88px);bottom:28px;font-size:11px;color:#76877a}
+
+.scene{grid-template-columns:minmax(0,1fr) minmax(320px,560px);gap:60px;align-items:end;padding:clamp(26px,5vw,72px)}.scene-copy{align-self:center;max-width:580px}.back{border:0;background:none;padding:0;color:#718075;font-size:12px;cursor:pointer;margin-bottom:42px}.scene-copy .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#839286;margin-bottom:16px}.scene h2{font-family:Georgia,serif;font-size:clamp(48px,6vw,78px);line-height:1;font-weight:400;letter-spacing:-.045em;margin:0 0 22px}.scene-copy>p{font-size:16px;line-height:1.75;color:#6e7d72;max-width:520px}.options{display:grid;gap:11px}.option{border:1px solid rgba(62,85,65,.11);background:rgba(255,255,255,.43);padding:18px 19px;border-radius:19px;display:flex;justify-content:space-between;align-items:center;text-align:left;cursor:pointer;transition:.18s}.option:hover{background:rgba(255,255,255,.68);transform:translateX(-3px)}.option span{font-size:14px}.option small{font-size:11px;color:#7b8a7e}.option .tag{padding:5px 8px;border-radius:999px;background:rgba(103,134,106,.09);color:#668169}
+
+.modal{position:fixed;z-index:20;inset:0;background:rgba(53,71,58,.20);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:grid;place-items:center;padding:22px;opacity:0;pointer-events:none;transition:.25s}.modal.show{opacity:1;pointer-events:auto}.sheet{width:min(460px,100%);background:rgba(247,248,242,.88);border:1px solid rgba(255,255,255,.8);border-radius:30px;padding:28px;box-shadow:var(--shadow)}.sheet .mini{font-size:11px;letter-spacing:.12em;color:#7b8b7d;text-transform:uppercase}.sheet h3{font-family:Georgia,serif;font-weight:400;font-size:34px;line-height:1.15;margin:10px 0 7px}.sheet>p{font-size:13px;color:#758278;margin:0 0 20px}.close{position:absolute;top:24px;right:24px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(60,80,64,.12);background:rgba(255,255,255,.5);cursor:pointer}
+
+.timer-layer{position:fixed;z-index:21;inset:0;display:grid;place-items:center;background:rgba(228,237,225,.72);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);opacity:0;pointer-events:none;transition:.3s}.timer-layer.show{opacity:1;pointer-events:auto}.timer-box{text-align:center}.timer-box .timer-title{font-size:12px;letter-spacing:.12em;color:#718074;text-transform:uppercase}.clock{font-family:Georgia,serif;font-size:clamp(78px,13vw,150px);font-weight:400;letter-spacing:-.06em;margin:10px 0 18px}.timer-actions{display:flex;justify-content:center;gap:9px}.timer-actions button{border:1px solid rgba(56,82,61,.13);background:rgba(255,255,255,.48);border-radius:999px;padding:10px 15px;cursor:pointer}
+
+.immersive .top,.immersive .view{opacity:0!important;pointer-events:none!important}.return-btn{position:fixed;z-index:15;left:50%;bottom:calc(var(--safe-b) + 22px);transform:translate(-50%,10px);opacity:0;pointer-events:none;border:1px solid rgba(53,73,58,.12);background:rgba(250,251,247,.45);backdrop-filter:blur(16px);padding:10px 16px;border-radius:999px;font-size:12px;color:#647468;transition:.25s}.immersive .return-btn{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+
+@media(max-width:880px){
+ body{overflow:hidden}.shell{padding:0}.panel{border-radius:0;border:0}.top{height:68px;padding:0 18px}.brand-copy span{display:none}.stage{height:calc(100% - 68px)}
+ .home{display:flex;flex-direction:column;justify-content:center;padding:26px 18px 48px;gap:30px;overflow:auto}.hero{text-align:center}.kicker{font-size:10px;margin-bottom:13px}.hero h1{font-size:clamp(38px,12vw,56px);line-height:1.02}.hero p{font-size:14px;line-height:1.65;margin:auto;max-width:340px}.tiny-note{display:none}.paths{grid-template-columns:1fr 1fr;gap:10px;max-width:440px;justify-self:auto}.path{min-height:128px;border-radius:21px;padding:16px}.path h3{font-size:22px}.returning{left:0;right:0;text-align:center;bottom:14px;font-size:10px}
+ .scene{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;padding:22px 18px 28px;gap:24px}.scene-copy{align-self:auto}.back{margin-bottom:22px}.scene h2{font-size:46px}.scene-copy>p{font-size:14px;line-height:1.62}.options{gap:9px}.option{padding:16px;border-radius:17px}
+}
+@media(max-height:700px) and (max-width:880px){.hero p{display:none}.home{gap:18px}.path{min-height:108px}.hero h1{font-size:40px;margin-bottom:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style id="living-scene">
+/* ── 会呼吸的自然空间 · 只在曼雅原作之上叠加，不动她一处 ── */
+.world{isolation:isolate}
+/* 晨昏两层光，柔和罩住整片草地（颜色/浓淡随时间缓缓变） */
+.tint{position:absolute;inset:0;pointer-events:none;opacity:0;will-change:opacity;
+  transition:opacity 3.6s linear,background-color 3.6s linear}
+.tint-warm{mix-blend-mode:soft-light}
+.tint-cool{mix-blend-mode:multiply}
+/* 太阳随时间升起、落下、换色（过渡让它慢慢走） */
+.sun{transition:top 6s linear,opacity 6s linear,background-color 6s linear,box-shadow 6s linear,filter 6s linear}
+/* 萤火虫随天色明灭：白日几近隐去，入夜后亮起来 */
+.fireflies{transition:opacity 4s linear}
+/* 月亮：夜里悄悄浮上来 */
+.moon{position:absolute;width:min(23vw,180px);aspect-ratio:1;border-radius:50%;right:13%;top:9%;
+  background:radial-gradient(circle at 38% 34%,#fbfdf6,#eef4e8 58%,#dbe4d3);
+  box-shadow:0 0 62px rgba(238,246,228,.5);opacity:0;filter:blur(.4px);
+  transition:opacity 6s linear;will-change:transform}
+/* 云：极慢地飘过天际 */
+.clouds{position:absolute;inset:0;pointer-events:none;will-change:transform}
+.cloud{position:absolute;height:15vw;max-height:150px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,255,255,.85),rgba(255,255,255,.28) 55%,rgba(255,255,255,0));
+  filter:blur(11px);animation:drift linear infinite}
+.cloud:nth-child(1){top:8%;width:46vw;max-width:520px;opacity:.5;animation-duration:158s;animation-delay:-24s}
+.cloud:nth-child(2){top:18%;width:34vw;max-width:380px;opacity:.4;animation-duration:212s;animation-delay:-120s}
+.cloud:nth-child(3){top:4%;width:56vw;max-width:640px;opacity:.32;animation-duration:264s;animation-delay:-205s}
+@keyframes drift{from{transform:translateX(-72vw)}to{transform:translateX(162vw)}}
+/* 枝叶：从左上角垂下，随风缓缓摆动（叶片由脚本生成） */
+.canopy{position:absolute;top:-24px;left:-26px;width:min(46vw,360px);height:min(42vw,320px);
+  pointer-events:none;transform-origin:top left;will-change:transform}
+.twig{position:absolute;top:12px;left:-8px;width:72%;height:10px;border-radius:0 8px 8px 0;
+  background:linear-gradient(90deg,rgba(66,88,66,.52),rgba(66,88,66,.12) 76%,rgba(66,88,66,0));
+  transform:rotate(26deg);transform-origin:left center}
+.lf{position:absolute;border-radius:100% 0 100% 0;transform-origin:8% 50%;
+  animation:sway var(--t,6s) ease-in-out infinite alternate}
+@keyframes sway{
+  from{transform:rotate(var(--a,26deg)) scaleX(.97)}
+  to{transform:rotate(calc(var(--a,26deg) + var(--s,7deg))) scaleX(1)}
+}
+@media(max-width:880px){.canopy{width:min(62vw,320px);height:min(58vw,300px)}.moon{top:7%;width:min(30vw,150px)}}
+</style>
+</head>
+<body>
+<div class="world" aria-hidden="true">
+  <div class="clouds" id="clouds"><i class="cloud"></i><i class="cloud"></i><i class="cloud"></i></div>
+  <div class="sun"></div><div class="branch"></div>
+  <div class="moon" id="moon"></div>
+  <div class="hill two"></div><div class="hill one"></div><div class="hill three"></div>
+  <div class="tint tint-warm" id="tWarm"></div><div class="tint tint-cool" id="tCool"></div>
+  <div class="fireflies" id="flies"></div>
+  <div class="canopy" id="canopy"><span class="twig"></span></div>
+</div>
+
+<div class="shell">
+  <main class="panel" id="app">
+    <header class="top">
+      <div class="brand"><span class="brand-mark"></span><div class="brand-copy"><strong>Back to Me</strong><span>回到自己</span></div></div>
+      <button class="pause" id="pauseBtn">The Pause</button>
+    </header>
+
+    <div class="stage">
+      <section class="view home" id="home">
+        <div class="hero">
+          <div class="kicker">A quiet place outside the loop</div>
+          <h1>把这段时间，<br>还给自己。</h1>
+          <p>不是安排另一个“更好的自己”，也不是把休息变成任务。只是在拿起手机之前，多给自己一次真正选择的机会。</p>
+          <div class="tiny-note"><i></i><span>Choose gently. Leave whenever you want.</span></div>
+        </div>
+        <div class="paths">
+          <button class="path" data-view="rest"><span class="path-num">01</span><span class="path-space"></span><h3>Rest</h3><p>停下来，不做任何证明</p></button>
+          <button class="path" data-view="play"><span class="path-num">02</span><span class="path-space"></span><h3>Play</h3><p>主动选择，而不是滑进去</p></button>
+          <button class="path" data-view="nourish"><span class="path-num">03</span><span class="path-space"></span><h3>Nourish</h3><p>补回身体与感官</p></button>
+          <button class="path" data-view="grow"><span class="path-num">04</span><span class="path-space"></span><h3>Grow</h3><p>跟随一点真实的好奇</p></button>
+        </div>
+        <div class="returning" id="status"></div>
+      </section>
+
+      <section class="view scene hidden" id="rest">
+        <div class="scene-copy"><button class="back" data-view="home">← Back to the meadow</button><div class="label">Rest</div><h2>树荫下。</h2><p>你不需要把休息做得很好。甚至不需要“恢复”。只是暂时不用回应世界。</p></div>
+        <div class="options"><button class="option" data-timer="10" data-title="Rest under the trees"><span>躺十分钟</span><small class="tag">10 min</small></button><button class="option" data-immerse><span>什么都不做</span><small>让界面消失</small></button><button class="option" data-immerse><span>坐着看窗外</span><small>不计时</small></button></div>
+      </section>
+
+      <section class="view scene hidden" id="play">
+        <div class="scene-copy"><button class="back" data-view="home">← Back to the meadow</button><div class="label">Play</div><h2>允许好玩。</h2><p>娱乐本身不是问题。区别只在于：这一次，是你选择了它，还是回路替你选择了它。</p></div>
+        <div class="options"><button class="option" data-timer="20" data-title="Read / scroll, on purpose"><span>看漫画 / 刷手机</span><small class="tag">20 min</small></button><button class="option" data-timer="15" data-title="Doodle"><span>随手涂鸦</span><small class="tag">15 min</small></button><button class="option" data-timer="30" data-title="A chosen game"><span>玩一个真正想玩的游戏</span><small class="tag">30 min</small></button></div>
+      </section>
+
+      <section class="view scene hidden" id="nourish">
+        <div class="scene-copy"><button class="back" data-view="home">← Back to the meadow</button><div class="label">Nourish</div><h2>给自己一点。</h2><p>不是“自我提升”。只是把注意力从屏幕撤回来，重新放回身体、气味、声音和周围的空间。</p></div>
+        <div class="options"><button class="option" data-immerse><span>泡一杯喜欢的东西</span><small>手机留在这里</small></button><button class="option" data-timer="6" data-title="One song only"><span>完整听一首歌</span><small class="tag">6 min</small></button><button class="option" data-immerse><span>洗脸 / 洗澡 / 换一身舒服的衣服</span><small>不赶时间</small></button></div>
+      </section>
+
+      <section class="view scene hidden" id="grow">
+        <div class="scene-copy"><button class="back" data-view="home">← Back to the meadow</button><div class="label">Grow</div><h2>向外一点。</h2><p>生长不等于逼迫。只追一条现在真的让你好奇的小线索，十分钟也完全够。</p></div>
+        <div class="options"><button class="option" data-timer="10" data-title="Follow one curiosity"><span>探索一个突然好奇的问题</span><small class="tag">10 min</small></button><button class="option" data-immerse><span>出去走一小圈</span><small>不记录步数</small></button><button class="option" data-timer="12" data-title="Make something tiny"><span>做一个很小的东西</span><small class="tag">12 min</small></button></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<button class="return-btn" id="returnBtn">轻触回来</button>
+
+<div class="modal" id="pauseModal">
+  <button class="close" id="closePause">×</button>
+  <div class="sheet"><div class="mini">The Pause</div><h3>你这次拿起手机，<br>原本是为了什么？</h3><p>不用解释，也不用判断自己。只选最接近真实的一项。</p><div class="options"><button class="option pauseChoice" data-choice="know"><span>我知道要做什么</span><small>继续就好</small></button><button class="option pauseChoice" data-choice="break"><span>我是真的累了</span><small>去 Rest</small></button><button class="option pauseChoice" data-choice="loop"><span>我其实不知道</span><small>可能只是回路</small></button></div></div>
+</div>
+
+<div class="timer-layer" id="timerLayer"><div class="timer-box"><div class="timer-title" id="timerTitle"></div><div class="clock" id="clock">10:00</div><div class="timer-actions"><button id="timerFinish">结束</button><button id="timerCancel">取消</button></div></div></div>
+
+<script>
+const $=q=>document.querySelector(q), $$=q=>[...document.querySelectorAll(q)];
+const app=$('#app');
+function showView(id){$$('.view').forEach(v=>v.classList.toggle('hidden',v.id!==id));}
+$$('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+
+const pauseModal=$('#pauseModal');
+$('#pauseBtn').onclick=()=>pauseModal.classList.add('show');
+$('#closePause').onclick=()=>pauseModal.classList.remove('show');
+pauseModal.onclick=e=>{if(e.target===pauseModal)pauseModal.classList.remove('show')};
+$$('.pauseChoice').forEach(b=>b.onclick=()=>{pauseModal.classList.remove('show');if(b.dataset.choice==='break')showView('rest');if(b.dataset.choice==='loop')startTimer(3,'Put the phone down')});
+
+$$('[data-immerse]').forEach(b=>b.onclick=()=>{app.classList.add('immersive');recordDay()});
+$('#returnBtn').onclick=()=>app.classList.remove('immersive');
+
+let timer=null,end=0;
+function startTimer(min,title){recordDay();clearInterval(timer);end=Date.now()+min*60000;$('#timerTitle').textContent=title;$('#timerLayer').classList.add('show');tick();timer=setInterval(tick,500)}
+function tick(){const left=Math.max(0,end-Date.now()),s=Math.ceil(left/1000);$('#clock').textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;if(left<=0){clearInterval(timer);$('#timerTitle').textContent='Time is up · 再选择一次';if(navigator.vibrate)navigator.vibrate([80,60,80])}}
+$$('[data-timer]').forEach(b=>b.onclick=()=>startTimer(+b.dataset.timer,b.dataset.title));
+$('#timerFinish').onclick=()=>{clearInterval(timer);$('#timerLayer').classList.remove('show');showView('home')};
+$('#timerCancel').onclick=()=>{clearInterval(timer);$('#timerLayer').classList.remove('show')};
+
+function recordDay(){const today=new Date().toLocaleDateString('en-CA'),last=localStorage.getItem('btm_last');let days=+(localStorage.getItem('btm_days')||0);if(last!==today){days++;localStorage.setItem('btm_days',days);localStorage.setItem('btm_last',today)}renderStatus(days||1)}
+function renderStatus(days){let s='第一株新芽';if(days>=3)s='一小片野花';if(days>=7)s='一条渐渐清晰的小径';if(days>=14)s='溪流边的光';if(days>=30)s='开始有人在森林里停留';$('#status').textContent=`Returning days · ${days} · ${s}`}
+renderStatus(+(localStorage.getItem('btm_days')||1));
+
+const flies=$('#flies');for(let i=0;i<18;i++){const f=document.createElement('i');f.className='fly';f.style.left=Math.random()*100+'%';f.style.top=(15+Math.random()*70)+'%';f.style.setProperty('--d',(5+Math.random()*8)+'s');f.style.setProperty('--x',(Math.random()*60-30)+'px');f.style.setProperty('--y',(Math.random()*70-35)+'px');f.style.animationDelay=(-Math.random()*8)+'s';flies.appendChild(f)}
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('mie-clearing-sw.js',{scope:'mie-clearing'}).catch(()=>{}));
+</script>
+
+<script id="living-js">
+/* ── 让这片草地活起来：长叶子、走日头、随手视差。全部叠加在原作之外 ── */
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sun   = document.querySelector('.sun');
+  const moon  = document.getElementById('moon');
+  const tWarm = document.getElementById('tWarm');
+  const tCool = document.getElementById('tCool');
+  const flies = document.getElementById('flies');
+  const clouds= document.getElementById('clouds');
+  const canopy= document.getElementById('canopy');
+
+  /* —— 枝头长出会摆动的叶子 —— */
+  if (canopy){
+    const N = 9, ang = 26 * Math.PI/180;
+    const greens = ['rgba(122,152,118,.60)','rgba(103,134,104,.56)','rgba(84,114,88,.5)','rgba(139,166,132,.5)'];
+    for (let i=0;i<N;i++){
+      const d  = 22 + i*29;
+      const px = 4 + Math.cos(ang)*d;
+      const py = 14 + Math.sin(ang)*d + (i%2 ? 11 : -5);
+      const w  = Math.max(20, Math.round(38 - i*1.3 + (i%3?4:0)));
+      const lf = document.createElement('span');
+      lf.className = 'lf';
+      lf.style.left = px+'px'; lf.style.top = py+'px';
+      lf.style.width = w+'px'; lf.style.height = Math.round(w*0.62)+'px';
+      lf.style.background = greens[i % greens.length];
+      lf.style.setProperty('--a', (20 + Math.round(Math.random()*12)) + 'deg');
+      lf.style.setProperty('--s', (5 + Math.round(Math.random()*5)) + 'deg');
+      lf.style.setProperty('--t', (5 + Math.random()*4).toFixed(1) + 's');
+      lf.style.animationDelay = (-Math.random()*6).toFixed(1) + 's';
+      canopy.appendChild(lf);
+    }
+  }
+
+  /* —— 晨昏：按本地真实时间，给光换温度、让日月起落 —— */
+  const STOPS = [
+    {h:0,    warm:[255,210,160,0.00], cool:[40,54,88,0.44],  top:40,  sa:0.00, sc:[255,246,214], gl:60,  ma:0.90, fl:1.00},
+    {h:5,    warm:[255,200,150,0.00], cool:[62,72,108,0.34], top:34,  sa:0.06, sc:[255,220,180], gl:72,  ma:0.55, fl:0.82},
+    {h:6.7,  warm:[255,196,150,0.34], cool:[120,110,150,0.10],top:28,  sa:0.50, sc:[255,214,170], gl:110, ma:0.12, fl:0.34},
+    {h:9,    warm:[255,236,196,0.12], cool:[120,120,150,0.00],top:4,   sa:0.82, sc:[255,244,206], gl:100, ma:0.00, fl:0.12},
+    {h:13,   warm:[255,250,220,0.05], cool:[120,120,150,0.00],top:-16, sa:1.00, sc:[255,249,216], gl:112, ma:0.00, fl:0.06},
+    {h:16.5, warm:[255,208,150,0.24], cool:[120,110,150,0.00],top:6,   sa:0.95, sc:[255,226,176], gl:120, ma:0.00, fl:0.12},
+    {h:18.5, warm:[255,168,120,0.30], cool:[150,120,160,0.12],top:30,  sa:0.55, sc:[255,178,120], gl:122, ma:0.05, fl:0.32},
+    {h:20,   warm:[220,150,150,0.10], cool:[70,80,120,0.30],  top:40,  sa:0.06, sc:[255,190,150], gl:72,  ma:0.50, fl:0.70},
+    {h:22,   warm:[210,150,150,0.00], cool:[46,60,94,0.40],   top:42,  sa:0.00, sc:[255,246,214], gl:60,  ma:0.82, fl:0.95},
+    {h:24,   warm:[255,210,160,0.00], cool:[40,54,88,0.44],   top:40,  sa:0.00, sc:[255,246,214], gl:60,  ma:0.90, fl:1.00}
+  ];
+  const mix=(a,b,t)=>a+(b-a)*t;
+  function stateAt(hour){
+    let i=0; while(i<STOPS.length-1 && hour>=STOPS[i+1].h) i++;
+    const a=STOPS[i], b=STOPS[Math.min(i+1,STOPS.length-1)];
+    const t=b.h===a.h?0:(hour-a.h)/(b.h-a.h);
+    const c4=(k)=>[Math.round(mix(a[k][0],b[k][0],t)),Math.round(mix(a[k][1],b[k][1],t)),Math.round(mix(a[k][2],b[k][2],t)),+mix(a[k][3],b[k][3],t).toFixed(3)];
+    return {warm:c4('warm'),cool:c4('cool'),top:mix(a.top,b.top,t),sa:mix(a.sa,b.sa,t),
+            sc:[Math.round(mix(a.sc[0],b.sc[0],t)),Math.round(mix(a.sc[1],b.sc[1],t)),Math.round(mix(a.sc[2],b.sc[2],t))],
+            gl:mix(a.gl,b.gl,t),ma:mix(a.ma,b.ma,t),fl:mix(a.fl,b.fl,t)};
+  }
+  function paint(){
+    const now=new Date(), hour=now.getHours()+now.getMinutes()/60;
+    const s=stateAt(hour);
+    if(tWarm){tWarm.style.backgroundColor='rgb('+s.warm[0]+','+s.warm[1]+','+s.warm[2]+')';tWarm.style.opacity=s.warm[3];}
+    if(tCool){tCool.style.backgroundColor='rgb('+s.cool[0]+','+s.cool[1]+','+s.cool[2]+')';tCool.style.opacity=s.cool[3];}
+    if(sun){sun.style.top=s.top+'%';sun.style.opacity=s.sa;
+      sun.style.backgroundColor='rgba('+s.sc[0]+','+s.sc[1]+','+s.sc[2]+',0.72)';
+      sun.style.boxShadow='0 0 '+Math.round(s.gl)+'px rgba('+s.sc[0]+','+s.sc[1]+','+s.sc[2]+',0.6)';}
+    if(moon){moon.style.opacity=s.ma;}
+    if(flies){flies.style.opacity=s.fl;}
+  }
+  paint();
+  setInterval(paint, 60000);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) paint(); });
+
+  /* —— 轻微视差：跟着指针，没有指针时自己缓缓漂 —— */
+  if(!reduce){
+    const layers=[[clouds,10],[canopy,-16],[moon,8],[sun,6]];
+    let px=0,py=0,cx=0,cy=0,last=-9999;
+    addEventListener('pointermove',e=>{
+      px=(e.clientX/innerWidth-0.5)*2; py=(e.clientY/innerHeight-0.5)*2; last=performance.now();
+    },{passive:true});
+    function frame(now){
+      if(now-last>4000){ const s=now/1000; px=Math.sin(s*0.16)*0.55; py=Math.cos(s*0.12)*0.40; }
+      cx+=(px-cx)*0.05; cy+=(py-cy)*0.05;
+      for(const [el,d] of layers){ if(el) el.style.transform='translate3d('+(cx*d).toFixed(2)+'px,'+(cy*d).toFixed(2)+'px,0)'; }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+</body>
+</html>
