@@ -178,9 +178,12 @@ main{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:8px 16px}
 var API="https://api.thesulegacy.com";
 function today(){var d=new Date();
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
-function dayNum(){var base=Date.UTC(2026,0,1),n=new Date();
-  var t=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());return Math.floor((t-base)/86400000);}
-function weekNum(){return Math.floor(dayNum()/7);}   /* 按周推进：一周一板块 */
+/* 按周推进：一周一板块。起始锚定在 2026-08-17（周一，做生意站上线周），
+   这样姐一打开就是第 1 周（阿语=见面寒暄 / 英语=吃饭），不会落在半截。
+   要改成姐的实际开始日，改这个 anchor 即可。 */
+function weekNum(){var anchor=Date.UTC(2026,7,17),n=new Date();
+  var t=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());
+  return Math.max(0,Math.floor((t-anchor)/604800000));}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 var PACKS_AR=window.SY_PACKS||[], PACKS_EN=window.EN_PACKS||[];
 var ALL_AR=[];PACKS_AR.forEach(function(p){p.items.forEach(function(it){ALL_AR.push(it);});});
