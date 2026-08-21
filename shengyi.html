@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>做生意</title>
+<meta name="theme-color" content="#0a1730">
+<link rel="apple-touch-icon" href="./shengyi/icon-180.png?v=1">
+<link rel="icon" href="./shengyi/icon-192.png?v=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="做生意">
+<meta name="robots" content="noindex,nofollow">
+<style>
+/* 深空高级风（老板口味：氛围感+玻璃质感+发光，不要米色极简）。
+   结构照 arabic.html 的多板块 + 先听后揭示 + 同一套防静音拨杆的 Web Audio。
+   内容双语：做生意海湾口语阿语(主打) + 简单英语口语；按「周」推进，一周一板块。 */
+:root{
+  --bg0:#0a1730; --bg1:#060d1e; --ink:#eef2fb; --sub:#9fb0cc; --dim:#6f809d;
+  --gold:#e6c67d; --gold2:#f2d79b; --goldDeep:#b8964e;
+  --card:rgba(255,255,255,.055); --card2:rgba(255,255,255,.085);
+  --line:rgba(255,255,255,.10); --lineGold:rgba(230,198,125,.32);
+  --ok:#7fd4a3; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{font-family:-apple-system,"PingFang SC","PingFang HK","Noto Sans SC",sans-serif;
+  color:var(--ink);line-height:1.75;
+  background:radial-gradient(125% 90% at 78% -8%,#16264a 0%,var(--bg0) 42%,var(--bg1) 100%);
+  background-attachment:fixed;padding-bottom:40px}
+#sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#sky i{position:absolute;background:#fff;border-radius:50%;opacity:.5;animation:tw 4s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.25}50%{opacity:.85}}
+.glowmoon{position:fixed;top:-64px;right:-40px;width:220px;height:220px;border-radius:50%;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 40% 38%,rgba(242,215,155,.30),rgba(230,198,125,.08) 44%,transparent 66%);filter:blur(6px)}
+
+header{position:relative;z-index:1;text-align:center;
+  padding:calc(env(safe-area-inset-top) + 22px) 18px 14px}
+header .logo{width:52px;height:52px;border-radius:15px;margin:0 auto 9px;display:block;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+header h1{font-size:1.34rem;letter-spacing:.05em;font-weight:750}
+.salam{font-size:.82rem;color:var(--gold);letter-spacing:1px;direction:rtl;margin-bottom:7px}
+.weekbar{margin:12px auto 0;max-width:440px;background:linear-gradient(150deg,rgba(230,198,125,.16),rgba(255,255,255,.03));
+  border:1px solid var(--lineGold);border-radius:16px;padding:11px 15px}
+.weekbar .wk{font-size:.72rem;color:var(--gold);letter-spacing:1.5px}
+.weekbar .th{font-size:1.02rem;color:var(--gold2);font-weight:750;margin-top:2px}
+.weekbar .sm{font-size:.74rem;color:var(--sub);margin-top:3px}
+.stbar{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:13px;flex-wrap:wrap}
+.streak{display:inline-flex;gap:12px;align-items:center;
+  background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:.84rem}
+.streak b{color:var(--gold2);font-weight:800;font-size:1rem}
+.streak .dot{width:4px;height:4px;border-radius:50%;background:var(--dim)}
+.ci{border:0;border-radius:999px;padding:9px 18px;font-size:.86rem;font-weight:700;font-family:inherit;cursor:pointer;
+  color:#241a06;background:linear-gradient(160deg,var(--gold2),var(--goldDeep));box-shadow:0 5px 16px rgba(230,198,125,.3)}
+.ci:active{transform:scale(.97)}
+.ci.done{background:rgba(127,212,163,.16);color:var(--ok);border:1px solid rgba(127,212,163,.4);box-shadow:none;cursor:default}
+.nav{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:15px}
+.nav button{background:transparent;border:1px solid rgba(242,234,216,.22);color:rgba(238,242,251,.78);
+  border-radius:999px;padding:7px 14px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .18s}
+.nav button:active{transform:scale(.96)}
+.nav button.on{background:linear-gradient(160deg,var(--gold2),var(--goldDeep));color:#241a06;border-color:transparent;
+  box-shadow:0 4px 14px rgba(230,198,125,.3)}
+
+main{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:8px 16px}
+.view{display:none;animation:fade .3s ease}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.scene{background:rgba(230,198,125,.08);border:1px solid var(--lineGold);border-radius:14px;padding:12px 15px;margin:6px 0 14px}
+.scene .sc{font-size:.95rem;color:var(--gold2);font-weight:700}
+.scene .in{font-size:.82rem;color:var(--sub);margin-top:4px;line-height:1.7}
+
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 15px;margin-bottom:12px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.prow{display:flex;align-items:center;gap:13px}
+.playBtn{width:50px;height:50px;flex:0 0 auto;border-radius:50%;border:1px solid var(--lineGold);cursor:pointer;
+  background:linear-gradient(160deg,rgba(230,198,125,.28),rgba(230,198,125,.06));color:var(--gold2);
+  font-size:1.15rem;display:grid;place-items:center;font-family:inherit}
+.playBtn:active{transform:scale(.94)}
+.playBtn.playing{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(230,198,125,.35)}50%{box-shadow:0 0 0 9px rgba(230,198,125,0)}}
+.ar{flex:1;direction:rtl;text-align:right;font-size:1.5rem;line-height:1.55;color:#fbf4e2;font-weight:600;
+  font-family:"Geeza Pro","Noto Naskh Arabic","PingFang SC",serif}
+.enw{flex:1;font-size:1.24rem;line-height:1.5;color:#fbf4e2;font-weight:650}
+.enw.ans{color:var(--gold2)}
+.qa .aline{margin-top:13px;padding-top:13px;border-top:1px dashed var(--line)}
+.tr{margin-top:10px;font-size:.9rem;color:var(--gold2);font-style:italic;letter-spacing:.02em}
+.zh{margin-top:5px;font-size:.86rem;color:var(--sub);line-height:1.65}
+
+.listenTip{font-size:.8rem;color:var(--sub);line-height:1.8;margin:0 2px 14px;
+  background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:13px;padding:11px 13px}
+.pcard.hidden .ar,.pcard.hidden .enw{filter:blur(9px);user-select:none}
+.pcard.hidden .tr,.pcard.hidden .zh{display:none}
+.pcard.listen{cursor:pointer}
+.tapline{font-size:.74rem;color:var(--dim);margin-top:10px;text-align:center}
+.pcard:not(.hidden) .tapline{display:none}
+
+.chatWrap{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 13px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+.chatLog{display:flex;flex-direction:column;gap:10px;max-height:58vh;overflow-y:auto;padding:4px 2px 10px}
+.bub{max-width:84%;padding:11px 14px;border-radius:16px;font-size:.96rem;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.bub.lin{align-self:flex-start;background:var(--card2);border:1px solid var(--line);border-bottom-left-radius:5px}
+.bub.me{align-self:flex-end;background:linear-gradient(160deg,rgba(230,198,125,.92),rgba(184,150,78,.92));color:#241a06;border-bottom-right-radius:5px}
+.typing{align-self:flex-start;color:var(--dim);font-size:.82rem;padding:2px 6px}
+.chatBar{display:flex;gap:9px;padding-top:10px;border-top:1px solid var(--line)}
+.chatBar input{flex:1;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:14px;
+  padding:13px 15px;color:var(--ink);font-size:16px;font-family:inherit;outline:none}
+.chatBar input:focus{border-color:var(--lineGold)}
+.chatBar button{flex:0 0 auto;border:0;border-radius:14px;padding:0 18px;font-weight:700;font-family:inherit;
+  cursor:pointer;color:#241a06;background:linear-gradient(160deg,var(--gold2),var(--goldDeep))}
+.chatBar button:disabled{opacity:.5}
+
+.foot{text-align:center;color:var(--dim);font-size:.72rem;letter-spacing:.05em;padding:18px 16px 8px;line-height:1.8}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<div class="glowmoon"></div>
+
+<header>
+  <img class="logo" src="./shengyi/icon-192.png?v=1" alt="">
+  <div class="salam">السلام عليكم</div>
+  <h1>做生意 · 阿语 + 英语</h1>
+  <div class="weekbar">
+    <div class="wk">本周板块</div>
+    <div class="th" id="wkTheme">—</div>
+    <div class="sm" id="wkSub">一周吃透一块，天天来练</div>
+  </div>
+  <div class="stbar">
+    <div class="streak">🔥 连续 <b id="stStreak">0</b> 天 <span class="dot"></span> 累计 <b id="stTotal">0</b> 天</div>
+    <button class="ci" id="ciBtn">今天打卡</button>
+  </div>
+  <nav class="nav">
+    <button class="on" data-v="ar">阿语口语</button>
+    <button data-v="en">英语口语</button>
+    <button data-v="ting">听力</button>
+    <button data-v="chat">找小林聊</button>
+  </nav>
+</header>
+
+<main>
+  <!-- 阿语口语（主打） -->
+  <section class="view on" id="arView">
+    <div class="scene"><div class="sc" id="arScene">—</div><div class="in" id="arIntro">—</div></div>
+    <div id="arList"></div>
+  </section>
+
+  <!-- 英语口语 -->
+  <section class="view" id="enView">
+    <div class="scene"><div class="sc" id="enScene">—</div><div class="in" id="enIntro">—</div></div>
+    <div id="enList"></div>
+  </section>
+
+  <!-- 听力（阿语，先听后揭示） -->
+  <section class="view" id="tingView">
+    <div class="listenTip"><b>先只听，别看字</b>——点🎧听两三遍，猜猜意思；再点卡片，翻出阿语、读音和中文。
+      <br>没声音？把 iPhone 侧边的静音小开关拨一下（这页已尽量绕开它）。</div>
+    <div id="listenList"></div>
+  </section>
+
+  <!-- 找小林聊 -->
+  <section class="view" id="chatView">
+    <div class="chatWrap">
+      <div class="chatLog" id="chatLog"></div>
+      <div class="chatBar">
+        <input id="chatIn" placeholder="跟小林说点什么…" autocomplete="off">
+        <button id="chatSend">发送</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">加到手机桌面：Safari 底部分享 → 「添加到主屏幕」<br>
+    苏 · 做生意 · 一天一点点，天天都在　·　阿语为海湾口语，个别句子会再请本地人校一遍</div>
+</main>
+
+<script src="./shengyi/phrases.js?v=2"></script>
+<script src="./shengyi/en.js?v=2"></script>
+<script>
+/* ===================== 基础 ===================== */
+var API="https://api.thesulegacy.com";
+function today(){var d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function dayNum(){var base=Date.UTC(2026,0,1),n=new Date();
+  var t=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());return Math.floor((t-base)/86400000);}
+function weekNum(){return Math.floor(dayNum()/7);}   /* 按周推进：一周一板块 */
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+var PACKS_AR=window.SY_PACKS||[], PACKS_EN=window.EN_PACKS||[];
+var ALL_AR=[];PACKS_AR.forEach(function(p){p.items.forEach(function(it){ALL_AR.push(it);});});
+function arPack(){return PACKS_AR.length?PACKS_AR[weekNum()%PACKS_AR.length]:null;}
+function arWk(){return PACKS_AR.length?(weekNum()%PACKS_AR.length):0;}
+function enPack(){return PACKS_EN.length?PACKS_EN[weekNum()%PACKS_EN.length]:null;}
+function enWk(){return PACKS_EN.length?(weekNum()%PACKS_EN.length):0;}
+
+/* 星空 */
+(function(){var sky=document.getElementById("sky"),h="";
+  for(var i=0;i<60;i++){var s=(Math.random()*2+1).toFixed(1);
+    h+='<i style="left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*100).toFixed(2)
+      +'%;width:'+s+'px;height:'+s+'px;animation-delay:'+(Math.random()*4).toFixed(1)+'s"></i>';}
+  sky.innerHTML=h;})();
+
+/* 顶栏切板块 */
+document.querySelectorAll(".nav button").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".nav button").forEach(function(x){x.classList.remove("on");});
+    b.classList.add("on");
+    document.querySelectorAll(".view").forEach(function(v){v.classList.remove("on");});
+    document.getElementById(b.dataset.v+"View").classList.add("on");
+    window.scrollTo({top:0,behavior:"smooth"});
+    if(b.dataset.v==="en")initEn();
+    if(b.dataset.v==="ting")initListen();
+    if(b.dataset.v==="chat")initChat();
+  });
+});
+
+/* ===================== 打卡数据（服务端存·只增不删；本机兜底并集） ===================== */
+var DK_KEY="shengyiDays_v1";
+function loadDays(){try{return JSON.parse(localStorage.getItem(DK_KEY)||"{}")||{};}catch(e){return {};}}
+function saveDays(d){try{localStorage.setItem(DK_KEY,JSON.stringify(d));}catch(e){}}
+function mergeDays(a,b){var o={};for(var k in (a||{}))if(a[k])o[k]=1;for(var k2 in (b||{}))if(b[k2])o[k2]=1;return o;}
+function streakOf(days){var n=0,d=new Date();
+  if(days[today()]!==1){d.setDate(d.getDate()-1);}
+  for(var i=0;i<3650;i++){
+    var s=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    if(days[s]===1){n++;d.setDate(d.getDate()-1);}else break;}
+  return n;}
+function totalOf(days){var n=0;for(var k in days)if(days[k])n++;return n;}
+function paintStreak(){var d=loadDays();
+  document.getElementById("stStreak").textContent=streakOf(d);
+  document.getElementById("stTotal").textContent=totalOf(d);}
+function paintCheckin(){
+  var btn=document.getElementById("ciBtn"),d=loadDays();
+  if(d[today()]===1){btn.classList.add("done");btn.textContent="今天已打卡 ✓";}
+  else{btn.classList.remove("done");btn.textContent="今天打卡";}
+}
+document.getElementById("ciBtn").addEventListener("click",function(){
+  var d=loadDays();if(d[today()]===1)return;
+  d[today()]=1;saveDays(d);paintCheckin();paintStreak();pushDays(d);
+});
+var _syncing=false;
+function syncDays(){
+  if(_syncing)return;_syncing=true;
+  fetch(API+"/shengyi/data").then(function(r){return r.json();}).then(function(j){
+    var srv=(j&&j.days)||{},loc=loadDays(),merged=mergeDays(srv,loc);
+    saveDays(merged);paintStreak();paintCheckin();
+    var extra=false;for(var k in merged){if(!srv[k]){extra=true;break;}}
+    if(extra)pushDays(merged);
+  }).catch(function(){}).then(function(){_syncing=false;});
+}
+function pushDays(days){
+  try{fetch(API+"/shengyi/data",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({days:days,_t:Date.now()})}).catch(function(){});}catch(e){}
+}
+
+/* ===================== 本周板块 ===================== */
+function paintWeek(){
+  var ap=arPack(),ep=enPack();
+  document.getElementById("wkTheme").textContent="阿语 · "+(ap?ap.scene:"—")+"　｜　英语 · "+(ep?ep.scene:"—");
+  document.getElementById("wkSub").textContent="一周练一块（阿语第 "+(arWk()+1)+"/"+PACKS_AR.length+" 周 · 英语第 "+(enWk()+1)+"/"+PACKS_EN.length+" 周）；天天来打卡，下周自动换";
+}
+
+/* ===================== 阿语口语 ===================== */
+function arCard(it){
+  return '<div class="pcard"><div class="prow">'
+    +'<button class="playBtn" data-stem="a'+it.id+'" data-lang="ar" data-text="'+esc(it.ar)+'" aria-label="听">▶</button>'
+    +'<div class="ar" dir="rtl">'+esc(it.ar)+'</div></div>'
+    +'<div class="tr">'+esc(it.tr)+'</div><div class="zh">'+esc(it.zh)+'</div></div>';
+}
+function paintAr(){
+  var p=arPack();if(!p)return;
+  document.getElementById("arScene").textContent="本周场景 · "+p.scene;
+  document.getElementById("arIntro").textContent=p.intro;
+  var box=document.getElementById("arList");
+  box.innerHTML=p.items.map(arCard).join("");
+  bindPlay(box);
+}
+
+/* ===================== 英语口语 ===================== */
+var _enInit=false;
+function enRow(it,isAns){
+  return '<div class="prow">'
+    +'<button class="playBtn" data-stem="e'+it.id+'" data-lang="en" data-text="'+esc(it.en)+'" aria-label="听">▶</button>'
+    +'<div class="enw'+(isAns?" ans":"")+'">'+(isAns?"— ":"")+esc(it.en)+'</div></div>'
+    +'<div class="tr">🗣 '+esc(it.tr)+'</div><div class="zh">'+esc(it.zh)+'</div>';
+}
+function initEn(){
+  if(_enInit)return;_enInit=true;
+  var p=enPack();if(!p)return;
+  document.getElementById("enScene").textContent="本周英语 · "+p.scene+"（一问一答）";
+  document.getElementById("enIntro").textContent=p.intro+" 发音是谐音、帮你张口，跟着录音念才准。";
+  var box=document.getElementById("enList");
+  box.innerHTML=p.pairs.map(function(pr){
+    return '<div class="pcard qa">'+enRow(pr.q,false)+'<div class="aline">'+enRow(pr.a,true)+'</div></div>';
+  }).join("");
+  bindPlay(box);
+}
+
+/* ===================== 阿语听力（先听后揭示） ===================== */
+var _listenInit=false;
+function initListen(){
+  if(_listenInit)return;_listenInit=true;
+  var p=arPack(),pool=p?p.items.slice():[];
+  var others=ALL_AR.filter(function(x){return pool.indexOf(x)<0;}).sort(function(){return Math.random()-.5;}).slice(0,4);
+  var list=pool.concat(others);
+  var box=document.getElementById("listenList");
+  box.innerHTML=list.map(function(it){
+    return '<div class="pcard listen hidden"><div class="prow">'
+      +'<button class="playBtn" data-stem="a'+it.id+'" data-lang="ar" data-text="'+esc(it.ar)+'" aria-label="听">▶</button>'
+      +'<div class="ar" dir="rtl">'+esc(it.ar)+'</div></div>'
+      +'<div class="tr">'+esc(it.tr)+'</div><div class="zh">'+esc(it.zh)+'</div>'
+      +'<div class="tapline">👆 听懂了吗？点卡片看答案</div></div>';
+  }).join("");
+  bindPlay(box);
+  box.querySelectorAll(".pcard.listen").forEach(function(c){
+    c.addEventListener("click",function(e){ if(e.target.closest(".playBtn"))return; c.classList.remove("hidden"); });
+  });
+}
+
+/* ===================== 音频：防静音拨杆（Web Audio 优先，逐层兜底不静默） ===================== */
+var _actx=null,_asrc=null,_abuf={},_tag=null,_curBtn=null;
+function resetBtn(b){if(b){b.classList.remove("playing");b.textContent="▶";}}
+function stopAll(){
+  try{if(_asrc){_asrc.stop();_asrc=null;}}catch(e){}
+  try{if(_tag)_tag.pause();}catch(e){}
+  try{speechSynthesis.cancel();}catch(e){}
+  if(_curBtn){resetBtn(_curBtn);_curBtn=null;}
+}
+function markPlaying(b){if(b){b.classList.add("playing");b.textContent="❚❚";_curBtn=b;}}
+function bindPlay(scope){
+  scope.querySelectorAll(".playBtn").forEach(function(b){
+    b.addEventListener("click",function(ev){ev.stopPropagation();
+      if(_curBtn===b){stopAll();return;}
+      stopAll();markPlaying(b);
+      playThroughSilent("./shengyi/audio/"+b.dataset.stem+".mp3",b.dataset.text,b.dataset.lang,b);
+    });
+  });
+}
+function playThroughSilent(url,fallbackText,lang,btn){
+  try{
+    if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==="suspended")_actx.resume();
+  }catch(e){return playTag(url,fallbackText,lang,btn);}
+  function go(buf){
+    try{
+      var s=_actx.createBufferSource();s.buffer=buf;s.connect(_actx.destination);
+      s.onended=function(){if(_curBtn===btn){resetBtn(btn);_curBtn=null;}};
+      s.start(0);_asrc=s;
+    }catch(e){playTag(url,fallbackText,lang,btn);}
+  }
+  if(_abuf[url]){go(_abuf[url]);return;}
+  fetch(url).then(function(r){if(!r.ok)throw 0;return r.arrayBuffer();}).then(function(ab){
+    return new Promise(function(res,rej){var q=_actx.decodeAudioData(ab,res,rej);if(q&&q.then)q.then(res,rej);});
+  }).then(function(buf){_abuf[url]=buf;go(buf);}).catch(function(){playTag(url,fallbackText,lang,btn);});
+}
+function playTag(url,fallbackText,lang,btn){
+  _tag=new Audio(url);
+  _tag.onended=function(){if(_curBtn===btn){resetBtn(btn);_curBtn=null;}};
+  _tag.play().catch(function(){ sysSpeak(fallbackText,lang); resetBtn(btn); if(_curBtn===btn)_curBtn=null; });
+}
+function sysSpeak(text,lang){try{var u=new SpeechSynthesisUtterance(text);
+  u.lang=(lang==="ar")?"ar-SA":"en-US";u.rate=.85;speechSynthesis.speak(u);}catch(e){}}
+
+/* ===================== 找小林聊 ===================== */
+var _chatInit=false,_hist=[],_busy=false;
+function initChat(){
+  if(_chatInit)return;_chatInit=true;
+  _hist=[{role:"ai",text:"嫂子，السلام عليكم。我在。\n今天想聊聊生意上的事，还是先随便说说？"}];
+  paintChat();
+  document.getElementById("chatSend").addEventListener("click",sendChat);
+  document.getElementById("chatIn").addEventListener("keydown",function(e){if(e.key==="Enter")sendChat();});
+}
+function paintChat(){
+  var log=document.getElementById("chatLog");
+  log.innerHTML=_hist.map(function(m){return '<div class="bub '+(m.role==="ai"?"lin":"me")+'">'+esc(m.text)+'</div>';}).join("");
+  log.scrollTop=log.scrollHeight;
+}
+function sendChat(){
+  var inp=document.getElementById("chatIn"),v=inp.value.trim();
+  if(!v||_busy)return;
+  inp.value="";_hist.push({role:"user",text:v});paintChat();
+  _busy=true;var btn=document.getElementById("chatSend");btn.disabled=true;
+  var log=document.getElementById("chatLog");
+  var tip=document.createElement("div");tip.className="typing";tip.textContent="小林在打字…";
+  log.appendChild(tip);log.scrollTop=log.scrollHeight;
+  fetch(API+"/shengyi/chat",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({messages:_hist.slice(-20)})})
+  .then(function(r){return r.json();})
+  .then(function(j){_hist.push({role:"ai",text:(j&&j.text)||"……我这网络卡了一下，你再发一次？"});})
+  .catch(function(){_hist.push({role:"ai",text:"……信号不太好，我这边卡了一下。你再发一次，我看得到。"});})
+  .then(function(){_busy=false;btn.disabled=false;paintChat();});
+}
+
+/* 启动 */
+paintWeek();paintAr();paintStreak();paintCheckin();syncDays();
+</script>
+</body>
+</html>
