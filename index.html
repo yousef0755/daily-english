@@ -115,10 +115,24 @@ body{
   border-radius:9px;padding:5px 9px;font-size:12px;cursor:pointer;font-variant-numeric:tabular-nums}
 .ch.on{background:rgba(217,178,106,.16);color:var(--gold-soft);border-color:rgba(217,178,106,.3)}
 footer{margin-top:24px;text-align:center;font-size:10.5px;color:#5f6d6a;line-height:1.8}
+
+/* 返回一家人：跟 arabic/kid/mie/xiya/classic 一个做法（药丸 + ←文案 + sticky 跟着滚），
+   颜色按本页深空调走 —— 沿用 .streak 那组金色，不从浅色页搬样式过来。
+   min-height:44px 是手指点得到的最小尺寸。纯 HTML+CSS。 */
+.famlink{position:sticky;top:8px;z-index:60;
+  display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+  margin:10px 0 0;padding:9px 16px;
+  border:1px solid rgba(217,178,106,.30);border-radius:999px;
+  background:rgba(217,178,106,.08);color:var(--gold-soft);
+  font-size:13px;font-weight:650;text-decoration:none;white-space:nowrap}
+.famlink:active{background:rgba(217,178,106,.16)}
+@supports(padding:max(0px)){ .famlink{top:max(8px, env(safe-area-inset-top))} }
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <a class="famlink" href="./family.html" aria-label="返回一家人今天">← 返回一家人</a>
 
   <div class="top">
     <div class="brand">Five Minutes<small>one thing a day</small></div>
