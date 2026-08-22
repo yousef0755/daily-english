@@ -164,9 +164,23 @@ header .pill.on{
 <footer>The Su Legacy · <a href="voices.html">Voice Studio</a> · Five minutes a day, every day</footer>
 <script>
 
-/* ===== 真人语音（花名册声线，预生成 MP3；缺文件才退回系统音） ===== */
-var VOICE_IDX=null, _vplayer=new Audio();
-fetch("media/kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){VOICE_IDX=j}).catch(function(){});
+/* ===== 真人语音（花名册声线，预生成 MP3；缺文件才退回系统音） =====
+   花名册有两册，两册都要读：
+   · index.json    —— 总册。这一页那 40 句英语（Hello. / How much is this? …）的录音全在这册里。
+   · msa-index.json —— 标准阿语那册。另有 26 条只在它自己那儿，所以不能丢。
+   2026-08-22 修：这里原来只读 msa-index.json，40 句英语一条都查不到，
+   全掉进浏览器合成音——而合成音在很多 iPhone 上根本没有对应音色，等于哑巴。
+   两册重合的 90 条指向的是同一个文件，所以合并不会改动任何一条阿语的去向；
+   合并顺序固定为「总册在前、阿语册在后」，同名以阿语册为准。 */
+var VOICE_IDX={}, _vplayer=new Audio();
+Promise.all([
+  fetch("media/kidaudio/index.json",{cache:"no-store"}).then(function(r){return r.json()}).catch(function(){return {}}),
+  fetch("media/kidaudio/msa-index.json",{cache:"no-store"}).then(function(r){return r.json()}).catch(function(){return {}})
+]).then(function(books){
+  var merged={};
+  for(var n=0;n<books.length;n++){ var b=books[n]; for(var k in b) merged[k]=b[k]; }
+  VOICE_IDX=merged;
+});
 function speakRoster(text){
   if(!text)return;
   var key=String(text).trim();
@@ -330,10 +344,19 @@ function play(pack,i,kind,fallback,clean){
      而 media/audio/ 里只有 dad/deal/heart/local 四个老词包，新加的词根本没有文件；
      退回时又把「Hello. 你好」这种拼串拿去查索引，当然查不到，最后落到机器音。
      而且 play().catch 是空的，失败了一点声音都没有——嫂子说的「没有声音」就是这里。
-     现在：先按纯文本查花名册音频（覆盖率 100%），查不到再走旧文件，最后才机器音。 */
+     现在：先按纯文本查花名册音频（覆盖率 100%），查不到再走旧文件，最后才机器音。
+     2026-08-22 补：上面那句「查花名册」当时接到了 msa-index.json 上，
+     英语这 40 句压根不在那册里——注释说的是总册 index.json，接线接错了册。
+     花名册加载处已改成两册合并；这里再把旧文件那层收窄：
+     media/audio/ 里只有 dad / deal / heart / local 四个老词包的文件，
+     w_hello / w_out / w_kids / w_home 一个文件都没有，去拿只会拿回一串 404。
+     所以旧文件这层只对确实有文件的那四个包开，其余直接退到机器音。 */
   const key=(clean||"").trim();
   if(key&&VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("media/kidaudio/"+VOICE_IDX[key],key); return; }
-  const PKa=(window.__PACKS_ACTIVE||PACKS);const src="media/audio/"+PKa[pack].key+"_"+i+"_"+kind+".mp3";
+  const LEGACY_FILE_PACKS={dad:1,deal:1,heart:1,local:1};
+  const PKa=(window.__PACKS_ACTIVE||PACKS);const pk=PKa[pack]&&PKa[pack].key;
+  if(!LEGACY_FILE_PACKS[pk]){ speakRoster(key||fallback); return; }
+  const src="media/audio/"+pk+"_"+i+"_"+kind+".mp3";
   try{player.pause()}catch(e){}
   player=new Audio(src);
   player.onerror=()=>{speakRoster(key||fallback)};

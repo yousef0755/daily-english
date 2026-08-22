@@ -1146,6 +1146,16 @@ function speakRoster(text){
   if(VOICE_IDX&&VOICE_IDX[key]){ playThroughSilent("media/kidaudio/"+VOICE_IDX[key],key); return; }
   sysSpeak(key);
 }
+/* 花名册里有一类条目，键是「全名」而不是页面上显示的那几个字。
+   成语这 20 条就是：录音的键是「五光十色  wǔ guāng shí sè」（当中两个空格），
+   页面按两个以上空格切开、只把「五光十色」拿去查——查不到，就掉进机器音。
+   2026-08-22 修：给这一类留一条道，先按全名的键查录音，查不到再按显示的字查，
+   最后才机器音。念出来的还是那四个字，拼音只是键的一部分。 */
+function speakRosterAs(indexKey,showText){
+  var k=String(indexKey||"").trim(), t=String(showText||"").trim();
+  if(k&&VOICE_IDX&&VOICE_IDX[k]){ playThroughSilent("media/kidaudio/"+VOICE_IDX[k],t||k); return; }
+  speakRoster(t||k);
+}
 /* 小考的声按定编走 Ryan/Emily（练耳跨口音）：先找 quiz:: 那份，缺了退回普通的 */
 function speakQuiz(text){
   if(!text)return;
@@ -1512,8 +1522,12 @@ function mathBank(n){
       q: a+" × "+b+" = ?",
       o: opts,
       a: opts.indexOf(String(right)),
-      /* 答错时告诉他口诀怎么念——这个比单说答案有用 */
-      say: KOUJUE[a-1]+KOUJUE[b-1]+(right<10?"得":"")+numCn(right)
+      /* 答错时告诉他口诀怎么念——这个比单说答案有用。
+         念法一律取九九表的规范式：小的数在前（「二三得六」，不是「三二得六」）。
+         花名册里录的就是这 45 条规范式，一旦念成反的就查不到录音、要掉机器音。
+         今天的题目本来就只出 a≤b，这里把「小的在前」写死，是不让以后改题序时又漏出来。 */
+      say: (function(){ var lo=Math.min(a,b), hi=Math.max(a,b);
+            return KOUJUE[lo-1]+KOUJUE[hi-1]+(right<10?"得":"")+numCn(right) })()
     };
   });
 }
@@ -2543,7 +2557,9 @@ function renderRecite(){
     const sp3=document.createElement("button");
     sp3.className="rbtn inline listen"; sp3.type="button";
     sp3.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
-    sp3.onclick=function(){ if(typeof speakRoster==="function")speakRoster(word) };
+    /* 录音的键是 item.name 那个带拼音的全名，不是显示出来的四个字——
+       所以按全名查、按四个字念（见上面 speakRosterAs）。 */
+    sp3.onclick=function(){ if(typeof speakRosterAs==="function")speakRosterAs(item.name, word); else if(typeof speakRoster==="function")speakRoster(word) };
     hd3.appendChild(w); hd3.appendChild(sp3);
     wrap.appendChild(hd3);
 
