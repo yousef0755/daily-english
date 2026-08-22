@@ -591,6 +591,37 @@ async function saveDecisions(touchedId){
   });
 }
 
+/* ── 存住了之后还得回头看 ──
+   他点完之后，别人往同一天写别的东西，接口那头是「整包读出来→改一个键→整包写回」，
+   能把他刚存住的那条又盖回旧值。这不是我推的：2026-08-22 我在真接口上验的时候
+   正好撞上另一个写手（overall 里多出 hejiao／hejiao2 两个键），
+   我已经核对过的一次撤回，被它盖回去了。
+   所以「确认过」不等于「一直在」。这儿隔一会儿回头看一眼，丢了就说出来，并且补存一次。 */
+let lostStreak = 0, repairs = 0;
+async function watchConfirmed(){
+  if(PENDING.size || repairs >= 3 || !CONFIRMED){ lostStreak = 0; return; }
+  const want = decode(CONFIRMED);
+  const ids = Object.keys(want).filter(k => TOUCHED.has(k) && (want[k].c || want[k].n));
+  if(!ids.length){ lostStreak = 0; return; }
+
+  let raw;
+  try{ raw = ((await fetchBoard()).overall||{})[DKEY]||{}; raw = raw.comment || ""; }
+  catch(e){ return; }                       // 读不着不算丢，什么都不做
+  const live = decode(raw);
+  const lost = ids.filter(k => !live[k] || live[k].c !== want[k].c || live[k].n !== want[k].n);
+  if(!lost.length){ lostStreak = 0; return; }
+
+  /* KV 各机房版本不同步，一次读不到很可能只是读到了旧的那一份。
+     连着两回都不在才当真——宁可晚一步，也不要瞎报一次警。 */
+  if(++lostStreak < 2) return;
+  lostStreak = 0; repairs++;
+  CONFIRMED = raw;                          // 回执立刻按服务器真有的数，别继续报大的
+  lost.forEach(k => say(k, "warn", "这条被别处的写覆盖了，我再存一次…"));
+  countUp();
+  saveDecisions(lost[0]);                   // 重发是全量，一次把丢的都带回去
+}
+setInterval(watchConfirmed, 15000);
+
 function decidedCount(){
   const on = decode(CONFIRMED);
   return Object.keys(on).filter(k => TOUCHED.has(k) && (on[k].c || on[k].n)).length;
