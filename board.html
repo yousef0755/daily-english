@@ -57,6 +57,47 @@ textarea::placeholder{color:#5f6d6a}
 .failed{margin-top:7px;font-size:11.5px;color:var(--stuck);display:none}
 .failed.show{display:block}
 
+/* ===== 等你定夺 =====
+   老板 8-22：「需要我定夺的，给我网页清单，就和你之前做的一样，我来点。
+   包括需要我批注的，给我批注，我来写」
+   起因：有个故障昨天就挂上「等定夺」，然后搁了一天多没人再提，孩子的数据一直没存上。
+   所以这块最要紧的不是好看，是「挂了几天」和「不定会怎样」这两行必须戳眼睛——
+   「等老板定夺」不能变成永远不会到期的抽屉。 */
+.dsec{margin-top:28px;border-top:1px solid var(--line);padding-top:16px}
+.dsec h2{font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);
+  font-weight:700;margin-bottom:4px}
+.dsec .hint{font-size:11.5px;color:var(--dim);margin-bottom:11px;line-height:1.7}
+.dec{border:1px solid var(--line);border-radius:15px;background:var(--card);
+  padding:14px 15px;margin-bottom:10px}
+/* 挂久了的整张卡都换边框，光靠一个小标签他扫一眼看不见 */
+.dec.aging{border-color:rgba(197,154,77,.42)}
+.dec.old{border-color:rgba(194,91,63,.5);background:linear-gradient(180deg,rgba(194,91,63,.06),transparent 60%),var(--card)}
+.dq{font-size:15px;line-height:1.6}
+.dmeta{margin-top:9px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.since{font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);
+  color:var(--dim);font-variant-numeric:tabular-nums}
+.since.aging{background:rgba(197,154,77,.12);color:var(--wait);border-color:rgba(197,154,77,.34)}
+.since.old{background:rgba(194,91,63,.15);color:var(--stuck);border-color:rgba(194,91,63,.36);font-weight:700}
+.dwho{font-size:11px;color:var(--dim)}
+/* 「不定的话会怎样」——这条最要紧，别省。给它一条竖杠，跟正文分开 */
+.dimpact{margin-top:10px;font-size:13px;line-height:1.65;color:var(--gold-soft);
+  border-left:2px solid rgba(217,178,106,.4);padding-left:10px}
+.opts{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;gap:9px;align-items:flex-start;text-align:left;width:100%;
+  border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03);
+  color:var(--ink);font-family:inherit;font-size:13.5px;line-height:1.55;
+  padding:11px 12px;cursor:pointer}
+.opt b{flex:none;width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,.07);
+  color:var(--dim);font-size:11px;display:grid;place-items:center;margin-top:1px}
+.opt.on{background:rgba(217,178,106,.14);border-color:rgba(217,178,106,.55)}
+.opt.on b{background:var(--gold);color:#20170a}
+.dec textarea{display:block}
+/* 一条状态行顶三个藏起来的 div：在存/存住了/没存上，永远只说当下这一个 */
+.dstate{margin-top:8px;font-size:11.5px;line-height:1.6;min-height:1px;color:var(--dim)}
+.dstate.ok{color:var(--ok)}
+.dstate.warn{color:var(--wait)}
+.dstate.bad{color:var(--stuck)}
+
 .overall{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
 .overall h2{font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--dim);
   font-weight:700;margin-bottom:10px}
@@ -69,7 +110,8 @@ textarea::placeholder{color:#5f6d6a}
   font-size:15px;font-weight:700;cursor:pointer;
   background:linear-gradient(135deg,#c9a25c,#e6cf9b);color:#20170a}
 .submit:disabled{background:rgba(255,255,255,.06);color:var(--dim)}
-.receipt{font-size:12px;color:var(--dim);white-space:nowrap;min-width:96px;text-align:right}
+/* 回执可能有两行（打分＋定夺），别再钉 nowrap，不然把提交键挤没了 */
+.receipt{font-size:12px;color:var(--dim);line-height:1.4;max-width:44%;text-align:right}
 .receipt b{color:var(--gold-soft)}
 footer{margin-top:22px;text-align:center;font-size:10.5px;color:#5f6d6a;line-height:1.8}
 </style>
@@ -81,6 +123,12 @@ footer{margin-top:22px;text-align:center;font-size:10.5px;color:#5f6d6a;line-hei
     <div class="d" id="date">…</div>
   </div>
   <div id="board"></div>
+
+  <section class="dsec" id="dsec" hidden>
+    <h2>等你定夺</h2>
+    <div class="hint">这些我们定不了，卡在你这儿。点一个就算数，想写字就写。</div>
+    <div id="decs"></div>
+  </section>
 
   <div class="overall">
     <h2>总的说一句</h2>
@@ -104,7 +152,12 @@ footer{margin-top:22px;text-align:center;font-size:10.5px;color:#5f6d6a;line-hei
    1. 他点完必须看得见结果落到了哪儿。今天认人页两版都栽在这儿：他点了不知道有没有传过来，
       只能回头问我。所以每条打完分当场存、当场回执，最后再给一个总的「已收到 N 条」。
    2. 提交键钉在屏幕底部，不放在页面最下面——上一次导出框藏在页尾，他找不到。 */
-const API = "https://su-family.yousef-abud.workers.dev";
+const REAL_API = "https://su-family.yousef-abud.workers.dev";
+/* 只有在本机才允许把接口换成假的。造两种故障（存了读不回来／接口 500）总得有地方造，
+   但线上这个开关必须是死的——不然谁给他发个带 ?api= 的链接，他点的分就进别人兜里了。 */
+const API = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+  ? (new URLSearchParams(location.search).get("api") || REAL_API)
+  : REAL_API;
 const $ = id => document.getElementById(id);
 /* 状态两头都认：我这边写英文键，启明的接口回的是中文字面。
    口径不一致的时候不要求对方改，两边都收，谁先写都不会掉进默认值里。 */
@@ -125,9 +178,167 @@ let ITEMS = [], SCORES = {};
 const SAVED = new Set();
 let OVERALL_SENT = false;
 
+/* ===== 等你定夺 ===== */
+let DECISIONS = [];
+/* 这次会话里他亲手点过或写过的条目 id。
+   「已收到 N 条」＝ 这个集合 ∩ 真的在服务器上原样读回来的那份，两个条件都要满足。
+   服务器上本来就有的（他上回点的）不算这一次的账。 */
+const TOUCHED = new Set();
+/* 最后一次「POST 完又逐字读回来对上了」的那份 JSON 原文。
+   服务器此刻存的就是它——回执只敢照着它数，不照着我以为发出去了的东西数。 */
+let CONFIRMED = "";
+/* 页面打开时服务端说的是哪天，之后读写全钉在这一天。
+   不钉的话，他跨零点还开着这一页，写进的是新一天的键，读回来对不上，
+   于是每条都报「没存上」——其实是两边各按各的今天算。 */
+let BOARD_DATE = null;
+/* 服务端已经存着的定夺（他上回点的）。刷新一下就该还在原位——
+   点完刷个页面发现选项又空了，他只会以为没存上，然后再点一遍。 */
+let PRIOR = {};
+/* 页面上每条定夺的 DOM，按 id 存着，写完一次要回头改它们的状态行 */
+const ROWS = {};
+
+/* ── 一天的定夺全存在同一个键里：who="decisions"，comment 是一份完整 JSON ──
+   为什么不按 decision:<id> 一条一个键（那是最顺手的写法，我拿真接口打过，不能用）：
+   /review/overall 那头是「把整天的记录读出来 → 塞进一个键 → 整包写回」。
+   我连着写 5 个不同的键，5 个都回 {"ok":true}，等 KV 稳下来再看——只剩最后 1 条，
+   前 4 条被后写的拿旧快照盖没了。他上回看见的「已收到 1 条 ✓」而接口里一条都没有，
+   就是这么来的：回执数的是「我发了几个请求」，服务器留下的是「最后那次盖完剩什么」。
+   写同一个键就没这问题：每次都把全部定夺整份写进去，后写的盖前写的也不丢东西，
+   他中途关掉页面，最后那次写里也已经带着前面点过的全部。
+   代价是 800 字上限得自己盯着（服务端 slice(0,800) 悄悄截断），见 budget()。 */
+const DKEY = "decisions";
+/* 服务端：String(b.comment||"").slice(0,800)。我拿 3000 字打过，读回来正好 800，一声不吭。
+   截断会把 JSON 削成半句，整份定夺一起解不出来——所以宁可少发，也不能发一份存进去即废的。 */
+const LIMIT = 800;
+
+function decode(raw){
+  let v = null; try{ v = JSON.parse(raw || "") }catch(e){}
+  const out = {};
+  if(v && v.d && typeof v.d === "object"){
+    for(const k in v.d){
+      const e = v.d[k];
+      if(e && typeof e === "object") out[k] = {c: e.c || null, n: e.n || ""};
+    }
+  }
+  return out;
+}
+/* 键排过序再 stringify：同样的内容必须编出同样的字符串，
+   不然读回来逐字比对会因为键的顺序不同而对不上，好好的一次存被报成失败。 */
+function encode(state){
+  const d = {};
+  Object.keys(state).sort().forEach(k=>{
+    const e = state[k];
+    if(e && (e.c || e.n)) d[k] = {c: e.c || null, n: e.n || ""};
+  });
+  return JSON.stringify({v:1, d});
+}
+/* 超 800 字怎么办：选项一个字节都不能丢（那是他真正要定的东西），
+   批注从最长的那条起一条条摘出来，摘到塞得下为止，并且把摘掉了哪条明说给他看。
+   悄悄截短＝又一个假回执，这块存在的意义就是不许出现这种事。 */
+function budget(state){
+  const full = encode(state);
+  if(full.length <= LIMIT) return {payload: full, dropped: [], over: 0};
+  const bare = {};
+  Object.keys(state).forEach(k=> bare[k] = {c: state[k].c, n: state[k].n});
+  const order = Object.keys(bare).filter(k=>bare[k].n)
+    .sort((a,b)=> bare[b].n.length - bare[a].n.length);
+  const dropped = [];
+  for(const k of order){
+    dropped.push(k); bare[k] = {c: bare[k].c, n: ""};
+    if(encode(bare).length <= LIMIT) break;
+  }
+  return {payload: encode(bare), dropped, over: full.length - LIMIT};
+}
+
 function dubaiDate(){
   return new Date(Date.now()+4*3600*1000).toISOString().slice(0,10);
 }
+
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/* 每个请求都给 10 秒上限。网线断了 fetch 会一直吊着不回，
+   页面就永远停在「在存…」——那也是个骗人的回执，只不过骗的是「还在办」。 */
+function timed(url, opt, ms=10000){
+  const ac = new AbortController();
+  const t = setTimeout(()=>ac.abort(), ms);
+  return fetch(url, Object.assign({signal:ac.signal, cache:"no-store"}, opt||{}))
+    .finally(()=>clearTimeout(t));
+}
+async function fetchBoard(){
+  const r = await timed(API+"/review/board?date="+encodeURIComponent(BOARD_DATE)+"&_="+Date.now());
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
+}
+
+/* ── 写队列 ──
+   同一时刻只许一个 POST /review/overall 在飞，两次写之间还要隔开 GAP。
+   这个数不是拍的，是量出来的：紧挨着写 5 条，5 个都回 200，最后只活 1 条；
+   隔 6 秒写同样 5 条，5 条全在。接口那头是读改写，隔不开就互相盖。 */
+const GAP = 6000;
+let chain = Promise.resolve(), lastPost = 0;
+function queued(fn){
+  const p = chain.then(async ()=>{
+    const wait = GAP - (Date.now() - lastPost);
+    if(wait > 0) await sleep(wait);
+    lastPost = Date.now();
+    return fn();
+  });
+  chain = p.then(()=>{}, ()=>{});   // 一次失败不能把后面排队的全带崩
+  return p;
+}
+
+/* 写完回头读，逐字对上才算存住。两件事让这一步不能省、也不能只读一次：
+   ① 200 ≠ 存住了（上面那个盖写，5 个 200 只活 1 条）；
+   ② KV 各机房版本不同步，刚写完连着读会在新旧版本之间来回跳——
+      我实测一份写完之后的读，40 秒里在 4 个不同版本之间跳了好几轮。
+      所以「这次没读到」不能立刻判死，要等够；但等到头还是没有，就必须报没存上。
+   反过来「读到了」不会假阳性：没写进去的东西哪个机房都读不出来。所以读到一次即为真。 */
+async function readBack(key, want, budgetMs = 32000, onTick){
+  const t0 = Date.now(); let n = 0;
+  while(Date.now() - t0 < budgetMs){
+    await sleep(n++ ? 2000 : 700);
+    if(onTick) onTick(Math.round((Date.now()-t0)/1000));
+    try{
+      const d = await fetchBoard();
+      if((((d.overall||{})[key])||{}).comment === want) return true;
+    }catch(e){}
+  }
+  return false;
+}
+
+/* 核对定夺用的是「他点的东西在不在里面」，不是「服务器上那份字符串跟我发的一模一样」。
+   这个差别是我自己测出来才发现的：他连点两条，第二次写进去的是两条的全量，
+   第一次那份原文从此再也读不到了——拿它逐字比就永远比不上，
+   于是明明存住了的那条被报成「没存上」。假的成功要防，假的失败一样要防。
+   所以这里按行比对：这一行的选项和批注，服务器上是不是这个。 */
+function rowMatch(remote, want){
+  return Object.keys(want).every(k=>{
+    const a = remote[k], b = want[k];
+    if(!b || (!b.c && !b.n)) return !a || (!a.c && !a.n);   // 撤回：不在里面才算数
+    return !!a && a.c === b.c && a.n === b.n;
+  });
+}
+/* 核上了就把服务器那份原文交回来，回执照着它数——不照着我以为发出去的那份数。 */
+async function readBackDecisions(want, budgetMs = 32000, onTick){
+  const t0 = Date.now(); let n = 0;
+  while(Date.now() - t0 < budgetMs){
+    await sleep(n++ ? 700 : 400);
+    if(onTick) onTick(Math.round((Date.now()-t0)/1000));
+    try{
+      const d = await fetchBoard();
+      const raw = ((d.overall||{})[DKEY]||{}).comment || "";
+      if(rowMatch(decode(raw), want)) return raw;
+    }catch(e){}
+  }
+  return null;
+}
+
+function daysSince(since){
+  const a = Date.parse(since+"T00:00:00Z"), b = Date.parse((BOARD_DATE||dubaiDate())+"T00:00:00Z");
+  if(isNaN(a)||isNaN(b)) return null;
+  return Math.round((b-a)/86400000);
+}
+function md(s){ const p = String(s).split("-"); return p.length===3 ? (+p[1])+"月"+(+p[2])+"日" : s; }
 
 async function save(id, score, comment){
   const r = await fetch(API+"/review/score",{method:"POST",
@@ -194,11 +405,205 @@ function render(){
   countUp();
 }
 
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,
+  c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+
+/* ── 画出「等你定夺」这一块 ──
+   最要紧的不是好看，是两行字必须戳眼睛：「从哪天挂着」和「不定的话会怎样」。
+   起因：有个故障昨天就挂上「等定夺」，然后搁了一天多没人再提。
+   「等老板定夺」不能变成一个永远不会到期的抽屉。 */
+function renderDecisions(){
+  const box = $("decs"); box.innerHTML = "";
+  $("dsec").hidden = !DECISIONS.length;
+  if(!DECISIONS.length) return;
+
+  /* 服务器上已经存着的那份（他上回点的），摆回原位。
+     点完刷个页面发现选项又空了，他只会以为没存上，然后再点一遍。 */
+  const prior = decode((PRIOR[DKEY]||{}).comment);
+  const priorAt = (PRIOR[DKEY]||{}).at || "";
+
+  DECISIONS.forEach(it=>{
+    const days = it.since ? daysSince(it.since) : null;
+    const level = days==null ? "" : (days>=2 ? "old" : (days>=1 ? "aging" : ""));
+    let sinceTxt;
+    if(days==null)      sinceTxt = "没写从哪天挂的";
+    else if(days<=0)    sinceTxt = "今天挂上的";
+    else                sinceTxt = md(it.since)+"起挂着 · "+days+" 天";
+
+    /* 「不定的话」这四个字是页面上的固定框。条目里要是自己也带了一句「不定的话，……」，
+       就会读成「不定的话：不定的话，……」。前缀在这儿削掉，不指望写清单的人记着这条格式。 */
+    const impactTxt = String(it.impact || "").replace(/^\s*(不定的话|不定)\s*[，,：:]\s*/, "")
+      || "（这条没写会怎样，是我们漏了，回头补上）";
+    const opts = Array.isArray(it.options) ? it.options : [];
+    const el = document.createElement("div");
+    el.className = "dec" + (level ? " "+level : "");
+    el.innerHTML =
+      `<div class="dq">${esc(it.txt)}</div>
+       <div class="dmeta">
+         <span class="since ${level}">${esc(sinceTxt)}</span>
+         ${it.owner ? `<span class="dwho">${esc(it.owner)}在等</span>` : ""}
+       </div>
+       <div class="dimpact">不定的话：${esc(impactTxt)}</div>
+       <div class="opts">${opts.map(o=>
+         `<button type="button" class="opt" data-k="${esc(o.key)}"><b>${esc(o.key)}</b><span>${esc(o.label)}</span></button>`
+        ).join("")}</div>
+       <textarea maxlength="600" placeholder="要批注就写这儿，不写也行"></textarea>
+       <div class="dstate"></div>`;
+
+    const optEls = el.querySelectorAll(".opt");
+    const ta = el.querySelector("textarea");
+    const was = prior[it.id];
+    if(was){
+      if(was.c) optEls.forEach(o=>{ if(o.dataset.k === was.c) o.classList.add("on"); });
+      ta.value = was.n || "";
+      /* 摆回来了，但不算进「已定 N 条」——那个数只报这一次他亲手点的，
+         服务器上的旧账不能记在这次头上。 */
+      say(it.id, "", "上回点过：" + (was.c ? "选了 " + was.c : "只写了批注")
+        + (priorAt ? "（" + priorAt.replace("T"," ") + "）" : "") + "。要改直接点。", el);
+    }
+    optEls.forEach(b=>b.addEventListener("click",()=>{
+      /* 再点一下已选中的＝取消，让他能把一条退回「还没定」。
+         只能选不能撤的话，手滑点错就只剩「改成另一个」这一条路。 */
+      const on = b.classList.contains("on");
+      optEls.forEach(x=>x.classList.remove("on"));
+      if(!on) b.classList.add("on");
+      saveDecisions(it.id);
+    }));
+    let timer=null;
+    ta.addEventListener("input",()=>{
+      clearTimeout(timer);
+      say(it.id, "", "还没存（停手 1 秒自动存）", el);
+      timer=setTimeout(()=>saveDecisions(it.id), 1000);
+    });
+    ROWS[it.id] = el;
+    box.appendChild(el);
+  });
+}
+
+/* 状态行：一条定夺同一时刻只说一件事。
+   三个各自藏起来的 div 轮流 show/hide，迟早会出现「已存下」和「没存上」一起亮着。 */
+function say(id, cls, txt, el){
+  const row = el || ROWS[id]; if(!row) return;
+  const line = row.querySelector(".dstate");
+  line.className = "dstate" + (cls ? " "+cls : "");
+  line.textContent = txt;
+}
+
+/* 把页面上此刻的样子原样读出来。不留一份「我以为的状态」在内存里跟 DOM 对着——
+   两份状态迟早分叉，然后我会照着内存里那份报存住了，而他看见的是另一回事。 */
+function readState(){
+  const s = {};
+  DECISIONS.forEach(it=>{
+    const el = ROWS[it.id]; if(!el) return;
+    const on = el.querySelector(".opt.on");
+    s[it.id] = {c: on ? on.dataset.k : null, n: el.querySelector("textarea").value.trim()};
+  });
+  return s;
+}
+
+/* 发之前先看一眼服务器上现在是什么：这一天的定夺里可能还有他在别的设备上点的。
+   我只覆盖这次会话动过的那几条，别的照抄回去——
+   不然他在手机上点完几条，又在电脑上点一条，电脑这份会把手机那几条抹掉。 */
+async function mergeRemote(local){
+  try{
+    const d = await fetchBoard();
+    const out = decode(((d.overall||{})[DKEY]||{}).comment);
+    Object.keys(local).forEach(k=>{ if(TOUCHED.has(k)) out[k] = local[k]; });
+    return out;
+  }catch(e){ return local; }
+}
+
+/* 排队期间他又点了别的，前一份就过期了。每份发的都是全量，
+   所以过期的那份直接让位给新的，不用发两遍，也不能拿旧那份的结果去报新那条的账。 */
+let DGEN = 0;
+/* 还在等落地的行。一份写发出去带的是全量，所以一次核对能把这几行一起结清。
+   不记着它们的话，他连点两条时，前一条的状态行会永远停在「在核对…」——
+   东西其实存住了，页面上却挂着一句没有下文的话。 */
+const PENDING = new Map();   // id -> {c,n} 他在这一行上点的东西
+
+async function saveDecisions(touchedId){
+  TOUCHED.add(touchedId);
+  const gen = ++DGEN;
+  say(touchedId, "", "排队等着存…");
+
+  await queued(async ()=>{
+    /* 排队期间他又点了别的：那一份读的是同一个页面，带着这一行的值一起发，
+       核对时也会把这一行一起结清。所以这里直接让位，不用重发，也不能报失败。 */
+    if(gen !== DGEN) return;
+
+    const merged = await mergeRemote(readState());
+    if(gen !== DGEN) return;
+    const {payload, dropped, over} = budget(merged);
+    const sent = decode(payload);
+
+    /* 这一次要核的是「所有还在等的行」，不只是刚点的那一行。 */
+    PENDING.set(touchedId, sent[touchedId] || {c:null, n:""});
+    const want = {};
+    PENDING.forEach((_, k)=> want[k] = sent[k] || {c:null, n:""});
+    const rows = Object.keys(want);
+
+    rows.forEach(k=> say(k, "", "在存…"));
+    try{
+      const r = await timed(API+"/review/overall",{method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({date:BOARD_DATE, who:DKEY, comment:payload})});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      let j=null; try{ j = await r.json() }catch(e){}
+      if(j && j.ok === false) throw new Error("接口说没存上");
+    }catch(e){
+      const why = (e.name === "AbortError") ? "网络没通，超时了" : e.message;
+      rows.forEach(k=>{ PENDING.delete(k); say(k, "bad", "没存上（" + why + "），再点一次。"); });
+      countUp(); return;
+    }
+
+    rows.forEach(k=> say(k, "", "在核对…（接口慢的时候要等十几秒，别急）"));
+    const raw = await readBackDecisions(want, 32000,
+      s => rows.forEach(k=> say(k, "", "在核对…已等 " + s + " 秒")));
+
+    if(raw === null){
+      /* 这就是他上回栽的那一下：接口回了 200，东西却不在里面。
+         200 只说明请求到了服务器，不说明留下来了。这里必须报失败。 */
+      rows.forEach(k=>{ PENDING.delete(k);
+        say(k, "warn", "接口说存下了，但我读回来没看见这条。先别当它算数，再点一次。"); });
+      countUp(); return;
+    }
+
+    /* 回执照服务器读回来的那份数，不照我发出去的那份数。 */
+    CONFIRMED = raw;
+    const live = decode(raw);
+    rows.forEach(k=>{
+      PENDING.delete(k);
+      const mine = live[k];
+      let msg;
+      if(!mine || (!mine.c && !mine.n)) msg = "撤回了，这条又空着。";
+      else if(mine.c && mine.n)         msg = "存住了：选了 " + mine.c + "，批注也存下了。";
+      else if(mine.c)                   msg = "存住了：选了 " + mine.c + "。";
+      else                              msg = "存住了（只记了批注，选项还空着）。";
+      say(k, "ok", msg);
+    });
+
+    /* 批注太长被摘掉的，一条条点名说清楚，别让他以为写的字进去了。 */
+    dropped.forEach(k=>{
+      say(k, "warn", (k === touchedId ? "选项存住了，但这条批注" : "这条的批注")
+        + "太长（整份超了 " + over + " 字），没存上。删短一点再存一次。");
+    });
+    countUp();
+  });
+}
+
+function decidedCount(){
+  const on = decode(CONFIRMED);
+  return Object.keys(on).filter(k => TOUCHED.has(k) && (on[k].c || on[k].n)).length;
+}
+
 function countUp(){
   /* 只数这次会话里真存成功的。旧日子、旧会话的分还留在 KV 里，
      照单全数会报出一个他这次根本没点过的数字。 */
-  const n = SAVED.size;
-  $("receipt").innerHTML = n ? `已存 <b>${n}</b> 条` : "还没打分";
+  const n = SAVED.size, m = decidedCount();
+  const bits = [];
+  if(n) bits.push(`已存 <b>${n}</b> 条打分`);
+  if(m) bits.push(`已定 <b>${m}</b> 条`);
+  $("receipt").innerHTML = bits.length ? bits.join("<br>") : "还没点";
 }
 
 /* 「没有要提交的」那句 2.4 秒后自己收回去。这个定时器必须留着句柄：
@@ -213,35 +618,76 @@ $("submit").addEventListener("click", async ()=>{
   /* 什么都没有的时候不许报成功。
      上一版这里：总评为空就一个请求都不发，却照样把按钮改成「已收到 N 条 ✓」、
      回执改成「我们看得见了」——他看见的是个假回执，我这边其实什么也没收到。 */
-  if(!txt && !SAVED.size){
+  if(!txt && !SAVED.size && !TOUCHED.size){
     btn.textContent = "没有要提交的";
-    $("receipt").innerHTML = "没打分，也没写总评";
+    $("receipt").innerHTML = "没打分、没定夺，<br>也没写总评";
     emptyTimer = setTimeout(()=>{ btn.textContent = "提交"; countUp(); }, 2400);
     return;
   }
 
-  btn.disabled = true; btn.textContent = "在存…";
+  btn.disabled = true;
   try{
+    /* 他可能点完定夺马上就按提交，那几条还在队里排着/核对着。
+       不等它们落地就报数，报的是「我发出去了几条」，不是「存住了几条」。 */
+    if(TOUCHED.size){
+      btn.textContent = "等前面几条存完…";
+      await chain;
+    }
+
     if(txt){
-      const r = await fetch(API+"/review/overall",{method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({who:"boss", comment:txt})});
-      if(!r.ok) throw new Error("HTTP "+r.status);
-      /* 跟 save() 一个口径：HTTP 200 不代表接口收下了，j.ok 才算 */
-      let j = null; try{ j = await r.json() }catch(e){}
-      if(j && j.ok === false) throw new Error("接口说没存上");
+      btn.textContent = "在存总评…";
+      await queued(async ()=>{
+        const r = await timed(API+"/review/overall",{method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({date:BOARD_DATE, who:"boss", comment:txt})});
+        if(!r.ok) throw new Error("HTTP "+r.status);
+        /* 跟 save() 一个口径：HTTP 200 不代表接口收下了，j.ok 才算 */
+        let j = null; try{ j = await r.json() }catch(e){}
+        if(j && j.ok === false) throw new Error("接口说没存上");
+      });
+      /* 总评也得读回来核。上一版这里只看 200 就点亮「我们看得见了」——
+         而 200 只代表请求到了服务器。定夺那边栽过的坑，总评这边一样会栽。 */
+      btn.textContent = "在核对总评…";
+      const okTxt = await readBack("boss", String(txt).slice(0, LIMIT), 32000,
+        s => btn.textContent = "在核对总评…" + s + " 秒");
+      if(!okTxt) throw new Error("接口说存下了，我读回来没看见");
       OVERALL_SENT = true;
       $("overallSaved").classList.add("show");
     }
+
+    /* 最后再全量核一遍：直接从接口把这一天读回来，
+       按服务器上真有的东西报数。这一行就是「已收到 N 条」的唯一依据。 */
+    let audited = decidedCount();
+    try{
+      const d = await fetchBoard();
+      const on = decode(((d.overall||{})[DKEY]||{}).comment);
+      const live = Object.keys(on).filter(k => TOUCHED.has(k) && (on[k].c || on[k].n));
+      audited = live.length;
+      if(CONFIRMED && audited < decidedCount()){
+        /* 读回来比记着的少。KV 各机房版本不同步，可能只是读到了旧的那一份，
+           所以不写死成「丢了」，但也绝不按大的那个数报。 */
+        btn.disabled = false; btn.textContent = "对不上，再点一次";
+        $("receipt").innerHTML = "接口这一刻只认 <b>" + audited + "</b> 条，<br>比我记的少，先别当数";
+        return;
+      }
+    }catch(e){ /* 核不动就按已确认的报，不放大 */ }
+
     const bits = [];
     if(OVERALL_SENT) bits.push("总评");
     if(SAVED.size) bits.push(SAVED.size + " 条打分");
+    if(audited) bits.push(audited + " 条定夺");
+    if(!bits.length){
+      /* 走到这儿＝他点过东西，但一条都没真存住。这时候报成功就是撒谎。 */
+      btn.disabled = false; btn.textContent = "一条都没存住，再点一次";
+      $("receipt").innerHTML = "点过的都没存上";
+      return;
+    }
     btn.textContent = "已收到 " + bits.join(" ＋ ") + " ✓";
-    /* 只有打分没总评的时候，这一下其实没发新东西——分是刚才逐条存的。照实说。 */
-    $("receipt").innerHTML = OVERALL_SENT ? "我们看得见了" : "打分已经存下了";
+    /* 没写总评的时候，这一下其实没发新东西——分和定夺都是刚才当场存的。照实说。 */
+    $("receipt").innerHTML = OVERALL_SENT ? "我们看得见了" : "点过的都已经存下了";
   }catch(e){
     btn.disabled = false; btn.textContent = "总评没存上，再点一次";
-    $("receipt").innerHTML = "总评没发出去";
+    $("receipt").innerHTML = "总评没发出去（" + (e.name==="AbortError" ? "网络没通" : e.message) + "）";
   }
 });
 /* 存过之后又改了总评：按钮得能再点。
@@ -257,20 +703,30 @@ $("overall").addEventListener("input", ()=>{
 fetch(API+"/review/board")
   .then(r=>r.json())
   .then(d=>{
-    ITEMS = d.items || [];
+    BOARD_DATE = d.date || dubaiDate();
+    /* 一个 items 数组里两种东西：干的活，和等他定的事。kind:"decision" 分开。
+       没有 kind 的一律当活——旧清单是这么写的，不能因为加了新字段就把旧条目吞了。 */
+    const all = d.items || [];
+    ITEMS = all.filter(i => i && i.kind !== "decision");
+    DECISIONS = all.filter(i => i && i.kind === "decision");
     SCORES = d.scores || {};
-    $("date").textContent = (d.date || dubaiDate()) + "　共 " + ITEMS.length + " 条";
+    PRIOR = (d.overall && typeof d.overall === "object") ? d.overall : {};
+    $("date").textContent = BOARD_DATE + "　共 " + ITEMS.length + " 条"
+      + (DECISIONS.length ? "　等你定夺 " + DECISIONS.length + " 条" : "");
     /* overall 接口回的是对象（{who:comment}），不是字符串——直接塞会显示 [object Object] */
-    const ov = d.overall;
-    if(typeof ov === "string") $("overall").value = ov;
-    else if(ov && typeof ov === "object"){
-      const first = Object.values(ov).find(v=>typeof v === "string");
-      if(first) $("overall").value = first;
-    }
+    /* overall 这张表现在混着两样东西：总评（who="boss"）和每条定夺（who="decision:xxx"）。
+       回填总评只认 boss/team 这两个键——不挑键的话，会把某条定夺的 JSON 灌进总评框。
+       顺带修好一处旧的：接口存的是 {comment,at} 对象，不是字符串，
+       上一版拿 typeof==="string" 去找，所以总评其实一次都没回填成功过。 */
+    const ov = (d.overall && typeof d.overall === "object") ? d.overall : {};
+    const mine = ov.boss || ov.team;
+    if(typeof mine === "string") $("overall").value = mine;
+    else if(mine && typeof mine.comment === "string") $("overall").value = mine.comment;
     if(!ITEMS.length){
       $("board").innerHTML = '<div class="item"><div class="txt">今天还没报清单。'
         + '我们碰完就填进来，你刷新就有。</div></div>';
     } else render();
+    renderDecisions();
     $("stamp").textContent = "";
   })
   .catch(e=>{
