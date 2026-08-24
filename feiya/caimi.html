@@ -1,0 +1,64 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>猜猜看 · 霏雅</title>
+<!-- 霏雅 2026-08-24 点的：你出题我猜、我出题你猜。
+     她说「那种不怎么用wifi的」——所以整页一个文件、零图片零音频零外链，
+     打开一次之后再玩几乎不吃流量。题目写死在页面里，不联网取。 -->
+<style>
+:root{--pink:#ffd6e7;--ink:#6b4a5c;--rose:#e87faf;--deep:#d4568f;--sand:#f7e6b8}
+*{box-sizing:border-box}
+body{margin:0;padding:18px;background:var(--pink);color:var(--ink);
+     font-family:-apple-system,"PingFang SC",sans-serif;min-height:100vh}
+h1{font-size:1.4rem;margin:6px 0 2px}
+.sub{font-size:.85rem;opacity:.7;margin-bottom:16px}
+.card{background:#fff8fb;border:2px solid var(--rose);border-radius:18px;padding:20px;margin-bottom:14px}
+.emoji{font-size:2.4rem;letter-spacing:.15em;text-align:center;margin:10px 0 16px;line-height:1.5}
+input{width:100%;padding:12px;font-size:1rem;border:2px solid var(--sand);border-radius:12px;
+      font-family:inherit;background:#fff}
+button{width:100%;padding:13px;font-size:1rem;border:0;border-radius:12px;background:var(--deep);
+       color:#fff;font-family:inherit;margin-top:10px}
+button:active{background:var(--rose)}
+.small{background:var(--sand);color:var(--ink);margin-top:8px}
+.msg{margin-top:12px;font-size:.95rem;min-height:1.4em;line-height:1.6}
+.score{font-size:.85rem;opacity:.75;margin-top:14px;text-align:center}
+</style>
+<h1>猜猜看</h1>
+<div class="sub">我出题，你猜。猜不出就点「给点提示」。</div>
+<div class="card">
+  <div class="emoji" id="q">🎁</div>
+  <input id="a" placeholder="打字写答案" autocomplete="off">
+  <button onclick="check()">就是它</button>
+  <button class="small" onclick="hint()">给点提示</button>
+  <button class="small" onclick="skip()">换一道</button>
+  <div class="msg" id="m"></div>
+</div>
+<div class="score" id="s"></div>
+<script>
+/* 题库写死在这里，不联网。想加题就往这个数组里加一行。 */
+var Q=[
+ {e:"📦🙅‍♀️😭👩😄",a:["快递","包裹","盒子"],h:"是霏雅今天真发生的事，跟一个好心的人有关"},
+ {e:"🌧️☂️🐈",a:["下雨","雨天","躲雨"],h:"猫最讨厌的天气"},
+ {e:"🕐📚😴",a:["晚自习","学习困","看书睡着"],h:"看着看着眼皮就打架"},
+ {e:"🥚🐣🐔",a:["长大","成长","孵化"],h:"一样东西慢慢变成另一样"},
+ {e:"❄️🧸🗝️❤️",a:["霏雅","我","霏雅喜欢的"],h:"这四个是某个人最喜欢的符号"},
+ {e:"🌙🛏️📖",a:["睡前故事","晚安","睡觉"],h:"一天最后一件事"},
+ {e:"🏝️🐢🌴",a:["小岛","岛","海岛"],h:"你自己有一个"},
+ {e:"🍚🥢👨‍👩‍👧‍👦",a:["吃饭","团圆饭","一家人吃饭"],h:"一天里最热闹的一顿"}
+];
+var i=0,win=0,tries=0;
+function show(){document.getElementById("q").textContent=Q[i].e;
+  document.getElementById("m").textContent="";document.getElementById("a").value="";
+  document.getElementById("s").textContent="答对 "+win+" 道，一共 "+Q.length+" 道";}
+function check(){var v=document.getElementById("a").value.trim();
+  if(!v){document.getElementById("m").textContent="先写点什么再点";return}
+  var ok=Q[i].a.some(function(x){return v.indexOf(x)>=0||x.indexOf(v)>=0});
+  if(ok){win++;document.getElementById("m").textContent="对了。答案是「"+Q[i].a[0]+"」";
+    setTimeout(next,900)}else{tries++;
+    document.getElementById("m").textContent=tries<2?"不是这个，再想想":"还不是。点「给点提示」看看"}}
+function hint(){document.getElementById("m").textContent="提示："+Q[i].h}
+function skip(){document.getElementById("m").textContent="答案是「"+Q[i].a[0]+"」";setTimeout(next,1200)}
+function next(){i=(i+1)%Q.length;tries=0;show()}
+document.getElementById("a").addEventListener("keydown",function(e){if(e.key==="Enter")check()});
+show();
+</script>

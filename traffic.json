@@ -1,0 +1,215 @@
+{
+  "generated_at": "2026-08-24 11:49",
+  "generated_at_label": "2026-08-24 11:49 迪拜时间",
+  "window_days": 7,
+  "days": [
+    "2026-08-24",
+    "2026-08-23",
+    "2026-08-22",
+    "2026-08-21",
+    "2026-08-20",
+    "2026-08-19",
+    "2026-08-18"
+  ],
+  "today": "2026-08-24",
+  "yesterday": "2026-08-23",
+  "total7": 298838,
+  "total_today": 16011,
+  "total_yesterday": 46548,
+  "elapsed_pct": 33.0,
+  "projected_today": 49118,
+  "top_name": "codex-wecom-callback",
+  "top_share7": 96.3,
+  "top_today_name": "codex-wecom-callback",
+  "top_share_today": 98.4,
+  "workers": [
+    {
+      "name": "codex-wecom-callback",
+      "note": "企微桥，本机每 2 秒轮询一次",
+      "total7": 287694,
+      "errors7": 0,
+      "today": 15755,
+      "yesterday": 46372,
+      "delta": -30617,
+      "daily": [
+        {
+          "date": "2026-08-24",
+          "requests": 15755,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-23",
+          "requests": 46372,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-22",
+          "requests": 43415,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-21",
+          "requests": 46235,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-20",
+          "requests": 43847,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-19",
+          "requests": 45109,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-18",
+          "requests": 46961,
+          "errors": 0
+        }
+      ],
+      "projected": 48333
+    },
+    {
+      "name": "su-family",
+      "note": "家人站的留言和邀请接口",
+      "total7": 11001,
+      "errors7": 0,
+      "today": 249,
+      "yesterday": 176,
+      "delta": 73,
+      "daily": [
+        {
+          "date": "2026-08-24",
+          "requests": 249,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-23",
+          "requests": 176,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-22",
+          "requests": 1333,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-21",
+          "requests": 4003,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-20",
+          "requests": 1884,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-19",
+          "requests": 2467,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-18",
+          "requests": 889,
+          "errors": 0
+        }
+      ],
+      "projected": 763
+    },
+    {
+      "name": "yimu-board",
+      "note": "一木的看板数据接口",
+      "total7": 89,
+      "errors7": 0,
+      "today": 0,
+      "yesterday": 0,
+      "delta": 0,
+      "daily": [
+        {
+          "date": "2026-08-24",
+          "requests": 0,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-23",
+          "requests": 0,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-22",
+          "requests": 0,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-21",
+          "requests": 0,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-20",
+          "requests": 75,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-19",
+          "requests": 14,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-18",
+          "requests": 0,
+          "errors": 0
+        }
+      ],
+      "projected": 0
+    },
+    {
+      "name": "yimu-practice",
+      "note": "一木的练习记录接口",
+      "total7": 54,
+      "errors7": 0,
+      "today": 7,
+      "yesterday": 0,
+      "delta": 7,
+      "daily": [
+        {
+          "date": "2026-08-24",
+          "requests": 7,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-23",
+          "requests": 0,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-22",
+          "requests": 20,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-21",
+          "requests": 0,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-20",
+          "requests": 27,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-19",
+          "requests": 0,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-18",
+          "requests": 0,
+          "errors": 0
+        }
+      ],
+      "projected": 21
+    }
+  ]
+}

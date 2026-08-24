@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b0d">
+<title>流量 · Cloudflare</title>
+<style>
+:root{
+  --bg:#070b0d; --card:#101a1f; --line:rgba(255,255,255,.08);
+  --ink:#eef4f2; --dim:#8b9a97; --faint:#6d7c79;
+  --gold:#d9b26a; --gold-soft:#f0dcae;
+  --up:#d98b6a; --down:#3f9f7f;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--sans);
+  min-height:100vh; padding:0 0 40px; overflow-x:hidden;
+  background-image:
+    radial-gradient(90% 60% at 78% -8%, rgba(217,178,106,.10), transparent 62%),
+    radial-gradient(70% 50% at 8% 4%, rgba(63,159,127,.09), transparent 60%);
+  background-attachment:fixed;
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+
+.top{padding:20px 0 14px}
+.brand{font-family:var(--serif);font-size:19px;letter-spacing:.4px}
+.brand small{display:block;font-family:var(--sans);font-size:9.5px;letter-spacing:1.8px;
+  color:var(--dim);text-transform:uppercase;margin-top:4px}
+
+/* 顶上一行结论：他打开先看这个 */
+.verdict{
+  border:1px solid var(--line);border-radius:20px;padding:18px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+  box-shadow:0 20px 50px rgba(0,0,0,.35)
+}
+.kicker{font-size:9.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);margin-bottom:9px}
+.big{font-family:var(--serif);font-weight:400;font-size:38px;line-height:1.05;
+  font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.big span{font-size:14px;color:var(--dim);font-family:var(--sans);margin-left:7px;letter-spacing:0}
+/* 半截的「今天」降到这行小字：看得到，但抢不走头条 */
+.subline{margin-top:8px;font-size:11.5px;line-height:1.6;color:var(--faint);
+  font-variant-numeric:tabular-nums}
+.subline b{color:var(--dim);font-weight:600}
+.said{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);
+  font-size:13.5px;line-height:1.7;color:#c3d0cd}
+.said b{color:var(--gold-soft);font-weight:600}
+
+.sect{margin:24px 4px 10px;font-size:9.5px;letter-spacing:2.2px;
+  text-transform:uppercase;color:var(--gold)}
+
+/* 一个 worker 一张卡 */
+.w{border:1px solid var(--line);border-radius:16px;background:var(--card);
+  padding:15px 15px 13px;margin-bottom:10px}
+.w.hot{border-color:rgba(217,178,106,.34);background:#121e24}
+.wname{font-size:14px;font-weight:650;letter-spacing:.1px;word-break:break-all;line-height:1.35}
+.w.hot .wname{color:var(--gold-soft)}
+.wnote{margin-top:5px;font-size:11.5px;line-height:1.6;color:var(--dim)}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:13px}
+.cell{border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.025);
+  padding:9px 3px;text-align:center;min-width:0}
+.cell .lab{font-size:9px;letter-spacing:.4px;color:var(--faint);white-space:nowrap}
+/* 七位数（287,471）要在 375 屏上一行放得下，所以字号跟着屏宽收。
+   之前 15px 会断成「287,47 / 1」，那不叫表格那叫事故。 */
+.cell .val{margin-top:4px;font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;
+  letter-spacing:-.2px;white-space:nowrap}
+@media (max-width:520px){ .cell .val{font-size:13.5px;letter-spacing:-.4px} }
+@media (max-width:400px){ .cell .val{font-size:12.5px} .cell .lab{font-size:8.5px;letter-spacing:.2px} }
+.cell.acc .val{color:var(--gold-soft)}
+.val.up{color:var(--up)}
+.val.down{color:var(--down)}
+
+/* 七天的高低，一眼看趋势 */
+.bars{display:flex;align-items:flex-end;gap:4px;height:30px;margin-top:12px}
+.bar{flex:1;min-width:0;border-radius:3px 3px 0 0;
+  background:linear-gradient(180deg,rgba(217,178,106,.55),rgba(217,178,106,.16));min-height:2px}
+.bar.last{background:linear-gradient(180deg,rgba(217,178,106,.28),rgba(217,178,106,.08))}
+.bar.zero{background:rgba(255,255,255,.07)}
+.blab{display:flex;gap:4px;margin-top:5px}
+.blab span{flex:1;min-width:0;text-align:center;font-size:8.5px;color:var(--faint);
+  font-variant-numeric:tabular-nums}
+
+.foot{margin-top:26px;text-align:center;font-size:11px;line-height:1.8;color:var(--faint)}
+.msg{padding:34px 6px;text-align:center;color:var(--dim);font-size:13px;line-height:1.8}
+
+@media (max-width:359px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .big{font-size:32px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">流量 · Cloudflare<small>WORKERS TRAFFIC</small></div>
+  </div>
+  <div id="app"><div class="msg">正在读数…</div></div>
+</div>
+
+<script>
+/* 页面只读本机脚本写好的 traffic.json，凭据一个字都不到前端来。
+   带时间戳 + no-store：老板刷新看到的必须是今天的数，不是缓存里昨天的。 */
+var app = document.getElementById('app');
+
+function n(x){ return (x==null?0:x).toLocaleString('en-US'); }
+function esc(t){ return String(t==null?'':t).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function md(d){ return d ? d.slice(5).replace('-','/') : ''; }
+
+fetch('traffic.json?t=' + Date.now(), {cache:'no-store'})
+  .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  .then(render)
+  .catch(function(e){
+    app.innerHTML = '<div class="msg">读不到 traffic.json（' + esc(e.message) + '）<br>' +
+      '本机脚本每天 08:30 才写一次，刚建好的话等下一轮。</div>';
+  });
+
+function render(d){
+  var ws = d.workers || [];
+  var h = '';
+
+  /* 头条只放「昨天全天」——一个完整、能跟前天比的数。
+     「今天至今」天天早上都小（cron 08:30 迪拜＝UTC 才过 19%），
+     放最大那行会让人天天以为在好转。半截数降级成下面一行小字。 */
+  h += '<div class="verdict">' +
+         '<div class="kicker">昨天全天 · ' + md(d.yesterday) + '</div>' +
+         '<div class="big">' + n(d.total_yesterday) + '<span>次</span></div>';
+
+  h += '<div class="subline">今天至今 <b>' + n(d.total_today) + '</b>' +
+       (d.elapsed_pct != null
+          ? '（UTC 已过 ' + d.elapsed_pct + '%，折全天约 ' + n(d.projected_today) + '）'
+          : '') +
+       '</div>';
+
+  /* 这句是结论，留在显眼位置。百分比必须写明是「近 7 天」的——
+     头条现在是昨天的数，不写清楚会被当成「占昨天的」。 */
+  h += '<div class="said">最烧的是 <b>' + esc(d.top_name) + '</b>，' +
+         '近 7 天占 <b>' + d.top_share7 + '%</b>；' +
+         '7 天全账号共 <b>' + n(d.total7) + '</b> 次。</div>';
+
+  h += '</div>';
+
+  h += '<div class="sect">按 WORKER 分</div>';
+
+  /* 今天没走完的时候，涨跌不上色也不叫「涨跌」——
+     一个绿色的 -30,840 会被读成「已经降下来了」，其实只是这天才过三成。 */
+  var partial = (d.elapsed_pct != null && d.elapsed_pct < 95);
+
+  ws.forEach(function(w, i){
+    var days = w.daily || [];
+    var max = 1;
+    days.forEach(function(x){ if (x.requests > max) max = x.requests; });
+
+    var dcls = partial ? '' : (w.delta > 0 ? 'up' : (w.delta < 0 ? 'down' : ''));
+    var dtxt = (w.delta > 0 ? '+' : '') + n(w.delta);
+    var dlab = partial ? '涨跌 至今' : '涨跌';
+
+    h += '<div class="w' + (i === 0 ? ' hot' : '') + '">' +
+           '<div class="wname">' + esc(w.name) + '</div>' +
+           (w.note ? '<div class="wnote">' + esc(w.note) + '</div>' : '') +
+           '<div class="grid">' +
+             '<div class="cell"><div class="lab">7 天合计</div><div class="val">' + n(w.total7) + '</div></div>' +
+             '<div class="cell acc"><div class="lab">今天至今</div><div class="val">' + n(w.today) + '</div></div>' +
+             '<div class="cell"><div class="lab">昨天</div><div class="val">' + n(w.yesterday) + '</div></div>' +
+             '<div class="cell"><div class="lab">' + dlab + '</div><div class="val ' + dcls + '">' + dtxt + '</div></div>' +
+           '</div>';
+
+    /* 七天柱子，旧→新，最右边那根是没走完的今天，所以画淡一点 */
+    var rev = days.slice().reverse();
+    h += '<div class="bars">';
+    rev.forEach(function(x, k){
+      var pct = Math.round(x.requests / max * 100);
+      h += '<div class="bar' + (x.requests === 0 ? ' zero' : '') +
+           (k === rev.length - 1 ? ' last' : '') + '" style="height:' +
+           Math.max(pct, x.requests === 0 ? 4 : 8) + '%" title="' + x.date + '：' + n(x.requests) + ' 次"></div>';
+    });
+    h += '</div><div class="blab">';
+    rev.forEach(function(x){ h += '<span>' + md(x.date) + '</span>'; });
+    h += '</div></div>';
+  });
+
+  h += '<div class="foot">数字来自 Cloudflare，每天 08:30 更新<br>' +
+       '本次取数 ' + esc(d.generated_at_label || d.generated_at || '') + '</div>';
+
+  app.innerHTML = h;
+}
+</script>
+</body>
+</html>
