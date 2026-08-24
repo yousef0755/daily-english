@@ -1,0 +1,91 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>五子棋 · 霏雅</title>
+<!-- 霏雅 2026-08-24 自己点的：不用 wifi 的五子棋。
+     整页一个文件、零图片零音频零外链——打开一次之后断网也能玩。
+     两种下法：跟人下（同一台手机轮流点）／跟电脑下。纪录存 localStorage 的 feiyaWuzi 键。 -->
+<style>
+:root{--pink:#ffd6e7;--ink:#6b4a5c;--rose:#e87faf;--deep:#d4568f;--wood:#f3dcc0;--line:#c9a882}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:12px;background:linear-gradient(#fff3f8,var(--pink));color:var(--ink);
+     font-family:-apple-system,"PingFang SC",sans-serif;user-select:none}
+h1{font-size:1.15rem;margin:2px 0}
+.sub{font-size:.78rem;opacity:.72;margin-bottom:10px}
+.row{display:flex;gap:8px;margin-bottom:10px}
+button{flex:1;padding:9px;font-size:.9rem;border:0;border-radius:11px;background:#fff;
+       color:var(--ink);font-family:inherit;border:2px solid var(--rose)}
+button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+#board{width:100%;max-width:420px;aspect-ratio:1;margin:0 auto;display:grid;
+       background:var(--wood);border:3px solid var(--line);border-radius:12px;touch-action:manipulation}
+.c{border:.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:min(4.2vw,20px)}
+.msg{text-align:center;margin-top:10px;font-size:.95rem;min-height:1.5em;color:var(--deep);font-weight:600}
+.stat{text-align:center;font-size:.8rem;opacity:.75;margin-top:6px}
+</style>
+<h1>五子棋</h1>
+<div class="sub">断网也能玩。先连成五个的赢。</div>
+<div class="row">
+  <button id="m1" class="on" onclick="setMode(1)">跟电脑下</button>
+  <button id="m2" onclick="setMode(2)">两个人下</button>
+  <button onclick="reset()">重来</button>
+</div>
+<div id="board"></div>
+<div class="msg" id="msg">你先下，你是 ⚫</div>
+<div class="stat" id="stat"></div>
+<script>
+var N=11,B=[],turn=1,over=false,mode=1;
+var rec=JSON.parse(localStorage.getItem("feiyaWuzi")||'{"w":0,"l":0}');
+var bd=document.getElementById("board");
+bd.style.gridTemplateColumns="repeat("+N+",1fr)";
+function stat(){document.getElementById("stat").textContent="跟电脑下：赢 "+rec.w+" 局，输 "+rec.l+" 局"}
+function build(){bd.innerHTML="";B=[];
+  for(var i=0;i<N*N;i++){B.push(0);var d=document.createElement("div");d.className="c";
+    d.dataset.i=i;d.onclick=tap;bd.appendChild(d)}}
+function put(i,v){B[i]=v;bd.children[i].textContent=v===1?"⚫":"⚪"}
+function win(v){
+  var D=[[1,0],[0,1],[1,1],[1,-1]];
+  for(var y=0;y<N;y++)for(var x=0;x<N;x++)for(var k=0;k<4;k++){
+    var c=0,dx=D[k][0],dy=D[k][1];
+    for(var s=0;s<5;s++){var nx=x+dx*s,ny=y+dy*s;
+      if(nx<0||ny<0||nx>=N||ny>=N)break; if(B[ny*N+nx]===v)c++;else break}
+    if(c>=5)return true}
+  return false}
+function tap(e){
+  if(over)return; var i=+e.target.dataset.i; if(B[i])return;
+  put(i,turn);
+  if(win(turn)){end(turn);return}
+  if(mode===2){turn=turn===1?2:1;document.getElementById("msg").textContent=(turn===1?"⚫":"⚪")+" 下";return}
+  turn=2;document.getElementById("msg").textContent="电脑在想…";
+  setTimeout(ai,260)}
+function score(i,v){ /* 简单打分：自己能连多长 + 挡住对方 */
+  var D=[[1,0],[0,1],[1,1],[1,-1]],x=i%N,y=(i/N)|0,best=0;
+  for(var k=0;k<4;k++){for(var who=1;who<=2;who++){
+    var c=1,dx=D[k][0],dy=D[k][1];
+    for(var s=1;s<5;s++){var nx=x+dx*s,ny=y+dy*s;
+      if(nx<0||ny<0||nx>=N||ny>=N||B[ny*N+nx]!==who)break;c++}
+    for(var s=1;s<5;s++){var nx=x-dx*s,ny=y-dy*s;
+      if(nx<0||ny<0||nx>=N||ny>=N||B[ny*N+nx]!==who)break;c++}
+    var w=c*c*(who===v?1.1:1); if(w>best)best=w}}
+  return best+Math.random()}
+function ai(){
+  var best=-1,pick=-1;
+  for(var i=0;i<N*N;i++){if(B[i])continue;
+    var near=false,x=i%N,y=(i/N)|0;
+    for(var dy=-2;dy<=2&&!near;dy++)for(var dx=-2;dx<=2;dx++){
+      var nx=x+dx,ny=y+dy; if(nx>=0&&ny>=0&&nx<N&&ny<N&&B[ny*N+nx]){near=true;break}}
+    if(!near&&B.some(function(v){return v}))continue;
+    var s=score(i,2); if(s>best){best=s;pick=i}}
+  if(pick<0)pick=((N*N)/2)|0;
+  put(pick,2);
+  if(win(2)){end(2);return}
+  turn=1;document.getElementById("msg").textContent="该你了"}
+function end(v){over=true;
+  var me=(mode===1&&v===1)||(mode===2&&v===1);
+  document.getElementById("msg").textContent=mode===2?((v===1?"⚫":"⚪")+" 赢了"):(v===1?"你赢了":"电脑赢了");
+  if(mode===1){if(v===1)rec.w++;else rec.l++;localStorage.setItem("feiyaWuzi",JSON.stringify(rec));stat()}}
+function setMode(m){mode=m;document.getElementById("m1").className=m===1?"on":"";
+  document.getElementById("m2").className=m===2?"on":"";reset()}
+function reset(){over=false;turn=1;build();
+  document.getElementById("msg").textContent=mode===1?"你先下，你是 ⚫":"⚫ 先下"}
+build();reset();stat();
+</script>
