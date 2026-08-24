@@ -2,90 +2,117 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>五子棋 · 霏雅</title>
-<!-- 霏雅 2026-08-24 自己点的：不用 wifi 的五子棋。
-     整页一个文件、零图片零音频零外链——打开一次之后断网也能玩。
-     两种下法：跟人下（同一台手机轮流点）／跟电脑下。纪录存 localStorage 的 feiyaWuzi 键。 -->
+<!-- 霏雅 2026-08-24 提的六条，逐条改：
+     1 先点格子选中、再点「落子」才算数（她说总点错）
+     2 格子固定大小，不再随屏幕忽大忽小
+     3 最后一手高亮：她的粉圈、电脑的蓝圈，一眼看得出电脑下在哪
+     4 战绩收进单独一页，不写在玩的画面里
+     5 整体做漂亮些
+     断网可玩：整页一个文件、零图片零音频零外链。纪录存 feiyaWuzi。 -->
 <style>
-:root{--pink:#ffd6e7;--ink:#6b4a5c;--rose:#e87faf;--deep:#d4568f;--wood:#f3dcc0;--line:#c9a882}
+:root{--pink:#ffd6e7;--ink:#6b4a5c;--rose:#e87faf;--deep:#d4568f;--wood:#f6e3cc;
+      --line:#d9bb96;--mine:#e8579a;--his:#5b9bd5}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;padding:12px;background:linear-gradient(#fff3f8,var(--pink));color:var(--ink);
-     font-family:-apple-system,"PingFang SC",sans-serif;user-select:none}
-h1{font-size:1.15rem;margin:2px 0}
-.sub{font-size:.78rem;opacity:.72;margin-bottom:10px}
-.row{display:flex;gap:8px;margin-bottom:10px}
-button{flex:1;padding:9px;font-size:.9rem;border:0;border-radius:11px;background:#fff;
-       color:var(--ink);font-family:inherit;border:2px solid var(--rose)}
-button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
-#board{width:100%;max-width:420px;aspect-ratio:1;margin:0 auto;display:grid;
-       background:var(--wood);border:3px solid var(--line);border-radius:12px;touch-action:manipulation}
-.c{border:.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:min(4.2vw,20px)}
+body{margin:0;padding:14px 12px 20px;background:linear-gradient(160deg,#fff6fa,#ffd6e7 70%);
+     color:var(--ink);font-family:-apple-system,"PingFang SC",sans-serif;user-select:none}
+.top{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+h1{font-size:1.2rem;margin:0;letter-spacing:.05em}
+.sub{font-size:.76rem;opacity:.7;margin-bottom:12px}
+.row{display:flex;gap:8px;margin-bottom:12px}
+button{flex:1;padding:10px 6px;font-size:.88rem;border:2px solid #f2c6da;border-radius:13px;
+       background:#fff;color:var(--ink);font-family:inherit;box-shadow:0 2px 0 #f0cfdd}
+button.on{background:var(--deep);color:#fff;border-color:var(--deep);box-shadow:0 2px 0 #b8437a}
+button:active{transform:translateY(1px);box-shadow:none}
+#wrap{display:flex;justify-content:center}
+#board{display:grid;background:var(--wood);padding:6px;border-radius:16px;
+       box-shadow:0 6px 18px rgba(160,90,130,.18);border:2px solid var(--line)}
+.c{width:30px;height:30px;border:.5px solid rgba(190,150,110,.55);display:flex;
+   align-items:center;justify-content:center;font-size:19px;line-height:1;position:relative}
+.c.sel{background:rgba(232,87,154,.22);border-radius:6px}
+.c.last::after{content:"";position:absolute;inset:2px;border:2.5px solid var(--mine);border-radius:50%}
+.c.lastAi::after{content:"";position:absolute;inset:2px;border:2.5px solid var(--his);border-radius:50%}
+.act{margin:12px auto 0;max-width:420px}
+.act button{width:100%}
 .msg{text-align:center;margin-top:10px;font-size:.95rem;min-height:1.5em;color:var(--deep);font-weight:600}
-.stat{text-align:center;font-size:.8rem;opacity:.75;margin-top:6px}
+#hist{display:none;background:#fffdf9;border:2px solid #f2c6da;border-radius:14px;padding:16px;margin-top:12px}
+#hist h2{font-size:.98rem;margin:0 0 10px}
+#hist div{font-size:.88rem;line-height:1.9}
 </style>
-<h1>五子棋</h1>
-<div class="sub">断网也能玩。先连成五个的赢。</div>
+<div class="top"><h1>五子棋</h1><span class="sub">断网也能玩</span></div>
 <div class="row">
-  <button id="m1" class="on" onclick="setMode(1)">跟电脑下</button>
-  <button id="m2" onclick="setMode(2)">两个人下</button>
+  <button id="m1" class="on" onclick="setMode(1)">跟电脑</button>
+  <button id="m2" onclick="setMode(2)">两个人</button>
   <button onclick="reset()">重来</button>
+  <button onclick="toggleHist()">战绩</button>
 </div>
-<div id="board"></div>
+<div id="wrap"><div id="board"></div></div>
+<div class="act"><button id="ok" onclick="confirmMove()" disabled>先点一个格子</button></div>
 <div class="msg" id="msg">你先下，你是 ⚫</div>
-<div class="stat" id="stat"></div>
+<div id="hist"><h2>战绩</h2><div id="histBody"></div></div>
 <script>
-var N=11,B=[],turn=1,over=false,mode=1;
-var rec=JSON.parse(localStorage.getItem("feiyaWuzi")||'{"w":0,"l":0}');
-var bd=document.getElementById("board");
-bd.style.gridTemplateColumns="repeat("+N+",1fr)";
-function stat(){document.getElementById("stat").textContent="跟电脑下：赢 "+rec.w+" 局，输 "+rec.l+" 局"}
+var N=11,B=[],turn=1,over=false,mode=1,sel=-1,lastMine=-1,lastAi=-1;
+var rec=JSON.parse(localStorage.getItem("feiyaWuzi")||'{"w":0,"l":0,"log":[]}');
+if(!rec.log)rec.log=[];
+var bd=document.getElementById("board"),okBtn=document.getElementById("ok");
+bd.style.gridTemplateColumns="repeat("+N+",30px)";
 function build(){bd.innerHTML="";B=[];
-  for(var i=0;i<N*N;i++){B.push(0);var d=document.createElement("div");d.className="c";
-    d.dataset.i=i;d.onclick=tap;bd.appendChild(d)}}
-function put(i,v){B[i]=v;bd.children[i].textContent=v===1?"⚫":"⚪"}
-function win(v){
-  var D=[[1,0],[0,1],[1,1],[1,-1]];
-  for(var y=0;y<N;y++)for(var x=0;x<N;x++)for(var k=0;k<4;k++){
-    var c=0,dx=D[k][0],dy=D[k][1];
-    for(var s=0;s<5;s++){var nx=x+dx*s,ny=y+dy*s;
-      if(nx<0||ny<0||nx>=N||ny>=N)break; if(B[ny*N+nx]===v)c++;else break}
-    if(c>=5)return true}
-  return false}
+  for(var i=0;i<N*N;i++){B.push(0);var d=document.createElement("div");
+    d.className="c";d.dataset.i=i;d.onclick=tap;bd.appendChild(d)}}
+function paint(){
+  for(var i=0;i<N*N;i++){var e=bd.children[i];
+    e.textContent=B[i]===1?"⚫":B[i]===2?"⚪":"";
+    e.className="c"+(i===sel?" sel":"")+(i===lastMine?" last":"")+(i===lastAi?" lastAi":"")}}
 function tap(e){
-  if(over)return; var i=+e.target.dataset.i; if(B[i])return;
-  put(i,turn);
+  if(over)return; var i=+e.currentTarget.dataset.i; if(B[i])return;
+  if(mode===1&&turn!==1)return;
+  sel=i;paint();okBtn.disabled=false;okBtn.textContent="落子";}
+function confirmMove(){
+  if(sel<0||over)return;
+  var i=sel;sel=-1;okBtn.disabled=true;okBtn.textContent="先点一个格子";
+  B[i]=turn; if(turn===1)lastMine=i; else lastAi=i; paint();
   if(win(turn)){end(turn);return}
   if(mode===2){turn=turn===1?2:1;document.getElementById("msg").textContent=(turn===1?"⚫":"⚪")+" 下";return}
-  turn=2;document.getElementById("msg").textContent="电脑在想…";
-  setTimeout(ai,260)}
-function score(i,v){ /* 简单打分：自己能连多长 + 挡住对方 */
-  var D=[[1,0],[0,1],[1,1],[1,-1]],x=i%N,y=(i/N)|0,best=0;
-  for(var k=0;k<4;k++){for(var who=1;who<=2;who++){
-    var c=1,dx=D[k][0],dy=D[k][1];
-    for(var s=1;s<5;s++){var nx=x+dx*s,ny=y+dy*s;
+  turn=2;document.getElementById("msg").textContent="电脑在想…";setTimeout(ai,300)}
+function win(v){var D=[[1,0],[0,1],[1,1],[1,-1]];
+  for(var y=0;y<N;y++)for(var x=0;x<N;x++)for(var k=0;k<4;k++){var c=0;
+    for(var s=0;s<5;s++){var nx=x+D[k][0]*s,ny=y+D[k][1]*s;
+      if(nx<0||ny<0||nx>=N||ny>=N)break;if(B[ny*N+nx]===v)c++;else break}
+    if(c>=5)return true}return false}
+function score(i){var D=[[1,0],[0,1],[1,1],[1,-1]],x=i%N,y=(i/N)|0,best=0;
+  for(var k=0;k<4;k++)for(var who=1;who<=2;who++){var c=1;
+    for(var s=1;s<5;s++){var nx=x+D[k][0]*s,ny=y+D[k][1]*s;
       if(nx<0||ny<0||nx>=N||ny>=N||B[ny*N+nx]!==who)break;c++}
-    for(var s=1;s<5;s++){var nx=x-dx*s,ny=y-dy*s;
+    for(var s=1;s<5;s++){var nx=x-D[k][0]*s,ny=y-D[k][1]*s;
       if(nx<0||ny<0||nx>=N||ny>=N||B[ny*N+nx]!==who)break;c++}
-    var w=c*c*(who===v?1.1:1); if(w>best)best=w}}
+    var w=c*c*(who===2?1.1:1);if(w>best)best=w}
   return best+Math.random()}
-function ai(){
-  var best=-1,pick=-1;
+function ai(){var best=-1,pick=-1,any=B.some(function(v){return v});
   for(var i=0;i<N*N;i++){if(B[i])continue;
-    var near=false,x=i%N,y=(i/N)|0;
-    for(var dy=-2;dy<=2&&!near;dy++)for(var dx=-2;dx<=2;dx++){
-      var nx=x+dx,ny=y+dy; if(nx>=0&&ny>=0&&nx<N&&ny<N&&B[ny*N+nx]){near=true;break}}
-    if(!near&&B.some(function(v){return v}))continue;
-    var s=score(i,2); if(s>best){best=s;pick=i}}
+    if(any){var near=false,x=i%N,y=(i/N)|0;
+      for(var dy=-2;dy<=2&&!near;dy++)for(var dx=-2;dx<=2;dx++){
+        var nx=x+dx,ny=y+dy;if(nx>=0&&ny>=0&&nx<N&&ny<N&&B[ny*N+nx]){near=true;break}}
+      if(!near)continue}
+    var s=score(i);if(s>best){best=s;pick=i}}
   if(pick<0)pick=((N*N)/2)|0;
-  put(pick,2);
+  B[pick]=2;lastAi=pick;paint();
   if(win(2)){end(2);return}
-  turn=1;document.getElementById("msg").textContent="该你了"}
-function end(v){over=true;
-  var me=(mode===1&&v===1)||(mode===2&&v===1);
+  turn=1;document.getElementById("msg").textContent="该你了，蓝圈是电脑刚下的"}
+function end(v){over=true;okBtn.disabled=true;
   document.getElementById("msg").textContent=mode===2?((v===1?"⚫":"⚪")+" 赢了"):(v===1?"你赢了":"电脑赢了");
-  if(mode===1){if(v===1)rec.w++;else rec.l++;localStorage.setItem("feiyaWuzi",JSON.stringify(rec));stat()}}
+  if(mode===1){if(v===1)rec.w++;else rec.l++;
+    rec.log.unshift((v===1?"赢":"输")+"　"+new Date().toLocaleDateString());
+    if(rec.log.length>20)rec.log.length=20;
+    localStorage.setItem("feiyaWuzi",JSON.stringify(rec))}}
+function toggleHist(){var h=document.getElementById("hist");
+  var show=h.style.display!=="block";h.style.display=show?"block":"none";
+  if(show){var t=rec.w+rec.l;
+    document.getElementById("histBody").innerHTML=
+      "跟电脑下了 "+t+" 局：赢 "+rec.w+"，输 "+rec.l+"<br><br>"+
+      (rec.log.length?rec.log.join("<br>"):"还没有记录")}}
 function setMode(m){mode=m;document.getElementById("m1").className=m===1?"on":"";
   document.getElementById("m2").className=m===2?"on":"";reset()}
-function reset(){over=false;turn=1;build();
+function reset(){over=false;turn=1;sel=-1;lastMine=-1;lastAi=-1;build();paint();
+  okBtn.disabled=true;okBtn.textContent="先点一个格子";
   document.getElementById("msg").textContent=mode===1?"你先下，你是 ⚫":"⚫ 先下"}
-build();reset();stat();
+build();reset();
 </script>
