@@ -1,0 +1,78 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>猫猫叠叠乐 · 霏雅</title>
+<!-- 霏雅 2026-08-24 自己点的名：《猫猫叠叠乐》。
+     她的两条硬要求：不怎么吃流量、点着玩不打字。所以整页一个文件、零图片零音频零外链。
+     最高纪录存 localStorage 的 feiyaMaomao 键（别跟 feiyaForest、forestOfUs 撞）。 -->
+<style>
+:root{--pink:#ffd6e7;--ink:#6b4a5c;--rose:#e87faf;--deep:#d4568f;--sand:#f7e6b8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:linear-gradient(#fff3f8,var(--pink));color:var(--ink);
+     font-family:-apple-system,"PingFang SC",sans-serif;height:100vh;overflow:hidden;
+     display:flex;flex-direction:column;user-select:none}
+header{padding:12px 16px 6px}
+h1{font-size:1.15rem;margin:0}
+.sub{font-size:.78rem;opacity:.72;margin-top:2px}
+#stage{flex:1;position:relative;overflow:hidden}
+.cat{position:absolute;font-size:2.2rem;line-height:1;transition:none}
+#hint{position:absolute;left:0;right:0;top:44%;text-align:center;font-size:1rem;
+      color:var(--deep);font-weight:600;pointer-events:none}
+footer{padding:10px 16px 18px;text-align:center}
+.score{font-size:.9rem;opacity:.8;margin-bottom:8px}
+button{padding:11px 26px;font-size:1rem;border:0;border-radius:12px;background:var(--deep);
+       color:#fff;font-family:inherit}
+</style>
+<header><h1>猫猫叠叠乐</h1><div class="sub">点一下屏幕，猫就落下来。叠歪了会塌。</div></header>
+<div id="stage"><div id="hint">点一下开始</div></div>
+<footer><div class="score" id="score"></div><button onclick="reset()">重来</button></footer>
+<script>
+var CATS=["🐱","🐈","🐈‍⬛","😺","😸","🐾"];
+var stage=document.getElementById("stage"),hintEl=document.getElementById("hint");
+var best=+(localStorage.getItem("feiyaMaomao")||0);
+var playing=false,cur=null,dir=1,x=20,baseY,stackTop,n=0,over=false;
+function W(){return stage.clientWidth}
+function showScore(){document.getElementById("score").textContent="叠了 "+n+" 只　最高纪录 "+best+" 只"}
+function spawn(){
+  cur=document.createElement("div");cur.className="cat";
+  cur.textContent=CATS[n%CATS.length];
+  cur.style.top="6px";stage.appendChild(cur);
+  x=Math.random()*(W()-50);dir=Math.random()<.5?1:-1;
+  cur.style.left=x+"px";
+}
+function step(){
+  if(!playing||over||!cur)return;
+  var sp=2+Math.min(n*0.25,5);
+  x+=dir*sp; if(x<0){x=0;dir=1} if(x>W()-44){x=W()-44;dir=-1}
+  cur.style.left=x+"px"; requestAnimationFrame(step);
+}
+function drop(){
+  if(over)return;
+  if(!playing){playing=true;hintEl.style.display="none";baseY=stage.clientHeight-52;stackTop=baseY;spawn();showScore();step();return}
+  if(!cur)return;
+  var landed=cur,lx=x;
+  cur=null;
+  landed.style.transition="top .28s cubic-bezier(.4,1.6,.6,1)";
+  landed.style.top=stackTop+"px";
+  var prevX=landed._prevX=window._lastX;
+  window._lastX=lx;
+  setTimeout(function(){
+    if(prevX!==undefined&&Math.abs(lx-prevX)>34){ /* 偏太多，塌 */
+      over=true;landed.style.transform="rotate(28deg) translateY(40px)";landed.style.opacity=".55";
+      hintEl.textContent="塌了。叠了 "+n+" 只";hintEl.style.display="block";
+      if(n>best){best=n;localStorage.setItem("feiyaMaomao",best);hintEl.textContent="塌了，但破纪录了：" + n + " 只";}
+      showScore();return;
+    }
+    n++;stackTop-=34;showScore();
+    if(stackTop<40){hintEl.textContent="叠到顶了，你赢了";hintEl.style.display="block";over=true;
+      if(n>best){best=n;localStorage.setItem("feiyaMaomao",best)}showScore();return}
+    spawn();step();
+  },290);
+}
+function reset(){stage.querySelectorAll(".cat").forEach(function(e){e.remove()});
+  playing=false;over=false;n=0;cur=null;window._lastX=undefined;
+  hintEl.textContent="点一下开始";hintEl.style.display="block";showScore()}
+stage.addEventListener("click",drop);
+stage.addEventListener("touchstart",function(e){e.preventDefault();drop()},{passive:false});
+showScore();
+</script>
