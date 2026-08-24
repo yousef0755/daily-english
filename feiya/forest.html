@@ -1,0 +1,74 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>森林 · 霏雅</title>
+<!-- 霏雅 2026-08-24 自己定的方向：「收集 + 养一整个森林居民社区」，每次玩 3–8 分钟、能慢慢养很久。
+     她还说「那种不怎么用wifi的」——所以整页一个文件、零图片零音频零外链。
+     一天从凌晨 4 点算起：她晚上十一点半来玩，不该被算成第二天（这是 8-22 曼雅那件事的教训）。
+     进度存在 localStorage 的 feiyaForest 键，跟 Mie 森林那个 forestOfUs 分开，别撞。
+     不来不掉进度、不惩罚——家里的规矩是只按来没来记，不罚人。 -->
+<style>
+:root{--pink:#ffd6e7;--ink:#6b4a5c;--rose:#e87faf;--deep:#d4568f;--sand:#f7e6b8;--leaf:#7fb069}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:linear-gradient(#eaf6e6,#ffd6e7);color:var(--ink);
+     font-family:-apple-system,"PingFang SC",sans-serif;min-height:100vh}
+h1{font-size:1.35rem;margin:4px 0 2px}
+.sub{font-size:.82rem;opacity:.72;margin-bottom:14px}
+.box{background:#fffdf8;border:2px solid var(--rose);border-radius:18px;padding:16px;margin-bottom:12px}
+.forest{font-size:1.9rem;line-height:1.7;letter-spacing:.08em;min-height:3.4em;word-break:break-all}
+.task{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed #f0d9e4}
+.task:last-child{border:0}
+.task b{flex:1;font-weight:500;font-size:.98rem}
+button{padding:9px 16px;font-size:.92rem;border:0;border-radius:11px;background:var(--deep);
+       color:#fff;font-family:inherit}
+button:disabled{background:#dfd3d9;color:#fff}
+.msg{margin-top:10px;font-size:.92rem;line-height:1.6;min-height:1.4em}
+.stat{font-size:.82rem;opacity:.75;text-align:center;margin-top:10px;line-height:1.7}
+.new{font-size:1.05rem;color:var(--deep);font-weight:600}
+</style>
+<h1>霏雅的森林</h1>
+<div class="sub">每天来做几件小事，森林会慢慢热闹起来。不来也不会怎么样，它等着你。</div>
+
+<div class="box"><div class="forest" id="forest">🌲</div>
+  <div class="stat" id="stat"></div></div>
+
+<div class="box">
+  <div class="task"><b id="t0">浇水</b><button id="b0" onclick="doTask(0)">做</button></div>
+  <div class="task"><b id="t1">捡果子</b><button id="b1" onclick="doTask(1)">做</button></div>
+  <div class="task"><b id="t2">扫落叶</b><button id="b2" onclick="doTask(2)">做</button></div>
+  <div class="msg" id="msg"></div>
+</div>
+
+<script>
+/* 一天从凌晨 4 点起算 */
+function today(){var d=new Date(Date.now()-4*3600*1000);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+var POOL=["🐿️","🦔","🐇","🦌","🦉","🐸","🐝","🦋","🌷","🍄","🌻","🐌","🦆","🌰","🐞","🕊️","🌼","🦊"];
+var TASKS=["浇水","捡果子","扫落叶"];
+var S=JSON.parse(localStorage.getItem("feiyaForest")||"null")||{day:"",done:[],res:["🌲"],days:0};
+function save(){localStorage.setItem("feiyaForest",JSON.stringify(S))}
+function newDay(){if(S.day!==today()){S.day=today();S.done=[];S.days++;save()}}
+function draw(){
+  document.getElementById("forest").textContent=S.res.join(" ");
+  document.getElementById("stat").textContent="森林里有 "+S.res.length+" 位居民　你来过 "+S.days+" 天";
+  for(var i=0;i<3;i++){
+    var b=document.getElementById("b"+i);
+    b.disabled=S.done.indexOf(i)>=0; b.textContent=b.disabled?"做过了":"做";
+  }
+  if(S.done.length===3)document.getElementById("msg").textContent="今天的都做完了，明天再来看看。";
+}
+function doTask(i){
+  if(S.done.indexOf(i)>=0)return;
+  S.done.push(i);
+  var m=TASKS[i]+"做好了。";
+  if(Math.random()<0.55){
+    var left=POOL.filter(function(x){return S.res.indexOf(x)<0});
+    if(left.length){var n=left[Math.floor(Math.random()*left.length)];
+      S.res.push(n);m+=" 有位新居民搬进来了："+n;}
+    else m+=" 森林已经满了，全员到齐。";
+  }else m+=" 这次没人来，明天再看。";
+  save();draw();
+  document.getElementById("msg").innerHTML=m.indexOf("新居民")>=0?'<span class="new">'+m+'</span>':m;
+}
+newDay();draw();
+</script>
