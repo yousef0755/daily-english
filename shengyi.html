@@ -12,9 +12,9 @@
 <meta name="apple-mobile-web-app-title" content="做生意">
 <meta name="robots" content="noindex,nofollow">
 <style>
-/* 深空高级风（老板口味：氛围感+玻璃质感+发光，不要米色极简）。
+/* 深空高级风（氛围感+玻璃质感+发光，不要米色极简）。
    结构照 arabic.html 的多板块 + 先听后揭示 + 同一套防静音拨杆的 Web Audio。
-   内容双语：做生意海湾口语阿语(主打) + 简单英语口语；按「周」推进，一周一板块。 */
+   内容只保留做生意海湾口语阿语；按周推进。 */
 :root{
   --bg0:#0a1730; --bg1:#060d1e; --ink:#eef2fb; --sub:#9fb0cc; --dim:#6f809d;
   --gold:#e6c67d; --gold2:#f2d79b; --goldDeep:#b8964e;
@@ -118,7 +118,7 @@ main{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:8px 16px}
 <header>
   <img class="logo" src="./shengyi/icon-192.png?v=1" alt="">
   <div class="salam">السلام عليكم</div>
-  <h1>做生意 · 阿语 + 英语</h1>
+  <h1>做生意 · 阿语</h1>
   <div class="weekbar">
     <div class="wk">本周板块</div>
     <div class="th" id="wkTheme">—</div>
@@ -130,7 +130,6 @@ main{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:8px 16px}
   </div>
   <nav class="nav">
     <button class="on" data-v="ar">阿语口语</button>
-    <button data-v="en">英语口语</button>
     <button data-v="ting">听力</button>
     <button data-v="chat">找小林聊</button>
   </nav>
@@ -141,12 +140,6 @@ main{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:8px 16px}
   <section class="view on" id="arView">
     <div class="scene"><div class="sc" id="arScene">—</div><div class="in" id="arIntro">—</div></div>
     <div id="arList"></div>
-  </section>
-
-  <!-- 英语口语 -->
-  <section class="view" id="enView">
-    <div class="scene"><div class="sc" id="enScene">—</div><div class="in" id="enIntro">—</div></div>
-    <div id="enList"></div>
   </section>
 
   <!-- 听力（阿语，先听后揭示） -->
@@ -172,25 +165,22 @@ main{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:8px 16px}
 </main>
 
 <script src="./shengyi/phrases.js?v=2"></script>
-<script src="./shengyi/en.js?v=2"></script>
 <script>
 /* ===================== 基础 ===================== */
 var API="https://api.thesulegacy.com";
 function today(){var d=new Date();
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 /* 按周推进：一周一板块。起始锚定在 2026-08-17（周一，做生意站上线周），
-   这样姐一打开就是第 1 周（阿语=见面寒暄 / 英语=吃饭），不会落在半截。
+   这样打开就是第 1 周（阿语=见面寒暄），不会落在半截。
    要改成姐的实际开始日，改这个 anchor 即可。 */
 function weekNum(){var anchor=Date.UTC(2026,7,17),n=new Date();
   var t=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());
   return Math.max(0,Math.floor((t-anchor)/604800000));}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-var PACKS_AR=window.SY_PACKS||[], PACKS_EN=window.EN_PACKS||[];
+var PACKS_AR=window.SY_PACKS||[];
 var ALL_AR=[];PACKS_AR.forEach(function(p){p.items.forEach(function(it){ALL_AR.push(it);});});
 function arPack(){return PACKS_AR.length?PACKS_AR[weekNum()%PACKS_AR.length]:null;}
 function arWk(){return PACKS_AR.length?(weekNum()%PACKS_AR.length):0;}
-function enPack(){return PACKS_EN.length?PACKS_EN[weekNum()%PACKS_EN.length]:null;}
-function enWk(){return PACKS_EN.length?(weekNum()%PACKS_EN.length):0;}
 
 /* 星空 */
 (function(){var sky=document.getElementById("sky"),h="";
@@ -207,7 +197,6 @@ document.querySelectorAll(".nav button").forEach(function(b){
     document.querySelectorAll(".view").forEach(function(v){v.classList.remove("on");});
     document.getElementById(b.dataset.v+"View").classList.add("on");
     window.scrollTo({top:0,behavior:"smooth"});
-    if(b.dataset.v==="en")initEn();
     if(b.dataset.v==="ting")initListen();
     if(b.dataset.v==="chat")initChat();
   });
@@ -254,9 +243,9 @@ function pushDays(days){
 
 /* ===================== 本周板块 ===================== */
 function paintWeek(){
-  var ap=arPack(),ep=enPack();
-  document.getElementById("wkTheme").textContent="阿语 · "+(ap?ap.scene:"—")+"　｜　英语 · "+(ep?ep.scene:"—");
-  document.getElementById("wkSub").textContent="一周练一块（阿语第 "+(arWk()+1)+"/"+PACKS_AR.length+" 周 · 英语第 "+(enWk()+1)+"/"+PACKS_EN.length+" 周）；天天来打卡，下周自动换";
+  var ap=arPack();
+  document.getElementById("wkTheme").textContent="阿语 · "+(ap?ap.scene:"—");
+  document.getElementById("wkSub").textContent="一周练一块（阿语第 "+(arWk()+1)+"/"+PACKS_AR.length+" 周）；天天来打卡，下周自动换";
 }
 
 /* ===================== 阿语口语 ===================== */
@@ -272,26 +261,6 @@ function paintAr(){
   document.getElementById("arIntro").textContent=p.intro;
   var box=document.getElementById("arList");
   box.innerHTML=p.items.map(arCard).join("");
-  bindPlay(box);
-}
-
-/* ===================== 英语口语 ===================== */
-var _enInit=false;
-function enRow(it,isAns){
-  return '<div class="prow">'
-    +'<button class="playBtn" data-stem="e'+it.id+'" data-lang="en" data-text="'+esc(it.en)+'" aria-label="听">▶</button>'
-    +'<div class="enw'+(isAns?" ans":"")+'">'+(isAns?"— ":"")+esc(it.en)+'</div></div>'
-    +'<div class="tr">🗣 '+esc(it.tr)+'</div><div class="zh">'+esc(it.zh)+'</div>';
-}
-function initEn(){
-  if(_enInit)return;_enInit=true;
-  var p=enPack();if(!p)return;
-  document.getElementById("enScene").textContent="本周英语 · "+p.scene+"（一问一答）";
-  document.getElementById("enIntro").textContent=p.intro+" 发音是谐音、帮你张口，跟着录音念才准。";
-  var box=document.getElementById("enList");
-  box.innerHTML=p.pairs.map(function(pr){
-    return '<div class="pcard qa">'+enRow(pr.q,false)+'<div class="aline">'+enRow(pr.a,true)+'</div></div>';
-  }).join("");
   bindPlay(box);
 }
 
