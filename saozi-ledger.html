@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>手机进销记账</title>
+<meta name="theme-color" content="#0a1730">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="记账">
+<meta name="robots" content="noindex,nofollow">
+<style>
+/* 深空高级风，跟 shengyi.html 一套调性：深蓝底、金色点缀、玻璃卡片。
+   这页是嫂子个人手机买卖记账工具，纯本机 localStorage，不接任何账目/库存系统。 */
+:root{
+  --bg0:#0a1730; --bg1:#060d1e; --ink:#eef2fb; --sub:#9fb0cc; --dim:#6f809d;
+  --gold:#e6c67d; --gold2:#f2d79b; --goldDeep:#b8964e;
+  --card:rgba(255,255,255,.055); --card2:rgba(255,255,255,.085);
+  --line:rgba(255,255,255,.10); --lineGold:rgba(230,198,125,.32);
+  --ok:#7fd4a3; --bad:#e08a8a; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{font-family:-apple-system,"PingFang SC","PingFang HK","Noto Sans SC",sans-serif;
+  color:var(--ink);line-height:1.65;font-size:17px;
+  background:radial-gradient(125% 90% at 78% -8%,#16264a 0%,var(--bg0) 42%,var(--bg1) 100%);
+  background-attachment:fixed;padding-bottom:48px}
+#sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#sky i{position:absolute;background:#fff;border-radius:50%;opacity:.5;animation:tw 4s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.25}50%{opacity:.85}}
+.glowmoon{position:fixed;top:-64px;right:-40px;width:220px;height:220px;border-radius:50%;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 40% 38%,rgba(242,215,155,.30),rgba(230,198,125,.08) 44%,transparent 66%);filter:blur(6px)}
+
+header{position:relative;z-index:1;text-align:center;
+  padding:calc(env(safe-area-inset-top) + 26px) 18px 6px}
+header h1{font-size:1.5rem;letter-spacing:.03em;font-weight:800}
+header .sub{margin-top:6px;font-size:.86rem;color:var(--sub)}
+
+main{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:14px 16px 10px}
+
+.stats{display:flex;gap:12px;margin-bottom:16px}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:14px 12px;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.stat .lb{font-size:.76rem;color:var(--sub);letter-spacing:.04em}
+.stat .n{margin-top:6px;font-size:1.5rem;font-weight:800;color:var(--gold2)}
+.stat .n.money{color:var(--ok)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 15px;
+  margin-bottom:16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow)}
+.card h2{font-size:1.02rem;font-weight:800;color:var(--gold2);margin-bottom:12px}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.82rem;color:var(--sub);margin-bottom:5px}
+.field input,.field textarea{width:100%;background:rgba(0,0,0,.28);border:1px solid var(--line);
+  border-radius:12px;padding:12px 13px;color:var(--ink);font-size:16px;font-family:inherit;outline:none}
+.field input:focus,.field textarea:focus{border-color:var(--lineGold)}
+.field textarea{resize:vertical;min-height:44px}
+.row2{display:flex;gap:10px}
+.row2 .field{flex:1}
+
+.preview{font-size:.86rem;color:var(--sub);background:rgba(0,0,0,.18);border:1px solid var(--line);
+  border-radius:12px;padding:10px 12px;margin-bottom:12px;line-height:1.7}
+.preview b{color:var(--gold2)}
+.preview b.bad{color:var(--bad)}
+
+.btn{border:0;border-radius:14px;padding:14px;font-size:1rem;font-weight:800;font-family:inherit;
+  cursor:pointer;width:100%;color:#241a06;background:linear-gradient(160deg,var(--gold2),var(--goldDeep));
+  box-shadow:0 6px 18px rgba(230,198,125,.28)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{color:var(--gold2);background:transparent;border:1px solid var(--lineGold);box-shadow:none;margin-top:10px}
+.err{color:var(--bad);font-size:.85rem;margin:-2px 0 10px;display:none}
+
+.rec{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:10px}
+.rec .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.rec .model{font-weight:800;font-size:1.02rem}
+.rec .date{font-size:.78rem;color:var(--sub);white-space:nowrap}
+.rec .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-top:9px;font-size:.88rem}
+.rec .grid .k{color:var(--sub)}
+.rec .grid .v{color:var(--ink);font-weight:600}
+.rec .grid .v.profit{color:var(--ok);font-weight:800}
+.rec .note{margin-top:8px;font-size:.82rem;color:var(--sub);line-height:1.6;
+  border-top:1px dashed var(--line);padding-top:8px}
+.rec .del{margin-top:10px;background:transparent;border:1px solid rgba(224,138,138,.4);color:var(--bad);
+  border-radius:999px;padding:6px 14px;font-size:.78rem;font-family:inherit;cursor:pointer}
+
+.empty{text-align:center;color:var(--dim);font-size:.9rem;padding:20px 0}
+
+#exportBox{display:none}
+#exportBox textarea{width:100%;min-height:220px;background:rgba(0,0,0,.32);border:1px solid var(--line);
+  border-radius:12px;padding:12px;color:var(--ink);font-size:.82rem;font-family:ui-monospace,Menlo,monospace;
+  line-height:1.6;white-space:pre}
+#copyTip{font-size:.8rem;color:var(--ok);margin-top:8px;display:none;text-align:center}
+
+.foot{text-align:center;color:var(--dim);font-size:.72rem;letter-spacing:.04em;padding:10px 16px 4px;line-height:1.8}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<div class="glowmoon"></div>
+
+<header>
+  <h1>手机进销记账</h1>
+  <div class="sub">嫂子专用 · 只存在这台手机里</div>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat"><div class="lb">总进货台数</div><div class="n" id="stQty">0</div></div>
+    <div class="stat"><div class="lb">总利润（美元）</div><div class="n money" id="stProfit">$0</div></div>
+  </div>
+
+  <div class="card">
+    <h2>记一笔</h2>
+    <div class="field">
+      <label>型号</label>
+      <input id="fModel" type="text" placeholder="比如 H600 lite (黑50+灰50)">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>数量（台）</label>
+        <input id="fQty" type="number" inputmode="numeric" min="1" placeholder="100">
+      </div>
+      <div class="field">
+        <label>日期</label>
+        <input id="fDate" type="date">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>进货价（单台，美元）</label>
+        <input id="fBuy" type="number" inputmode="decimal" step="0.01" placeholder="243">
+      </div>
+      <div class="field">
+        <label>销售价（单台，美元）</label>
+        <input id="fSell" type="number" inputmode="decimal" step="0.01" placeholder="251.3">
+      </div>
+    </div>
+    <div class="field">
+      <label>备注（选填）</label>
+      <textarea id="fNote" placeholder="比如供应商、汇率、渠道…"></textarea>
+    </div>
+    <div class="preview" id="livePreview">单台利润 — · 这批总利润 —</div>
+    <div class="err" id="fErr">型号、数量、进货价、销售价都要填对</div>
+    <button class="btn" id="addBtn">记下这一笔</button>
+  </div>
+
+  <div class="card">
+    <h2>记录（最新在最上面）</h2>
+    <div id="list"></div>
+    <button class="btn ghost" id="exportBtn">导出成文本</button>
+    <div id="exportBox">
+      <textarea id="exportText" readonly></textarea>
+      <button class="btn ghost" id="copyBtn" style="margin-top:10px">复制全部文字</button>
+      <div id="copyTip">已复制，去 WhatsApp 粘贴发给自己就存下了</div>
+    </div>
+  </div>
+
+  <div class="foot">加到手机桌面：Safari 底部分享 → 「添加到主屏幕」<br>
+    数据只存在这台手机上，换手机前先点「导出成文本」存一份</div>
+</main>
+
+<script>
+/* 星空背景，跟 shengyi.html 同款 */
+(function(){var sky=document.getElementById("sky"),h="";
+  for(var i=0;i<50;i++){var s=(Math.random()*2+1).toFixed(1);
+    h+='<i style="left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*100).toFixed(2)
+      +'%;width:'+s+'px;height:'+s+'px;animation-delay:'+(Math.random()*4).toFixed(1)+'s"></i>';}
+  sky.innerHTML=h;})();
+
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function money(n){var v=Math.round((n+Number.EPSILON)*100)/100;
+  var neg=v<0;v=Math.abs(v);
+  var s="$"+v.toFixed(2).replace(/\.00$/,"").replace(/(\.\d)0$/,"$1");
+  return (neg?"-":"")+s;}
+function todayStr(){var d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function niceDay(d){
+  var p=(d||"").split("-");
+  if(p.length!==3)return d||"";
+  return p[0]+"-"+p[1].replace(/^0/,"")+"-"+p[2].replace(/^0/,"");
+}
+
+/* ===== 数据：本机 localStorage，只这台手机用，不接任何外部系统 ===== */
+var DATA_KEY="saoziLedger_v1";
+var SEED_KEY="saoziLedger_seeded_v1";
+
+function loadRecs(){
+  try{return JSON.parse(localStorage.getItem(DATA_KEY)||"[]")||[];}catch(e){return [];}
+}
+function saveRecs(list){
+  try{localStorage.setItem(DATA_KEY,JSON.stringify(list));}catch(e){}
+}
+function ensureSeed(){
+  try{
+    if(localStorage.getItem(SEED_KEY))return;    // 已经初始化过，即便她删空了也不再补
+    localStorage.setItem(SEED_KEY,"1");
+    if(loadRecs().length)return;                  // 万一已经有数据了，不覆盖
+    var seed=[{
+      id:"seed-h600lite",
+      date:"2026-08-26",
+      model:"H600 lite (黑50+灰50)",
+      qty:100,
+      buy:243,
+      sell:251.3,
+      note:"供应商Brenda Inova通知，销售价AED925/3.68",
+      ts:Date.now()
+    }];
+    saveRecs(seed);
+  }catch(e){}
+}
+
+function perUnitProfit(r){return r.sell-r.buy;}
+function batchProfit(r){return perUnitProfit(r)*r.qty;}
+
+function paintStats(){
+  var list=loadRecs();
+  var qty=0,profit=0;
+  list.forEach(function(r){qty+=Number(r.qty)||0;profit+=batchProfit(r);});
+  document.getElementById("stQty").textContent=qty;
+  document.getElementById("stProfit").textContent=money(profit);
+}
+
+function recCard(r){
+  var pu=perUnitProfit(r),bp=batchProfit(r);
+  return '<div class="rec" data-id="'+esc(r.id)+'">'
+    +'<div class="top"><div class="model">'+esc(r.model)+'</div><div class="date">'+esc(niceDay(r.date))+'</div></div>'
+    +'<div class="grid">'
+      +'<div class="k">数量</div><div class="v">'+esc(r.qty)+' 台</div>'
+      +'<div class="k">进货价（单台）</div><div class="v">'+money(r.buy)+'</div>'
+      +'<div class="k">销售价（单台）</div><div class="v">'+money(r.sell)+'</div>'
+      +'<div class="k">单台利润</div><div class="v profit">'+money(pu)+'</div>'
+      +'<div class="k">这批总利润</div><div class="v profit">'+money(bp)+'</div>'
+    +'</div>'
+    +(r.note?'<div class="note">'+esc(r.note)+'</div>':'')
+    +'<button class="del" data-del="'+esc(r.id)+'">删除这条</button>'
+    +'</div>';
+}
+
+function paintList(){
+  var list=loadRecs().slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+  var box=document.getElementById("list");
+  if(!list.length){box.innerHTML='<div class="empty">还没有记录，填上面的表单记第一笔</div>';return;}
+  box.innerHTML=list.map(recCard).join("");
+  [].forEach.call(box.querySelectorAll("[data-del]"),function(b){
+    b.addEventListener("click",function(){
+      if(!confirm("删除这一条记录？删了就找不回来了"))return;
+      var id=b.dataset.del;
+      var rest=loadRecs().filter(function(r){return r.id!==id;});
+      saveRecs(rest);
+      paintList();paintStats();
+    });
+  });
+}
+
+/* ===== 表单 ===== */
+var elModel=document.getElementById("fModel"),
+    elQty=document.getElementById("fQty"),
+    elBuy=document.getElementById("fBuy"),
+    elSell=document.getElementById("fSell"),
+    elDate=document.getElementById("fDate"),
+    elNote=document.getElementById("fNote"),
+    elErr=document.getElementById("fErr"),
+    elPreview=document.getElementById("livePreview");
+
+elDate.value=todayStr();
+
+function readForm(){
+  return {
+    model:elModel.value.trim(),
+    qty:parseFloat(elQty.value),
+    buy:parseFloat(elBuy.value),
+    sell:parseFloat(elSell.value),
+    date:elDate.value||todayStr(),
+    note:elNote.value.trim()
+  };
+}
+function validForm(f){
+  return f.model && isFinite(f.qty) && f.qty>0 && isFinite(f.buy) && f.buy>=0 && isFinite(f.sell) && f.sell>=0;
+}
+function updatePreview(){
+  var f=readForm();
+  if(!isFinite(f.buy)||!isFinite(f.sell)||!isFinite(f.qty)||f.qty<=0){
+    elPreview.innerHTML="单台利润 — · 这批总利润 —";return;
+  }
+  var pu=f.sell-f.buy,bp=pu*f.qty;
+  var cls=pu<0?"bad":"";
+  elPreview.innerHTML="单台利润 <b class=\""+cls+"\">"+money(pu)+"</b> · 这批总利润 <b class=\""+cls+"\">"+money(bp)+"</b>";
+}
+[elModel,elQty,elBuy,elSell].forEach(function(el){
+  el.addEventListener("input",updatePreview);
+});
+
+document.getElementById("addBtn").addEventListener("click",function(){
+  var f=readForm();
+  if(!validForm(f)){elErr.style.display="block";return;}
+  elErr.style.display="none";
+  var list=loadRecs();
+  list.push({
+    id:"r"+Date.now()+Math.random().toString(36).slice(2,7),
+    date:f.date,model:f.model,qty:f.qty,buy:f.buy,sell:f.sell,note:f.note,ts:Date.now()
+  });
+  saveRecs(list);
+  elModel.value="";elQty.value="";elBuy.value="";elSell.value="";elNote.value="";
+  elDate.value=todayStr();
+  updatePreview();
+  paintList();paintStats();
+  window.scrollTo({top:document.getElementById("list").getBoundingClientRect().top+window.scrollY-70,behavior:"smooth"});
+});
+
+/* ===== 导出成文本 ===== */
+function buildExportText(){
+  var list=loadRecs().slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+  var lines=["手机进销记账 · 导出于 "+todayStr(),""];
+  var qty=0,profit=0;
+  list.forEach(function(r){
+    var pu=perUnitProfit(r),bp=batchProfit(r);
+    qty+=Number(r.qty)||0;profit+=bp;
+    lines.push(niceDay(r.date)+" | "+r.model+" | "+r.qty+"台 | 进货"+money(r.buy)+" | 销售"+money(r.sell)
+      +" | 单台利润"+money(pu)+" | 总利润"+money(bp)+(r.note?" | "+r.note:""));
+  });
+  lines.push("");
+  lines.push("汇总：总进货 "+qty+" 台，总利润 "+money(profit));
+  return lines.join("\n");
+}
+document.getElementById("exportBtn").addEventListener("click",function(){
+  var box=document.getElementById("exportBox");
+  var show=box.style.display!=="block";
+  box.style.display=show?"block":"none";
+  if(show){
+    document.getElementById("exportText").value=buildExportText();
+    box.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+});
+document.getElementById("copyBtn").addEventListener("click",function(){
+  var ta=document.getElementById("exportText");
+  ta.value=buildExportText();
+  var tip=document.getElementById("copyTip");
+  function ok(){tip.style.display="block";setTimeout(function(){tip.style.display="none";},2200);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(ok).catch(function(){ta.select();document.execCommand("copy");ok();});
+  }else{
+    ta.select();try{document.execCommand("copy");}catch(e){}
+    ok();
+  }
+});
+
+/* ===== 启动 ===== */
+ensureSeed();
+paintList();paintStats();updatePreview();
+</script>
+</body>
+</html>
