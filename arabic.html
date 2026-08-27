@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta http-equiv="refresh" content="0;url=https://daily-language-garden.yousef0755.chatgpt.site/">
-<link rel="canonical" href="https://daily-language-garden.yousef0755.chatgpt.site/">
-<script>
-/* Fatima 的手机桌面仍指向这条旧地址。保留旧文件作为兼容入口，
-   直接送到现在维护的英语＋标准阿语一周题库。 */
-window.location.replace("https://daily-language-garden.yousef0755.chatgpt.site/");
-</script>
+<!-- 2026-08-27 老板妻子反馈她一直在用外部 chatgpt.site 学阿语，我们这边不显示进度。
+     查出来：README 里"妈妈 | arabic.html"写得明明白白，这一页就是她自己的书签页——
+     可 2026-08-24 cdad299 那次提交在这里加了个 meta-refresh + location.replace，
+     把这页整个重定向去了 https://daily-language-garden.yousef0755.chatgpt.site/。
+     提交注释写的是"Fatima 的手机桌面"，但家里人名单里没有 Fatima——
+     Fatima 是本页里 AI 阿语老师的人设名字（见下面 AR_PERSONA），
+     大概率是当时那次改动把人设名字和真人搞混了，误把嫂子自己的书签重定向去了外部站。
+     也就是说："她在用的、我们没有权限的外部网站"其实就是我们自己这一行代码把她送过去的。
+     现在去掉重定向，把这页还原成她自己能打开、能被家庭榜看到进度的页面。 -->
 <title>تعلّم العربية · 阿拉伯语课堂</title>
 <style>
 :root{
@@ -28,6 +30,10 @@ main{max-width:640px;margin:0 auto;padding:18px 16px}
 .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
 .pill{border:1px solid var(--gold);border-radius:16px;padding:4px 13px;font-size:.85rem;background:#faf6ea;cursor:pointer;color:var(--green-deep);font-family:inherit}
 .pill.on{background:var(--green);color:#f2ead8;border-color:var(--green)}
+/* 2026-08-27 周主题过关制：锁着的周变淡+不可点，过关的周前面带勾号（见 renderPills） */
+.pill.locked{opacity:.42;cursor:not-allowed;background:#efe9da}
+.pill:disabled{pointer-events:none}
+.week-progress{text-align:center;color:var(--muted);font-size:.78rem;margin:2px 0 10px}
 .hint{color:var(--muted);font-size:.8rem;text-align:center;margin:8px 0 2px}
 .card{background:var(--card);border:1px solid #e4dcc9;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(30,43,35,.06)}
 .word-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -128,7 +134,7 @@ header .pill.on{
   };
 })();
 </script>
-<script>window.__BUILD__="ba1a67e274"</script>
+<script>window.__BUILD__="1d6f7677a1"</script>
 </head>
 <body>
 
@@ -146,13 +152,14 @@ header .pill.on{
 <main>
   <div class="day-tag" id="dayTag"></div>
   <div class="pill-row" id="pills"></div>
+  <div class="week-progress" id="weekProgress"></div>
   <div id="lvlRow" style="display:none" aria-hidden="true">
     <button class="pill" id="lvlZh">标准阿语</button>
     <button class="pill" id="lvlImm">标准阿语</button>
   </div>
   <p class="hint">Listen first 🎧 — then tap the blurred line to reveal it. That's how kids learn: sound before spelling.</p>
   <div id="wordArea"></div>
-  <h2 class="section-title">Listening Quiz <small>Hear it, pick what he said · 7/10 lights the day</small></h2>
+  <h2 class="section-title">Listening Quiz <small id="quizNeedHint">Hear it, pick what she said</small></h2>
   <div id="quizArea"><button class="btn-main" id="startQuiz">Start the listening quiz →</button></div>
   <h2 class="section-title">Class with Fatima <small>全程现代标准阿拉伯语 · 不夹地区方言</small></h2>
   <div class="card" style="text-align:center">
@@ -358,11 +365,39 @@ try{state=JSON.parse(store.get(KEY)||'{"streak":0,"last":"","log":[]}');}catch(e
 function dubaiToday(){return new Date(Date.now()+144e5).toISOString().slice(0,10)}
 const today=dubaiToday();
 /* 从首屏开始只加载现代标准阿拉伯语，避免先闪出旧英语课程。 */
-const packNames=Object.keys(AR_PACKS);
-const dayIndex=Math.floor(Date.now()/86400000)%packNames.length;
-let currentPack=packNames[dayIndex];
 window.__PACKS_ACTIVE=AR_PACKS;
-window.__packNamesActive=packNames;
+
+/* ===== 2026-08-27 主题周 + 过关解锁（老板妻子要的两件事之二）=====
+   把原来"5 个话题任意切换"的内容，按老板妻子举的例子（第1周购物、第2周打电话……）
+   重新排成 6 周："出行与住宿"那 25 条太长，拆成机场/酒店两周，其余 4 个话题各自一周。
+   数据还是同一份 AR_PACKS，没有另抄一份——WEEKS 只存"取哪个包、切哪一段"，
+   照抄内容会跟原文分叉、以后改一处忘一处（参见 copy-then-diverge 的教训）。
+   过关线＝这一周题量的 70%（10 条→7，13 条→10，12 条→9），
+   过了才解锁下一周；进度存在新键 arWeeksSu1，不跟其他页/其他键撞名。 */
+const WEEKS=[
+  {title:"第1周 · 购物口语",  sub:"Shopping",            pack:"التَّسَوُّقُ وَالْمَنْزِلُ · 购物与家里",   range:[0,10]},
+  {title:"第2周 · 预约看病",  sub:"Appointments & Health", pack:"الْمَدْرَسَةُ وَالصِّحَّةُ · 学校与看病", range:[0,10]},
+  {title:"第3周 · 日常应对",  sub:"Everyday Expressions", pack:"الحياة اليومية · 标准阿语生活",           range:[0,10]},
+  {title:"第4周 · 待人接物",  sub:"Social & Hospitality",  pack:"مَعَ النَّاسِ · 标准阿语交往",             range:[0,10]},
+  {title:"第5周 · 机场登机",  sub:"Airport & Flights",     pack:"السَّفَرُ وَالْإِقَامَةُ · 出行与住宿",    range:[0,13]},
+  {title:"第6周 · 酒店问路",  sub:"Hotel & Directions",    pack:"السَّفَرُ وَالْإِقَامَةُ · 出行与住宿",    range:[13,25]}
+];
+function weekItems(w){return AR_PACKS[w.pack].items.slice(w.range[0],w.range[1])}
+function weekTotal(w){return w.range[1]-w.range[0]}
+function passNeed(w){return Math.ceil(weekTotal(w)*0.7)}
+const WKEY="arWeeksSu1";
+function wkLoad(){try{var d=JSON.parse(store.get(WKEY)||'{"passed":[]}');if(!d||!Array.isArray(d.passed))d={passed:[]};return d}catch(e){return {passed:[]}}}
+function wkSave(d){store.set(WKEY,JSON.stringify(d))}
+let wkState=wkLoad();
+function weekPassed(i){return wkState.passed.indexOf(i)!==-1}
+function weekUnlocked(i){return i===0||weekPassed(i-1)}
+function firstOpenWeek(){
+  for(var i=0;i<WEEKS.length;i++){ if(weekUnlocked(i)&&!weekPassed(i)) return i; }
+  for(var i=WEEKS.length-1;i>=0;i--){ if(weekUnlocked(i)) return i; }
+  return 0;
+}
+let currentWeekIdx=firstOpenWeek();
+
 let lastResult=null;
 let player=new Audio();
 
@@ -398,31 +433,53 @@ function play(pack,i,kind,fallback,clean){
 function renderStreak(){try{famPing()}catch(e){}document.getElementById("streak").textContent="🔥 "+state.streak+"-day streak"+(state.last===today?" · today is lit":"");}
 function renderPills(){
   const p=document.getElementById("pills");p.innerHTML="";
-  const activeNames=window.__packNamesActive||packNames;
-  activeNames.forEach(n=>{const b=document.createElement("button");b.className="pill"+(n===currentPack?" on":"");b.textContent=n+(n===activeNames[dayIndex%activeNames.length]?" · 今日":"");b.onclick=()=>{currentPack=n;renderPills();renderWords();};p.appendChild(b);});
+  WEEKS.forEach((w,i)=>{
+    const locked=!weekUnlocked(i),passed=weekPassed(i);
+    const b=document.createElement("button");
+    b.className="pill"+(i===currentWeekIdx?" on":"")+(locked?" locked":"");
+    b.textContent=(passed?"✓ ":locked?"🔒 ":"")+w.title;
+    b.disabled=locked;
+    b.title=locked?"先过 "+WEEKS[i-1].title+" 才能解锁":w.sub;
+    if(!locked)b.onclick=()=>{currentWeekIdx=i;renderPills();renderWords();};
+    p.appendChild(b);
+  });
+  const passedCount=wkState.passed.length;
+  const pg=document.getElementById("weekProgress");
+  if(pg)pg.textContent="已过关 "+passedCount+" / "+WEEKS.length+" 周"+(passedCount>=WEEKS.length?" · 🎉 全部完成":"");
 }
 function renderWords(){
   const area=document.getElementById("wordArea");area.innerHTML="";
-  document.getElementById("dayTag").textContent="دَرْسُ الْيَوْمِ · "+currentPack+" · "+today;
-  ((window.__PACKS_ACTIVE||PACKS)[currentPack]||PACKS[currentPack]).items.forEach((it,i)=>{
+  const w=WEEKS[currentWeekIdx],need=passNeed(w),total=weekTotal(w);
+  document.getElementById("dayTag").textContent="دَرْسُ الْأُسْبُوعِ · "+w.title+" · "+today;
+  const hint=document.getElementById("quizNeedHint");
+  if(hint)hint.textContent="Hear it, pick what she said · "+need+"/"+total+" 过关 · "+w.sub;
+  weekItems(w).forEach((it,i)=>{
     const c=document.createElement("div");c.className="card";
     c.innerHTML='<div class="word-row"><div class="phrase">'+it[0]+'</div><button class="speak">🎧 اِسْتَمِعْ · 听</button></div><div class="use">'+it[1]+'</div>';
     const ph=c.querySelector(".phrase"),use=c.querySelector(".use");
     if(/[\u0600-\u06ff]/.test(it[0]))ph.setAttribute("dir","rtl");
-    c.querySelector(".speak").onclick=()=>(/[\u0600-\u06ff]/.test(it[0])?playPair(it[0],it[1]):play(currentPack,i,"s",it[0]+". "+it[1],it[0]));
+    c.querySelector(".speak").onclick=()=>(/[\u0600-\u06ff]/.test(it[0])?playPair(it[0],it[1]):play(w.pack,i,"s",it[0]+". "+it[1],it[0]));
     ph.onclick=()=>{const on=ph.classList.toggle("shown");use.classList.toggle("shown",on);};
     area.appendChild(c);
   });
 }
 function startQuiz(){
-  const pk=currentPack;const PK=(window.__PACKS_ACTIVE||PACKS);
-  const idx=[...PK[pk].items.keys()].sort(()=>Math.random()-.5).slice(0,10);
+  const w=WEEKS[currentWeekIdx];
+  const items=weekItems(w);
+  const need=passNeed(w);
+  const idx=[...items.keys()].sort(()=>Math.random()-.5);
   let i=0,score=0,wrong=[];const area=document.getElementById("quizArea");
   function q(){
     if(i>=idx.length){
-      const pass=score>=7;
-      lastResult={date:today,pack:pk,score:score,wrong:wrong.slice(0,5)};
-      area.innerHTML='<div class="done-note">'+(pass?"✅ "+score+"/10 · Today is lit!":"💪 "+score+"/10 · One more try — 7 lights it up")+'</div><button class="btn-main" id="again">'+(pass?"Practice again":"Try again")+"</button>";
+      const pass=score>=need;
+      const wasAlreadyPassed=weekPassed(currentWeekIdx);
+      lastResult={date:today,pack:w.title,score:score,total:idx.length,wrong:wrong.slice(0,5)};
+      let unlockNote="";
+      if(pass&&!wasAlreadyPassed){
+        wkState.passed.push(currentWeekIdx);wkSave(wkState);
+        unlockNote=(currentWeekIdx<WEEKS.length-1)?"<br>🔓 解锁 "+WEEKS[currentWeekIdx+1].title:"<br>🎉 六周全部过关！";
+      }
+      area.innerHTML='<div class="done-note">'+(pass?"✅ "+score+"/"+idx.length+" · 本周过关！"+unlockNote:"💪 "+score+"/"+idx.length+" · 再练一下 — "+need+"/"+idx.length+" 才过关")+'</div><button class="btn-main" id="again">'+(pass?"再练一次":"再试一次")+"</button>";
       if(pass&&state.last!==today){
         /* 这一处我在爸爸那页改了，这页漏了。
            state.last 存的是迪拜日，拿 UTC 的「昨天」去比，
@@ -432,15 +489,15 @@ function startQuiz(){
       }
       state.came=today;
       state.log=(state.log||[]).slice(-30);state.log.push(lastResult);
-      store.set(KEY,JSON.stringify(state));renderStreak();updateCoachLink();try{famPing()}catch(e){}
+      store.set(KEY,JSON.stringify(state));renderStreak();renderPills();updateCoachLink();try{famPing()}catch(e){}
       document.getElementById("again").onclick=startQuiz;return;
     }
-    const wi=idx[i],it=PK[pk].items[wi];
-    const others=[...PK[pk].items].filter(x=>x[0]!==it[0]).sort(()=>Math.random()-.5).slice(0,2).map(x=>x[0]);
+    const wi=idx[i],it=items[wi];
+    const others=[...items].filter(x=>x[0]!==it[0]).sort(()=>Math.random()-.5).slice(0,2).map(x=>x[0]);
     const opts=[it[0],...others].sort(()=>Math.random()-.5);
     area.innerHTML='<div class="quiz-q">السُّؤَالُ '+(i+1)+' · 🎧 她说的是哪一句？</div><button class="replay" id="rp">▶ 再听一次</button>'+opts.map(o=>'<button class="quiz-opt">'+o+"</button>").join("");
-    play(pk,wi,"w",it[0]);
-    document.getElementById("rp").onclick=()=>play(pk,wi,"w",it[0]);
+    play(w.pack,wi,"w",it[0]);
+    document.getElementById("rp").onclick=()=>play(w.pack,wi,"w",it[0]);
     area.querySelectorAll(".quiz-opt").forEach(b=>{
       b.onclick=()=>{
         if(b.textContent===it[0]){b.classList.add("right");score++;}
@@ -455,9 +512,9 @@ function updateCoachLink(){
   const a=document.getElementById("sendCoach");
   const oral=(function(){try{return localStorage.getItem("oralResult")||""}catch(e){return""}})();
   let msg="Coach Lin, my Daily English report "+today+" — ";
-  if(lastResult){msg+="pack: "+lastResult.pack+", score: "+lastResult.score+"/10, streak: "+state.streak;
+  if(lastResult){msg+="week: "+lastResult.pack+", score: "+lastResult.score+"/"+(lastResult.total||10)+", streak: "+state.streak;
     if(lastResult.wrong.length)msg+=". I missed: "+lastResult.wrong.join(" | ");}
-  else msg+="I studied the "+currentPack+" pack today. Streak: "+state.streak;
+  else msg+="I studied the "+WEEKS[currentWeekIdx].title+" today. Streak: "+state.streak;
   if(oral)msg+=" || Oral exam with Aria: "+oral;
   a.href="https://wa.me/971502769188?text="+encodeURIComponent(msg);
 }
@@ -488,7 +545,7 @@ function aConn(){
   aws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+aKey);
   var ready=false;
   aws.onopen=function(){
-    var PKl=AR_PACKS;var items=PKl[currentPack].items;
+    var items=weekItems(WEEKS[currentWeekIdx]);
     var lines=items.map(function(it,i){return (i+1)+". "+it[0]+" - "+it[1]}).join("\n");
     var st=(state&&state.log&&state.log.length)?state.log[state.log.length-1]:null;
     var arLesson="\n\nعِبَارَاتُ دَرْسِ الْيَوْمِ:\n"+lines+"\n\nابدئي بتحية قصيرة بالفصحى، ثم درّبي الطالبة على ثلاث أو أربع عبارات في مواقف واقعية. استخدمي العربية الفصحى الحديثة وحدها. إذا أخطأت، فصحّحي خطأً واحدًا، وانطقي العبارة ببطء، ثم اطلبي منها أن تعيدها في موقف جديد.";
@@ -516,7 +573,7 @@ function aConn(){
 }
 function aLive(){
   aOn=true;btn.disabled=false;btn.textContent="⏹ End session";
-  orb.textContent="🎙";glow("0 0 34px rgba(184,147,74,.55)");uStart();asay("Class started — "+currentPack+". Just talk with her.");
+  orb.textContent="🎙";glow("0 0 34px rgba(184,147,74,.55)");uStart();asay("Class started — "+WEEKS[currentWeekIdx].title+". Just talk with her.");
   amic=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
   aSrcNode=amic.createMediaStreamSource(aStream);aProc=amic.createScriptProcessor(4096,1,1);
   aSrcNode.connect(aProc);aProc.connect(amic.destination);
@@ -584,9 +641,6 @@ function applyMode(){
     return;
   }
   window.__PACKS_ACTIVE = AR_PACKS;
-  var names=Object.keys(window.__PACKS_ACTIVE);
-  currentPack=names[dayIndex%names.length];
-  window.__packNamesActive=names;
   renderPills();renderWords();
   btn.textContent="🎓 ابدأ درس الفصحى · 开始标准阿语课";
   stx.textContent="Fatima 全程使用现代标准阿拉伯语，不夹任何地区方言；卡片也是标准阿语神经女声。";
@@ -723,6 +777,6 @@ function famPing(){
   window.__studySec=function(){return sec};
 })();
 </script>
-<script src="./shared/fam-widget.js?v=ba1a67e2" data-me="amina"></script>
+<script src="./shared/fam-widget.js?v=1d6f7677" data-me="amina"></script>
 </body>
 </html>
