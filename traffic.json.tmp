@@ -1,40 +1,45 @@
 {
-  "generated_at": "2026-08-26 08:30",
-  "generated_at_label": "2026-08-26 08:30 迪拜时间",
+  "generated_at": "2026-08-27 08:30",
+  "generated_at_label": "2026-08-27 08:30 迪拜时间",
   "window_days": 7,
   "days": [
+    "2026-08-27",
     "2026-08-26",
     "2026-08-25",
     "2026-08-24",
     "2026-08-23",
     "2026-08-22",
-    "2026-08-21",
-    "2026-08-20"
+    "2026-08-21"
   ],
-  "today": "2026-08-26",
-  "yesterday": "2026-08-25",
-  "total7": 272484,
-  "total_today": 9039,
-  "total_yesterday": 35248,
+  "today": "2026-08-27",
+  "yesterday": "2026-08-26",
+  "total7": 239784,
+  "total_today": 945,
+  "total_yesterday": 21227,
   "elapsed_pct": 19.0,
-  "projected_today": 48206,
+  "projected_today": 5039,
   "top_name": "codex-wecom-callback",
-  "top_share7": 97.0,
+  "top_share7": 97.3,
   "top_today_name": "codex-wecom-callback",
-  "top_share_today": 99.9,
+  "top_share_today": 99.4,
   "workers": [
     {
       "name": "codex-wecom-callback",
       "note": "企微桥，本机每 2 秒轮询一次",
-      "total7": 264344,
+      "total7": 233398,
       "errors7": 0,
-      "today": 9033,
-      "yesterday": 35047,
-      "delta": -26014,
+      "today": 939,
+      "yesterday": 20995,
+      "delta": -20056,
       "daily": [
         {
+          "date": "2026-08-27",
+          "requests": 939,
+          "errors": 0
+        },
+        {
           "date": "2026-08-26",
-          "requests": 9033,
+          "requests": 20995,
           "errors": 0
         },
         {
@@ -61,28 +66,28 @@
           "date": "2026-08-21",
           "requests": 46235,
           "errors": 0
-        },
-        {
-          "date": "2026-08-20",
-          "requests": 43847,
-          "errors": 0
         }
       ],
-      "projected": 48174
+      "projected": 5007
     },
     {
       "name": "su-family",
       "note": "家人站的留言和邀请接口",
-      "total7": 8003,
-      "errors7": 1,
+      "total7": 6348,
+      "errors7": 2,
       "today": 6,
-      "yesterday": 199,
-      "delta": -193,
+      "yesterday": 229,
+      "delta": -223,
       "daily": [
         {
-          "date": "2026-08-26",
+          "date": "2026-08-27",
           "requests": 6,
           "errors": 0
+        },
+        {
+          "date": "2026-08-26",
+          "requests": 229,
+          "errors": 1
         },
         {
           "date": "2026-08-25",
@@ -108,74 +113,27 @@
           "date": "2026-08-21",
           "requests": 4003,
           "errors": 0
-        },
-        {
-          "date": "2026-08-20",
-          "requests": 1884,
-          "errors": 0
         }
       ],
       "projected": 31
     },
     {
-      "name": "yimu-board",
-      "note": "一木的看板数据接口",
-      "total7": 75,
-      "errors7": 0,
-      "today": 0,
-      "yesterday": 0,
-      "delta": 0,
-      "daily": [
-        {
-          "date": "2026-08-26",
-          "requests": 0,
-          "errors": 0
-        },
-        {
-          "date": "2026-08-25",
-          "requests": 0,
-          "errors": 0
-        },
-        {
-          "date": "2026-08-24",
-          "requests": 0,
-          "errors": 0
-        },
-        {
-          "date": "2026-08-23",
-          "requests": 0,
-          "errors": 0
-        },
-        {
-          "date": "2026-08-22",
-          "requests": 0,
-          "errors": 0
-        },
-        {
-          "date": "2026-08-21",
-          "requests": 0,
-          "errors": 0
-        },
-        {
-          "date": "2026-08-20",
-          "requests": 75,
-          "errors": 0
-        }
-      ],
-      "projected": 0
-    },
-    {
       "name": "yimu-practice",
       "note": "一木的练习记录接口",
-      "total7": 62,
+      "total7": 38,
       "errors7": 0,
       "today": 0,
-      "yesterday": 2,
-      "delta": -2,
+      "yesterday": 3,
+      "delta": -3,
       "daily": [
         {
-          "date": "2026-08-26",
+          "date": "2026-08-27",
           "requests": 0,
+          "errors": 0
+        },
+        {
+          "date": "2026-08-26",
+          "requests": 3,
           "errors": 0
         },
         {
@@ -201,11 +159,6 @@
         {
           "date": "2026-08-21",
           "requests": 0,
-          "errors": 0
-        },
-        {
-          "date": "2026-08-20",
-          "requests": 27,
           "errors": 0
         }
       ],
