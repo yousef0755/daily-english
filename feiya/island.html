@@ -1131,9 +1131,20 @@ function enFinish(){
 }
 /* ═══ 韩语页 ═══ */
 const KO=[["안녕하세요", "你好", "annyeong-haseyo"], ["감사합니다", "谢谢", "gamsa-hamnida"], ["잘 가요", "再见", "jal gayo"], ["사랑해요", "我爱你", "saranghaeyo"], ["맛있어요", "好吃", "masisseoyo"], ["좋아요", "喜欢·好", "joayo"], ["미안해요", "对不起", "mianhaeyo"], ["괜찮아요", "没关系", "gwaenchanayo"], ["화이팅", "加油", "hwaiting"], ["예뻐요", "好漂亮", "yeppeoyo"], ["귀여워요", "好可爱", "gwiyeowoyo"], ["대박", "太棒了", "daebak"], ["배고파요", "肚子饿了", "baegopayo"], ["물 주세요", "请给我水", "mul juseyo"], ["잘 먹겠습니다", "我开动啦", "jal meokgessseumnida"], ["안녕히 주무세요", "晚安", "annyeonghi jumuseyo"], ["꿈 꿔요", "做个好梦", "kkum kkwoyo"], ["내일 봐요", "明天见", "naeil bwayo"], ["친구", "朋友", "chingu"], ["노래", "唱歌", "norae"], ["춤 춰요", "跳舞", "chum chwoyo"]];
+/* 8-29 霏雅点单：不止单词，要能跟着念的整段。每天一小段场景对话，SunHi 念，她跟读。 */
+const KO_P=[
+ ["初次见面",[["처음 뵙겠습니다","cheoeum boepgesseumnida","初次见面（正式）"],["이름이 뭐예요?","ireumi mwoyeyo?","你叫什么名字？"],["만나서 반가워요","mannaseo bangawoyo","见到你很高兴"]]],
+ ["在学校",[["숙제 다 했어요?","sukje da haesseoyo?","作业都做完了吗？"],["아직 안 했어요","ajik an haesseoyo","还没做完"],["같이 해요!","gachi haeyo!","一起做吧！"]]],
+ ["点饮料",[["뭐 마실래요?","mwo masillaeyo?","想喝点什么？"],["딸기 라떼 주세요","ttalgi latte juseyo","请给我草莓拿铁"],["여기서 먹을게요","yeogiseo meogeulgeyo","我在店里喝"]]],
+ ["剧里那种话",[["보고 싶었어요","bogo sipeosseoyo","我想你了"],["걱정하지 마세요","geokjeonghaji maseyo","别担心"],["제가 있잖아요","jega itjanayo","不是还有我嘛"]]],
+ ["聊心情",[["오늘 기분 어때요?","oneul gibun eottaeyo?","今天心情怎么样？"],["완전 좋아요!","wanjeon joayo!","超好的！"],["스트레스 받았어요","seuteureseu badasseoyo","有点烦、压力大"]]],
+ ["在家里",[["밥 먹었어요?","bap meogeosseoyo?","吃饭了吗？"],["이거 진짜 맛있어요","igeo jinjja masisseoyo","这个真的好吃"],["잘 먹었습니다","jal meogeossseumnida","我吃好了，谢谢"]]],
+ ["看演出",[["오빠 최고예요!","oppa choegoyeyo!","欧巴最棒！"],["노래 진짜 잘해요","norae jinjja jalhaeyo","唱歌真的很棒"],["다음에 또 만나요!","daeume tto mannayo!","下次再见呀！"]]]
+];
 function koState(){try{return JSON.parse(localStorage.getItem("feiyaKo_"+dxb())||"{}")}catch(e){return{}}}
 function koSave(st){try{localStorage.setItem("feiyaKo_"+dxb(),JSON.stringify(st))}catch(e){}}
 function koGot(){const st=koState();st.k=!st.k;koSave(st);renderKo();}
+function koRead(){const st=koState();st.p=!st.p;koSave(st);renderKo();}
 function renderKo(){
   const st=koState();
   const ks=KO.slice(adi*3,adi*3+3);
@@ -1141,9 +1152,15 @@ function renderKo(){
     '<h3>今天三句</h3><div class="au">跟 SunHi 读 · 说给家里人听</div>'
     +ks.map((k,j)=>'<div style="padding:7px 0;border-bottom:1px dashed #e3ebf6"><div style="font-size:19px;font-weight:800;color:#f06f92">'+k[0]+'</div><div style="font-size:11.5px;color:#8fd4cf">'+k[2]+'</div><div style="font-size:12.5px;color:#5d9995">'+k[1]+'</div><button style="border:0;border-radius:10px;background:#d9f4f2;color:#3d9d96;padding:5px 10px;font-size:12.5px;margin-top:3px;cursor:pointer" onclick="arPlaySeq([\'audio/ko/k'+(adi*3+j)+'.mp3\'],this)">🔊 听</button></div>').join("")
     +'<div class="zhbtns"><button class="ko-got'+(st.k?" on":"")+'" onclick="koGot()">'+(st.k?"三句都会啦 ✓":"三句都会了")+'</button></div>';
+  const dp=KO_P[adi%KO_P.length];
+  document.getElementById("koCard").innerHTML+=
+    '<h3 style="margin-top:14px">今日一段 · '+dp[0]+'</h3><div class="au">先听 SunHi，再自己大声念一遍</div>'
+    +dp[1].map((l,j)=>'<div style="padding:7px 0;border-bottom:1px dashed #e3ebf6"><div style="font-size:18px;font-weight:800;color:#e2597f">'+l[0]+'</div><div style="font-size:11.5px;color:#8fd4cf">'+l[1]+'</div><div style="font-size:12.5px;color:#5d9995">'+l[2]+'</div><button style="border:0;border-radius:10px;background:#fde5ec;color:#d14a72;padding:5px 10px;font-size:12.5px;margin-top:3px;cursor:pointer" onclick="arPlaySeq([\'audio/ko/p'+((adi%KO_P.length)*3+j)+'.mp3\'],this)">🔊 听</button></div>').join("")
+    +'<div class="zhbtns"><button class="en-listen" style="background:#fde5ec;color:#d14a72" onclick="arPlaySeq(['+dp[1].map((l,j)=>'\'audio/ko/p'+((adi%KO_P.length)*3+j)+'.mp3\'').join(",")+'],this)">🔊 整段连听</button>'
+    +'<button class="ko-got'+(st.p?" on":"")+'" onclick="koRead()">'+(st.p?"我念完啦 ✓":"我大声念完了")+'</button></div>';
   document.getElementById("koDone").innerHTML=st.done
     ?'<div style="font-size:15px;font-weight:800;color:#f06f92">오늘의 한국어 完成 ❄️ +2🪙</div>'
-    :'<button class="zh-done-btn" style="background:#f06f92" '+(st.k?"":"disabled")+' onclick="koFinish()">'+(st.k?"完成今天的한국어 ❄️":"三句都点了才能完成")+'</button>';
+    :'<button class="zh-done-btn" style="background:#f06f92" '+((st.k&&st.p)?"":"disabled")+' onclick="koFinish()">'+((st.k&&st.p)?"完成今天的한국어 ❄️":"三句会了+念完一段才能完成")+'</button>';
 }
 function koFinish(){
   const st=koState();if(st.done)return;st.done=1;koSave(st);
@@ -1419,9 +1436,20 @@ function enFinish(){
 }
 /* ═══ 韩语页 ═══ */
 const KO=[["안녕하세요", "你好", "annyeong-haseyo"], ["감사합니다", "谢谢", "gamsa-hamnida"], ["잘 가요", "再见", "jal gayo"], ["사랑해요", "我爱你", "saranghaeyo"], ["맛있어요", "好吃", "masisseoyo"], ["좋아요", "喜欢·好", "joayo"], ["미안해요", "对不起", "mianhaeyo"], ["괜찮아요", "没关系", "gwaenchanayo"], ["화이팅", "加油", "hwaiting"], ["예뻐요", "好漂亮", "yeppeoyo"], ["귀여워요", "好可爱", "gwiyeowoyo"], ["대박", "太棒了", "daebak"], ["배고파요", "肚子饿了", "baegopayo"], ["물 주세요", "请给我水", "mul juseyo"], ["잘 먹겠습니다", "我开动啦", "jal meokgessseumnida"], ["안녕히 주무세요", "晚安", "annyeonghi jumuseyo"], ["꿈 꿔요", "做个好梦", "kkum kkwoyo"], ["내일 봐요", "明天见", "naeil bwayo"], ["친구", "朋友", "chingu"], ["노래", "唱歌", "norae"], ["춤 춰요", "跳舞", "chum chwoyo"]];
+/* 8-29 霏雅点单：不止单词，要能跟着念的整段。每天一小段场景对话，SunHi 念，她跟读。 */
+const KO_P=[
+ ["初次见面",[["처음 뵙겠습니다","cheoeum boepgesseumnida","初次见面（正式）"],["이름이 뭐예요?","ireumi mwoyeyo?","你叫什么名字？"],["만나서 반가워요","mannaseo bangawoyo","见到你很高兴"]]],
+ ["在学校",[["숙제 다 했어요?","sukje da haesseoyo?","作业都做完了吗？"],["아직 안 했어요","ajik an haesseoyo","还没做完"],["같이 해요!","gachi haeyo!","一起做吧！"]]],
+ ["点饮料",[["뭐 마실래요?","mwo masillaeyo?","想喝点什么？"],["딸기 라떼 주세요","ttalgi latte juseyo","请给我草莓拿铁"],["여기서 먹을게요","yeogiseo meogeulgeyo","我在店里喝"]]],
+ ["剧里那种话",[["보고 싶었어요","bogo sipeosseoyo","我想你了"],["걱정하지 마세요","geokjeonghaji maseyo","别担心"],["제가 있잖아요","jega itjanayo","不是还有我嘛"]]],
+ ["聊心情",[["오늘 기분 어때요?","oneul gibun eottaeyo?","今天心情怎么样？"],["완전 좋아요!","wanjeon joayo!","超好的！"],["스트레스 받았어요","seuteureseu badasseoyo","有点烦、压力大"]]],
+ ["在家里",[["밥 먹었어요?","bap meogeosseoyo?","吃饭了吗？"],["이거 진짜 맛있어요","igeo jinjja masisseoyo","这个真的好吃"],["잘 먹었습니다","jal meogeossseumnida","我吃好了，谢谢"]]],
+ ["看演出",[["오빠 최고예요!","oppa choegoyeyo!","欧巴最棒！"],["노래 진짜 잘해요","norae jinjja jalhaeyo","唱歌真的很棒"],["다음에 또 만나요!","daeume tto mannayo!","下次再见呀！"]]]
+];
 function koState(){try{return JSON.parse(localStorage.getItem("feiyaKo_"+dxb())||"{}")}catch(e){return{}}}
 function koSave(st){try{localStorage.setItem("feiyaKo_"+dxb(),JSON.stringify(st))}catch(e){}}
 function koGot(){const st=koState();st.k=!st.k;koSave(st);renderKo();}
+function koRead(){const st=koState();st.p=!st.p;koSave(st);renderKo();}
 function renderKo(){
   const st=koState();
   const ks=KO.slice(adi*3,adi*3+3);
@@ -1429,9 +1457,15 @@ function renderKo(){
     '<h3>今天三句</h3><div class="au">跟 SunHi 读 · 说给家里人听</div>'
     +ks.map((k,j)=>'<div style="padding:7px 0;border-bottom:1px dashed #e3ebf6"><div style="font-size:19px;font-weight:800;color:#f06f92">'+k[0]+'</div><div style="font-size:11.5px;color:#8fd4cf">'+k[2]+'</div><div style="font-size:12.5px;color:#5d9995">'+k[1]+'</div><button style="border:0;border-radius:10px;background:#d9f4f2;color:#3d9d96;padding:5px 10px;font-size:12.5px;margin-top:3px;cursor:pointer" onclick="arPlaySeq([\'audio/ko/k'+(adi*3+j)+'.mp3\'],this)">🔊 听</button></div>').join("")
     +'<div class="zhbtns"><button class="ko-got'+(st.k?" on":"")+'" onclick="koGot()">'+(st.k?"三句都会啦 ✓":"三句都会了")+'</button></div>';
+  const dp=KO_P[adi%KO_P.length];
+  document.getElementById("koCard").innerHTML+=
+    '<h3 style="margin-top:14px">今日一段 · '+dp[0]+'</h3><div class="au">先听 SunHi，再自己大声念一遍</div>'
+    +dp[1].map((l,j)=>'<div style="padding:7px 0;border-bottom:1px dashed #e3ebf6"><div style="font-size:18px;font-weight:800;color:#e2597f">'+l[0]+'</div><div style="font-size:11.5px;color:#8fd4cf">'+l[1]+'</div><div style="font-size:12.5px;color:#5d9995">'+l[2]+'</div><button style="border:0;border-radius:10px;background:#fde5ec;color:#d14a72;padding:5px 10px;font-size:12.5px;margin-top:3px;cursor:pointer" onclick="arPlaySeq([\'audio/ko/p'+((adi%KO_P.length)*3+j)+'.mp3\'],this)">🔊 听</button></div>').join("")
+    +'<div class="zhbtns"><button class="en-listen" style="background:#fde5ec;color:#d14a72" onclick="arPlaySeq(['+dp[1].map((l,j)=>'\'audio/ko/p'+((adi%KO_P.length)*3+j)+'.mp3\'').join(",")+'],this)">🔊 整段连听</button>'
+    +'<button class="ko-got'+(st.p?" on":"")+'" onclick="koRead()">'+(st.p?"我念完啦 ✓":"我大声念完了")+'</button></div>';
   document.getElementById("koDone").innerHTML=st.done
     ?'<div style="font-size:15px;font-weight:800;color:#f06f92">오늘의 한국어 完成 ❄️ +2🪙</div>'
-    :'<button class="zh-done-btn" style="background:#f06f92" '+(st.k?"":"disabled")+' onclick="koFinish()">'+(st.k?"完成今天的한국어 ❄️":"三句都点了才能完成")+'</button>';
+    :'<button class="zh-done-btn" style="background:#f06f92" '+((st.k&&st.p)?"":"disabled")+' onclick="koFinish()">'+((st.k&&st.p)?"完成今天的한국어 ❄️":"三句会了+念完一段才能完成")+'</button>';
 }
 function koFinish(){
   const st=koState();if(st.done)return;st.done=1;koSave(st);
