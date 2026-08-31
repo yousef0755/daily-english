@@ -231,6 +231,25 @@ function ensureSeedX7E(){
   }catch(e){}
 }
 
+/* 补丁种子·X7E价格（8-31 晚：价格她第一条就给了——采购154、销售585/3.68≈158.967，
+   是我只读了首行没看见续行。这条把两栏补上，向她认错的话在WA里说。 */
+function patchSeedX7EPrice(){
+  try{
+    var K="saoziLedger_patch_x7e_price_20260831";
+    if(localStorage.getItem(K))return;
+    localStorage.setItem(K,"1");
+    var list=loadRecs(),hit=false;
+    list.forEach(function(r){
+      if(r.id==="seed-x7e-20260831"){
+        r.buy=154; r.sell=158.967;
+        r.note="8-31您发的：X7E 256 2000台，采购价154美金，销售价585迪拉姆（÷3.68≈158.967美金）。";
+        hit=true;
+      }
+    });
+    if(hit)saveRecs(list);
+  }catch(e){}
+}
+
 function perUnitProfit(r){return r.sell-r.buy;}
 function batchProfit(r){return perUnitProfit(r)*r.qty;}
 
@@ -367,7 +386,7 @@ document.getElementById("copyBtn").addEventListener("click",function(){
 });
 
 /* ===== 启动 ===== */
-ensureSeed();ensureSeedX7E();
+ensureSeed();ensureSeedX7E();patchSeedX7EPrice();
 paintList();paintStats();updatePreview();
 </script>
 </body>
