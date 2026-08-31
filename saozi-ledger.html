@@ -209,6 +209,28 @@ function ensureSeed(){
   }catch(e){}
 }
 
+/* 增量种子·X7E（8-31 嫂子连说三遍「直接填进去」——按她给的先落账，价格两栏她补数后我再更新） */
+function ensureSeedX7E(){
+  try{
+    var K="saoziLedger_seed_x7e_20260831";
+    if(localStorage.getItem(K))return;
+    localStorage.setItem(K,"1");
+    var list=loadRecs();
+    if(list.some(function(r){return r.id==="seed-x7e-20260831";}))return;
+    list.push({
+      id:"seed-x7e-20260831",
+      date:"2026-08-31",
+      model:"X7E 256G",
+      qty:2000,
+      buy:0,
+      sell:0,
+      note:"8-31您发的：X7E 256 2000台。进价和卖价还没给我，发我两个数，这条我帮您补齐。",
+      ts:Date.now()
+    });
+    saveRecs(list);
+  }catch(e){}
+}
+
 function perUnitProfit(r){return r.sell-r.buy;}
 function batchProfit(r){return perUnitProfit(r)*r.qty;}
 
@@ -345,7 +367,7 @@ document.getElementById("copyBtn").addEventListener("click",function(){
 });
 
 /* ===== 启动 ===== */
-ensureSeed();
+ensureSeed();ensureSeedX7E();
 paintList();paintStats();updatePreview();
 </script>
 </body>
