@@ -75,6 +75,7 @@ footer b{color:var(--ink)}
     <button class="pill on" data-p="0">两卷一起</button>
     <button class="pill" data-p="1">只做卷一</button>
     <button class="pill" data-p="3">只做卷三</button>
+    <button class="pill" id="allmode" style="margin-left:10px">全部打开</button>
   </div>
 </header>
 
@@ -104,6 +105,13 @@ function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){
 function save(s){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
 
 let paper=0, state=load();
+/* 全部打开：姐 8-31 亲口要的——不按计划闸，全库一次摆开随便刷。
+   开着时答题**照样记进度**（她刷到哪都算数），只是不再限量、不再等"该见"的日子。
+   默认开（她要的），一键可切回按计划。 */
+let allmode=(localStorage.getItem("iiqe_allmode")??"1")==="1";
+function paintAllBtn(){const b=document.getElementById("allmode");
+  b.classList.toggle("on",allmode);
+  b.textContent=allmode?"全部打开 ✓":"全部打开";}
 
 function due(){
   const t=today();
@@ -117,6 +125,12 @@ function learned(){
 
 function paintStat(){
   const d=due().length, all=QUESTIONS.filter(q=>paper===0||q.p===paper).length;
+  if(allmode){
+    document.getElementById("stat").innerHTML=
+      "全部打开 · 共 <b>"+all+"</b> 道全部列出 · 已经记住 <b>"+learned()+"</b> 道"
+      +" · <span style=\"color:#8a8a8a\">想回到每天按计划刷，点上面「全部打开」关掉</span>";
+    return;
+  }
   const show=Math.min(d,12);
   /* 一次最多列 12 道。统计行要说实话——先前写「今天该见 20 道」却只列出 12 道，
      她会以为漏了。 */
@@ -126,8 +140,15 @@ function paintStat(){
 }
 
 function render(){
+  paintAllBtn();
   paintStat();
   const area=document.getElementById("area");
+  if(allmode){
+    const all=QUESTIONS.map((q,i)=>({q,i})).filter(x=>paper===0||x.q.p===paper);
+    area.innerHTML="";
+    all.forEach(x=>area.appendChild(card(x,false)));
+    return;
+  }
   const list=due();
   if(!list.length){
     area.innerHTML='<div class="done"><h2>今天的见完了</h2>'
@@ -180,9 +201,12 @@ function answer(el,q,i,pick,extra){
   state[i]=s; save(state); paintStat();
 }
 
-document.querySelectorAll(".pill").forEach(b=>{
+document.getElementById("allmode").onclick=function(){
+  allmode=!allmode; localStorage.setItem("iiqe_allmode",allmode?"1":"0"); render();
+};
+document.querySelectorAll(".pill[data-p]").forEach(b=>{
   b.onclick=function(){
-    document.querySelectorAll(".pill").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll(".pill[data-p]").forEach(x=>x.classList.remove("on"));
     b.classList.add("on"); paper=+b.dataset.p; render();
     window.scrollTo({top:0,behavior:"smooth"});
   };
