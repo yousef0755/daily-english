@@ -1,0 +1,25 @@
+# 这里只放不怕被人看见的东西。
+# token 和 key 走 wrangler secret put，不进这个文件、不进 git。
+
+name = "su-tg-bot"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+# 谁能用。逗号隔开的 chat id —— 先随便给机器人发句话，
+# 它会把你的 id 告诉你，填进来再 deploy 一次。
+# 不填的话谁都用不了（机器人地址是公开的，别让陌生人烧你的额度）。
+ALLOWED_CHATS = ""
+
+# deepseek-chat 便宜快，deepseek-reasoner 会先想一会儿再答
+DEEPSEEK_MODEL = "deepseek-chat"
+
+# 想改机器人的口气就改这句
+SYSTEM_PROMPT = "你是苏家的学习助手。回答简明、口语化，别写成论文。讲英语知识时给出中文解释和例句；用户用中文问就用中文答。"
+
+# 想让它记住上文就绑一个 KV（可选，不绑也能用，只是每句话都是全新的）：
+#   wrangler kv namespace create BOT_KV
+# 把命令吐出来的 id 填进去，然后把下面三行的 # 去掉。
+# [[kv_namespaces]]
+# binding = "BOT_KV"
+# id = "把 wrangler 给的 id 填这儿"
