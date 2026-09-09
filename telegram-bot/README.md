@@ -1,132 +1,164 @@
-# 家里的 Telegram 机器人（DeepSeek 版）
+# 家里的 Telegram 机器人（免费版）
 
 跑在 Cloudflare Worker 上，**不需要任何机器一直开着**——
 你电脑关了、手机关了，它照样在。也不用买 VPS。
 
-## 为什么不用原来那份 .py
+默认用 Cloudflare 自己托管的模型（Workers AI），**不要 API key、不要绑卡**，
+每天白送 10000 neurons。DeepSeek 留着，聊天里 `/model deepseek` 一句话切过去。
 
-那份用的是轮询（getUpdates）：程序自己在那儿转圈问「有新消息吗」，
-所以必须有台机器 7×24 开着，关机就停。
+## 免费到底能干什么
 
-这里换成 **webhook**：有人给机器人发消息，Telegram 主动把这条 POST 到 Worker，
-Worker 醒一下、问完 DeepSeek、回完话就睡。没人说话就是零开销。
+Cloudflare 每天送 **10000 neurons**，UTC 零点重置，全家、所有模型共用这一份。
+按公布的价钱折算成「一问一答」（大概 500 token 进、300 token 出）：
 
-家里的数据本来就跑在 Cloudflare Worker 上（README 里那个 `su-family`），
-这台机器人是同一套东西，多一个 Worker 而已。
+| `/model` | 模型 | 一条约烧 | 一天大概能聊 | 什么感觉 |
+|---|---|---|---|---|
+| `1b` | llama-3.2-1b | 6.7 | **1400 条** | 反应快，但笨，中文勉强 |
+| `3b` | llama-3.2-3b | 11.4 | **870 条** | 日常问答够用 |
+| `8b` | llama-3.1-8b-fp8-fast | 12.5 | **800 条** | 默认。够聊 |
+| `70b` | llama-3.3-70b-fp8-fast | 74.8 | **130 条** | 明显聪明一档，但一条顶六条 |
+| `deepseek` | DeepSeek API | — | 不限 | 中文最好，**但要 key、要钱** |
 
-## 要准备的三样东西
+家里几个人一天问几十条，`8b` 完全用不完；`70b` 拿来问难题，一天百来条也够。
+超了不会扣钱，是**当天用不了了**，等 UTC 零点（北京时间早上 8 点）自动恢复——
+除非你自己去开 Workers Paid（$5/月）。
 
-| 东西 | 哪儿拿 | 说明 |
-|---|---|---|
-| Bot token | Telegram 里找 [@BotFather](https://t.me/BotFather)，`/newbot` | 形如 `8123456789:AAF...` |
-| DeepSeek key | https://platform.deepseek.com → API keys | 形如 `sk-...` |
-| 一句暗号 | 你自己编，随便一串 | 用来证明「这条真是 Telegram 发来的」 |
+其他几项免费额度，家用都撞不到：Worker 每天 10 万次请求，
+KV 每天 10 万次读、**1000 次写**。写次数是最紧的一项，所以代码里
+一条消息只写一次 KV（上下文、模型、用量塞在同一把钥匙里）——够一天上千条。
 
-**这三样都不要贴进聊天窗口、不要写进代码。** 下面第 3 步会把它们存进 Cloudflare，
-存进去之后连你自己都读不出来，只有 Worker 跑的时候拿得到。
+有个反常的地方值得知道：**Workers AI 上的 DeepSeek 模型是要绑卡的**，
+所以「免费」这条路上反而用不了 DeepSeek，得用上面那几个 Llama。
 
-## 一步步部署
+聊天里随时发 `/free`，它会告诉你今天这个对话烧了多少、还能聊多少。
 
-### 1. 装 wrangler（Cloudflare 的命令行）
+## 你要动手的部分
 
-电脑上要有 Node。然后：
+我这边没法替你做的只有一件：**去 Telegram 里建这个机器人**（要用你的账号）。
+剩下的都是复制粘贴。
+
+### 1. 建机器人，拿 token（两分钟）
+
+Telegram 里搜 [@BotFather](https://t.me/BotFather) → `/newbot` →
+给它起个名字（显示用）→ 再起个用户名（必须 `bot` 结尾，比如 `su_family_bot`）。
+
+它会回你一串 `8123456789:AAF...`，**那就是 token**。
+这串谁拿到谁就能冒充你的机器人，别贴进聊天窗口、别写进代码。
+
+### 2. 装 wrangler，登录
+
+电脑上要有 Node。
 
 ```bash
 cd telegram-bot
-npx wrangler login          # 会跳浏览器，点授权
+npx wrangler login          # 跳浏览器，点授权
 ```
 
-### 2. 先起个名字（可选）
-
-`wrangler.toml` 里的 `name = "su-tg-bot"` 就是将来的网址前缀，
-不喜欢可以改，改完的网址是 `https://<name>.<你的账号>.workers.dev`。
-
-### 3. 把三样密钥存进去
-
-一条一条跑，跑完它会让你粘贴内容（粘的时候屏幕上不显示，正常）：
+### 3. 存两样密钥
 
 ```bash
-npx wrangler secret put TG_TOKEN          # BotFather 给的那串
-npx wrangler secret put DEEPSEEK_API_KEY  # sk-... 那串
-npx wrangler secret put TG_SECRET         # 你编的那句暗号
+npx wrangler secret put TG_TOKEN     # 第 1 步那串
+npx wrangler secret put TG_SECRET    # 你自己编一句暗号，随便一串
 ```
 
-### 4. 部署
+（用免费模型就这两样，**不用 DeepSeek 的 key**。
+以后想用再 `npx wrangler secret put DEEPSEEK_API_KEY`。）
 
-```bash
-npx wrangler deploy
-```
+暗号是干嘛的：Worker 的网址是公开的，靠这句暗号认出「这条真是 Telegram 发来的」。
 
-结束时它会打印一个网址，形如 `https://su-tg-bot.xxx.workers.dev`——**记下来**。
-
-### 5. 告诉 Telegram「消息往这儿送」
-
-```bash
-export TG_TOKEN='BotFather 给的那串'
-export TG_SECRET='你编的那句暗号'      # 必须跟第 3 步填的一模一样
-./setup-webhook.sh https://su-tg-bot.xxx.workers.dev
-```
-
-暗号对不上的话，Worker 会把 Telegram 也当外人挡掉，机器人一句话都不会回。
-
-### 6. 开门（第一次一定会被拦下，这是故意的）
-
-现在去 Telegram 给机器人发一句「你好」。它会回你：
-
-> 这个机器人只给家里人用。
-> 你的 chat id 是 123456789
-
-把这个数字填进 `wrangler.toml`：
-
-```toml
-ALLOWED_CHATS = "123456789"        # 多个人就 "123456789,987654321"
-```
-
-然后 `npx wrangler deploy` 再来一次。**这回它就正常聊天了。**
-
-为什么要这一道：机器人的网址是公开的，谁摸到都能跟它聊——
-烧的是你的 DeepSeek 额度。所以默认谁都不放行。
-
-### 7.（可选）让它记住上文
-
-不做这一步也能用，只是每句话都是全新的，它记不住你上一句问了什么。
+### 4. 绑一块 KV（记上下文、记模型、记用量）
 
 ```bash
 npx wrangler kv namespace create BOT_KV
 ```
 
-把它吐出来的 `id` 填进 `wrangler.toml` 最下面那三行（把 `#` 去掉），再 deploy 一次。
-之后每段对话记最近 12 条、六小时不说话自动忘掉，聊天里发 `/new` 也能当场清空。
+把它吐出来的 `id` 填进 `wrangler.toml` 最下面那三行，把 `#` 去掉。
+
+不做也能聊，但记不住上文、换不了模型、看不了 `/free`——建议做，也是免费的。
+
+### 5. 部署
+
+```bash
+npx wrangler deploy
+```
+
+结束时打印一个网址，形如 `https://su-tg-bot.xxx.workers.dev`，**记下来**。
+
+### 6. 告诉 Telegram「消息往这儿送」
+
+```bash
+export TG_TOKEN='第 1 步那串'
+export TG_SECRET='第 3 步那句暗号'
+./setup-webhook.sh https://su-tg-bot.xxx.workers.dev
+```
+
+### 7. 开门（第一次一定被拦，这是故意的）
+
+去 Telegram 给机器人发句「你好」。它会回：
+
+> 这个机器人只给家里人用。
+> 你的 chat id 是 123456789
+
+把数字填进 `wrangler.toml`，然后 `npx wrangler deploy` 再来一次：
+
+```toml
+ALLOWED_CHATS = "123456789"        # 一家人就 "123456789,987654321,..."
+```
+
+**这回就能聊了。**
+
+为什么要这一道：机器人网址是公开的，谁摸到都能跟它聊，烧的是你的额度。
+
+## 想比模型，不用在 Telegram 里来回切
+
+同一个问题让几个模型各答一遍，摆一块儿看：
+
+```bash
+export TG_SECRET='你那句暗号'
+./compare.sh https://su-tg-bot.xxx.workers.dev "用一句话解释虚拟语气，给个例句"
+```
+
+会打印 1b / 3b / 8b / 70b 四份答案，每份底下标着用时和大概烧了多少 neurons。
+**这是判断「免费够不够用」最快的办法**——看完就知道该把默认设成哪个。
+
+单试一个：`./compare.sh https://... "问题" 70b`
 
 ## 平时怎么用
 
 - 直接问，中英文都行
-- `/new` —— 重开一段，忘掉前面
-- `/help` —— 看说明
+- `/model` —— 看现在用哪个、换一个（换完上下文会清空，免得串味）
+- `/free` —— 今天烧了多少、还能聊多少
+- `/new` —— 重开一段
+- `/help`
+
+## 改完代码先跑这个
+
+```bash
+node test/local.mjs
+```
+
+假 fetch、假模型，不联网不花钱，把鉴权、名单、换模型、上下文、
+重发去重、长回答切分、出错处理全过一遍。绿了再 deploy，
+省得拿家里人当小白鼠。
 
 ## 不对劲的时候
 
 ```bash
-./setup-webhook.sh --info    # 看 webhook 挂在哪、last_error_message 有没有东西
-npx wrangler tail            # 实时看日志，一边发消息一边看
+./setup-webhook.sh --info    # webhook 挂在哪、last_error_message 有没有东西
+npx wrangler tail            # 实时日志，一边发消息一边看
 ```
-
-几种常见情况：
 
 | 现象 | 多半是 |
 |---|---|
-| 一句话都不回 | 暗号对不上（第 3 步和第 5 步的 `TG_SECRET` 不一样），或者 webhook 没挂上 |
-| 回「只给家里人用」 | 第 6 步的 chat id 没填 / 填完忘了再 deploy |
-| 回「DeepSeek 那边没答上来」 | key 不对或者余额没了，`wrangler tail` 里有具体状态码 |
-| 同一个问题回两遍 | 绑上 KV（第 7 步），它会认出重发的那条 |
+| 一句话都不回 | 暗号对不上（第 3 步和第 6 步的 `TG_SECRET` 不一样），或 webhook 没挂上 |
+| 回「只给家里人用」 | 第 7 步的 chat id 没填 / 填完忘了再 deploy |
+| 回「模型没答上来 … 404」 | 模型 ID 变了。去 Cloudflare 后台 Workers AI 看当前目录，`/model @cf/新的/ID` 直接粘 |
+| 回「模型没答上来 … 402/429」 | 当天 10000 neurons 用完了，等 UTC 零点，或 `/model 1b` 省着用 |
+| 同一个问题回两遍 | KV 没绑（第 4 步），它认不出重发的那条 |
+| 中文答得别扭 | Llama 的中文就这样。`/model 70b` 好一档，还不行就 `/model deepseek` |
 
 ## 花多少钱
 
-- Cloudflare Worker：免费额度每天 10 万次请求，家里几个人用远远到不了
-- DeepSeek：按量付费，聊天这点量一个月几块钱
+- Cloudflare Worker + Workers AI + KV：**0 元**（在上面那张表的量以内）
+- DeepSeek：只有你主动 `/model deepseek` 才用得上，按量付费，一个月几块钱
 - VPS：**不用**
-
-## 改它的口气
-
-`wrangler.toml` 里的 `SYSTEM_PROMPT` 就是那句人设，改完 deploy 一次即可。
-想让它想得深一点，把 `DEEPSEEK_MODEL` 换成 `deepseek-reasoner`（慢一些，贵一些）。
