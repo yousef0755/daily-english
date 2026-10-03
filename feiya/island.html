@@ -70,6 +70,16 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
 /* ── 猫 ── */
 .cat{position:fixed;width:54px;z-index:10;cursor:grab;transition:left 2.6s ease-in-out,bottom 2.6s ease-in-out;touch-action:none}
 .cat.drag{transition:none;cursor:grabbing;z-index:20}
+/* Chee Chee：霏雅 2026-10 加的小奶猫，比哥哥姐姐小一号（0.7 倍），爱扒绳子 */
+#cheechee{width:38px;z-index:11}
+#cheechee svg{overflow:visible}
+#cheechee .zzz{top:-12px;right:-8px;font-size:11px}
+#cheechee .pawup{transform-box:fill-box;transform-origin:50% 100%;animation:ccbat 3.2s ease-in-out infinite}
+#cheechee .rope{transform-box:fill-box;transform-origin:50% 0;animation:ccrope 3.2s ease-in-out infinite}
+#cheechee.sleep .pawup,#cheechee.sleep .rope{animation:none}
+@keyframes ccbat{0%,60%,100%{transform:translateY(0) rotate(0)}70%{transform:translateY(-7px) rotate(-18deg)}80%{transform:translateY(0)}88%{transform:translateY(-5px) rotate(-10deg)}}
+@keyframes ccrope{0%,60%,100%{transform:rotate(0)}72%{transform:rotate(14deg)}86%{transform:rotate(-9deg)}}
+@media (prefers-reduced-motion:reduce){#cheechee .pawup,#cheechee .rope{animation:none}}
 .cat.flip svg{transform:scaleX(-1)}
 .cat .zzz{position:absolute;top:-14px;right:-4px;font-size:13px;display:none}
 .cat.sleep .zzz{display:block;animation:zz 2s ease-in-out infinite}
@@ -334,6 +344,56 @@ body{font:15px/1.5 "PingFang SC",sans-serif;color:var(--ink);background:var(--sk
       </svg>
     </div>
     <div class="speech" id="sp-snowy"></div>
+
+    <div class="cat" id="cheechee">
+      <span class="zzz">💤</span>
+      <svg viewBox="0 0 100 96">
+        <defs><clipPath id="ccHead"><path d="M10 44 Q8 24 20 16 L24 3 L36 12 Q50 6 64 12 L76 3 L80 16 Q92 24 90 44 Q90 64 50 66 Q10 64 10 44 Z"/></clipPath>
+          <clipPath id="ccBody"><ellipse cx="50" cy="78" rx="19" ry="14"/></clipPath></defs>
+        <g class="rope"><path d="M88 -22 L88 30" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/>
+          <path d="M88 -22 L88 30" stroke="#e05a4c" stroke-width="4.5" stroke-dasharray="3 7"/>
+          <path d="M88 -22 L88 30" stroke="#4d64ad" stroke-width="4.5" stroke-dasharray="3 7" stroke-dashoffset="-5"/>
+          <circle cx="88" cy="26" r="4" fill="#e05a4c"/></g>
+        <path d="M66 82 Q92 84 94 66 Q96 54 86 52" stroke="#7d6e60" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M66 82 Q92 84 94 66 Q96 54 86 52" stroke="#4f4339" stroke-width="6" fill="none" stroke-dasharray="3 5"/>
+        <ellipse cx="50" cy="78" rx="19" ry="14" fill="#fffaf2"/>
+        <g clip-path="url(#ccBody)"><path d="M28 70 Q40 62 50 64 Q62 62 72 70 L72 76 Q64 70 58 74 Q50 70 42 74 Q36 70 28 76 Z" fill="#8c7c6b"/></g>
+        <ellipse cx="50" cy="78" rx="19" ry="14" fill="none" stroke="#7d6e60" stroke-width="3"/>
+        <path d="M10 44 Q8 24 20 16 L24 3 L36 12 Q50 6 64 12 L76 3 L80 16 Q92 24 90 44 Q90 64 50 66 Q10 64 10 44 Z" fill="#fffaf2"/>
+        <g clip-path="url(#ccHead)">
+          <path d="M0 0 L100 0 L100 33 Q86 28 76 34 Q66 28 58 34 Q54 40 50 41 Q46 40 42 34 Q34 28 24 34 Q14 28 0 33 Z" fill="#8c7c6b"/>
+          <path d="M14 32 Q24 28 32 34 Q36 44 30 52 Q20 54 14 46 Z" fill="#d79b62" opacity=".9"/>
+          <path d="M70 30 Q80 28 88 34 Q84 40 76 38 Z" fill="#d79b62" opacity=".75"/>
+          <path d="M44 14 l2 9 M50 12 l0 10 M56 14 l-2 9 M26 22 l6 5 M74 22 l-6 5" stroke="#4f4339" stroke-width="2.2" stroke-linecap="round"/>
+        </g>
+        <path d="M10 44 Q8 24 20 16 L24 3 L36 12 Q50 6 64 12 L76 3 L80 16 Q92 24 90 44 Q90 64 50 66 Q10 64 10 44 Z" fill="none" stroke="#7d6e60" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M24 9 L27 13 L30 10 Z" fill="#ffb0c9" opacity=".8"/><path d="M76 9 L73 13 L70 10 Z" fill="#ffb0c9" opacity=".8"/>
+        <circle cx="34" cy="43" r="5.6" fill="#45525e"/><circle cx="66" cy="43" r="5.6" fill="#45525e"/>
+        <circle cx="36" cy="41" r="1.9" fill="#fff"/><circle cx="68" cy="41" r="1.9" fill="#fff"/>
+        <path d="M47 50 L53 50 L50 53 Z" fill="#f2a3b4"/>
+        <path d="M44 54 Q47 57 50 54 Q53 57 56 54" stroke="#b8927a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M17 50 l8 1 M83 50 l-8 1" stroke="#ffb0c9" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M6 44 L16 46 M6 51 L15 51 M94 44 L84 46 M94 51 L85 51" stroke="#7d6e60" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M40 88 q-3 5 2 4" stroke="#7d6e60" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <ellipse class="pawup" cx="74" cy="66" rx="6" ry="7.5" fill="#fffaf2" stroke="#7d6e60" stroke-width="2.4"/>
+      <g class="accg">
+        <g class="acci" data-item="beanie"><path d="M36 14 Q50 -2 64 14 Q50 9 36 14 Z" fill="#e05656" stroke="#b23b3b" stroke-width="2"/><circle cx="50" cy="3.5" r="3" fill="#fff" stroke="#b23b3b" stroke-width="1.4"/></g>
+        <g class="acci" data-item="crown"><path d="M38 14 L42 3 L50 11 L58 3 L62 14 Z" fill="#f2c94c" stroke="#caa02f" stroke-width="2" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="flower"><circle cx="38" cy="11" r="3.6" fill="#f78fb5"/><circle cx="50" cy="8" r="3.6" fill="#f7d76b"/><circle cx="62" cy="11" r="3.6" fill="#f78fb5"/><circle cx="38" cy="11" r="1.3" fill="#fff"/><circle cx="50" cy="8" r="1.3" fill="#fff"/><circle cx="62" cy="11" r="1.3" fill="#fff"/></g>
+        <g class="acci" data-item="glasses"><circle cx="34" cy="42" r="7" fill="none" stroke="#4a4550" stroke-width="2.2"/><circle cx="66" cy="42" r="7" fill="none" stroke="#4a4550" stroke-width="2.2"/><path d="M41 42 L59 42" stroke="#4a4550" stroke-width="2.2"/></g>
+        <g class="acci" data-item="scarf"><path d="M33 63 Q50 73 67 63 L65 71 Q50 80 35 71 Z" fill="#7db8e8" stroke="#5a92c4" stroke-width="2" stroke-linejoin="round"/><path d="M58 70 l3 12 l6 -2 l-4 -11" fill="#7db8e8" stroke="#5a92c4" stroke-width="2" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="bowclip"><path d="M74 12 L66 7 L67 16 Z M74 12 L82 7 L81 16 Z" fill="#f78fb5" stroke="#dd6f9e" stroke-width="1.6" stroke-linejoin="round"/><circle cx="74" cy="12" r="2.2" fill="#f78fb5" stroke="#dd6f9e" stroke-width="1.6"/></g>
+        <g class="acci" data-item="starclip"><path d="M26 5 L28 11 L34 12 L28 13 L26 19 L24 13 L18 12 L24 11 Z" fill="#b98aec" stroke="#8a5fc4" stroke-width="1.4" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="bell"><path d="M35 60 Q50 67 65 60" fill="none" stroke="#f2a0c0" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="69" r="5" fill="#f2c94c" stroke="#caa02f" stroke-width="1.6"/><path d="M50 72 L50 74" stroke="#caa02f" stroke-width="1.4" stroke-linecap="round"/></g>
+        <g class="acci" data-item="vest"><path d="M35 65 Q50 60 65 65 L67 89 Q50 94 33 89 Z" fill="#8fd9c4" stroke="#5cb89e" stroke-width="2" stroke-linejoin="round"/><path d="M44 65 L50 74 L56 65" fill="none" stroke="#eafbf5" stroke-width="2"/><circle cx="50" cy="79" r="1.6" fill="#eafbf5"/><circle cx="50" cy="85" r="1.6" fill="#eafbf5"/></g>
+        <g class="acci" data-item="dress"><path d="M38 65 Q50 60 62 65 L70 91 Q50 95 30 91 Z" fill="#f7b6d2" stroke="#dd6f9e" stroke-width="2" stroke-linejoin="round"/><circle cx="42" cy="80" r="1.5" fill="#fff"/><circle cx="58" cy="82" r="1.5" fill="#fff"/><circle cx="50" cy="88" r="1.5" fill="#fff"/></g>
+        <g class="acci" data-item="wings"><path d="M28 58 Q10 55 8 68 Q10 80 26 74 Q22 66 28 58 Z" fill="#fdf6ff" stroke="#c9a8e0" stroke-width="1.8" stroke-linejoin="round"/><path d="M72 58 Q90 55 92 68 Q90 80 74 74 Q78 66 72 58 Z" fill="#fdf6ff" stroke="#c9a8e0" stroke-width="1.8" stroke-linejoin="round"/></g>
+        <g class="acci" data-item="backpack"><path d="M38 65 L60 88" stroke="#c98a4b" stroke-width="3" stroke-linecap="round"/><rect x="55" y="79" width="14" height="12" rx="3" fill="#e0a45c" stroke="#b9793a" stroke-width="1.6"/><path d="M55 82 Q62 78 69 82" fill="none" stroke="#b9793a" stroke-width="1.4"/></g>
+        <g class="acci" data-item="anklet"><path d="M43 90 Q50 95 57 90" fill="none" stroke="#caa02f" stroke-width="1.2" stroke-dasharray="2 2"/><circle cx="44" cy="90.5" r="1.8" fill="#f7d76b"/><circle cx="48" cy="93" r="1.8" fill="#f78fb5"/><circle cx="52" cy="93" r="1.8" fill="#7db8e8"/><circle cx="56" cy="90.5" r="1.8" fill="#b98aec"/></g>
+      </g>
+      </svg>
+    </div>
+    <div class="speech" id="sp-cheechee"></div>
 
     <div class="cat" id="yugui">
       <span class="zzz">💤</span>
@@ -645,6 +705,14 @@ const LINES={
     followD:"等等我呀哥…",
     return:"我们回来啦！！想你！",
     quiz:"我们再看一眼昨天学的，好不好？"},
+  /* Chee Chee：刚来的小不点，好奇、爱扒绳子；叫哆咪哥哥、叫 Snowy 姐姐 */
+  cheechee:{idle:["那根绳子在动！","这是什么？可以扒吗？","姐姐等等我","我也想学！","（扒了一下空气）"],
+    pet:["咪～","再摸一下下","（打了个小滚）","（抱住你的手指）"],
+    sleepy:"（团成一小团）",
+    hide:"姐姐救我！",
+    follow:"等等我！我腿短！",
+    return:"我也回来啦！",
+    quiz:"昨天那个词，我也想知道！"},
   yugui:{idle:["飘～","今天的云是甜的","要一起吃甜甜圈吗？","（耳朵扇了扇）","风软软的"],
     pet:["耳朵可以摸～","（开心地转了个圈）","软吧软吧","蹭蹭你的手"],
     sleepy:"（抱着耳朵睡着了）",
@@ -655,12 +723,13 @@ function mkCat(id){
   const el=document.getElementById(id),sp=document.getElementById("sp-"+id);
   return {id,el,sp,x:0,y:0,away:false,sleep:false,dragN:0,t:null};
 }
-const duomiC=mkCat("duomi"),snowyC=mkCat("snowy"),yuguiC=mkCat("yugui");
+const duomiC=mkCat("duomi"),snowyC=mkCat("snowy"),yuguiC=mkCat("yugui"),cheeC=mkCat("cheechee");
+cheeC.spdy=44;
 function place(c,x,y,instant){
   c.x=x;c.y=y;
   if(instant){c.el.style.transition="none";c.sp.style.transition="none"}
   c.el.style.left=x+"px";c.el.style.bottom=y+"px";
-  c.sp.style.left=(x+4)+"px";c.sp.style.bottom=(y+62)+"px";
+  c.sp.style.left=(x+4)+"px";c.sp.style.bottom=(y+(c.spdy||62))+"px";
   if(instant){void c.el.offsetWidth;c.el.style.transition="";c.sp.style.transition=""}
 }
 function bounds(){
@@ -690,6 +759,7 @@ function say(c,txt,ms){
   place(duomiC,b.x0+20,b.y0+30,true);
   place(snowyC,b.x1-30,b.y0+16,true);
   place(yuguiC,(b.x0+b.x1)/2,b.y0+52,true);
+  place(cheeC,Math.max(b.x0,b.x1-80),b.y0+6,true);
 })();
 setInterval(()=>{wander(duomiC);
   if(!snowyC.away&&!snowyC.sleep&&!duomiC.away&&duoSnowyPage===curPage&&Math.random()<.65){
@@ -700,19 +770,30 @@ setInterval(()=>{wander(duomiC);
   }},7000);
 setTimeout(()=>setInterval(()=>wander(snowyC),8000),3500);
 setTimeout(()=>setInterval(()=>wander(yuguiC),9000),5200);
+/* Chee Chee 大多时候跟在 Snowy 身边，偶尔自己跑去看新鲜东西 */
+setTimeout(()=>setInterval(()=>{
+  if(cheeC.away||cheeC.sleep||cheeC.el.classList.contains("drag"))return;
+  if(!snowyC.away&&Math.random()<.6){
+    const b=bounds();
+    const fx=Math.min(b.x1,Math.max(b.x0,snowyC.x+(Math.random()<.5?-44:52)));
+    cheeC.el.classList.toggle("flip",fx<cheeC.x);
+    place(cheeC,fx,Math.min(b.y1,Math.max(b.y0,snowyC.y-6+Math.random()*10)));
+  }else wander(cheeC);
+},6500),2200);
 /* 闲聊 */
 setInterval(()=>{if(Math.random()<.5&&!duomiC.away&&!duomiC.sleep)say(duomiC,LINES.duomi.idle[Math.floor(Math.random()*LINES.duomi.idle.length)])},15000);
 setInterval(()=>{if(Math.random()<.6&&!snowyC.away&&!snowyC.sleep)say(snowyC,LINES.snowy.idle[Math.floor(Math.random()*LINES.snowy.idle.length)])},18000);
+setInterval(()=>{if(Math.random()<.55&&!cheeC.away&&!cheeC.sleep)say(cheeC,LINES.cheechee.idle[Math.floor(Math.random()*LINES.cheechee.idle.length)])},17000);
 setInterval(()=>{if(Math.random()<.5&&!yuguiC.away&&!yuguiC.sleep)say(yuguiC,LINES.yugui.idle[Math.floor(Math.random()*LINES.yugui.idle.length)])},21000);
 /* 睡觉：一分钟没人动屏幕就打盹 */
 let lastTouch=Date.now();
 ["pointerdown","scroll","keydown"].forEach(ev=>addEventListener(ev,()=>{
   lastTouch=Date.now();
-  [duomiC,snowyC,yuguiC].forEach(c=>{if(c.sleep){c.sleep=false;c.el.classList.remove("sleep")}});
+  [duomiC,snowyC,yuguiC,cheeC].forEach(c=>{if(c.sleep){c.sleep=false;c.el.classList.remove("sleep")}});
 },{passive:true}));
 setInterval(()=>{
   if(Date.now()-lastTouch>60000){
-    [duomiC,snowyC,yuguiC].forEach(c=>{if(!c.away&&!c.sleep){c.sleep=true;c.el.classList.add("sleep")}});
+    [duomiC,snowyC,yuguiC,cheeC].forEach(c=>{if(!c.away&&!c.sleep){c.sleep=true;c.el.classList.add("sleep")}});
   }
 },5000);
 
@@ -732,7 +813,7 @@ function bindCat(c,other){
     /* 拖拽直写坐标：.drag 已关动画，别再抖 transition 开关 */
     c.x=ox+dx;c.y=oy-dy;
     c.el.style.left=c.x+"px";c.el.style.bottom=c.y+"px";
-    c.sp.style.left=(c.x+4)+"px";c.sp.style.bottom=(c.y+62)+"px";
+    c.sp.style.left=(c.x+4)+"px";c.sp.style.bottom=(c.y+(c.spdy||62))+"px";
   });
   c.el.addEventListener("pointerup",e=>{
     if(!c.el.classList.contains("drag"))return;
@@ -761,6 +842,12 @@ function dragCount(c,other){
     setTimeout(comeBack,42000);
   }else if(c.id==="yugui"){
     say(c,LINES.yugui.fly);return;
+  }else if(c.id==="cheechee"&&S[k]%4===0&&!snowyC.away){
+    /* 小的不跑远：拖多了就躲到姐姐身后，姐姐护着 */
+    say(c,LINES.cheechee.hide);
+    const b=bounds();c.el.classList.remove("flip");
+    setTimeout(()=>{place(c,Math.min(b.x1,Math.max(b.x0,snowyC.x-30)),snowyC.y+4);
+      say(snowyC,"好啦好啦，它还小，轻一点嘛。",3000)},900);
   }else if(c.id==="snowy"&&S.dragS%10===0){
     say(c,LINES.snowy.leaveTalk,3400);
     setTimeout(()=>leave(c),3000);
@@ -769,6 +856,8 @@ function dragCount(c,other){
 }
 let awayAt=0;
 function leave(c){
+  /* 哥哥姐姐走了，Chee Chee 也追着走 */
+  if(c===snowyC&&!cheeC.away)setTimeout(()=>{say(cheeC,LINES.cheechee.follow,2400);setTimeout(()=>{if(!cheeC.away)leave(cheeC)},1800)},1200);
   c.away=true;c.sleep=false;c.el.classList.remove("sleep");awayAt=Date.now();
   if(c.id==="snowy"){
     /* 一步三回头：走一段、转身望一眼、再走（设计师令：动作要演出来，不许用括号写） */
@@ -787,7 +876,7 @@ function leave(c){
 function comeBack(){
   awayAt=0;duoSnowyPage=curPage;
   const b=bounds();
-  [duomiC,snowyC].forEach((c,i)=>{
+  [duomiC,snowyC,cheeC].forEach((c,i)=>{
     if(!c.away)return;
     c.away=false;c.el.classList.remove("flip");
     place(c,b.x0+40+i*120,b.y0+28);
@@ -795,8 +884,29 @@ function comeBack(){
   updateVis();
   say(duomiC,LINES.duomi.return);
   setTimeout(()=>say(snowyC,LINES.snowy.return),1500);
+  setTimeout(()=>say(cheeC,LINES.cheechee.return),3000);
 }
-bindCat(duomiC,snowyC);bindCat(snowyC,duomiC);bindCat(yuguiC,snowyC);
+bindCat(duomiC,snowyC);bindCat(snowyC,duomiC);bindCat(yuguiC,snowyC);bindCat(cheeC,snowyC);
+/* 三只一起的小对话：哆咪嘴硬心软，Snowy 照顾小的，Chee Chee 什么都好奇 */
+const TRIO=[
+ [["cheechee","那根绳子是谁的？"],["duomi","谁扒到就是谁的。"],["snowy","哥，你让它一下嘛。"]],
+ [["cheechee","我能跟你们一起玩吗？"],["snowy","当然能呀，坐我旁边。"],["duomi","……别踩我尾巴就行。"]],
+ [["duomi","小不点又在扒绳子。"],["cheechee","是它自己晃的！"],["snowy","轻一点，别把爪子缠住啦。"]],
+ [["cheechee","学习是什么？好吃吗？"],["snowy","不好吃，但是学完大家都很开心。"],["duomi","学完才有小鱼干。"]],
+ [["snowy","嘘，Chee Chee 睡着了。"],["duomi","我给它挡着风。"],["snowy","你不是说不管它的嘛。"]],
+ [["cheechee","我长大了也能荡秋千吗？"],["duomi","先把绳子扒明白。"],["snowy","会的，我们等你长大。"]],
+ [["cheechee","霏雅今天学什么呀？"],["snowy","我们一起陪她学。"],["duomi","你小声点，别吵她。"]],
+ [["duomi","这是我的位置。"],["cheechee","那我坐你脚边。"],["duomi","……那就脚边吧。"]]
+];
+let trioN=Math.floor(Math.random()*TRIO.length);
+setInterval(()=>{
+  if(duoSnowyPage!==curPage||swinging)return;
+  if([duomiC,snowyC,cheeC].some(c=>c.away||c.sleep||c.el.classList.contains("drag")))return;
+  const t=TRIO[trioN%TRIO.length];trioN++;
+  const who={duomi:duomiC,snowy:snowyC,cheechee:cheeC};
+  t.forEach((x,k)=>setTimeout(()=>say(who[x[0]],x[1],2400),k*2600));
+},26000);
+
 
 /* 中文页设施：幸运签筒 */
 const QIAN=[
@@ -824,7 +934,7 @@ let curPage=0;
 /* 哆咪和Snowy关系最好，结伴住在某一页；玉桂狗最粘霏雅，一直跟着她 */
 let duoSnowyPage=0;
 function updateVis(){
-  [duomiC,snowyC].forEach(c=>{
+  [duomiC,snowyC,cheeC].forEach(c=>{
     const show=(duoSnowyPage===curPage&&!c.away);
     c.el.style.display=show?"":"none";
     if(!show)c.sp.classList.remove("show");
@@ -1054,8 +1164,9 @@ const SHOP=[
  {id:"anklet",nm:"彩虹脚环",em:"📿",pr:2,slot:"paw"}
 ];
 if(!S.acc)S.acc={owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
+if(!S.acc.wear.cheechee)S.acc.wear.cheechee={};
 function applyAcc(){
-  [["duomi",duomiC],["snowy",snowyC],["yugui",yuguiC]].forEach(([id,c])=>{
+  [["duomi",duomiC],["snowy",snowyC],["yugui",yuguiC],["cheechee",cheeC]].forEach(([id,c])=>{
     const w=S.acc.wear[id]||{};
     c.el.querySelectorAll(".acci").forEach(g=>{
       const it=SHOP.find(s=>s.id===g.dataset.item);
@@ -1069,13 +1180,13 @@ function buyAcc(id){
   if(S.coins<it.pr){say(yuguiC,"金币不够啦，去学一课就有了！");return}
   S.coins-=it.pr;S.acc.owned[id]=1;
   /* 买完立刻穿上（随机一只），再点 哆/S/玉 可以换人 */
-  const cats=["duomi","snowy","yugui"];
+  const cats=["duomi","snowy","yugui","cheechee"];
   const lucky=cats[Math.floor(Math.random()*cats.length)];
   S.acc.wear[lucky][it.slot]=id;save();
   document.getElementById("coins").textContent=S.coins;
   applyAcc();renderShop();
-  const names={duomi:"哆咪",snowy:"Snowy",yugui:"玉桂狗"};
-  say(snowyC,it.nm+"给"+names[lucky]+"穿上啦！点 哆/S/玉 能换人");
+  const names={duomi:"哆咪",snowy:"Snowy",yugui:"玉桂狗",cheechee:"Chee Chee"};
+  say(snowyC,it.nm+"给"+names[lucky]+"穿上啦！点 哆/S/玉/C 能换人");
 }
 function wearAcc(id,cat){
   const it=SHOP.find(s=>s.id===id);
@@ -1091,7 +1202,7 @@ function renderShop(){
     if(!owned){
       right='<button '+(S.coins<it.pr?"disabled":"")+' onclick="buyAcc(\''+it.id+'\')">'+it.pr+'🪙 买</button>';
     }else{
-      right=[["duomi","哆"],["snowy","S"],["yugui","玉"]].map(([c,l])=>
+      right=[["duomi","哆"],["snowy","S"],["yugui","玉"],["cheechee","C"]].map(([c,l])=>
         '<button class="'+(S.acc.wear[c][it.slot]===it.id?"on":"")+'" onclick="wearAcc(\''+it.id+'\',\''+c+'\')">'+l+'</button>').join("");
     }
     return '<div class="shoprow"><span>'+it.em+'</span><span class="nm">'+it.nm+'</span>'+right+'</div>';
@@ -1226,7 +1337,7 @@ renderEn();renderKo();
 /* ═══ 秋千 + 各页随机表演 ═══ */
 function visCats(){
   const arr=[];
-  if(duoSnowyPage===curPage){if(!duomiC.away)arr.push(duomiC);if(!snowyC.away)arr.push(snowyC)}
+  if(duoSnowyPage===curPage){if(!duomiC.away)arr.push(duomiC);if(!snowyC.away)arr.push(snowyC);if(!cheeC.away)arr.push(cheeC)}
   if(!yuguiC.away)arr.push(yuguiC);
   return arr;
 }
@@ -1359,8 +1470,9 @@ const SHOP=[
  {id:"anklet",nm:"彩虹脚环",em:"📿",pr:2,slot:"paw"}
 ];
 if(!S.acc)S.acc={owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
+if(!S.acc.wear.cheechee)S.acc.wear.cheechee={};
 function applyAcc(){
-  [["duomi",duomiC],["snowy",snowyC],["yugui",yuguiC]].forEach(([id,c])=>{
+  [["duomi",duomiC],["snowy",snowyC],["yugui",yuguiC],["cheechee",cheeC]].forEach(([id,c])=>{
     const w=S.acc.wear[id]||{};
     c.el.querySelectorAll(".acci").forEach(g=>{
       const it=SHOP.find(s=>s.id===g.dataset.item);
@@ -1374,13 +1486,13 @@ function buyAcc(id){
   if(S.coins<it.pr){say(yuguiC,"金币不够啦，去学一课就有了！");return}
   S.coins-=it.pr;S.acc.owned[id]=1;
   /* 买完立刻穿上（随机一只），再点 哆/S/玉 可以换人 */
-  const cats=["duomi","snowy","yugui"];
+  const cats=["duomi","snowy","yugui","cheechee"];
   const lucky=cats[Math.floor(Math.random()*cats.length)];
   S.acc.wear[lucky][it.slot]=id;save();
   document.getElementById("coins").textContent=S.coins;
   applyAcc();renderShop();
-  const names={duomi:"哆咪",snowy:"Snowy",yugui:"玉桂狗"};
-  say(snowyC,it.nm+"给"+names[lucky]+"穿上啦！点 哆/S/玉 能换人");
+  const names={duomi:"哆咪",snowy:"Snowy",yugui:"玉桂狗",cheechee:"Chee Chee"};
+  say(snowyC,it.nm+"给"+names[lucky]+"穿上啦！点 哆/S/玉/C 能换人");
 }
 function wearAcc(id,cat){
   const it=SHOP.find(s=>s.id===id);
@@ -1396,7 +1508,7 @@ function renderShop(){
     if(!owned){
       right='<button '+(S.coins<it.pr?"disabled":"")+' onclick="buyAcc(\''+it.id+'\')">'+it.pr+'🪙 买</button>';
     }else{
-      right=[["duomi","哆"],["snowy","S"],["yugui","玉"]].map(([c,l])=>
+      right=[["duomi","哆"],["snowy","S"],["yugui","玉"],["cheechee","C"]].map(([c,l])=>
         '<button class="'+(S.acc.wear[c][it.slot]===it.id?"on":"")+'" onclick="wearAcc(\''+it.id+'\',\''+c+'\')">'+l+'</button>').join("");
     }
     return '<div class="shoprow"><span>'+it.em+'</span><span class="nm">'+it.nm+'</span>'+right+'</div>';
@@ -1531,7 +1643,7 @@ renderEn();renderKo();
 /* ═══ 秋千 + 各页随机表演 ═══ */
 function visCats(){
   const arr=[];
-  if(duoSnowyPage===curPage){if(!duomiC.away)arr.push(duomiC);if(!snowyC.away)arr.push(snowyC)}
+  if(duoSnowyPage===curPage){if(!duomiC.away)arr.push(duomiC);if(!snowyC.away)arr.push(snowyC);if(!cheeC.away)arr.push(cheeC)}
   if(!yuguiC.away)arr.push(yuguiC);
   return arr;
 }
@@ -1768,6 +1880,7 @@ function islSyncUp(){
         S.plants=Object.values(pm);
         if(!S.stock)S.stock={cash:1000,hold:{},cost:{}};
         S.acc=S.acc||{owned:{},wear:{duomi:{},snowy:{},yugui:{}}};
+        if(S.acc.wear&&!S.acc.wear.cheechee)S.acc.wear.cheechee={};
         Object.assign(S.acc.owned,lo);
         try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
         redo=true;
